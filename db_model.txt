@@ -1,0 +1,34 @@
+users {
+	id: string(email) pk
+	first_name: string
+	last_name: string
+	is_super_user: boolean
+	profile_picture_url: string
+}
+
+producers {
+	id: string pk
+	name: string
+	address: object {
+		addressee: string
+		street_address: string
+		zip_code: string
+		city: string
+		county: string
+		country_name: string
+		country_iso: string
+	}
+	contacts: object [
+	    {
+	        contact_name: string
+	        contact_type: string
+	        value: string
+	    }
+	]
+	authorizedUsers: object [
+		{
+			user_id: string fk(users.id)
+			roles: string[]
+		}
+	]
+}
