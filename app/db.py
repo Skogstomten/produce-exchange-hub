@@ -1,6 +1,6 @@
 from firebase_admin.firestore import client as get_firestore_client
 
-from google.cloud.firestore_v1 import Client
+from google.cloud.firestore_v1 import Client, CollectionReference, DocumentSnapshot
 
 from flask import g, Flask
 
@@ -11,8 +11,14 @@ class DocumentDatabase(object):
     def __init__(self, db: Client):
         self._db = db
 
-    def list_users(self):
+    def list_users(self) -> list:
         return self._db.collection('users').get()
+
+    def list_companies(self) -> list:
+        return self._db.collection('companies').get()
+
+    def get_localization(self, document_key: str) -> DocumentSnapshot:
+        return self._db.collection('localization').document(document_key).get()
 
     def close_db(self):
         self._db.close()
