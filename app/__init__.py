@@ -45,4 +45,7 @@ def create_app(test_config=None) -> Flask:
     from . import companies
     app.register_blueprint(companies.bp)
 
+    from . import companies_news_feed
+    app.register_blueprint(companies_news_feed.bp)
+
     return app

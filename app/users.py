@@ -1,6 +1,6 @@
-from app.db import get_db, DocumentDatabase
-
 from flask import Blueprint
+
+from app.db import get_db
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
