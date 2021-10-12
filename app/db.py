@@ -1,10 +1,10 @@
 from firebase_admin.firestore import client as get_firestore_client
-
-from google.cloud.firestore_v1 import Client, CollectionReference, DocumentSnapshot
-
 from flask import g, Flask
+from google.cloud.firestore_v1 import Client, DocumentSnapshot
 
-from . import get_firebase_app
+from app.errors import NotFoundError
+from app import get_firebase_app
+from app.company import Company
 
 
 class DocumentDatabase(object):
@@ -16,6 +16,13 @@ class DocumentDatabase(object):
 
     def list_companies(self) -> list:
         return self._db.collection('companies').get()
+
+    def get_company(self, company_id: str) -> Company:
+        document_snapshot = self._db.collection('companies').document(company_id).get()
+        if document_snapshot.exists:
+            data = document_snapshot.to_dict()
+            return Company(document_snapshot.id, data)
+        raise NotFoundError(company_id)
 
     def get_localization(self, document_key: str) -> DocumentSnapshot:
         return self._db.collection('localization').document(document_key).get()
