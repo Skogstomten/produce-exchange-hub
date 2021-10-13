@@ -3,6 +3,7 @@ from datetime import datetime
 from google.cloud.firestore_v1 import DocumentReference
 
 from app.datetime_helpers import format_date
+from app.errors import UnexpectedError
 
 
 class NewsFeedPost(object):
@@ -25,6 +26,7 @@ class NewsFeedPost(object):
             for company_language in company_languages:
                 if company_language in data:
                     post = data[company_language]
+                    break
 
         if post is not None:
             self.title = post.get('title')
@@ -32,7 +34,7 @@ class NewsFeedPost(object):
             self.posted_by = post.get('posted_by')
             self.posted_date = post.get('posted_date')
         else:
-            pass  # TODO: Do something here maybe?
+            raise UnexpectedError(f"No news feed post data was found for post id: '{post_id}'")
 
     def to_dict(self) -> dict[str, str]:
         author_snapshot = self.posted_by.get()

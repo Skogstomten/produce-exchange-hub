@@ -36,7 +36,8 @@ class Company(object):
             'addresses': self._data['addresses'],
             'contacts': self._data['contacts'],
             'produces': self._build_produces_node(self._data['produces'], user_language),
-            'news_feed': url_for('companies_news_feed.news_feed', company_id=self._id),
+            'news_feed': url_for('company_news_feed.news_feed', company_id=self._id),
+            'notifications': url_for('company_notifications.list_notifications', company_id=self._id)
         })
         return result
 

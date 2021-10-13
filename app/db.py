@@ -6,6 +6,7 @@ from app.errors import NotFoundError
 from app import get_firebase_app
 from app.companies_endpoint.company import Company
 from app.companies_endpoint.news_feed_post import NewsFeedPost
+from app.companies_endpoint.notification import Notification
 
 
 class DocumentDatabase(object):
@@ -37,6 +38,14 @@ class DocumentDatabase(object):
         feed = company_snapshot.collection('news_feed').get()
         for post in feed:
             yield NewsFeedPost(post.id, post.to_dict(), user_language, company_languages)
+
+    def get_company_notifications(self, company_id: str, user_language: str) -> list[Notification]:
+        company_document_reference = self._db.collection('companies').document(company_id)
+        company_snapshot = company_document_reference.get(('content_languages_iso',))
+        company_languages = company_snapshot.to_dict().get('content_languages_iso')
+        notifications = company_document_reference.collection('notifications').get()
+        for notification in notifications:
+            yield Notification(notification.id, notification.to_dict(), user_language, company_languages)
 
     def close_db(self):
         self._db.close()

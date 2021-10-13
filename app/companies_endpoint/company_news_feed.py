@@ -1,8 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 
 from app.db import get_db
 
-bp = Blueprint('companies_news_feed', __name__, url_prefix='/companies/<string:company_id>/news_feed')
+bp = Blueprint('company_news_feed', __name__, url_prefix='/companies/<string:company_id>/news_feed')
 
 
 @bp.route('/', methods=('GET',))
