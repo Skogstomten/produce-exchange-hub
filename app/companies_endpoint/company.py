@@ -1,7 +1,8 @@
 from typing import Any
+
 from flask import url_for
 
-import pytz
+from app.datetime_helpers import format_date
 
 
 class Company(object):
@@ -13,16 +14,17 @@ class Company(object):
         self._db = get_db()
 
     def to_partial_json_response(self, user_language: str) -> dict[str, str | list | Any]:
-        timezone = pytz.timezone('Europe/Stockholm')
-        created_date = self._data['created_date'].astimezone(timezone)
         return {
             'id': self._id,
-            'content_language_iso': self._data['content_languages_iso'],
+            'content_languages_iso': self._data['content_languages_iso'],
             'company_types': self._build_company_types_node(
                 self._data['company_types'],
                 user_language,
             ),
-            'created_date': created_date.strftime('%Y-%m-%d %H:%M:%S.%f %z'),
+            'created_date': format_date(
+                self._data.get('created_date'),
+                'Europe/Stockholm'
+            ),
             'name': self._get_item_by_lang_or_default(self._data['name'], user_language, ''),
             'status': self._build_status_node(self._data['status'], user_language),
         }

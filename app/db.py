@@ -4,8 +4,8 @@ from google.cloud.firestore_v1 import Client, DocumentSnapshot
 
 from app.errors import NotFoundError
 from app import get_firebase_app
-from app.company import Company
-from app.news_feed_post import NewsFeedPost
+from app.companies_endpoint.company import Company
+from app.companies_endpoint.news_feed_post import NewsFeedPost
 
 
 class DocumentDatabase(object):
@@ -32,9 +32,11 @@ class DocumentDatabase(object):
         return {}
 
     def get_news_feed(self, company_id: str, user_language: str) -> list[NewsFeedPost]:
-        feed = self._db.collection('companies').document(company_id).collection('news_feed').get()
+        company_snapshot = self._db.collection('companies').document(company_id)
+        company_languages = company_snapshot.get(('content_languages_iso',)).to_dict().get('content_languages_iso')
+        feed = company_snapshot.collection('news_feed').get()
         for post in feed:
-            yield NewsFeedPost(post.id, post.to_dict(), user_language)
+            yield NewsFeedPost(post.id, post.to_dict(), user_language, company_languages)
 
     def close_db(self):
         self._db.close()

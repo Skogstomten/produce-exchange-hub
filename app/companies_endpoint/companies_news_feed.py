@@ -11,7 +11,7 @@ def news_feed(company_id: str):
     db = get_db()
     items = []
     for item in db.get_news_feed(company_id, language):
-        items.append(jsonify(item))
+        items.append(item.to_dict())
     return {
         'items': items
     }

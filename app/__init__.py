@@ -42,10 +42,10 @@ def create_app(test_config=None) -> Flask:
     from . import users
     app.register_blueprint(users.bp)
 
-    from . import companies
+    from app.companies_endpoint import companies
     app.register_blueprint(companies.bp)
 
-    from . import companies_news_feed
+    from app.companies_endpoint import companies_news_feed
     app.register_blueprint(companies_news_feed.bp)
 
     return app

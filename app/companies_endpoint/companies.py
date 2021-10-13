@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 
 from app.db import get_db
-from app.company import Company
+from app.companies_endpoint.company import Company
 from app.errors import NotFoundError
 from app.response_helpers import not_found_response
 
