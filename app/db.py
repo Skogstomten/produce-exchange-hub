@@ -1,12 +1,14 @@
+from datetime import datetime
+
 from firebase_admin.firestore import client as get_firestore_client
 from flask import g, Flask
 from google.cloud.firestore_v1 import Client, DocumentSnapshot
 
-from app.errors import NotFoundError
 from app import get_firebase_app
 from app.companies_endpoint.company import Company
 from app.companies_endpoint.news_feed_post import NewsFeedPost
 from app.companies_endpoint.notification import Notification
+from app.errors import NotFoundError
 
 
 class DocumentDatabase(object):
@@ -49,6 +51,48 @@ class DocumentDatabase(object):
 
     def close_db(self):
         self._db.close()
+
+    def add_company_news_feed_post(self,
+                                   company_id: str,
+                                   user_id: str,
+                                   data: dict[str, dict],
+                                   date: datetime) -> str:
+        company_doc_ref = self._db.collection('companies').document(company_id)
+        company_snapshot = company_doc_ref.get()
+        user_doc_ref = self._db.collection('users').document(user_id)
+
+        if not company_snapshot.exists:
+            raise NotFoundError(company_id)
+
+        news_feed_collection = company_doc_ref.collection('news_feed')
+        post_doc_ref = news_feed_collection.document()
+
+        doc_data = {}
+        for language_code in data.keys():
+            item = data.get(language_code)
+            doc_data[language_code] = {
+                'title': item.get('title'),
+                'body': item.get('body'),
+                'posted_date': date,
+                'posted_by': user_doc_ref,
+            }
+        post_doc_ref.create(doc_data)
+        return post_doc_ref.get().id
+
+    def get_news_feed_post(self, company_id: str, post_id: str, user_language: str):
+        company_doc_ref = self._db.collection('companies').document(company_id)
+        company_snapshot = company_doc_ref.get(('content_languages_iso',))
+        company_languages = company_snapshot.to_dict().get('content_languages_iso')
+
+        if not company_snapshot.exists:
+            raise NotFoundError(company_id)
+
+        post_snapshot = company_doc_ref.collection('news_feed').document(post_id).get()
+
+        if not post_snapshot.exists:
+            raise NotFoundError(post_id)
+
+        return NewsFeedPost(post_id, post_snapshot.to_dict(), user_language, company_languages)
 
 
 def get_db() -> DocumentDatabase:

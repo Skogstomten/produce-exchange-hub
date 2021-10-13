@@ -8,6 +8,7 @@ users {
 	profile_picture_url: string
 	created_date: date
 	last_logged_in: date
+    timezone: string
 }
 
 companies {
@@ -84,12 +85,27 @@ companies {
 	        ]
 	    }
 	]
-	news_feed: [
-	    {
-	        
-	    }
-	]
 	notifications:
+}
+
+companies / notirications {
+    <language_code_iso>: {
+        title: string
+        body: string
+        notification_date: datetime
+        read: boolean
+    }
+    ...
+}
+
+companies / news_feed {
+    <language_code_iso>: {
+       title: string
+       body: string
+       posted_by: user
+       posted_date: datetime
+    }
+    ...
 }
 
 (companies | users) / changes {
