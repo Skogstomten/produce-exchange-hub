@@ -33,7 +33,7 @@ def create_app(test_config=None) -> Flask:
     except OSError:
         pass
 
-    from . import db
+    from .database_access import firestore
 
     @app.route('/ping')
     def ping() -> str:

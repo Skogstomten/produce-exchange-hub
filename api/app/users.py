@@ -1,16 +1,16 @@
 from flask import Blueprint
 
-from app.db import get_db
+from app.database_access.users_datastore import UsersDatastore
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
 
 @bp.route('/', methods=('GET',))
-def users():
-    db_respons = get_db().list_users()
+def list_users():
+    users = UsersDatastore().list_users()
     items = []
-    for row in db_respons:
-        items.append(row.to_dict())
+    for user in users:
+        items.append(user.to_dict())
 
     response = {'items': items}
     return response

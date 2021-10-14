@@ -2,16 +2,16 @@ from typing import Any
 
 from flask import url_for
 
+from .base_datastore import BaseDatastore
 from app.datetime_helpers import format_date
 
 
 class Company(object):
-    def __init__(self, company_id: str, data: dict[str, str | list | Any]):
+    def __init__(self, company_id: str, data: dict[str, str | list | Any], db: BaseDatastore):
         self._data = data
         self._id = company_id
         self._company_languages = data['content_languages_iso']
-        from app.db import get_db
-        self._db = get_db()
+        self._db = db
 
     def to_partial_json_response(self, user_language: str) -> dict[str, str | list | Any]:
         return {
