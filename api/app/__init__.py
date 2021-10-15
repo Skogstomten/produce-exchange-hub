@@ -1,8 +1,14 @@
 import os
-from flask import Flask
+import traceback
+
+from flask import Flask, jsonify, make_response
 
 from firebase_admin.credentials import Certificate
 from firebase_admin import App, initialize_app as init_firebase
+from jsonschema import ValidationError
+
+from app.errors import NotFoundError
+from app.response_helpers import not_found_response, validation_error_response
 
 _credentials = Certificate('./produce-exchange-hub-firebase-adminsdk-ufzci-78e6592558.json')
 _options = {"databaseURL": "https://produce-exchange-hub.firebaseio.com"}
@@ -38,6 +44,22 @@ def create_app(test_config=None) -> Flask:
     @app.route('/ping')
     def ping() -> str:
         return "I was pinged and responded!"
+
+    @app.errorhandler(Exception)
+    def handle_error(e):
+        if isinstance(e, NotFoundError):
+            return not_found_response(e)
+
+        if isinstance(e, ValidationError):
+            return validation_error_response(e)
+
+        return make_response(jsonify({
+            'status': 500,
+            'error': str(e),
+            'trace': traceback.format_exc()
+        }), 500)
+
+    app.register_error_handler(Exception, handle_error)
 
     from . import users
     app.register_blueprint(users.bp)

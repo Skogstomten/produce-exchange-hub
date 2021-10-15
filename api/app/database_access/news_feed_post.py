@@ -15,10 +15,12 @@ class NewsFeedPost(object):
 
     def __init__(self,
                  post_id: str,
-                 data: dict[str, dict[str, str | datetime | DocumentReference]],
+                 data: dict[str, DocumentReference | datetime | dict[str, str]],
                  user_language: str,
                  company_languages: list[str]):
         self.id = post_id
+        self.posted_by = data.get('posted_by')
+        self.posted_date = data.get('posted_date')
         post: dict[str, str | datetime | DocumentReference] | None = None
         if user_language in data:
             post = data[user_language]
@@ -31,8 +33,6 @@ class NewsFeedPost(object):
         if post is not None:
             self.title = post.get('title')
             self.body = post.get('body')
-            self.posted_by = post.get('posted_by')
-            self.posted_date = post.get('posted_date')
         else:
             raise UnexpectedError(f"No news feed post data was found for post id: '{post_id}'")
 

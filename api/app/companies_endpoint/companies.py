@@ -1,8 +1,6 @@
 from flask import Blueprint, request
 
 from app.database_access.companies_datastore import CompaniesDatastore
-from app.errors import NotFoundError
-from app.response_helpers import not_found_response
 
 bp = Blueprint('companies', __name__, url_prefix='/companies')
 
@@ -25,10 +23,5 @@ def list_companies():
 def get_company(company_id: str):
     language = request.headers.get('language', 'SV')
     datastore = CompaniesDatastore()
-
-    try:
-        company = datastore.get_company(company_id)
-    except NotFoundError as err:
-        return not_found_response(err)
-
+    company = datastore.get_company(company_id)
     return company.to_full_json_response(language)
