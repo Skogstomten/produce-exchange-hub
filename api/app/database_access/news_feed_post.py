@@ -12,6 +12,8 @@ class NewsFeedPost(object):
     body: str
     posted_by: DocumentReference
     posted_date: datetime
+    updated_by: DocumentReference | None = None
+    updated_date: datetime | None = None
 
     def __init__(self,
                  post_id: str,
@@ -21,6 +23,9 @@ class NewsFeedPost(object):
         self.id = post_id
         self.posted_by = data.get('posted_by')
         self.posted_date = data.get('posted_date')
+        self.updated_by = data.get('updated_by', None)
+        self.updated_date = data.get('updated_date', None)
+
         post: dict[str, str | datetime | DocumentReference] | None = None
         if user_language in data:
             post = data[user_language]
@@ -40,7 +45,7 @@ class NewsFeedPost(object):
         author_snapshot = self.posted_by.get()
         author_id = author_snapshot.id
         author = author_snapshot.to_dict()
-        return {
+        result = {
             'id': self.id,
             'title': self.title,
             'body': self.body,
@@ -48,3 +53,13 @@ class NewsFeedPost(object):
             'posted_by_name': f"{author.get('first_name')} {author.get('last_name')}",
             'posted_date': format_date(self.posted_date, 'Europe/Stockholm'),
         }
+        if self.updated_by is not None:
+            updated_by = self.updated_by.get()
+            updater = updated_by.to_dict()
+            result['updated_by_email'] = updated_by.id
+            result['updated_by_name'] = f"{updater.get('first_name')} {updater.get('last_name')}"
+
+        if self.updated_date is not None:
+            result['updated_date'] = format_date(self.updated_date, 'Europe/Stockholm')
+
+        return result
