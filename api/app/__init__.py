@@ -6,6 +6,7 @@ from flask import Flask, jsonify, make_response
 from firebase_admin.credentials import Certificate
 from firebase_admin import App, initialize_app as init_firebase
 from jsonschema import ValidationError
+from werkzeug.exceptions import NotFound
 
 from app.errors import NotFoundError
 from app.response_helpers import not_found_response, validation_error_response
@@ -52,6 +53,12 @@ def create_app(test_config=None) -> Flask:
 
         if isinstance(e, ValidationError):
             return validation_error_response(e)
+
+        if isinstance(e, NotFound):
+            return make_response(jsonify({
+                'status': 404,
+                'message': e.description,
+            }), 404)
 
         return make_response(jsonify({
             'status': 500,
