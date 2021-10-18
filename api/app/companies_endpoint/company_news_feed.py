@@ -25,6 +25,13 @@ def list_news_feed(company_id: str):
     }
 
 
+@bp.route('/<string:post_id>', methods=('GET',))
+def get_news_feed_post(company_id: str, post_id: str):
+    datastore = NewsFeedDatastore()
+    post = datastore.get_news_feed_post_full(company_id, post_id)
+    return post
+
+
 @bp.route('/', methods=('POST',))
 @validate(news_feed_input_schema)
 def add_news_feed_post(company_id: str):
