@@ -1,32 +1,14 @@
 from datetime import datetime
 
 from flask import Blueprint, request, jsonify
-from jsonschema import validate
 from pytz import timezone
 
 from app.database_access.news_feed_datastore import NewsFeedDatastore
 from app.response_helpers import make_response, updated_response
+from app.validation.validation import validate
+from app.validation.schemas import news_feed_input_schema
 
 bp = Blueprint('company_news_feed', __name__, url_prefix='/companies/<string:company_id>/news-feed')
-
-news_feed_input_schema = {
-    'type': 'object',
-    'properties': {
-        'user_id': {'type': 'string'},
-        'post': {
-            'type': 'array',
-            'contains': {
-                'type': 'object',
-                'properties': {
-                    'language_iso': {'type': 'string', 'minLength': 2, 'maxLength': 2},
-                    'title': {'type': 'string'},
-                    'body': {'type': 'string'},
-                },
-            },
-            'minContains': 1,
-        },
-    },
-}
 
 
 @bp.route('/', methods=('GET',))
@@ -44,10 +26,9 @@ def list_news_feed(company_id: str):
 
 
 @bp.route('/', methods=('POST',))
+@validate(news_feed_input_schema)
 def add_news_feed_post(company_id: str):
     language = request.headers.get('language', 'SV')
-
-    validate(instance=request.json, schema=news_feed_input_schema)
 
     user_id = request.json.get('user_id', None)
     post = request.json.get('post', None)
@@ -66,10 +47,9 @@ def add_news_feed_post(company_id: str):
 
 
 @bp.route('/<string:post_id>/', methods=('PUT',))
+@validate(news_feed_input_schema)
 def update_news_feed_post(company_id: str, post_id: str):
     language = request.headers.get('language', 'SV')
-
-    validate(instance=request.json, schema=news_feed_input_schema)
 
     user_id = request.json.get('user_id', None)
     post = request.json.get('post', None)

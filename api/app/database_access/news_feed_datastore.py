@@ -6,6 +6,7 @@ from .companies_datastore import CompaniesDatastore
 from .news_feed_post import NewsFeedPost
 
 from app.errors import NotFoundError
+from app.datetime_helpers import format_date
 
 
 class NewsFeedDatastore(CompaniesDatastore):
@@ -102,3 +103,24 @@ class NewsFeedDatastore(CompaniesDatastore):
         company_languages = company_snapshot.to_dict().get('content_languages_iso')
 
         return NewsFeedPost(post_snapshot.reference.id, new_data, user_language, company_languages)
+
+    def get_news_feed_raw(self, company_id: str) -> list[dict[str, str]]:
+        posts = self.db.collection('companies').document(company_id).collection('news_feed').get()
+        for post in posts:
+            data = post.to_dict()
+            posted_by_snapshot = data.get('posted_by').get()
+            posted_by_data = posted_by_snapshot.to_dict()
+            if 'updated_by' in data:
+                updated_by_snapshot = data.get('updated_by').get()
+                updated_by_data = updated_by_snapshot.to_dict()
+            if 'updated_date' in data:
+                updated_date = data.get('updated_date')
+            result = {
+                'posted_by_email': posted_by_snapshot.reference.id,
+                'posted_by_name': f"{posted_by_data.get('first_name')} {posted_by_data.get('last_name')}",
+                'id': post.reference.id,
+                'posted_date': format_date(data.get('posted_date'), 'Europe/Stockholm'),
+
+            }
+            # TODO: Finish this, add update info. Re-work data format to more easily list post localizations.
+            yield result
