@@ -71,13 +71,16 @@ def create_app(test_config=None) -> Flask:
     from . import users
     app.register_blueprint(users.bp)
 
-    from app.companies_endpoint import companies
+    from .companies_endpoint import companies
     app.register_blueprint(companies.bp)
 
-    from app.companies_endpoint import company_news_feed
+    from .companies_endpoint import company_news_feed
     app.register_blueprint(company_news_feed.bp)
 
-    from app.companies_endpoint import company_notifications
+    from .companies_endpoint import company_news_feed_raw
+    app.register_blueprint(company_news_feed_raw.bp)
+
+    from .companies_endpoint import company_notifications
     app.register_blueprint(company_notifications.bp)
 
     return app

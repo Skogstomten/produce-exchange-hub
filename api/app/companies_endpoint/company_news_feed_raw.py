@@ -9,4 +9,4 @@ bp = Blueprint('companies_news_feed_raw', __name__, url_prefix='/companies/<stri
 def list_news_feed_raw(company_id: str):
     datastore = NewsFeedDatastore()
     posts = datastore.get_news_feed_raw(company_id)
-    return {'items': posts}
+    return {'items': list(posts)}
