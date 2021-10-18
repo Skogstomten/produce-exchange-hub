@@ -17,7 +17,7 @@ class NewsFeedPost(object):
 
     def __init__(self,
                  post_id: str,
-                 data: dict[str, DocumentReference | datetime | dict[str, str]],
+                 data: dict[str, datetime | DocumentReference | dict[str, dict[str, str]]],
                  user_language: str,
                  company_languages: list[str]):
         self.id = post_id
@@ -26,13 +26,14 @@ class NewsFeedPost(object):
         self.updated_by = data.get('updated_by', None)
         self.updated_date = data.get('updated_date', None)
 
-        post: dict[str, str | datetime | DocumentReference] | None = None
-        if user_language in data:
-            post = data[user_language]
+        posts: dict[str, dict[str, str]] = data.get('post')
+        post: dict[str, str] | None = None
+        if user_language in posts:
+            post = posts.get(user_language)
         else:
             for company_language in company_languages:
-                if company_language in data:
-                    post = data[company_language]
+                if company_language in posts:
+                    post = posts[company_language]
                     break
 
         if post is not None:

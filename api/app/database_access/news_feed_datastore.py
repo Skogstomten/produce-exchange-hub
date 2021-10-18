@@ -37,9 +37,10 @@ class NewsFeedDatastore(CompaniesDatastore):
         doc_data = {
             'posted_by': user_doc_ref,
             'posted_date': date,
+            'post': {},
         }
         for item in data:
-            doc_data[item.get('language_iso')] = {
+            doc_data['post'][item.get('language_iso')] = {
                 'title': item.get('title'),
                 'body': item.get('body'),
             }
@@ -90,10 +91,11 @@ class NewsFeedDatastore(CompaniesDatastore):
             'posted_by': post_data.get('posted_by'),
             'posted_date': post_data.get('posted_date'),
             'updated_by': user_ref,
-            'updated_date': datetime.now(pytz.timezone('UTC'))
+            'updated_date': datetime.now(pytz.timezone('UTC')),
+            'post': {},
         }
         for item in post:
-            new_data[item.get('language_iso')] = {
+            new_data['post'][item.get('language_iso')] = {
                 'title': item.get('title'),
                 'body': item.get('body'),
             }
@@ -110,17 +112,22 @@ class NewsFeedDatastore(CompaniesDatastore):
             data = post.to_dict()
             posted_by_snapshot = data.get('posted_by').get()
             posted_by_data = posted_by_snapshot.to_dict()
-            if 'updated_by' in data:
-                updated_by_snapshot = data.get('updated_by').get()
-                updated_by_data = updated_by_snapshot.to_dict()
-            if 'updated_date' in data:
-                updated_date = data.get('updated_date')
             result = {
                 'posted_by_email': posted_by_snapshot.reference.id,
                 'posted_by_name': f"{posted_by_data.get('first_name')} {posted_by_data.get('last_name')}",
                 'id': post.reference.id,
                 'posted_date': format_date(data.get('posted_date'), 'Europe/Stockholm'),
-
+                'post': data.get('post'),
             }
-            # TODO: Finish this, add update info. Re-work data format to more easily list post localizations.
+
+            if 'updated_by' in data:
+                updated_by_snapshot = data.get('updated_by').get()
+                updated_by_data = updated_by_snapshot.to_dict()
+                result['updated_by_email'] = updated_by_snapshot.reference.id
+                result['updated_by_name'] = '{} {}'.format(updated_by_data.get('first_name'),
+                                                           updated_by_data.get('last_name'))
+            if 'updated_date' in data:
+                updated_date = data.get('updated_date')
+                result['updated_date'] = format_date(updated_date, 'Europe/Stockholm')
+
             yield result
