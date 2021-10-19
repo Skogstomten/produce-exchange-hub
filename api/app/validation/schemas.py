@@ -64,3 +64,18 @@ companies_add_company_input_schema = {
         },
     },
 }
+
+addresses_add_address_schema = {
+    'type': 'object',
+    'required': ['city', 'country_iso', 'county', 'street_address', 'zip_code'],
+    'properties': {
+        'address_type': {'type': 'string'},
+        'addressee': {'type': 'string'},
+        'city': {'type': 'string'},
+        'co_address': {'type': 'string'},
+        'country_iso': {'type': 'string', 'minLength': 2, 'maxLength': 2},
+        'county': {'type': 'string'},
+        'street_address': {'type': 'string'},
+        'zip_code': {'type': 'string'},
+    },
+}

@@ -82,6 +82,21 @@ class CompaniesDatastore(BaseDatastore):
         for address in company_snapshot.to_dict().get('addresses'):
             yield Address(address)
 
+    def add_address(self, company_id: str, data: dict) -> Address:
+        company_ref = self.db.collection('companies').document(company_id)
+        company_snapshot = company_ref.get(('addresses',))
+        if not company_snapshot.exists:
+            raise NotFoundError(company_id)
+
+        company_data = company_snapshot.to_dict()
+        addresses: list[dict] = company_data.get('addresses')
+        country_iso = data.get('country_iso')
+        country = self.get_localization('countries_iso_name').get(country_iso, country_iso)
+        data['country'] = country
+        addresses.append(data)
+        company_ref.update({'addresses': addresses})
+        return Address(data)
+
     @staticmethod
     def _get_sort_field_path(sort: str):
         if sort is None:
