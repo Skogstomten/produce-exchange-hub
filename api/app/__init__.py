@@ -83,4 +83,7 @@ def create_app(test_config=None) -> Flask:
     from .companies_endpoint import company_notifications
     app.register_blueprint(company_notifications.bp)
 
+    from .companies_endpoint import company_addresses
+    app.register_blueprint(company_addresses.bp)
+
     return app

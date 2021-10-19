@@ -18,7 +18,7 @@ class Company(object):
             'id': self._id,
             'content_languages_iso': self._data['content_languages_iso'],
             'company_types': self._build_company_types_node(
-                self._data['company_types'],
+                self._data.get('company_types', []),
                 user_language,
             ),
             'created_date': format_date(
@@ -32,16 +32,19 @@ class Company(object):
     def to_full_json_response(self, user_language: str) -> dict[str, str | list | Any]:
         result = self.to_partial_json_response(user_language)
         result.update({
-            'buys': self._build_buys_node(self._data['buys'], user_language),
+            'buys': self._build_buys_node(self._data.get('buys', None), user_language),
             'addresses': self._data['addresses'],
-            'contacts': self._data['contacts'],
-            'produces': self._build_produces_node(self._data['produces'], user_language),
+            'contacts': self._data.get('contacts', []),
+            'produces': self._build_produces_node(self._data.get('produces', None), user_language),
             'news_feed': url_for('company_news_feed.list_news_feed', company_id=self._id),
             'notifications': url_for('company_notifications.list_notifications', company_id=self._id)
         })
         return result
 
     def _build_produces_node(self, data: list[dict], user_language: str):
+        if data is None:
+            data = []
+
         period_types_localizations = self._db.get_localization('period_types')
         produce_types_localizations = self._db.get_localization('produce_types')
         unit_types_localizations = self._db.get_localization('unit_types')
@@ -102,6 +105,9 @@ class Company(object):
         return result
 
     def _build_company_types_node(self, company_types: list, language: str) -> list:
+        if company_types is None:
+            company_types = []
+
         company_types_localizations = self._db.get_localization('company_types')
         result = []
         for company_type in company_types:
@@ -114,6 +120,9 @@ class Company(object):
         return result
 
     def _build_buys_node(self, data: list, language: str) -> list:
+        if data is None:
+            data = []
+
         produce_types_localizations = self._db.get_localization('produce_types')
         result = []
         for item in data:
