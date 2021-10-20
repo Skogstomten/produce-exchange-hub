@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from app.database_access.companies_datastore import CompaniesDatastore
 from app.validation.validation import validate
 from app.validation import schemas
-from app.response_helpers import make_response
+from app import response_helpers as respond
 
 bp = Blueprint('companies', __name__, url_prefix='/companies')
 
@@ -15,7 +15,7 @@ def list_companies():
     start = request.args.get('start', 0)
     take = request.args.get('take', None)
     datastore = CompaniesDatastore()
-    companies = datastore.list_companies(sort, 'desc', start, take)
+    companies = datastore.list_companies(language, sort, 'desc', start, take)
     items = []
 
     for item in companies:
@@ -29,7 +29,7 @@ def list_companies():
 def get_company(company_id: str):
     language = request.headers.get('language', 'SV')
     datastore = CompaniesDatastore()
-    company = datastore.get_company(company_id)
+    company = datastore.get_company(company_id, language)
     return company.to_full_json_response(language)
 
 
@@ -39,9 +39,16 @@ def add_company():
     language = request.headers.get('language', 'SV')
     user_id = request.headers.get('user_id', None)
     if user_id is None:
-        return make_response({
+        return respond.make_response({
             'error': 'missing user_id header'
         }, 400)
     datastore = CompaniesDatastore()
-    company = datastore.add_company(request.json, user_id)
+    company = datastore.add_company(request.json, user_id, language)
     return company.to_full_json_response(language)
+
+
+# @bp.route('/<string:company_id>/activate', methods=('POST',))
+# def activate(company_id: str):
+#     datastore = CompaniesDatastore()
+#     datastore.activate_company(company_id)
+#     return respond.ok_no_content()

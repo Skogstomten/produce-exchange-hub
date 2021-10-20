@@ -3,15 +3,17 @@ from typing import Any
 from flask import url_for
 
 from .base_datastore import BaseDatastore
+from .address import Address
 from app.datetime_helpers import format_date
 
 
 class Company(object):
-    def __init__(self, company_id: str, data: dict[str, str | list | Any], db: BaseDatastore):
+    def __init__(self, company_id: str, data: dict[str, str | list | Any], datastore: BaseDatastore, language_iso: str):
         self._data = data
         self._id = company_id
         self._company_languages = data['content_languages_iso']
-        self._db = db
+        self._datastore = datastore
+        self._language_iso = language_iso
 
     def to_partial_json_response(self, user_language: str) -> dict[str, str | list | Any]:
         return {
@@ -33,7 +35,7 @@ class Company(object):
         result = self.to_partial_json_response(user_language)
         result.update({
             'buys': self._build_buys_node(self._data.get('buys', None), user_language),
-            'addresses': self._data['addresses'],
+            'addresses': list(self._get_addresses(self._data['addresses'])),
             'contacts': self._data.get('contacts', []),
             'produces': self._build_produces_node(self._data.get('produces', None), user_language),
             'news_feed': url_for('company_news_feed.list_news_feed', company_id=self._id),
@@ -41,13 +43,18 @@ class Company(object):
         })
         return result
 
+    def _get_addresses(self, addresses: list[dict[str, str]]) -> list[dict[str, str]]:
+        for address in addresses:
+            address_obj = Address(address, self._datastore, self._language_iso)
+            yield address_obj.to_dict()
+
     def _build_produces_node(self, data: list[dict], user_language: str):
         if data is None:
             data = []
 
-        period_types_localizations = self._db.get_localization('period_types')
-        produce_types_localizations = self._db.get_localization('produce_types')
-        unit_types_localizations = self._db.get_localization('unit_types')
+        period_types_localizations = self._datastore.get_localization('period_types')
+        produce_types_localizations = self._datastore.get_localization('produce_types')
+        unit_types_localizations = self._datastore.get_localization('unit_types')
         result = []
         for item in data:
             temp_item = {
@@ -79,7 +86,7 @@ class Company(object):
         return result
 
     def _build_delivery_options_node(self, data: list[dict], user_language: str):
-        delivery_options_localizations = self._db.get_localization('delivery_options')
+        delivery_options_localizations = self._datastore.get_localization('delivery_options')
         result = []
         for item in data:
             temp_item = {
@@ -94,7 +101,7 @@ class Company(object):
         return result
 
     def _build_status_node(self, status: str, language: str) -> str:
-        statuses_localizations = self._db.get_localization('company_statuses')
+        statuses_localizations = self._datastore.get_localization('company_statuses')
         if statuses_localizations is None:
             return status
 
@@ -108,7 +115,7 @@ class Company(object):
         if company_types is None:
             company_types = []
 
-        company_types_localizations = self._db.get_localization('company_types')
+        company_types_localizations = self._datastore.get_localization('company_types')
         result = []
         for company_type in company_types:
             result.append(
@@ -123,7 +130,7 @@ class Company(object):
         if data is None:
             data = []
 
-        produce_types_localizations = self._db.get_localization('produce_types')
+        produce_types_localizations = self._datastore.get_localization('produce_types')
         result = []
         for item in data:
             produce_type_key = item['produce_type']

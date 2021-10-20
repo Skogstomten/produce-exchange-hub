@@ -1,3 +1,6 @@
+from .base_datastore import BaseDatastore
+
+
 class Address(object):
     address_type: str | None = None
     addressee: str | None = None
@@ -9,7 +12,7 @@ class Address(object):
     country: str
     county: str
 
-    def __init__(self, address: dict[str, str]):
+    def __init__(self, address: dict[str, str], datastore: BaseDatastore, language_iso: str):
         self.address_type = address.get('address_type', None)
         self.addressee = address.get('addressee', None)
         self.co_address = address.get('co_address', None)
@@ -17,7 +20,8 @@ class Address(object):
         self.zip_code = address.get('zip_code')
         self.city = address.get('city')
         self.country_iso = address.get('country_iso')
-        self.country = address.get('country')
+        country_localization = datastore.get_localization('countries_iso_name').get(self.country_iso, {})
+        self.country = country_localization.get(language_iso, self.country_iso)
         self.county = address.get('county')
 
     def to_dict(self) -> dict:
