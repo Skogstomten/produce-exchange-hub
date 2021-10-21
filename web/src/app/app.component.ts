@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import AuthService from './services/auth-service.service';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,14 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'web';
+  public title = 'web';
+  public isLoggedIn = false;
+
+  public constructor(
+    private _authService: AuthService
+  ) { }
+
+  public loginWithGoogle() {
+    this._authService.login()
+  }
 }

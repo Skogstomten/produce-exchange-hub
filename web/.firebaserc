@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "produce-exchange-hub": {
+      "hosting": {
+        "web": [
+          "produce-exchange-hub"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "produce-exchange-hub"
+  }
+}

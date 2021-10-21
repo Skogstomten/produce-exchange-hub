@@ -1,11 +1,14 @@
-<nav>
-  <ul>
-    <li>
-      <a routerLink="/">Home</a>
-      <a href="#">About</a>
-    </li>
-  </ul>
-</nav>
-
-<h1>{{title}}</h1>
-<router-outlet></router-outlet>
+<div class="container">
+  <nav class="nav">
+    <ul>
+      <li class="nav-item">
+        <a routerLink="/">Home</a>
+        <a href="#">About</a>
+        <!-- <a (click)="loginWithGoogle()">Login</a> -->
+      </li>
+    </ul>
+  </nav>
+  
+  <h1>{{title}}</h1>
+  <router-outlet></router-outlet>
+</div>
