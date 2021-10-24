@@ -12,6 +12,7 @@ class Localization(Enum):
     produce_types = 'produce_types'
     unit_types = 'unit_types'
     period_types = 'period_types'
+    delivery_options = 'delivery_options'
 
 
 class BaseDatastore(object):

@@ -3,6 +3,7 @@ from typing import List, Dict
 from .address_out_model import AddressOutModel
 from .company_api_list_model import CompanyApiListModel
 from .contact_out_model import ContactOutModel
+from .produces_out_model import ProducesOutModel
 from ...datastores.base_datastore import BaseDatastore
 
 

@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel
 
 from app.datastores.base_datastore import BaseDatastore, Localization
+from app.models.companies.delivery_option_out_model import DeliveryOptionOutModel
 
 
 class ProducesOutModel(BaseModel):
