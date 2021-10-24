@@ -3,6 +3,7 @@ from fastapi import APIRouter, Header, Depends, Path
 from app.datastores.companies_datastore import CompaniesDatastore, get_companies_datastore
 from app.models.api_list_response_model import ApiListResponseModel
 from app.models.companies.company_api_list_model import CompanyApiListModel
+from app.models.companies.company_out_model import CompanyOutModel
 
 router = APIRouter(
     prefix='/companies'
