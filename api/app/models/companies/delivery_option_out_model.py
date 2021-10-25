@@ -10,18 +10,20 @@ class DeliveryOptionOutModel(BaseModel):
     delivery_option: str
     specifications: Optional[str] = None
 
-    @staticmethod
-    def create(data: Dict[str, str],
-               headers: AppHeaders,
-               company_languages: List[str],
-               datastore: BaseDatastore) -> Dict:
-        return {
-            'delivery_option': datastore.localize_from_document(
+    @classmethod
+    def create(
+            cls,
+            data: Dict[str, str],
+            headers: AppHeaders,
+            company_languages: List[str],
+            datastore: BaseDatastore
+    ):
+        return cls(
+            delivery_option=datastore.localize_from_document(
                 Localization.delivery_options,
                 data.get('delivery_option'),
                 headers.language,
                 company_languages
             ),
-            'specifications': data.get('specifications'),
-        }
-    
+            specifications=data.get('specifications'),
+        )

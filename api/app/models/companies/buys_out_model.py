@@ -15,29 +15,33 @@ class BuysOutModel(BaseModel):
     unit_type: Optional[str] = None
     delivery_options: List[DeliveryOptionOutModel] = []
 
-    @staticmethod
+    @classmethod
     def create(
+            cls,
             data: Dict[str, str | float | int | List | Dict],
             headers: AppHeaders,
             company_languages: List[str],
             datastore: BaseDatastore
-    ) -> Dict:
-        return {
-            'produce_type': datastore.localize_from_document(Localization.produce_types,
-                                                             data.get('produce_type'),
-                                                             headers.language,
-                                                             company_languages),
-            'description': datastore.localize(data.get('description', None), headers.language, company_languages),
-            'max_price': data.get('max_price', None),
-            'min_number_of_units': data.get('min_number_of_units', None),
-            'unit_type': datastore.localize_from_document(Localization.unit_types,
-                                                          data.get('unit_type', None),
-                                                          headers.language,
-                                                          company_languages),
-            'delivery_options': [DeliveryOptionOutModel.create(delivery_option,
-                                                               headers,
-                                                               company_languages,
-                                                               datastore)
-                                 for delivery_option
-                                 in data.get('delivery_options', [])],
-        }
+    ):
+        return cls(
+            produce_type=datastore.localize_from_document(
+                Localization.produce_types,
+                data.get('produce_type'),
+                headers.language,
+                company_languages
+            ),
+            description=datastore.localize(data.get('description', None), headers.language, company_languages),
+            max_price=data.get('max_price', None),
+            min_number_of_units=data.get('min_number_of_units', None),
+            unit_type=datastore.localize_from_document(
+                Localization.unit_types,
+                data.get('unit_type', None),
+                headers.language,
+                company_languages
+            ),
+            delivery_options=[
+                DeliveryOptionOutModel.create(delivery_option, headers, company_languages, datastore)
+                for delivery_option
+                in data.get('delivery_options', [])
+            ],
+        )

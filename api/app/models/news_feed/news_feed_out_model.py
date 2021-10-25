@@ -17,23 +17,24 @@ class NewsFeedOutModel(BaseModel):
     posted_by_email: str
     posted_by_name: str
 
-    @staticmethod
+    @classmethod
     def create(
+            cls,
             post_id: str,
             data: Dict[str, datetime | DocumentReference | Dict[str, str]],
             headers: AppHeaders,
             company_languages: List[str],
             datastore: BaseDatastore
-    ) -> Dict:
+    ):
         post = datastore.localize(data.get('post'), headers.language, company_languages, {})
         user_ref: DocumentReference = data.get('posted_by')
         user_snapshot = user_ref.get()
         user_data = user_snapshot.to_dict()
-        return {
-            'id': post_id,
-            'title': post.get('title'),
-            'body': post.get('body'),
-            'posted_date': format_datetime(data.get('posted_date'), headers.timezone),
-            'posted_by_email': user_ref.id,
-            'posted_by_name': f"{user_data.get('first_name')} {user_data.get('last_name')}",
-        }
+        return cls(
+            id=post_id,
+            title=post.get('title'),
+            body=post.get('body'),
+            posted_date=format_datetime(data.get('posted_date'), headers.timezone),
+            posted_by_email=user_ref.id,
+            posted_by_name=f"{user_data.get('first_name')} {user_data.get('last_name')}",
+        )

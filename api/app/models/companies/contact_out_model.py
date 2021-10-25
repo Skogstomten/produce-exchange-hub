@@ -11,20 +11,15 @@ class ContactOutModel(BaseModel):
     contact_type: str
     value: str
 
-    @staticmethod
-    def create(
-            data: dict,
-            headers: AppHeaders,
-            company_languages: List[str],
-            datastore: BaseDatastore
-    ) -> Dict:
-        return {
-            'contact_name': data.get('contact_name'),
-            'contact_type': datastore.localize_from_document(
+    @classmethod
+    def create(cls, data: Dict, headers: AppHeaders, company_languages: List[str], datastore: BaseDatastore):
+        return cls(
+            contact_name=data.get('contact_name'),
+            contact_type=datastore.localize_from_document(
                 Localization.contact_types,
                 data.get('contact_type'),
                 headers.language,
                 company_languages
             ),
-            'value': data.get('value')
-        }
+            value=data.get('value')
+        )
