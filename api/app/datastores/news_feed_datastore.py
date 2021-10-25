@@ -7,6 +7,7 @@ from app.datastores.base_datastore import BaseDatastore
 from app.dependencies.app_headers import AppHeaders
 from app.dependencies.firestore import get_db_client
 from app.errors.company_not_found_error import CompanyNotFoundError
+from app.errors.not_found_error import NotFoundError
 from app.models.news_feed.news_feed_out_model import NewsFeedOutModel
 
 
@@ -24,6 +25,20 @@ class NewsFeedDatastore(BaseDatastore):
         news_feed_snapshots: list[DocumentSnapshot] = company_ref.collection('news_feed').get()
         for snapshot in news_feed_snapshots:
             yield NewsFeedOutModel.create(snapshot.id, snapshot.to_dict(), headers, company_languages, self)
+
+    def get_news_feed_post(self, company_id: str, post_id: str, headers: AppHeaders) -> NewsFeedOutModel:
+        company_ref = self.db.collection('companies').document(company_id)
+        company_snapshot = company_ref.get(('content_languages_iso',))
+        if not company_snapshot.exists:
+            raise CompanyNotFoundError(company_id)
+
+        company_languages = company_snapshot.to_dict().get('content_languages_iso')
+        post_ref = company_ref.collection('news_feed').document(post_id)
+        post_snapshot = post_ref.get()
+        if not post_snapshot.exists:
+            raise NotFoundError(f"News feed post with id '{post_id}' was not found")
+
+        return NewsFeedOutModel.create(post_id, post_snapshot.to_dict(), headers, company_languages, self)
 
 
 def get_news_feed_datastore(

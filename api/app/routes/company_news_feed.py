@@ -18,3 +18,19 @@ def get_news_feed(
 ):
     news_feed = datastore.get_news_feed(company_id, headers)
     return {'items': news_feed}
+
+
+@router.get('/{post_id}', response_model=NewsFeedOutModel)
+def get_news_feed_post(
+        headers: AppHeaders = Depends(get_headers),
+        company_id: str = Path(...),
+        post_id: str = Path(...),
+        datastore: NewsFeedDatastore = Depends(get_news_feed_datastore)
+):
+    return datastore.get_news_feed_post(company_id, post_id, headers)
+
+
+# @router.post('/')
+# def add_news_feed_post(
+#         headers: App
+# )
