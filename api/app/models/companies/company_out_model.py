@@ -6,6 +6,7 @@ from .company_api_list_model import CompanyApiListModel
 from .contact_out_model import ContactOutModel
 from .produces_out_model import ProducesOutModel
 from ...datastores.base_datastore import BaseDatastore
+from ...dependencies.app_headers import AppHeaders
 
 
 class CompanyOutModel(CompanyApiListModel):
@@ -18,16 +19,16 @@ class CompanyOutModel(CompanyApiListModel):
     def create(
             company_id: str,
             data: dict,
-            language: str,
+            headers: AppHeaders,
             datastore: BaseDatastore
     ) -> Dict:
-        result = super(CompanyOutModel).create(company_id, data, language, datastore)
+        result = CompanyApiListModel.create(company_id, data, headers, datastore)
         company_languages = data.get('content_languages_iso')
         result.update({
             'addresses': [
                 AddressOutModel.create(
                     address,
-                    language,
+                    headers.language,
                     company_languages,
                     datastore
                 )
@@ -35,17 +36,17 @@ class CompanyOutModel(CompanyApiListModel):
                 in data.get('addresses', [])
             ],
             'contacts': [
-                ContactOutModel.create(contact, language, company_languages, datastore)
+                ContactOutModel.create(contact, headers, company_languages, datastore)
                 for contact
                 in data.get('contacts', [])
             ],
             'produces': [
-                ProducesOutModel.create(produce, language, company_languages, datastore)
+                ProducesOutModel.create(produce, headers, company_languages, datastore)
                 for produce
                 in data.get('produces', [])
             ],
             'buys': [
-                BuysOutModel.create(buys, language, company_languages, datastore)
+                BuysOutModel.create(buys, headers, company_languages, datastore)
                 for buys
                 in data.get('buys', [])
             ],

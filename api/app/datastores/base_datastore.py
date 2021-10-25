@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import List, Dict
 
 from google.cloud.firestore_v1.client import Client
 
@@ -26,8 +26,8 @@ class BaseDatastore(object):
             data: dict[str, str],
             language: str,
             company_languages: List[str],
-            default: str = None
-    ) -> str:
+            default: str | Dict = None
+    ) -> str | Dict[str, str]:
         if data is None:
             return default
 
@@ -50,7 +50,7 @@ class BaseDatastore(object):
         if key is None:
             return None
 
-        snapshot = self.db.collection('localization').document(str(localization)).get()
+        snapshot = self.db.collection('localization').document(localization.value).get()
         if snapshot.exists:
             data = snapshot.to_dict()
             if key in data:

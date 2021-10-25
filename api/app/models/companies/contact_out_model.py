@@ -3,6 +3,7 @@ from typing import Dict, List
 from pydantic import BaseModel
 
 from app.datastores.base_datastore import BaseDatastore, Localization
+from app.dependencies.app_headers import AppHeaders
 
 
 class ContactOutModel(BaseModel):
@@ -13,7 +14,7 @@ class ContactOutModel(BaseModel):
     @staticmethod
     def create(
             data: dict,
-            language: str,
+            headers: AppHeaders,
             company_languages: List[str],
             datastore: BaseDatastore
     ) -> Dict:
@@ -22,7 +23,7 @@ class ContactOutModel(BaseModel):
             'contact_type': datastore.localize_from_document(
                 Localization.contact_types,
                 data.get('contact_type'),
-                language,
+                headers.language,
                 company_languages
             ),
             'value': data.get('value')
