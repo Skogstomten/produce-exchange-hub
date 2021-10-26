@@ -3,6 +3,8 @@ from typing import List, Dict
 
 from google.cloud.firestore_v1.client import Client
 
+from app.errors.not_found_error import NotFoundError
+
 
 class Localization(Enum):
     company_statuses = 'company_statuses'
@@ -63,3 +65,10 @@ class BaseDatastore(object):
                         return localizations.get(language)
 
         return key
+
+    def get_user_ref(self, user_id: str):
+        user_ref = self.db.collection('users').document(user_id)
+        if not user_ref.get().exists:
+            raise NotFoundError(f"User with id '{user_id}' is not found")
+
+        return user_ref

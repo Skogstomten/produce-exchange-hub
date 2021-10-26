@@ -9,7 +9,7 @@ from app.dependencies.app_headers import AppHeaders
 from app.utilities.datetime_utilities import format_datetime
 
 
-class NewsFeedOutModel(BaseModel):
+class NewsFeedBriefOutModel(BaseModel):
     id: str
     title: str
     body: str
