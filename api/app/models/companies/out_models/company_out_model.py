@@ -7,9 +7,9 @@ from .address_out_model import AddressOutModel
 from .buys_out_model import BuysOutModel
 from .contact_out_model import ContactOutModel
 from .produces_out_model import ProducesOutModel
-from ...datastores.base_datastore import BaseDatastore, Localization
-from ...dependencies.app_headers import AppHeaders
-from ...utilities.datetime_utilities import format_datetime
+from app.datastores.base_datastore import BaseDatastore, Localization
+from app.dependencies.app_headers import AppHeaders
+from app.utilities.datetime_utilities import format_datetime
 
 
 class CompanyOutModel(BaseModel):

@@ -1,25 +1,24 @@
-from typing import Dict, List, Optional
+from typing import List, Optional, Dict
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.datastores.base_datastore import BaseDatastore, Localization
 from app.dependencies.app_headers import AppHeaders
-from app.models.companies.delivery_option_out_model import DeliveryOptionOutModel
+from app.models.companies.out_models.delivery_option_out_model import DeliveryOptionOutModel
 
 
-class ProducesOutModel(BaseModel):
+class BuysOutModel(BaseModel):
     produce_type: str
-    description: Optional[str] = None
-    price_per_unit: Optional[float] = None
+    description: Optional[str] = Field(None)
+    max_price: Optional[float] = None
+    min_number_of_units: Optional[int] = None
     unit_type: Optional[str] = None
-    units_per_period: Optional[int] = None
-    period_type: Optional[str] = None
-    delivery_options: List[DeliveryOptionOutModel]
+    delivery_options: List[DeliveryOptionOutModel] = []
 
     @classmethod
     def create(
             cls,
-            data: Dict[str, List | Dict | float | int | str],
+            data: Dict[str, str | float | int | List | Dict],
             headers: AppHeaders,
             company_languages: List[str],
             datastore: BaseDatastore
@@ -32,17 +31,11 @@ class ProducesOutModel(BaseModel):
                 company_languages
             ),
             description=datastore.localize(data.get('description', None), headers.language, company_languages),
-            price_per_unit=data.get('price_per_unit', None),
+            max_price=data.get('max_price', None),
+            min_number_of_units=data.get('min_number_of_units', None),
             unit_type=datastore.localize_from_document(
                 Localization.unit_types,
                 data.get('unit_type', None),
-                headers.language,
-                company_languages
-            ),
-            units_per_period=data.get('units_per_period', None),
-            period_type=datastore.localize_from_document(
-                Localization.period_types,
-                data.get('period_type', None),
                 headers.language,
                 company_languages
             ),
@@ -50,5 +43,5 @@ class ProducesOutModel(BaseModel):
                 DeliveryOptionOutModel.create(delivery_option, headers, company_languages, datastore)
                 for delivery_option
                 in data.get('delivery_options', [])
-            ]
+            ],
         )
