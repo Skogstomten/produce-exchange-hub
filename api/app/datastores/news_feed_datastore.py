@@ -8,8 +8,8 @@ from app.dependencies.app_headers import AppHeaders
 from app.dependencies.firestore import get_db_client
 from app.errors.not_found_error import NotFoundError
 from app.models.companies.news_feed.news_feed_brief_out_model import NewsFeedBriefOutModel
-from app.models.companies.news_feed.news_feed_full_out_model import NewsFeedFullOutModel
-from app.models.companies.news_feed.news_feed_post_put_model import NewsFeedPostPutModel
+from app.models.companies.news_feed.news_feed_out_model import NewsFeedOutModel
+from app.models.companies.news_feed.news_feed_in_model import NewsFeedPostPutModel
 
 
 def _get_post_ref_and_snapshot(
@@ -34,17 +34,17 @@ class NewsFeedDatastore(CompaniesDatastore):
         for snapshot in news_feed_snapshots:
             yield NewsFeedBriefOutModel.create(snapshot.id, snapshot.to_dict(), headers, company_languages, self)
 
-    def get_news_feed_post(self, company_id: str, post_id: str, headers: AppHeaders) -> NewsFeedFullOutModel:
+    def get_news_feed_post(self, company_id: str, post_id: str, headers: AppHeaders) -> NewsFeedOutModel:
         company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id)
         post_ref, post_snapshot = _get_post_ref_and_snapshot(company_ref, post_id)
-        return NewsFeedFullOutModel.create(post_id, post_snapshot.to_dict(), headers)
+        return NewsFeedOutModel.create(post_id, post_snapshot.to_dict(), headers)
 
     def add_news_feed_post(
             self,
             company_id: str,
             headers: AppHeaders,
             body: NewsFeedPostPutModel
-    ) -> NewsFeedFullOutModel:
+    ) -> NewsFeedOutModel:
         company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id)
         post_ref: DocumentReference = company_ref.collection('news_feed').document()
         post_ref.create(body.to_database_dict(self))
@@ -56,7 +56,7 @@ class NewsFeedDatastore(CompaniesDatastore):
             post_id: str,
             body: NewsFeedPostPutModel,
             headers: AppHeaders
-    ) -> NewsFeedFullOutModel:
+    ) -> NewsFeedOutModel:
         company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id)
         post_ref, post_snapshot = _get_post_ref_and_snapshot(company_ref, post_id)
         post_ref.set(body.to_database_dict(self))

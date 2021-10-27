@@ -4,9 +4,9 @@ from app.datastores.news_feed_datastore import NewsFeedDatastore, get_news_feed_
 from app.dependencies.app_headers import AppHeaders, get_headers
 from app.models.api_list_response_model import ApiListResponseModel
 from app.models.companies.news_feed.news_feed_brief_out_model import NewsFeedBriefOutModel
-from app.models.companies.news_feed.news_feed_full_out_model import NewsFeedFullOutModel
+from app.models.companies.news_feed.news_feed_out_model import NewsFeedOutModel
 
-from app.models.companies.news_feed.news_feed_post_put_model import NewsFeedPostPutModel
+from app.models.companies.news_feed.news_feed_in_model import NewsFeedPostPutModel
 
 router = APIRouter(
     prefix='/companies/{company_id}/news-feed'
@@ -23,7 +23,7 @@ def get_news_feed(
     return {'items': news_feed}
 
 
-@router.get('/{post_id}', response_model=NewsFeedFullOutModel)
+@router.get('/{post_id}', response_model=NewsFeedOutModel)
 def get_news_feed_post(
         headers: AppHeaders = Depends(get_headers),
         company_id: str = Path(...),
@@ -33,7 +33,7 @@ def get_news_feed_post(
     return datastore.get_news_feed_post(company_id, post_id, headers)
 
 
-@router.post('/', response_model=NewsFeedFullOutModel, status_code=201)
+@router.post('/', response_model=NewsFeedOutModel, status_code=201)
 def add_news_feed_post(
         headers: AppHeaders = Depends(get_headers),
         company_id: str = Path(...),
@@ -43,7 +43,7 @@ def add_news_feed_post(
     return datastore.add_news_feed_post(company_id, headers, body)
 
 
-@router.put('/{post_id}', response_model=NewsFeedFullOutModel)
+@router.put('/{post_id}', response_model=NewsFeedOutModel)
 def update_news_feed_post(
         headers: AppHeaders = Depends(get_headers),
         company_id: str = Path(...),

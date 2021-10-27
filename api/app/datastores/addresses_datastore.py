@@ -1,13 +1,25 @@
-from typing import List
+from typing import List, Tuple
 
 from fastapi import Depends
-from google.cloud.firestore_v1 import Client
+from google.cloud.firestore_v1 import Client, DocumentReference, DocumentSnapshot
 
 from app.datastores.companies_datastore import CompaniesDatastore
 from app.dependencies.app_headers import AppHeaders
 from app.dependencies.firestore import get_db_client
-from app.models.companies.in_models.company_post_put_model import AddressPostPutModel
-from app.models.companies.out_models.address_out_model import AddressOutModel
+from app.errors.not_found_error import NotFoundError
+from app.models.companies.addresses.address_in_model import AddressInModel
+from app.models.companies.addresses.address_out_model import AddressOutModel
+
+
+def _get_address_ref_and_snapshot(
+        company_ref: DocumentReference,
+        address_id: str
+) -> Tuple[DocumentReference, DocumentSnapshot]:
+    ref = company_ref.collection('addresses').document(address_id)
+    snapshot = ref.get()
+    if not snapshot.exists:
+        raise NotFoundError(f"No address with id '{address_id}' was found")
+    return ref, snapshot
 
 
 class AddressesDatastore(CompaniesDatastore):
@@ -17,29 +29,33 @@ class AddressesDatastore(CompaniesDatastore):
     def get_addresses(self, company_id: str, headers: AppHeaders) -> List[AddressOutModel]:
         company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id)
         data = company_snapshot.to_dict()
-        addresses = data.get('addresses', [])
         company_languages = data.get('content_languages_iso')
-        for address in addresses:
-            yield AddressOutModel.create(address, headers, company_languages, self)
+        for address in company_ref.collection('addresses').get():
+            yield AddressOutModel.create(address.id, address.to_dict(), headers, company_languages, self)
 
-    def add_address(self, company_id: str, body: AddressPostPutModel, headers: AppHeaders):
-        ref, snapshot = self._get_company_ref_and_snapshot(company_id)
-        company_data = snapshot.to_dict()
-        company_languages = company_data.get('content_languages_iso')
-        addresses: list = company_data.get('addresses', [])
-        addresses.append(body.to_database_dict(headers, company_languages, self))
-        ref.update({
-            'addresses': addresses
-        })
-        return self.get_addresses(company_id, headers)
+    def get_address(self, company_id: str, address_id: str, headers: AppHeaders) -> AddressOutModel:
+        company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id)
+        address_ref, address_snapshot = _get_address_ref_and_snapshot(company_ref, address_id)
+        company_languages = company_snapshot.to_dict().get('content_languages_iso')
+        return AddressOutModel.create(address_id, address_snapshot.to_dict(), headers, company_languages, self)
 
-    def update_addresses(self, company_id: str, addresses: List[AddressPostPutModel], headers: AppHeaders):
-        ref, snapshot = self._get_company_ref_and_snapshot(company_id)
-        company_languages = snapshot.to_dict().get('content_languages_iso')
-        ref.update({
-            'addresses': [address.to_database_dict(headers, company_languages, self) for address in addresses]
-        })
-        return self.get_addresses(company_id, headers)
+    def add_address(self, company_id: str, body: AddressInModel, headers: AppHeaders) -> AddressOutModel:
+        company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id)
+        address_ref: DocumentReference = company_ref.collection('addresses').document()
+        address_ref.create(body.to_database_dict())
+        return self.get_address(company_id, address_ref.id, headers)
+
+    def update_address(
+            self,
+            company_id: str,
+            address_id: str,
+            body: AddressInModel,
+            headers: AppHeaders
+    ) -> AddressOutModel:
+        company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id)
+        address_ref, address_snapshot = _get_address_ref_and_snapshot(company_ref, address_id)
+        address_ref.update(body.to_database_dict())
+        return self.get_address(company_id, address_id, headers)
 
 
 def get_addresses_datastore(db: Client = Depends(get_db_client)) -> AddressesDatastore:

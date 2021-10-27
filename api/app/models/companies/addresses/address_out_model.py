@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List
+from typing import Optional, Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -7,28 +7,31 @@ from app.dependencies.app_headers import AppHeaders
 
 
 class AddressOutModel(BaseModel):
+    id: str = Field(...)
     address_type: Optional[str] = Field(None, description='')
     addressee: Optional[str] = Field(
         None,
         description='Name used over address. Company name will be used if this is not set'
     )
-    co_address: Optional[str] = None
-    street_address: str
-    zip_code: str
-    city: str
-    county: str
+    co_address: Optional[str] = Field(None)
+    street_address: str = Field(...)
+    zip_code: str = Field(...)
+    city: str = Field(...)
+    county: str = Field(...)
     country_iso: str = Field(..., min_length=2, max_length=2)
-    country: str
+    country: str = Field(...)
 
     @classmethod
     def create(
             cls,
+            address_id: str,
             data: Dict[str, str],
             headers: AppHeaders,
             company_languages: List[str],
             datastore: BaseDatastore
     ):
         return cls(
+            id=address_id,
             address_type=datastore.localize_from_document(
                 Localization.address_types,
                 data.get('address_type', None),
