@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Iterable
 
 from fastapi import Depends
 from google.cloud.firestore_v1 import Client, DocumentReference, DocumentSnapshot
@@ -13,10 +13,11 @@ from app.models.companies.addresses.address_out_model import AddressOutModel
 
 def _get_address_ref_and_snapshot(
         company_ref: DocumentReference,
-        address_id: str
+        address_id: str,
+        field_paths: Iterable[str] | None = None
 ) -> Tuple[DocumentReference, DocumentSnapshot]:
     ref = company_ref.collection('addresses').document(address_id)
-    snapshot = ref.get()
+    snapshot = ref.get(field_paths)
     if not snapshot.exists:
         raise NotFoundError(f"No address with id '{address_id}' was found")
     return ref, snapshot
@@ -27,14 +28,14 @@ class AddressesDatastore(CompaniesDatastore):
         super(AddressesDatastore, self).__init__(db)
 
     def get_addresses(self, company_id: str, headers: AppHeaders) -> List[AddressOutModel]:
-        company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id)
+        company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id, ('content_languages_iso',))
         data = company_snapshot.to_dict()
         company_languages = data.get('content_languages_iso')
         for address in company_ref.collection('addresses').get():
             yield AddressOutModel.create(address.id, address.to_dict(), headers, company_languages, self)
 
     def get_address(self, company_id: str, address_id: str, headers: AppHeaders) -> AddressOutModel:
-        company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id)
+        company_ref, company_snapshot = self._get_company_ref_and_snapshot(company_id, ('content_languages_iso',))
         address_ref, address_snapshot = _get_address_ref_and_snapshot(company_ref, address_id)
         company_languages = company_snapshot.to_dict().get('content_languages_iso')
         return AddressOutModel.create(address_id, address_snapshot.to_dict(), headers, company_languages, self)

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterable, Dict
 
 from fastapi import Depends
 from google.cloud.firestore_v1 import DocumentSnapshot, Client, DocumentReference
@@ -14,26 +14,27 @@ from ..models.companies.company_status import CompanyStatus
 
 class CompaniesDatastore(BaseDatastore):
     def __init__(self, db: Client):
-        super().__init__(db)
+        super().__init__(db, 'companies')
 
     def get_companies(self, headers: AppHeaders) -> List[CompanyOutModel]:
-        snapshots: list[DocumentSnapshot] = self.db.collection('companies').get()
-        for snapshot in snapshots:
-            yield CompanyOutModel.create(snapshot.id, snapshot.to_dict(), headers, self)
+        return self.get_all(lambda snapshot: CompanyOutModel.create(snapshot.id, snapshot.to_dict(), headers, self))
 
     def get_company(self, company_id: str, headers: AppHeaders) -> CompanyOutModel:
-        ref, snapshot = self._get_company_ref_and_snapshot(company_id)
-        data = snapshot.to_dict()
-        return CompanyOutModel.create(company_id, data, headers, self)
+        return self.get(company_id, lambda doc_id, data: CompanyOutModel.create(doc_id, data, headers, self))
 
     def add_company(self, body: CompanyInModel, headers: AppHeaders) -> CompanyOutModel:
-        ref = self.db.collection('companies').document()
-        ref.create(body.to_database_dict(CompanyStatus.unactivated))
-        return self.get_company(ref.id, headers)
+        return self.add(
+            lambda: body.to_database_dict(CompanyStatus.unactivated),
+            lambda doc_id, data: CompanyOutModel.create(doc_id, data, headers, self)
+        )
 
-    def _get_company_ref_and_snapshot(self, company_id) -> tuple[DocumentReference, DocumentSnapshot]:
+    def _get_company_ref_and_snapshot(
+            self,
+            company_id: str,
+            field_paths: Iterable[str] | None = None
+    ) -> tuple[DocumentReference, DocumentSnapshot]:
         ref = self.db.collection('companies').document(company_id)
-        snapshot = ref.get()
+        snapshot = ref.get(field_paths)
         if not snapshot.exists:
             raise CompanyNotFoundError(company_id)
 

@@ -35,6 +35,7 @@ class NewsFeedOutModel(BaseModel):
             post_id: str,
             data: Dict[str, DocumentReference | datetime | Dict[str, Dict[str, str]]],
             headers: AppHeaders,
+            company_languages: List[str],
             datastore: BaseDatastore
     ):
         user_ref = data.get('posted_by')
@@ -42,7 +43,7 @@ class NewsFeedOutModel(BaseModel):
         user_data = user_snapshot.to_dict()
         posted_by_email = user_ref.id
         posted_by_name = f"{user_data.get('first_name')} {user_data.get('last_name')}"
-        post_data = data.get('post')
+        post_data: Dict[str, Dict[str, str]] = data.get('post')
         post: Dict[str, NewsFeedPostModel] = {}
         for language in post_data:
             post[language] = NewsFeedPostModel.create(post_data.get(language))

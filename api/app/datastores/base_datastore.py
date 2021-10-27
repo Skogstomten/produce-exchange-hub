@@ -1,6 +1,7 @@
 from enum import Enum
-from typing import List, Dict
+from typing import List, Dict, TypeVar, Generic, Iterable, Tuple, Callable, NoReturn
 
+from google.cloud.firestore_v1 import DocumentReference, DocumentSnapshot
 from google.cloud.firestore_v1.client import Client
 
 from app.errors.not_found_error import NotFoundError
@@ -17,30 +18,59 @@ class Localization(Enum):
     delivery_options = 'delivery_options'
 
 
-class BaseDatastore(object):
-    db: Client
+def localize(
+        data: Dict[str, str | Dict[str, str]],
+        language: str,
+        company_languages: List[str],
+        default: str | Dict = None
+) -> str | Dict[str, str]:
+    if data is None:
+        return default
 
-    def __init__(self, db: Client):
-        self.db = db
+    if language in data:
+        return data.get(language)
 
-    @staticmethod
-    def localize(
-            data: dict[str, str],
-            language: str,
-            company_languages: List[str],
-            default: str | Dict = None
-    ) -> str | Dict[str, str]:
-        if data is None:
-            return default
-
+    for language in company_languages:
         if language in data:
             return data.get(language)
 
-        for language in company_languages:
-            if language in data:
-                return data.get(language)
+    return default
 
-        return default
+
+TOut = TypeVar('TOut')
+
+
+class BaseDatastore(Generic[TOut]):
+    db: Client
+    _collection_name: str
+
+    def __init__(self, db: Client, collection_name: str):
+        self.db = db
+        self._collection_name = collection_name
+
+    def get_all(self, create: Callable[[DocumentSnapshot], TOut]) -> List[TOut]:
+        snapshots = self.db.collection(self._collection_name).get()
+        for snapshot in snapshots:
+            yield create(snapshot)
+
+    def get(self, document_key: str, create: Callable[[str, Dict], TOut]) -> TOut:
+        ref, snapshot = self._get_ref_and_snapshot(document_key)
+        data = snapshot.to_dict()
+        return create(ref.id, data)
+
+    def add(self, data_factory: Callable[..., dict], create: Callable[[str, Dict], TOut]) -> TOut:
+        ref = self.db.collection(self._collection_name).document()
+        ref.create(data_factory())
+        return self.get(ref.id, create)
+
+    def update(self, document_key: str, data_factory: Callable[..., dict], create: Callable[[str, Dict], TOut]) -> TOut:
+        ref, snapshot = self._get_ref_and_snapshot(document_key)
+        ref.set(data_factory())
+        return self.get(ref.id, lambda data: create)
+
+    def delete(self, document_key) -> NoReturn:
+        ref, snapshot = self._get_ref_and_snapshot(document_key)
+        ref.delete()
 
     def localize_from_document(
             self,
@@ -72,3 +102,14 @@ class BaseDatastore(object):
             raise NotFoundError(f"User with id '{user_id}' is not found")
 
         return user_ref
+
+    def _get_ref_and_snapshot(
+            self,
+            document_key: str,
+            field_paths: Iterable[str] | None = None
+    ) -> Tuple[DocumentReference, DocumentSnapshot]:
+        ref = self.db.collection(self._collection_name).document(document_key)
+        snapshot = ref.get(field_paths)
+        if not snapshot.exists:
+            raise NotFoundError(f"Document with id '{document_key} is not found")
+        return ref, snapshot
