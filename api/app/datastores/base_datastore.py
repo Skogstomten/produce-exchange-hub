@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Dict, TypeVar, Generic, Iterable, Tuple, Callable, NoReturn
 
-from google.cloud.firestore_v1 import DocumentReference, DocumentSnapshot
+from google.cloud.firestore_v1 import DocumentReference, DocumentSnapshot, CollectionReference
 from google.cloud.firestore_v1.client import Client
 
 from app.errors.not_found_error import NotFoundError
@@ -38,6 +38,7 @@ def localize(
 
 
 TOut = TypeVar('TOut')
+CollectionDocKeyPair = Tuple[Tuple[str, str | None]]
 
 
 class BaseDatastore(Generic[TOut]):
@@ -48,12 +49,28 @@ class BaseDatastore(Generic[TOut]):
         self.db = db
         self._collection_name = collection_name
 
-    def get_all(self, create: Callable[[DocumentSnapshot], TOut]) -> List[TOut]:
-        snapshots = self.db.collection(self._collection_name).get()
+    def get_all(
+            self,
+            create: Callable[[DocumentSnapshot], TOut],
+            parent_doc_id: str | None = None,
+            sub_collections: CollectionDocKeyPair | None = None
+    ) -> List[TOut]:
+        collection_ref: CollectionReference = self.db.collection(self._collection_name)
+        if parent_doc_id is not None and sub_collections is not None and len(sub_collections) > 0:
+            doc_ref: DocumentReference = collection_ref.document(parent_doc_id)
+            for sub_collection in sub_collections:
+                collection_ref = doc_ref.collection(sub_collection[0])
+                if sub_collection[1] is not None:
+                    doc_ref = collection_ref.document(sub_collection[1])
+        snapshots: List[DocumentSnapshot] = collection_ref.get()
         for snapshot in snapshots:
             yield create(snapshot)
 
-    def get(self, document_key: str, create: Callable[[str, Dict], TOut]) -> TOut:
+    def get(
+            self,
+            document_key: str,
+            create: Callable[[str, Dict], TOut]
+    ) -> TOut:
         ref, snapshot = self._get_ref_and_snapshot(document_key)
         data = snapshot.to_dict()
         return create(ref.id, data)
@@ -106,9 +123,15 @@ class BaseDatastore(Generic[TOut]):
     def _get_ref_and_snapshot(
             self,
             document_key: str,
-            field_paths: Iterable[str] | None = None
+            field_paths: Iterable[str] | None = None,
+            parent_doc_ref: DocumentReference | None = None,
+            sub_collection_name: str | None = None
     ) -> Tuple[DocumentReference, DocumentSnapshot]:
-        ref = self.db.collection(self._collection_name).document(document_key)
+        ref: DocumentReference
+        if parent_doc_ref is not None and sub_collection_name:
+            ref = parent_doc_ref.collection(sub_collection_name).document(document_key)
+        else:
+            ref = self.db.collection(self._collection_name).document(document_key)
         snapshot = ref.get(field_paths)
         if not snapshot.exists:
             raise NotFoundError(f"Document with id '{document_key} is not found")

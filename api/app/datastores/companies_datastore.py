@@ -1,18 +1,17 @@
-from typing import List, Iterable, Dict
+from typing import List
 
 from fastapi import Depends
-from google.cloud.firestore_v1 import DocumentSnapshot, Client, DocumentReference
+from google.cloud.firestore_v1 import Client
 
 from .base_datastore import BaseDatastore
 from ..dependencies.app_headers import AppHeaders
 from ..dependencies.firestore import get_db_client
-from ..errors.company_not_found_error import CompanyNotFoundError
 from ..models.companies.company_in_model import CompanyInModel
 from ..models.companies.company_out_model import CompanyOutModel
 from ..models.companies.company_status import CompanyStatus
 
 
-class CompaniesDatastore(BaseDatastore):
+class CompaniesDatastore(BaseDatastore[CompanyOutModel]):
     def __init__(self, db: Client):
         super().__init__(db, 'companies')
 
@@ -28,17 +27,14 @@ class CompaniesDatastore(BaseDatastore):
             lambda doc_id, data: CompanyOutModel.create(doc_id, data, headers, self)
         )
 
-    def _get_company_ref_and_snapshot(
-            self,
-            company_id: str,
-            field_paths: Iterable[str] | None = None
-    ) -> tuple[DocumentReference, DocumentSnapshot]:
-        ref = self.db.collection('companies').document(company_id)
-        snapshot = ref.get(field_paths)
-        if not snapshot.exists:
-            raise CompanyNotFoundError(company_id)
+    def update_company(self, company_id: str, body: CompanyInModel, headers: AppHeaders) -> CompanyOutModel:
+        ref, snapshot = self._get_ref_and_snapshot(company_id, ('status',))
+        status: CompanyStatus = snapshot.to_dict().get('status')
+        ref.set(body.to_database_dict(status))
+        return self.get_company(company_id, headers)
 
-        return ref, snapshot
+    def delete_company(self, company_id: str):
+        self.delete(company_id)
 
 
 async def get_companies_datastore(db: Client = Depends(get_db_client)):
