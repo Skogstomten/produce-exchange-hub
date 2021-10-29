@@ -9,6 +9,7 @@ from app.dependencies.app_headers import AppHeaders
 class AddressOutModel(BaseModel):
     id: str = Field(...)
     address_type: Optional[str] = Field(None, description='')
+    address_type_localized: Optional[str] = Field(None)
     addressee: Optional[str] = Field(
         None,
         description='Name used over address. Company name will be used if this is not set'
@@ -30,11 +31,13 @@ class AddressOutModel(BaseModel):
             company_languages: List[str],
             datastore: BaseDatastore
     ):
+        address_type = data.get('address_type')
         return cls(
             id=address_id,
-            address_type=datastore.localize_from_document(
+            address_type=address_type,
+            address_type_localized=datastore.localize_from_document(
                 Localization.address_types,
-                data.get('address_type', None),
+                address_type,
                 headers.language,
                 company_languages
             ),

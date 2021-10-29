@@ -9,6 +9,7 @@ from app.errors.not_found_error import NotFoundError
 
 class Localization(Enum):
     company_statuses = 'company_statuses'
+    company_types = 'company_types'
     address_types = 'address_types'
     countries_iso_name = 'countries_iso_name'
     contact_types = 'contact_types'

@@ -4,7 +4,7 @@ from typing import List, Dict
 import pytz
 from pydantic import BaseModel, Field
 
-from app.models.companies.company_status import CompanyStatus
+from .company_status import CompanyStatus
 
 
 class CompanyInModel(BaseModel):
@@ -19,6 +19,6 @@ class CompanyInModel(BaseModel):
             'status': status,
             'created_date': datetime.now(pytz.utc),
             'company_types': self.company_types,
-            'content_languages_iso': self.content_languages_iso,
+            'content_languages_iso': [language_iso.upper() for language_iso in self.content_languages_iso],
         }
         return result

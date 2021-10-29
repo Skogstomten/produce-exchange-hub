@@ -4,9 +4,9 @@ from typing import List, Dict
 from google.cloud.firestore_v1 import DocumentReference
 from pydantic import BaseModel, Field
 
-from app.datastores.base_datastore import BaseDatastore
-from app.dependencies.app_headers import AppHeaders
-from app.utilities.datetime_utilities import format_datetime
+from ....dependencies.app_headers import AppHeaders
+from ....datastores.base_datastore import localize
+from ....utilities.datetime_utilities import format_datetime
 
 
 class NewsFeedPostModel(BaseModel):
@@ -35,8 +35,7 @@ class NewsFeedOutModel(BaseModel):
             post_id: str,
             data: Dict[str, DocumentReference | datetime | Dict[str, Dict[str, str]]],
             headers: AppHeaders,
-            company_languages: List[str],
-            datastore: BaseDatastore
+            company_languages: List[str]
     ):
         user_ref = data.get('posted_by')
         user_snapshot = user_ref.get(('first_name', 'last_name',))
@@ -54,5 +53,5 @@ class NewsFeedOutModel(BaseModel):
             posted_by_name=posted_by_name,
             posted_date=format_datetime(data.get('posted_date'), headers.timezone),
             post=post,
-            post_localized=datastore.localize(post_data, headers.language, company_languages)
+            post_localized=localize(post_data, headers.language, company_languages)
         )
