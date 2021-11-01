@@ -15,6 +15,5 @@ export class AppComponent {
   ) { }
 
   public loginWithGoogle() {
-    this._authService.login()
   }
 }

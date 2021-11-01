@@ -3,6 +3,6 @@ export default interface ICompanySmall {
     content_languages_iso: string[];
     company_types: string[];
     created_date: Date;
-    name: string;
+    name_localized: string;
     status: string;
 }

@@ -32,5 +32,5 @@ import AuthService from './services/auth-service.service';
 export class AppModule { }
 
 function getBaseUrl(): string {
-  return 'http://localhost:5000/'
+  return 'http://localhost:8000/'
 }
