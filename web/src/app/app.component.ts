@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import AuthService from './services/auth-service.service';
 
 @Component({
@@ -6,14 +6,16 @@ import AuthService from './services/auth-service.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  public title = 'web';
-  public isLoggedIn = false;
+export class AppComponent implements OnInit {
+  public readonly title = 'web';
+
+  public get isLoggedIn(): boolean { return this._authService.user != null; }
 
   public constructor(
     private _authService: AuthService
   ) { }
 
-  public loginWithGoogle() {
+  public ngOnInit(): void {
+    throw new Error('Method not implemented.');
   }
 }
