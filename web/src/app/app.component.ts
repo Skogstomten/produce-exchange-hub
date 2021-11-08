@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import AuthService from './services/auth-service.service';
 
 @Component({
   selector: 'app-root',
@@ -9,13 +8,8 @@ import AuthService from './services/auth-service.service';
 export class AppComponent implements OnInit {
   public readonly title = 'web';
 
-  public get isLoggedIn(): boolean { return this._authService.user != null; }
-
-  public constructor(
-    private _authService: AuthService
-  ) { }
+  public constructor() { }
 
   public ngOnInit(): void {
-    throw new Error('Method not implemented.');
   }
 }
