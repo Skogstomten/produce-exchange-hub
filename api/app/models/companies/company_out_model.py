@@ -12,12 +12,15 @@ class CompanyOutModel(BaseModel):
     id: str = Field(...)
     name: Dict[str, str] = Field(...)
     name_localized: str = Field(None)
+    description: Optional[Dict[str, str]] = Field({})
+    description_localized: str = Field(None)
     status: str = Field(...)
     status_localized: str = Field(...)
     created_date: datetime = Field(...)
     company_types: List[str] = Field(...)
     company_types_localized: Optional[List[str]] = Field(None)
     content_languages_iso: List[str] = Field(..., min_items=1)
+    picture_url: Optional[str] = Field(None)
 
     @classmethod
     def create(
@@ -28,6 +31,7 @@ class CompanyOutModel(BaseModel):
             datastore: BaseDatastore
     ):
         name = data.get('name')
+        description = data.get('description', {})
         company_languages = data.get('content_languages_iso')
         status = data.get('status')
         company_types: List[str] = data.get('company_types')
@@ -53,5 +57,8 @@ class CompanyOutModel(BaseModel):
                 )
                 for company_type in company_types
             ],
-            content_languages_iso=company_languages
+            content_languages_iso=company_languages,
+            picture_url=data.get('picture_url', None),
+            description=description,
+            description_localized=localize(description, headers.language, company_languages)
         )

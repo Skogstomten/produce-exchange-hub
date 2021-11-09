@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import IApiListResponse from "../types/api_list_response.interface";
-import ICompanySmall from "../types/company_small.interface";
+import ICompany from "../types/company.interface";
 
 @Injectable({
     providedIn: 'root'
@@ -18,9 +18,9 @@ export default class CompaniesService {
         this._apiUrl = _baseUrl + 'companies/';
     }
 
-    public listCompanies(): Observable<ICompanySmall[]> {
+    public listCompanies(): Observable<ICompany[]> {
         return this._httpClient
-            .get<IApiListResponse<ICompanySmall>>(this._apiUrl)
+            .get<IApiListResponse<ICompany>>(this._apiUrl)
             .pipe(
                 map(value => {
                     return value.items

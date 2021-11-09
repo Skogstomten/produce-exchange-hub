@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import CompaniesService from 'src/app/services/companies.service';
-import ICompanySmall from 'src/app/types/company_small.interface';
+import ICompany from 'src/app/types/company.interface';
 
 @Component({
   selector: 'app-home',
@@ -8,7 +8,7 @@ import ICompanySmall from 'src/app/types/company_small.interface';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  public companies: ICompanySmall[] = []
+  public companies: ICompany[] = []
 
   constructor(
     private _companiesService: CompaniesService
