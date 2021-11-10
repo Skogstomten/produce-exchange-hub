@@ -12,6 +12,7 @@ class Localization(Enum):
     company_types = 'company_types'
     address_types = 'address_types'
     countries_iso_name = 'countries_iso_name'
+    languages_iso_name = 'languages_iso_name'
     contact_types = 'contact_types'
     produce_types = 'produce_types'
     unit_types = 'unit_types'

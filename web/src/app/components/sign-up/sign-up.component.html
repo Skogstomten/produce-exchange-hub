@@ -1,29 +1,36 @@
 <div class="container">
-  <form class="m-auto">
-    <div class="mb-3">
+  <form class="m-auto row">
+    <div class="mb-3 col-md-4 col-sm-12 col-xs-12">
       <label for="eMail" class="form-label">E-Mail</label>
-      <input type="email" class="form-control" id="eMail"/>
+      <input type="email" class="form-control" id="eMail" />
     </div>
-		<div class="mb-3">
-			<label for="password" class="form-label">Password</label>
-			<input type="password" class="form-control" id="password"/>
-		</div>
-		<div class="mb-3">
-			<label for="confirmPassword" class="form-label">Confirm Password</label>
-			<input type="password" class="form-control" id="confirmPassword"/>
-		</div>
-    <div class="mb-3">
+    <div class="mb-3 col-md-4 col-sm-6 col-xs-12">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" class="form-control" id="password" />
+    </div>
+    <div class="mb-3 col-md-4 col-sm-6 col-xs-12">
+      <label for="confirmPassword" class="form-label">Confirm Password</label>
+      <input type="password" class="form-control" id="confirmPassword" />
+    </div>
+    <div class="mb-3 col-md-4 col-sm-6 col-xs-12">
       <label class="form-label" for="firstName">Firstname</label>
-			<input type="text" class="form-control" id="firstName"/>
+      <input type="text" class="form-control" id="firstName" />
     </div>
-		<div class="mb-3">
-			<label class="form-label" for="lastName">Lastname</label>
-			<input type="text" class="form-control" id="lastName"/>
-		</div>
-		<div class="mb-3">
-			<label class="form-label" for="phoneNumber">Phone Number</label>
-			<input type="text" class="form-control" id="phoneNumber"/>
-		</div>
+    <div class="mb-3 col-md-4 col-sm-6 col-xs-12">
+      <label class="form-label" for="lastName">Lastname</label>
+      <input type="text" class="form-control" id="lastName" />
+    </div>
+    <div class="mb-3 col-md-4 col-sm-6 col-xs-12">
+      <label class="form-label" for="phoneNumber">Phone Number</label>
+      <input type="text" class="form-control" id="phoneNumber" />
+    </div>
+    <div class="mb-3 col-md-12 col-sm-6 col-xs-12">
+      <label class="form-label" for="language">Language</label>
+      <select class="form-control" id="language">
+        <option value="SV">Svenska</option>
+        <option value="EN">English</option>
+      </select>
+    </div>
     <button type="submit" class="btn btn-primary">Sign Up</button>
   </form>
 </div>
