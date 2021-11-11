@@ -5,7 +5,7 @@ from .routes import companies, company_news_feed, company_addresses, company_buy
 
 app = FastAPI(
     dependencies=[
-    ]
+    ],
 )
 app.include_router(companies.router)
 app.include_router(company_news_feed.router)
@@ -25,6 +25,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# app.add_middleware(
+#     VerifyIDTokenMiddleware,
+#     auth_client=Depends(get_auth_client)
+# )
 
 
 @app.get('/')
