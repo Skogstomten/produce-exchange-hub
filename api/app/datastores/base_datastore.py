@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import List, Dict, TypeVar, Generic, Iterable, Tuple, Callable, NoReturn
 
-from google.cloud.firestore_v1 import DocumentReference, DocumentSnapshot, CollectionReference
-from google.cloud.firestore_v1.client import Client
+from pymongo.database import Database
+from pymongo.collection import Collection
 
 from app.errors.not_found_error import NotFoundError
 
@@ -44,10 +44,10 @@ CollectionDocKeyPair = Tuple[Tuple[str, str | None]]
 
 
 class BaseDatastore(Generic[TOut]):
-    db: Client
+    db: Database
     _collection_name: str
 
-    def __init__(self, db: Client, collection_name: str):
+    def __init__(self, db: Database, collection_name: str):
         self.db = db
         self._collection_name = collection_name
 
@@ -57,7 +57,7 @@ class BaseDatastore(Generic[TOut]):
             parent_doc_id: str | None = None,
             sub_collections: CollectionDocKeyPair | None = None
     ) -> List[TOut]:
-        collection_ref: CollectionReference = self.db.collection(self._collection_name)
+        collection: Collection = self.db.get_collection(self._collection_name)
         if parent_doc_id is not None and sub_collections is not None and len(sub_collections) > 0:
             doc_ref: DocumentReference = collection_ref.document(parent_doc_id)
             for sub_collection in sub_collections:
