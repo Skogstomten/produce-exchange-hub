@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 
 from pydantic import BaseModel, Field
 
+from ...database.document_database import Document
 from ...datastores.base_datastore import BaseDatastore, Localization, localize
 from ...dependencies.app_headers import AppHeaders
 from ...utilities.datetime_utilities import format_datetime
@@ -26,15 +27,15 @@ class CompanyOutModel(BaseModel):
     def create(
             cls,
             company_id: str,
-            data: Dict[str, str | Dict[str, str] | datetime | List[str]],
+            data: Document,
             headers: AppHeaders,
             datastore: BaseDatastore
     ):
-        name = data.get('name')
-        description = data.get('description', {})
-        company_languages = data.get('content_languages_iso')
-        status = data.get('status')
-        company_types: List[str] = data.get('company_types')
+        name = data.get(str, 'name')
+        description = data.get(Dict, 'description', {})
+        company_languages = data.get(List[str], 'content_languages_iso')
+        status = data.get(str, 'status')
+        company_types: List[str] = data.get(List[str], 'company_types')
         return cls(
             id=company_id,
             name=name,
@@ -46,7 +47,7 @@ class CompanyOutModel(BaseModel):
                 headers.language,
                 company_languages
             ),
-            created_date=format_datetime(data.get('created_date'), headers.timezone),
+            created_date=format_datetime(data.get(datetime, 'created_date'), headers.timezone),
             company_types=company_types,
             company_types_localized=[
                 datastore.localize_from_document(
@@ -58,7 +59,7 @@ class CompanyOutModel(BaseModel):
                 for company_type in company_types
             ],
             content_languages_iso=company_languages,
-            picture_url=data.get('picture_url', None),
+            picture_url=data.get(str, 'picture_url', None),
             description=description,
             description_localized=localize(description, headers.language, company_languages)
         )

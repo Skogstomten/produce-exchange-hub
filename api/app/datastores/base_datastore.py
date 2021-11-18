@@ -1,10 +1,8 @@
 from enum import Enum
 from typing import List, Dict, TypeVar, Generic, Iterable, Tuple, Callable, NoReturn
 
-from pymongo.database import Database
-from pymongo.collection import Collection
-
-from app.errors.not_found_error import NotFoundError
+from ..errors.not_found_error import NotFoundError
+from ..database.document_database import DocumentDatabase
 
 
 class Localization(Enum):
@@ -44,12 +42,10 @@ CollectionDocKeyPair = Tuple[Tuple[str, str | None]]
 
 
 class BaseDatastore(Generic[TOut]):
-    db: Database
-    _collection_name: str
+    db: DocumentDatabase
 
-    def __init__(self, db: Database, collection_name: str):
+    def __init__(self, db: DocumentDatabase):
         self.db = db
-        self._collection_name = collection_name
 
     # def get_all(
     #         self,

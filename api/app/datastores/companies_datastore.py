@@ -1,41 +1,34 @@
 from typing import List
 
-from bson import ObjectId
 from fastapi import Depends
-from pymongo.database import Database
-from pymongo.collection import Collection
 
 from .base_datastore import BaseDatastore
 from ..dependencies.app_headers import AppHeaders
-from ..dependencies.mongo_db import get_mongo_db
+from ..dependencies.document_database import get_document_database
 from ..models.companies.company_in_model import CompanyInModel
 from ..models.companies.company_out_model import CompanyOutModel
 from ..models.companies.company_status import CompanyStatus
+from ..database.document_database import DocumentDatabase
 
 
 class CompaniesDatastore(BaseDatastore[CompanyOutModel]):
-    def __init__(self, db: Database):
-        super().__init__(db, 'companies')
+    def __init__(self, db: DocumentDatabase):
+        super().__init__(db)
 
     def get_companies(self, headers: AppHeaders) -> List[CompanyOutModel]:
-        companies: Collection = self.db.get_collection('companies')
-        for company in companies.find():
-            yield CompanyOutModel.create(str(company['_id']), company, headers, self)
+        return self.db.collection('companies').get_all().select_for_each(
+            lambda doc: CompanyOutModel.create(doc.id, doc, headers, self)
+        )
 
     def get_company(self, company_id: str, headers: AppHeaders) -> CompanyOutModel:
-        company = self.db.get_collection('companies').find_one({'_id': ObjectId(company_id)})
-        return CompanyOutModel.create(
-            company_id,
-            company,
-            headers,
-            self
+        return self.db.collection('companies').by_id(company_id).to(
+            lambda doc: CompanyOutModel.create(doc.id, doc, headers, self)
         )
 
     def add_company(self, body: CompanyInModel, headers: AppHeaders) -> CompanyOutModel:
-        company_id = self.db.get_collection('companies')\
-            .insert_one(body.to_database_dict(CompanyStatus.unactivated.value))\
-            .inserted_id
-        return self.get_company(company_id, headers)
+        return self.db.collection('companies').add(
+            body.to_database_dict(CompanyStatus.unactivated.value)
+        ).to(lambda doc: CompanyOutModel.create(doc.id, doc, headers, self))
 
     # def update_company(self, company_id: str, body: CompanyInModel, headers: AppHeaders) -> CompanyOutModel:
     #     ref, snapshot = self._get_ref_and_snapshot(company_id, ('status',))
@@ -47,5 +40,5 @@ class CompaniesDatastore(BaseDatastore[CompanyOutModel]):
     #     self.delete(company_id)
 
 
-async def get_companies_datastore(db: Database = Depends(get_mongo_db)):
+async def get_companies_datastore(db: DocumentDatabase = Depends(get_document_database)):
     return CompaniesDatastore(db)
