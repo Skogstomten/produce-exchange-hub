@@ -9,7 +9,6 @@ from .company_status import CompanyStatus
 
 class CompanyInModel(BaseModel):
     name: Dict[str, str] = Field(...)
-    created_date: datetime = Field(...)
     company_types: List[str] = Field(...)
     content_languages_iso: List[str] = Field(..., min_items=1)
 

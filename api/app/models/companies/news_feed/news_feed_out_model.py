@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Dict
 
-from google.cloud.firestore_v1 import DocumentReference
 from pydantic import BaseModel, Field
 
 from ....dependencies.app_headers import AppHeaders
@@ -33,15 +32,15 @@ class NewsFeedOutModel(BaseModel):
     def create(
             cls,
             post_id: str,
-            data: Dict[str, DocumentReference | datetime | Dict[str, Dict[str, str]]],
+            data: Dict[str, datetime | Dict[str, Dict[str, str]]],
             headers: AppHeaders,
             company_languages: List[str]
     ):
-        user_ref = data.get('posted_by')
-        user_snapshot = user_ref.get(('first_name', 'last_name',))
-        user_data = user_snapshot.to_dict()
-        posted_by_email = user_ref.id
-        posted_by_name = f"{user_data.get('first_name')} {user_data.get('last_name')}"
+        # user_ref = data.get('posted_by')
+        # user_snapshot = user_ref.get(('first_name', 'last_name',))
+        # user_data = user_snapshot.to_dict()
+        # posted_by_email = user_ref.id
+        # posted_by_name = f"{user_data.get('first_name')} {user_data.get('last_name')}"
         post_data: Dict[str, Dict[str, str]] = data.get('post')
         post: Dict[str, NewsFeedPostModel] = {}
         for language in post_data:
@@ -49,8 +48,8 @@ class NewsFeedOutModel(BaseModel):
 
         return cls(
             id=post_id,
-            posted_by=posted_by_email,
-            posted_by_name=posted_by_name,
+            posted_by='',  # posted_by_email,
+            posted_by_name='',  # posted_by_name,
             posted_date=format_datetime(data.get('posted_date'), headers.timezone),
             post=post,
             post_localized=localize(post_data, headers.language, company_languages)
