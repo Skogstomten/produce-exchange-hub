@@ -1,4 +1,6 @@
 from typing import List
+from datetime import datetime
+import pytz
 
 from fastapi import Depends
 
@@ -29,6 +31,13 @@ class CompaniesDatastore(BaseDatastore[CompanyOutModel]):
         return self.db.collection('companies').add(
             body.to_database_dict(CompanyStatus.unactivated.value)
         ).to(lambda doc: CompanyOutModel.create(doc.id, doc, headers, self))
+
+    def activate_company(self, company_id: str, headers: AppHeaders) -> CompanyOutModel:
+        company = self.db.collection('companies').by_id(company_id)
+        company['status'] = CompanyStatus.active.value
+        company['activation_date'] = datetime.now(pytz.utc)
+        company.update()
+        return self.get_company(company_id, headers)
 
     # def update_company(self, company_id: str, body: CompanyInModel, headers: AppHeaders) -> CompanyOutModel:
     #     ref, snapshot = self._get_ref_and_snapshot(company_id, ('status',))

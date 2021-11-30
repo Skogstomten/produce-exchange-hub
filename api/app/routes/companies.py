@@ -37,3 +37,12 @@ def add_company(
         datastore: CompaniesDatastore = Depends(get_companies_datastore)
 ):
     return datastore.add_company(body, headers)
+
+
+@router.post('/{company_id}/activate', response_model=CompanyOutModel)
+def activate_company(
+        headers: AppHeaders = Depends(get_headers),
+        company_id: str = Path(...),
+        datastore: CompaniesDatastore = Depends(get_companies_datastore)
+):
+    return datastore.activate_company(company_id, headers)

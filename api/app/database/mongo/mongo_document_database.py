@@ -11,10 +11,18 @@ TOutType = TypeVar('TOutType')
 
 class MongoDocument(Document):
     _doc: Dict
+    _collection: MongoCollection
 
-    def __init__(self, doc: Dict):
+    def __init__(self, doc: Dict, collection: MongoCollection):
         super().__init__()
         self._doc = doc
+        self._collection = collection
+
+    def __getitem__(self, item):
+        return self._doc[item]
+
+    def __setitem__(self, key, value):
+        self._doc[key] = value
 
     @property
     def id(self) -> str:
@@ -25,16 +33,24 @@ class MongoDocument(Document):
             return self._doc.get(key)
         return self._doc.get(key, default)
 
+    def update(self):
+        self._collection.update_one(
+            {'_id': self._doc['_id']},
+            {'$set': self._doc}
+        )
+
 
 class MongoDocumentCollection(DocumentCollection):
     _cursor: Cursor
+    _collection: MongoCollection
 
-    def __init__(self, cursor: Cursor):
+    def __init__(self, cursor: Cursor, collection: MongoCollection):
         self._cursor = cursor
+        self._collection = collection
 
     def select_for_each(self, factory: Callable[[Document], Type[T]]) -> List[T]:
         for doc in self._cursor:
-            yield factory(MongoDocument(doc))
+            yield factory(MongoDocument(doc, self._collection))
 
 
 class MongoDatabaseCollection(DatabaseCollection):
@@ -44,7 +60,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         self._collection = collection
 
     def by_id(self, doc_id: str) -> Document:
-        return MongoDocument(self._collection.find_one({'_id': ObjectId(doc_id)}))
+        return MongoDocument(self._collection.find_one({'_id': ObjectId(doc_id)}), self._collection)
 
     def add(self, data: Dict) -> Document:
         doc_id = self._collection.insert_one(data)
@@ -52,7 +68,8 @@ class MongoDatabaseCollection(DatabaseCollection):
 
     def get_all(self) -> DocumentCollection:
         return MongoDocumentCollection(
-            self._collection.find()
+            self._collection.find(),
+            self._collection
         )
 
 

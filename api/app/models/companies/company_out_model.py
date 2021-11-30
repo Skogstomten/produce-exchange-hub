@@ -18,6 +18,7 @@ class CompanyOutModel(BaseModel):
     status: str = Field(...)
     status_localized: str = Field(...)
     created_date: datetime = Field(...)
+    activation_date: Optional[datetime] = Field(None)
     company_types: List[str] = Field(...)
     company_types_localized: Optional[List[str]] = Field(None)
     content_languages_iso: List[str] = Field(..., min_items=1)
@@ -31,7 +32,7 @@ class CompanyOutModel(BaseModel):
             headers: AppHeaders,
             datastore: BaseDatastore
     ):
-        name = data.get(str, 'name')
+        name = data.get(Dict[str, str], 'name')
         description = data.get(Dict, 'description', {})
         company_languages = data.get(List[str], 'content_languages_iso')
         status = data.get(str, 'status')
@@ -48,6 +49,7 @@ class CompanyOutModel(BaseModel):
                 company_languages
             ),
             created_date=format_datetime(data.get(datetime, 'created_date'), headers.timezone),
+            activation_date=format_datetime(data.get(datetime, 'activation_date'), headers.timezone),
             company_types=company_types,
             company_types_localized=[
                 datastore.localize_from_document(

@@ -12,6 +12,14 @@ TOutType = TypeVar('TOutType')
 
 
 class Document(metaclass=ABCMeta):
+    @abstractmethod
+    def __getitem__(self, item):
+        ...
+
+    @abstractmethod
+    def __setitem__(self, key, value):
+        ...
+
     @property
     @abstractmethod
     def id(self) -> str:
@@ -22,6 +30,10 @@ class Document(metaclass=ABCMeta):
 
     def to(self, convert: Callable[['Document'], T]) -> T:
         return convert(self)
+
+    @abstractmethod
+    def update(self):
+        ...
 
 
 class DocumentCollection(metaclass=ABCMeta):
