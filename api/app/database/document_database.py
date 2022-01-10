@@ -1,4 +1,4 @@
-from typing import Callable, Type, TypeVar, List, Dict
+from typing import Any, Callable, Type, TypeVar, List, Dict
 from enum import Enum
 from abc import ABCMeta, abstractmethod
 
@@ -28,11 +28,26 @@ class DocumentCollection(metaclass=ABCMeta):
     @abstractmethod
     def select_for_each(self, factory: Callable[[Document], Type[T]]) -> List[T]:
         ...
+    
+    @abstractmethod
+    def take(self, take: int | None) -> 'DocumentCollection':
+        ...
+    
+    @abstractmethod
+    def sort(self, sort_by: str | None, sort_order: str | None) -> 'DocumentCollection':
+        ...
 
 
 class DatabaseCollection(metaclass=ABCMeta):
     @abstractmethod
     def get_all(self) -> DocumentCollection:
+        ...
+    
+    @abstractmethod
+    def get(
+        self,
+        filters: Dict[str, Any] = {},
+    ) -> DocumentCollection:
         ...
 
     @abstractmethod

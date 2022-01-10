@@ -1,4 +1,5 @@
 from bson import ObjectId
+from pymongo import ASCENDING, DESCENDING
 from pymongo.database import Database as MongoDatabase
 from pymongo.collection import Collection as MongoCollection
 from pymongo.cursor import Cursor
@@ -31,6 +32,19 @@ class MongoDocumentCollection(DocumentCollection):
 
     def __init__(self, cursor: Cursor):
         self._cursor = cursor
+    
+    def take(self, take: int | None) -> 'DocumentCollection':
+        if take is not None:
+            self._cursor = self._cursor.limit(take)
+        return self
+    
+    def sort(self, sort_by: str | None, sort_order: str | None) -> 'DocumentCollection':
+        if sort_by is not None:
+            order = ASCENDING
+            if sort_order == 'desc':
+                order = DESCENDING
+            self._cursor = self._cursor.sort(sort_by, order)
+        return self
 
     def select_for_each(self, factory: Callable[[Document], Type[T]]) -> List[T]:
         for doc in self._cursor:
@@ -54,6 +68,13 @@ class MongoDatabaseCollection(DatabaseCollection):
         return MongoDocumentCollection(
             self._collection.find()
         )
+    
+    def get(
+        self,
+        filters: Dict[str, Any] = {},
+    ) -> DocumentCollection:
+        cursor = self._collection.find(filters)
+        return MongoDocumentCollection(cursor)
 
 
 class MongoDocumentDatabase(DocumentDatabase):

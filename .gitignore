@@ -17,6 +17,8 @@ build/
 
 produce-exchange-hub-firebase-adminsdk-*.json
 
+# PlantUML
+out/
 
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
