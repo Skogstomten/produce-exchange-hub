@@ -1,6 +1,6 @@
-from typing import Enum
+from enum import Enum
 
 
-class SortOrder(str, Enum):
+class SortOrder(Enum):
     asc = 'asc'
     desc = 'desc'
