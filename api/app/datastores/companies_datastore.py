@@ -44,13 +44,13 @@ class CompaniesDatastore(BaseDatastore[CompanyOutModel]):
 
     def get_company(self, company_id: str, headers: AppHeaders) -> CompanyOutModel:
         return self.db.collection('companies').by_id(company_id).to(
-            lambda doc: CompanyOutModel.create(doc.id, doc, headers, self)
+            lambda doc: CompanyOutModel.create(doc, headers, self)
         )
 
     def add_company(self, body: CompanyInModel, headers: AppHeaders) -> CompanyOutModel:
         return self.db.collection('companies').add(
             body.to_database_dict(CompanyStatus.unactivated.value)
-        ).to(lambda doc: CompanyOutModel.create(doc.id, doc, headers, self))
+        ).to(lambda doc: CompanyOutModel.create(doc, headers, self))
 
     def activate_company(self, company_id: str, headers: AppHeaders) -> CompanyOutModel:
         company = self.db.collection('companies').by_id(company_id)

@@ -27,7 +27,6 @@ class CompanyOutModel(BaseModel):
     @classmethod
     def create(
             cls,
-            company_id: str,
             data: Document,
             headers: AppHeaders,
             datastore: BaseDatastore
@@ -38,7 +37,7 @@ class CompanyOutModel(BaseModel):
         status = data.get(str, 'status')
         company_types: List[str] = data.get(List[str], 'company_types')
         return cls(
-            id=company_id,
+            id=data.id,
             name=name,
             name_localized=localize(name, headers.language, company_languages),
             status=status,
