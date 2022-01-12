@@ -9,15 +9,20 @@ from ...utilities.datetime_utilities import format_datetime
 
 class UserOutModel(BaseModel):
     id: str = Field(...)
-    first_name: str = Field(...)
-    last_name: str = Field(...)
-    created_date: datetime = Field(...)
-    last_logged_in: Optional[datetime] = Field(...)
-    preferred_language_iso: str = Field(...)
-    preferred_language: Optional[str] = Field(None)
-    timezone: str = Field('Europe/Stockholm')
-    profile_picture_url: Optional[str] = Field(None)
-    is_super_user: bool = Field(False)
+    username: str = Field(...)
+    email: str = Field(...)
+    firstname: str = Field(...)
+    lastname: str = Field(...)
+    city: str = Field(...)
+    country_iso: str = Field(..., alias='countryIso')
+    country: str | None = Field(None)
+    created_date: datetime = Field(..., alias='createdDate')
+    last_logged_in: datetime | None = Field(..., alias='lastLoggedIn')
+    preferred_language_iso: str = Field(..., alias='preferredLanguageIso')
+    preferred_language: Optional[str] = Field(None, alias='preferredLanguage')
+    timezone: str | None = Field('Europe/Stockholm')
+    profile_picture_url: str | None = Field(None, alias='profilePictureUrl')
+    is_super_user: bool = Field(False, alias='isSuperUser')
 
     @classmethod
     def create(
@@ -33,10 +38,21 @@ class UserOutModel(BaseModel):
             last_logged_in = format_datetime(last_logged_in, timezone)
 
         preferred_language_iso = data.get('preferred_language_iso')
+        country_iso = data.get('country_iso')
         return cls(
             id=user_id,
-            first_name=data.get('first_name'),
-            last_name=data.get('last_name'),
+            username=data.get('username'),
+            email=data.get('email'),
+            firstname=data.get('firstname'),
+            lastname=data.get('lastname'),
+            city=data.get('city'),
+            country_iso=country_iso,
+            country=datastore.localize_from_document(
+                Localization.countries_iso_name,
+                country_iso,
+                preferred_language_iso,
+                [preferred_language_iso]
+            ),
             created_date=format_datetime(data.get('created_date'), timezone),
             last_logged_in=last_logged_in,
             preferred_language_iso=preferred_language_iso,

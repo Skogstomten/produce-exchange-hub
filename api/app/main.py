@@ -11,7 +11,7 @@ app.include_router(companies.router)
 # app.include_router(company_news_feed.router)
 # app.include_router(company_addresses.router)
 # app.include_router(company_buys.router)
-# app.include_router(auth.router)
+app.include_router(auth.router)
 # app.include_router(users.router)
 
 origins = [

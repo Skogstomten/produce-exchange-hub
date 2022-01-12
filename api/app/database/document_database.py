@@ -65,6 +65,14 @@ class DatabaseCollection(metaclass=ABCMeta):
     @abstractmethod
     def by_id(self, doc_id: str) -> Document:
         ...
+    
+    @abstractmethod
+    def by_key(self, key: str, value: Any) -> Document:
+        ...
+    
+    @abstractmethod
+    def exists(self, filters: Dict[str, Any]) -> bool:
+        ...
 
     @abstractmethod
     def add(self, data: Dict) -> Document:

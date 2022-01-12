@@ -4,7 +4,8 @@ from typing import Dict
 
 from pydantic import BaseModel, Field
 
-from app.errors.invalid_timezone_error import InvalidTimezoneError
+from ...errors.invalid_timezone_error import InvalidTimezoneError
+from ...cryptography import password_hasher as hasher
 
 
 class RegisterUserInModel(BaseModel):
@@ -18,6 +19,10 @@ class RegisterUserInModel(BaseModel):
         min_length=8,
         regex="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$",
     )
+    email: str = Field(
+        ...,
+        regex="(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])",
+    )
     firstname: str = Field(
         ...,
     )
@@ -29,28 +34,38 @@ class RegisterUserInModel(BaseModel):
     )
     country_iso: str = Field(
         ...,
-        alias='country-iso',
+        alias='countryIso',
     )
     timezone: str | None = Field(
         'Europe/Stockholm',
     )
-    language: str | None = Field(
+    preferred_language_iso: str | None = Field(
         'SV',
+        alias='preferredLanguageIso'
     )
 
-    def to_database_dict(self) -> Dict[str, str | datetime]:
+    def to_database_dict(self) -> Dict[str, str | datetime | bool | None]:
         if self.timezone not in pytz.all_timezones_set:
             return InvalidTimezoneError(self.timezone)
+        
+        hashed_password = hasher.hash_password(
+            self.password,
+            hasher.generate_salt()
+        )
 
         result = {
             'username': self.username,
-            'password': self.password,  # TODO: hash this
+            'password': hashed_password,
+            'email': self.email,
             'firstname': self.firstname,
             'lastname': self.lastname,
             'city': self.city,
-            'country-iso': self.country_iso,
+            'country_iso': self.country_iso,
+            'created_date': datetime.now(pytz.utc),
+            'last_logged_in': None,
+            'preferred_language_iso': self.language,
             'timezone': self.timezone,
-            'language': self.language,
-            'creation-date': datetime.now(pytz.utc)
+            'profile_picture_url': None,
+            'is_super_user': False
         }
         return result
