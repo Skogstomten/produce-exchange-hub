@@ -1,6 +1,7 @@
 from typing import List
 from datetime import datetime
 import pytz
+from warnings import filters
 
 from fastapi import Depends
 
@@ -11,14 +12,33 @@ from ..models.companies.company_in_model import CompanyInModel
 from ..models.companies.company_out_model import CompanyOutModel
 from ..models.companies.company_status import CompanyStatus
 from ..database.document_database import DocumentDatabase
+from ..models.shared.sort_order import SortOrder
 
 
 class CompaniesDatastore(BaseDatastore[CompanyOutModel]):
     def __init__(self, db: DocumentDatabase):
         super().__init__(db)
 
-    def get_companies(self, headers: AppHeaders) -> List[CompanyOutModel]:
-        return self.db.collection('companies').get_all().select_for_each(
+    def get_companies(
+        self,
+        headers: AppHeaders,
+        take: int | None,
+        sort_by: str | None,
+        sort_order: SortOrder,
+        active_only: bool,
+    ) -> List[CompanyOutModel]:
+        filters = None
+        if active_only:
+            filters = {'status': CompanyStatus.active.value}
+        return self.db.collection(
+            'companies'
+        ).get(
+            filters
+        ).take(
+            take
+        ).sort(
+            sort_by, sort_order
+        ).select_for_each(
             lambda doc: CompanyOutModel.create(doc.id, doc, headers, self)
         )
 

@@ -1,0 +1,29 @@
+@startuml StartPageLoad
+
+title Start Page Load
+
+skinparam maxMessageSize 150
+skinparam RoundCorner 20
+
+actor user as "User"
+participant web as "Web"
+participant api as "Api"
+database db as "Database"
+
+user -> web ++ : Open site url in browser
+    web -> web : check for auth cookie
+    alt Has auth cookie
+        web -> api ++ : /auth/get-session
+            api -> db ++ : find session
+                return session
+            return session if session is valid else return 404
+        web -> web : load session data
+    end
+
+    web -> api ++ : /companies\n?take=10\n&orderby=created-date\n&order=desc
+        api -> db ++ : collection=companies\nwhere status=active\ntake=10\norderby created-date desc\n
+            return companies
+        return companies
+    return display start page
+
+@enduml
