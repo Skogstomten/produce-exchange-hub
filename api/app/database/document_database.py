@@ -42,6 +42,10 @@ class DocumentCollection(metaclass=ABCMeta):
         ...
     
     @abstractmethod
+    def skip(self, skip: int | None) -> 'DocumentCollection':
+        ...
+    
+    @abstractmethod
     def take(self, take: int | None) -> 'DocumentCollection':
         ...
     

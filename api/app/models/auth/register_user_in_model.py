@@ -9,11 +9,6 @@ from ...cryptography import password_hasher as hasher
 
 
 class RegisterUserInModel(BaseModel):
-    username: str = Field(
-        ...,
-        min_length=5,
-        regex="[0-9a-öA-Ö\-_\.!+#]+",
-    )
     password: str = Field(
         ...,
         min_length=8,
@@ -54,16 +49,15 @@ class RegisterUserInModel(BaseModel):
         )
 
         result = {
-            'username': self.username,
-            'password': hashed_password,
             'email': self.email,
+            'password': hashed_password,
             'firstname': self.firstname,
             'lastname': self.lastname,
             'city': self.city,
             'country_iso': self.country_iso,
             'created_date': datetime.now(pytz.utc),
             'last_logged_in': None,
-            'preferred_language_iso': self.language,
+            'preferred_language_iso': self.preferred_language_iso,
             'timezone': self.timezone,
             'profile_picture_url': None,
             'is_super_user': False

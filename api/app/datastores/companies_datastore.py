@@ -22,6 +22,7 @@ class CompaniesDatastore(BaseDatastore[CompanyOutModel]):
     def get_companies(
         self,
         headers: AppHeaders,
+        skip: int | None,
         take: int | None,
         sort_by: str | None,
         sort_order: SortOrder,
@@ -34,12 +35,14 @@ class CompaniesDatastore(BaseDatastore[CompanyOutModel]):
             'companies'
         ).get(
             filters
+        ).skip(
+            skip
         ).take(
             take
         ).sort(
             sort_by, sort_order
         ).select_for_each(
-            lambda doc: CompanyOutModel.create(doc.id, doc, headers, self)
+            lambda doc: CompanyOutModel.create(doc, headers, self)
         )
 
     def get_company(self, company_id: str, headers: AppHeaders) -> CompanyOutModel:

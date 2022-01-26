@@ -1,3 +1,5 @@
+import pymongo
+
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
 from pymongo.database import Database as MongoDatabase
@@ -49,6 +51,11 @@ class MongoDocumentCollection(DocumentCollection):
         self._cursor = cursor
         self._collection = collection
     
+    def skip(self, skip: int | None) -> 'DocumentCollection':
+        if skip is not None:
+            self._cursor = self._cursor.skip(skip)
+        return self
+    
     def take(self, take: int | None) -> 'DocumentCollection':
         if take is not None:
             self._cursor = self._cursor.limit(take)
@@ -83,8 +90,8 @@ class MongoDatabaseCollection(DatabaseCollection):
         )
 
     def add(self, data: Dict) -> Document:
-        doc_id = self._collection.insert_one(data)
-        return self.by_id(doc_id)
+        result = self._collection.insert_one(data)
+        return self.by_id(result.inserted_id)
 
     def get_all(self) -> DocumentCollection:
         return MongoDocumentCollection(
@@ -97,7 +104,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         filters: Dict[str, Any] = {},
     ) -> DocumentCollection:
         cursor = self._collection.find(filters)
-        return MongoDocumentCollection(cursor)
+        return MongoDocumentCollection(cursor, self._collection)
     
     def exists(self, filters: Dict[str, Any]) -> bool:
         return self._collection.count_documents(filters, limit=1) > 0

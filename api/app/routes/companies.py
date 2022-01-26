@@ -16,12 +16,13 @@ router = APIRouter(
 def get_companies(
         headers: AppHeaders = Depends(get_headers),
         datastore: CompaniesDatastore = Depends(get_companies_datastore),
-        take: int | None = Query(100, title="Take", description="Max number of records to return. Default=100"),
+        skip: int | None = Query(0, title="Skip", description="Number of records to skip"),
+        take: int | None = Query(100, title="Take", description="Max number of records to return"),
         orderby: str | None = Query(None, title="Order By", description="Sort result by field"),
-        order: SortOrder | None = Query(SortOrder.asc, title="Order", description="asc or desc. Default=asc"),
+        order: SortOrder | None = Query(SortOrder.asc, title="Order", description="asc or desc"),
         active_only: bool | None = Query(True, title="Active only", description="Only return active companies", alias="active-only"),
 ):
-    companies = datastore.get_companies(headers, take, orderby, order, active_only)
+    companies = datastore.get_companies(headers, skip, take, orderby, order, active_only)
     return {'items': companies}
 
 

@@ -1,4 +1,20 @@
-/* You can add global styles to this file, and also import other style files */
+body {
+    background-color: #babd8d;
+}
+
+.navbar-custom {
+    background-color: #7c6a0a;
+}
+
+.navbar-custom .nav-link,
+.navbar-custom .navbar-brand {
+    color: black;
+}
+
+.navbar-custom .btn {
+    color: black;
+    border: thin solid black;
+}
 
 .feed-box {
     border: thin black solid;
