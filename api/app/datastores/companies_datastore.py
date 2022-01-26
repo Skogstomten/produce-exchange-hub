@@ -40,7 +40,7 @@ class CompaniesDatastore(BaseDatastore[CompanyOutModel]):
         ).take(
             take
         ).sort(
-            sort_by, sort_order
+            sort_by, sort_order.value
         ).select_for_each(
             lambda doc: CompanyOutModel.create(doc, headers, self)
         )
