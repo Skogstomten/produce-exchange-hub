@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional, Dict
 
 from pydantic import BaseModel, Field
 
@@ -14,15 +13,15 @@ class UserOutModel(BaseModel):
     firstname: str = Field(...)
     lastname: str = Field(...)
     city: str = Field(...)
-    country_iso: str | None = Field(None, alias='countryIso')
+    country_iso: str | None = Field(None)
     country: str | None = Field(None)
-    created_date: datetime | None = Field(None, alias='createdDate')
-    last_logged_in: datetime | None = Field(None, alias='lastLoggedIn')
-    preferred_language_iso: str | None = Field(None, alias='preferredLanguageIso')
-    preferred_language: str | None = Field(None, alias='preferredLanguage')
+    created_date: datetime | None = Field(None)
+    last_logged_in: datetime | None = Field(None)
+    preferred_language_iso: str | None = Field(None)
+    preferred_language: str | None = Field(None)
     timezone: str | None = Field('Europe/Stockholm')
-    profile_picture_url: str | None = Field(None, alias='profilePictureUrl')
-    is_super_user: bool = Field(False, alias='isSuperUser')
+    profile_picture_url: str | None = Field(None)
+    is_super_user: bool = Field(False)
 
     @classmethod
     def create(
@@ -31,6 +30,11 @@ class UserOutModel(BaseModel):
             datastore: BaseDatastore,
     ):
         timezone = data.get(str, 'timezone', 'Europe/Stockholm')
+        print('Timezone=' + timezone)
+        created_date = data.get(datetime, 'created_date')
+        print('created_date pre-formatted=' + str(created_date))
+        created_date = format_datetime(created_date, timezone)
+        print('created_date formatter=' + str(created_date))
 
         last_logged_in = data.get(datetime, 'last_logged_in', None)
         if last_logged_in is not None:
@@ -44,23 +48,23 @@ class UserOutModel(BaseModel):
             firstname=data.get(str, 'firstname'),
             lastname=data.get(str, 'lastname'),
             city=data.get(str, 'city'),
-            countryIso=country_iso,
+            country_iso=country_iso,
             country=datastore.localize_from_document(
                 Localization.countries_iso_name,
                 country_iso,
                 preferred_language_iso,
                 [preferred_language_iso]
             ),
-            createdDate=format_datetime(data.get(datetime, 'created_date'), timezone),
-            lastLoggedIn=last_logged_in,
-            preferredLanguageIso=preferred_language_iso,
-            preferredLanguage=datastore.localize_from_document(
+            created_date=created_date,
+            last_logged_in=last_logged_in,
+            preferred_language_iso=preferred_language_iso,
+            preferred_language=datastore.localize_from_document(
                 Localization.languages_iso_name,
                 preferred_language_iso,
                 preferred_language_iso,
                 [preferred_language_iso]
             ),
             timezone=timezone,
-            profilePictureUrl=data.get(str, 'profile_picture_url', None),
-            isSuperUser=data.get(bool, 'is_super_user', False),
+            profile_picture_url=data.get(str, 'profile_picture_url', None),
+            is_super_user=data.get(bool, 'is_super_user', False),
         )

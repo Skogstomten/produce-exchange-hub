@@ -18,30 +18,16 @@ class RegisterUserInModel(BaseModel):
         ...,
         regex="(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])",
     )
-    firstname: str = Field(
-        ...,
-    )
-    lastname: str = Field(
-        ...,
-    )
-    city: str = Field(
-        ...,
-    )
-    country_iso: str = Field(
-        ...,
-        alias='countryIso',
-    )
-    timezone: str | None = Field(
-        'Europe/Stockholm',
-    )
-    preferred_language_iso: str | None = Field(
-        'SV',
-        alias='preferredLanguageIso'
-    )
+    firstname: str = Field(...)
+    lastname: str = Field(...)
+    city: str = Field(...)
+    country_iso: str = Field(...)
+    timezone: str | None = Field('Europe/Stockholm')
+    preferred_language_iso: str | None = Field('SV')
 
     def to_database_dict(self) -> Dict[str, str | datetime | bool | None]:
         if self.timezone not in pytz.all_timezones_set:
-            return InvalidTimezoneError(self.timezone)
+            raise InvalidTimezoneError(self.timezone)
         
         hashed_password = hasher.hash_password(
             self.password,

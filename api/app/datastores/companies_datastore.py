@@ -1,7 +1,6 @@
 from typing import List
 from datetime import datetime
 import pytz
-from warnings import filters
 
 from fastapi import Depends
 
