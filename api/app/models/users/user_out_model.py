@@ -1,3 +1,4 @@
+import pytz
 from datetime import datetime
 
 from pydantic import BaseModel, Field
@@ -32,6 +33,7 @@ class UserOutModel(BaseModel):
         timezone = data.get(str, 'timezone', 'Europe/Stockholm')
         print('Timezone=' + timezone)
         created_date = data.get(datetime, 'created_date')
+        created_date = pytz.utc.localize(created_date)
         print('created_date pre-formatted=' + str(created_date))
         created_date = format_datetime(created_date, timezone)
         print('created_date formatter=' + str(created_date))
