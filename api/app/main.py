@@ -1,18 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordRequestForm
 
-from .routes import companies, company_news_feed, company_addresses, company_buys, auth, users
+from .dependencies.auth import oauth2_scheme, get_current_user
+from .models.v1.user import User
+from .routes import companies, auth
 
 app = FastAPI(
     dependencies=[
     ],
 )
 app.include_router(companies.router)
-# app.include_router(company_news_feed.router)
-# app.include_router(company_addresses.router)
-# app.include_router(company_buys.router)
 app.include_router(auth.router)
-# app.include_router(users.router)
 
 origins = [
     '*'
@@ -26,12 +25,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.add_middleware(
-#     VerifyIDTokenMiddleware,
-#     auth_client=Depends(get_auth_client)
-# )
-
 
 @app.get('/')
 async def root():
     return {'message': 'This is root'}
+
+
+# Security testing
+@app.get('/test-auth')
+def test_auth(token: str = Depends(oauth2_scheme)):
+    return {'token': token}
+
+
+
+
+
+@app.get("/users/me")
+def read_users_me(current_user: User = Depends(get_current_user)):
+    return current_user

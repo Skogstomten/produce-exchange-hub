@@ -8,7 +8,7 @@ from app.models.companies.company_out_model import CompanyOutModel
 from app.models.shared.sort_order import SortOrder
 
 router = APIRouter(
-    prefix='/companies'
+    prefix='/api/v1/companies'
 )
 
 
