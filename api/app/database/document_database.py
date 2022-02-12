@@ -25,14 +25,11 @@ class Document(metaclass=ABCMeta):
     def id(self) -> str:
         ...
 
-    @abstractmethod
-    def get(self, return_type: Type[TOutType], key: str, default: TOutType | NotSet = NotSet.not_set) -> TOutType: ...
-
     def to(self, convert: Callable[['Document'], T]) -> T:
         return convert(self)
 
     @abstractmethod
-    def update(self):
+    def dict(self):
         ...
 
 

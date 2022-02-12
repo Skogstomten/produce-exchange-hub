@@ -1,8 +1,16 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from ..dependencies.user import get_current_user_if_any
+from ..models.user import UserInternal
 
 router = APIRouter()
 
 
 @router.get('/')
-async def root():
-    return 'this is root. Will be more here later'
+async def root(
+        user: UserInternal | None = Depends(get_current_user_if_any)
+):
+    result = {}
+    if user is not None:
+        result['current_user'] = user.email
+    return result

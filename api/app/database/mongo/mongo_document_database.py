@@ -29,16 +29,8 @@ class MongoDocument(Document):
     def id(self) -> str:
         return str(self._doc['_id'])
 
-    def get(self, return_type: Type[TOutType], key: str, default: TOutType | NotSet = NotSet.not_set) -> TOutType:
-        if default == NotSet.not_set:
-            return self._doc.get(key)
-        return self._doc.get(key, default)
-
-    def update(self):
-        self._collection.update_one(
-            {'_id': self._doc['_id']},
-            {'$set': self._doc}
-        )
+    def dict(self):
+        return self._doc
 
 
 class MongoDocumentCollection(DocumentCollection):
