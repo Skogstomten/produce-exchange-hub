@@ -73,7 +73,10 @@ class MongoDatabaseCollection(DatabaseCollection):
     def by_id(self, doc_id: str) -> Document:
         return MongoDocument(self._collection.find_one({'_id': ObjectId(doc_id)}), self._collection)
     
-    def by_key(self, key: str, value: Any) -> Document:
+    def by_key(self, key: str, value: Any) -> Document | None:
+        doc = self._collection.find_one({key: value})
+        if doc is None:
+            return None
         return MongoDocument(
             self._collection.find_one({key: value}),
             self._collection

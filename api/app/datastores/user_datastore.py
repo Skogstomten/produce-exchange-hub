@@ -7,6 +7,7 @@ from ..dependencies.document_database import get_document_database
 from ..database.document_database import DocumentDatabase
 from ..cryptography import password_hasher as hasher
 from ..models.user import UserInternal, UserRegister, UserAdd
+from ..errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
 
 
 class UserDatastore(object):
@@ -31,6 +32,16 @@ class UserDatastore(object):
         )
         doc = collection.add(new_user.dict())
         return UserInternal(id=doc.id, **doc.dict())
+
+    def authenticate_user(self, email: str, password: str) -> UserInternal:
+        collection = self.db.collection('users')
+        doc = collection.by_key('email', email)
+        if doc is None:
+            raise InvalidUsernameOrPasswordError()
+        user = UserInternal(id=doc.id, **doc.dict())
+        if not hasher.is_correct_password(password, user.password_hash):
+            raise InvalidUsernameOrPasswordError()
+        return user
 
 
 def get_user_datastore(

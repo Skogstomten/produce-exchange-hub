@@ -68,7 +68,7 @@ class DatabaseCollection(metaclass=ABCMeta):
         ...
     
     @abstractmethod
-    def by_key(self, key: str, value: Any) -> Document:
+    def by_key(self, key: str, value: Any) -> Document | None:
         ...
     
     @abstractmethod
