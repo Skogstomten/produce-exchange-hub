@@ -21,7 +21,7 @@ class UserDatastore(object):
         doc = collection.by_key('email', email)
         if doc is None:
             return None
-        return UserInternal(**doc.dict())
+        return UserInternal(id=doc.id, **doc.dict())
 
     def add_user(self, user: UserRegister) -> UserInternal:
         collection = self.db.collection('users')
