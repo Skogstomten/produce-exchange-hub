@@ -1,3 +1,8 @@
+## NPM folders
+**/node_modules
+
+
+## Virtual environments
 venv/
 
 *.pyc
