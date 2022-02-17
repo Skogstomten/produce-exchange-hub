@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from .output_list import OutputList
+
 
 class CompanyPublic(BaseModel):
     id: str

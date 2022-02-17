@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import ListResponse from '../models/ListResponse.interface';
+import { Observable, throwError } from 'rxjs'
+import { catchError, retry } from 'rxjs/operators'
+
+import IListResponse from '../models/list-response.interface';
 import ICompany from '../models/company.interface'
 
 @Injectable({
@@ -15,6 +18,8 @@ export class CompaniesService {
   ) { }
 
   public getCompaniesForStartPage() {
-    this._http.get<ListResponse<ICompany>>(this._url)
+    this._http
+      .get<IListResponse<ICompany>>(this._url)
+      .pipe()
   }
 }
