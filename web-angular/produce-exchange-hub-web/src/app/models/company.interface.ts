@@ -1,8 +1,6 @@
+import DynamicObject from './dynamic-object.interface'
+
 export default interface ICompany {
     id: string
-    name: map
-}
-
-export interface map {
-  SV: string
+    name: DynamicObject<string>
 }
