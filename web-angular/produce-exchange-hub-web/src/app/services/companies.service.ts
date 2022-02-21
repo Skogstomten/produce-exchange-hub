@@ -19,8 +19,8 @@ export class CompaniesService {
 
   public getCompaniesForStartPage(): Observable<ICompany[]> {
     return this._http
-      .get<IListResponse<ICompany>>(this._url, options: {
-        responseType: 'application/json'
+      .get<IListResponse<ICompany>>(this._url, {
+        responseType: 'json'
       })
       .pipe(
         map(resp => resp.items)

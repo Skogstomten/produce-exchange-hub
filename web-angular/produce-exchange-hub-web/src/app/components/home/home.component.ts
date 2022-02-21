@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { CompaniesService } from '../services/companies.service'
-import ICompany from '../models/company.interface'
+import { CompaniesService } from '../../services/companies.service'
+import ICompany from '../../models/company.interface'
 
 @Component({
   selector: 'app-home',
