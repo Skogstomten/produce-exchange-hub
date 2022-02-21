@@ -19,7 +19,9 @@ export class CompaniesService {
 
   public getCompaniesForStartPage(): Observable<ICompany[]> {
     return this._http
-      .get<IListResponse<ICompany>>(this._url)
+      .get<IListResponse<ICompany>>(this._url, options: {
+        
+      })
       .pipe(
         map(resp => resp.items)
       );
