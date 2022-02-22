@@ -29,3 +29,15 @@ def get_current_user_if_any(
     if user is None:
         raise credentials_exception
     return user
+
+
+def get_current_user(
+        user: UserInternal | None = Depends(get_current_user_if_any),
+) -> UserInternal:
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Could not validate credentials',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
+    return user

@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, Query
 
+from ..dependencies.user import get_current_user
 from ..models.output_list import OutputList
-from ..models.company import CompanyPublic
+from ..models.company import CompanyPublic, CompanyIn
+from ..models.user import UserInternal
 from ..datastores.company_datastore import CompanyDatastore, get_company_datastore
 
 router = APIRouter(prefix='/companies')
@@ -24,3 +26,11 @@ async def get_companies(
     return {
         'items': companies
     }
+
+
+@router.post('/', response_model=CompanyIn)
+async def add_company(
+        user: UserInternal = Depends(get_current_user),
+        companies: CompanyDatastore = Depends(get_company_datastore),
+):
+    pass

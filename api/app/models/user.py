@@ -11,6 +11,7 @@ class User(BaseModel):
     country_iso: str
     timezone: str = Field('Europe/Stockholm')
     language_iso: str = Field('SV')
+    verified: bool = Field(True)
 
 
 class UserAdd(User):
