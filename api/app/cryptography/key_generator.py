@@ -1,7 +1,6 @@
 import base64
 
 from Crypto.Hash import SHA512
-from Crypto.Random import get_random_bytes
 
 
 def generate_key_from_data(user_id: str, *args) -> str:

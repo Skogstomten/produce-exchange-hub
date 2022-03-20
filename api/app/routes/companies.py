@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Query
 from ..dependencies.user import get_current_user
 from ..models.output_list import OutputList
 from ..models.company import CompanyPublic, CompanyIn
+from ..models.shared.sort_order import SortOrder
 from ..models.user import UserInternal
 from ..datastores.company_datastore import CompanyDatastore, get_company_datastore
 
@@ -14,7 +15,7 @@ async def get_companies(
         take: int | None = Query(None),
         skip: int | None = Query(None),
         sort_by: str | None = Query(None),
-        sort_order: str | None = Query('asc'),
+        sort_order: SortOrder | None = Query('asc'),
         companies: CompanyDatastore = Depends(get_company_datastore)
 ):
     companies = companies.get_companies(

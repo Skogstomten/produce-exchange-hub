@@ -6,4 +6,12 @@
 
 Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<div>
+    @if (Companies != null)
+        @foreach (CompanyListModel company in Companies)
+        {
+            <h2>
+                @company?.Name?["SV"]
+            </h2>
+        }
+</div>

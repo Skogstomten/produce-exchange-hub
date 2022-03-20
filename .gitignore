@@ -55,6 +55,10 @@ chrome-profiler-events*.json
 !.vscode/extensions.json
 .history/*
 
+# IDE - VS
+.vs/
+**/.vs/
+
 # misc
 /.sass-cache
 /connect.lock
