@@ -22,4 +22,7 @@ public record CompanyListModel
 
     [JsonPropertyName("activation_date")]
     public DateTime? ActivationDate { get; init; }
+
+    [JsonPropertyName("description")]
+    public Dictionary<string, string>? Description { get; init; }
 }

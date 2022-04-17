@@ -21,7 +21,7 @@ class UserDatastore(object):
         doc = collection.by_key('email', email)
         if doc is None:
             return None
-        return UserInternal(id=doc.id, **doc.dict())
+        return UserInternal(id=doc.id, **doc.to_dict())
 
     def add_user(self, user: UserRegister) -> UserInternal:
         collection = self.db.collection('users')
@@ -31,14 +31,14 @@ class UserDatastore(object):
             **user.dict()
         )
         doc = collection.add(new_user.dict())
-        return UserInternal(id=doc.id, **doc.dict())
+        return UserInternal(id=doc.id, **doc.to_dict())
 
     def authenticate_user(self, email: str, password: str) -> UserInternal:
         collection = self.db.collection('users')
         doc = collection.by_key('email', email)
         if doc is None:
             raise InvalidUsernameOrPasswordError()
-        user = UserInternal(id=doc.id, **doc.dict())
+        user = UserInternal(id=doc.id, **doc.to_dict())
         if not hasher.is_correct_password(password, user.password_hash):
             raise InvalidUsernameOrPasswordError()
         return user

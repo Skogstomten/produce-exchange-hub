@@ -1,17 +1,21 @@
+from enum import Enum
+
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
 from pymongo.database import Database as MongoDatabase
 from pymongo.collection import Collection as MongoCollection
 from pymongo.cursor import Cursor
+from pymongo.results import UpdateResult
 
 from ..document_database import *
+from ...utils.enum_utils import enums_to_string
 
 
 TOutType = TypeVar('TOutType')
 
 
 class MongoDocument(Document):
-    _doc: Dict
+    _doc: dict
     _collection: MongoCollection
 
     def __init__(self, doc: Dict, collection: MongoCollection):
@@ -29,8 +33,16 @@ class MongoDocument(Document):
     def id(self) -> str:
         return str(self._doc['_id'])
 
-    def dict(self):
+    def to_dict(self):
         return self._doc
+
+    def replace(self, data: dict) -> Document:
+        data = enums_to_string(data)
+        result: UpdateResult = self._collection.replace_one(
+            {'_id': ObjectId(self.id)},
+            data,
+        )
+        return MongoDocument(self._collection.find_one({'_id': ObjectId(self.id)}), self._collection)
 
 
 class MongoDocumentCollection(DocumentCollection):

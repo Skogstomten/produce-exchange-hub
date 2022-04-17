@@ -29,7 +29,11 @@ class Document(metaclass=ABCMeta):
         return convert(self)
 
     @abstractmethod
-    def dict(self):
+    def to_dict(self):
+        ...
+
+    @abstractmethod
+    def replace(self, data: dict) -> 'Document':
         ...
 
 

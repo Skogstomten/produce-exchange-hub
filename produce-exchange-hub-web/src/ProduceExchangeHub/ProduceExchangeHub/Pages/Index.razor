@@ -6,8 +6,6 @@
     @if (Companies != null)
         @foreach (CompanyListModel company in Companies)
         {
-            <h2>
-                @company?.Name?["SV"]
-            </h2>
+            <_CompanyCard Company="@company" />
         }
 </div>
