@@ -4,8 +4,26 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, ApplicationSettings settings)
     {
-        services.AddSingleton<ICallRestService>(_ => new RestServiceCaller(Ensure.NotNull(settings.ApiBaseUrl)))
-            .AddSingleton<ICompanyService, CompanyService>();
+        if (string.IsNullOrWhiteSpace(settings.ApiBaseUrl))
+            throw new ApplicationException("Can't find api base url!");
+
+        services.AddScoped<OAuth2UsernamePasswordAuthorizationMessageHandler>();
+        services.AddHttpClient(
+            "Api",
+            client => client.BaseAddress = new Uri(settings.ApiBaseUrl)
+        );
+
+        services.AddScoped(
+            sp => sp
+                .GetRequiredService<IHttpClientFactory>()
+                .CreateClient("Api")
+        );
+
+        services
+            .AddScoped<ICallRestService, RestServiceCaller>(
+                
+            )
+            .AddScoped<ICompanyService, CompanyService>();
 
         return services;
     }

@@ -14,7 +14,7 @@ public class CompanyService : ICompanyService
         string GetSortOrder() => sortOrder == SortOrder.Ascending ? "asc" : "desc";
 
         ListResponseModel<CompanyListModel> response = await _restService.GetAsync<ListResponseModel<CompanyListModel>>(
-            $"/companies?skip={skip}&take={take}&sort_order={GetSortOrder()}&sort_by={sortBy}"
+            $"/companies/?skip={skip}&take={take}&sort_order={GetSortOrder()}&sort_by={sortBy}"
         );
 
         return response.Items ?? new List<CompanyListModel>();

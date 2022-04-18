@@ -1,16 +1,14 @@
 ﻿<nav class="nav-top @NavMenuCssClass">
     <div class="nav-brand">
-        <a href="#">
-            ProduceExchangeHub
-        </a>
+        <NavLink href="/" @onclick="CloseNavMeny">ProduceExchangeHub</NavLink>
     </div>
 
     <ul class="nav-right-buttons">
         <li>
-            Register
+            <NavLink href="/register" @onclick="CloseNavMeny">Register</NavLink>
         </li>
         <li>
-            Login
+            <NavLink href="/login" @onclick="CloseNavMeny">Login</NavLink>
         </li>
     </ul>
 
@@ -30,5 +28,11 @@
     private void ToggleNavMenu()
     {
         toggleNavMenu = !toggleNavMenu;
+    }
+
+    private void CloseNavMeny()
+    {
+        if (toggleNavMenu)
+            ToggleNavMenu();
     }
 }

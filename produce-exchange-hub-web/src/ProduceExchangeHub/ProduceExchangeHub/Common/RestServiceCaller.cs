@@ -4,13 +4,13 @@ namespace ProduceExchangeHub.Common;
 
 public class RestServiceCaller : ICallRestService
 {
-    private string _baseUrl;
+    private readonly HttpClient _client;
 
     public RestServiceCaller(
-        string baseUrl
+        HttpClient client
     )
     {
-        _baseUrl = baseUrl;
+        _client = client;
     }
 
     public async Task<T> GetAsync<T>(string url)
@@ -18,9 +18,7 @@ public class RestServiceCaller : ICallRestService
         if (url.StartsWith("/"))
             url = url.Substring(1);
 
-        using HttpClient client = new();
-
-        HttpResponseMessage response = await client.GetAsync($"{_baseUrl}/{url}");
+        HttpResponseMessage response = await _client.GetAsync($"/{url}");
         if (response.IsSuccessStatusCode)
         {
             string bodyAsString = await response.Content.ReadAsStringAsync();

@@ -49,6 +49,10 @@ nav.nav-top {
             color: black;
         }
 
+            nav.nav-top ul li a:active {
+                background-color: #68b0abff;
+            }
+
         nav.nav-top ul.nav-left-buttons li {
             float: left;
         }
@@ -83,6 +87,15 @@ nav.nav-top ul li, nav.nav-top .nav-brand {
         display: inline-block;
         cursor: pointer;
     }
+
+    .nav-brand {
+        float: none;
+        display: inline-block;
+    }
+
+    .nav-brand a {
+        padding-top: 10px;
+    }
 }
 
 @media screen and (max-width: 600px) {
@@ -96,9 +109,11 @@ nav.nav-top ul li, nav.nav-top .nav-brand {
             top: 0;
         }
 
-    nav.nav-top .responsive ul.nav-left-buttons li {
+    nav.nav-top.responsive ul li {
         float: none;
         display: block;
         text-align: left;
     }
+
+
 }
