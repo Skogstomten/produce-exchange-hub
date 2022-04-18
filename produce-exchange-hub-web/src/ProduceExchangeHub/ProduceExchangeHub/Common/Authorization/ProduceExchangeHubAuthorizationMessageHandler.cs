@@ -2,17 +2,15 @@
 
 namespace ProduceExchangeHub.Common.Authorization;
 
-public class OAuth2UsernamePasswordAuthorizationMessageHandler : AuthorizationMessageHandler
+public class ProduceExchangeHubAuthorizationMessageHandler : AuthorizationMessageHandler
 {
-    public OAuth2UsernamePasswordAuthorizationMessageHandler(
+    public ProduceExchangeHubAuthorizationMessageHandler(
         IAccessTokenProvider provider,
         NavigationManager navigation,
         ApplicationSettings settings
     )
         : base(provider, navigation)
     {
-        ConfigureHandler(
-            authorizedUrls: new[] { settings.ApiBaseUrl }
-        );
+        ConfigureHandler(authorizedUrls: new[] { settings.ApiBaseUrl });
     }
 }

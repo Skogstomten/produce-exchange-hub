@@ -1,3 +1,21 @@
 ﻿@page "/login"
 
-<h3>Login</h3>
+<EditForm Model="@_loginModel" OnValidSubmit="@LoginEventHandler">
+    <fieldset>
+        <legend>Logga in</legend>
+        <DataAnnotationsValidator />
+        <div>
+            <label for="Username">E-postadress</label>
+            <input type="text" name="Username" value="" placeholder="xxxxxx@domain.se" />
+            <ValidationMessage For="() => _loginModel.Username" />
+        </div>
+        <div>
+            <label for="Password">Lösenord</label>
+            <input type="password" name="Password" value="" />
+            <ValidationMessage For="() => _loginModel.Password" />
+        </div>
+        <div>
+            <button type="submit">Logga in</button>
+        </div>
+    </fieldset>
+</EditForm>

@@ -7,7 +7,6 @@ public static class ServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace(settings.ApiBaseUrl))
             throw new ApplicationException("Can't find api base url!");
 
-        services.AddScoped<OAuth2UsernamePasswordAuthorizationMessageHandler>();
         services.AddHttpClient(
             "Api",
             client => client.BaseAddress = new Uri(settings.ApiBaseUrl)

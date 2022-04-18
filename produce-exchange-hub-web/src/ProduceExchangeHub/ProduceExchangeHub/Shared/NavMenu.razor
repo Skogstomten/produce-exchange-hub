@@ -1,6 +1,12 @@
 ﻿<nav class="nav-top @NavMenuCssClass">
     <div class="nav-brand">
-        <NavLink href="/" @onclick="CloseNavMeny">ProduceExchangeHub</NavLink>
+        @if (menuOpen)
+        {
+            <NavLink href="/" @onclick="CloseNavMeny">Home</NavLink>
+        } else
+        {
+            <NavLink href="/" @onclick="CloseNavMeny">ProduceExchangeHub</NavLink>
+        }
     </div>
 
     <ul class="nav-right-buttons">
@@ -8,7 +14,7 @@
             <NavLink href="/register" @onclick="CloseNavMeny">Register</NavLink>
         </li>
         <li>
-            <NavLink href="/login" @onclick="CloseNavMeny">Login</NavLink>
+            <NavLink href="/authentication/login" @onclick="CloseNavMeny">Login</NavLink>
         </li>
     </ul>
 
@@ -20,19 +26,19 @@
 </nav>
 
 @code {
-    private bool toggleNavMenu = false;
+    private bool menuOpen = false;
 
-    private string? NavMenuCssClass => toggleNavMenu ? "responsive" : null;
-    private string? changeMenuButtonClass => toggleNavMenu ? "change" : null;
+    private string? NavMenuCssClass => menuOpen ? "responsive" : null;
+    private string? changeMenuButtonClass => menuOpen ? "change" : null;
 
     private void ToggleNavMenu()
     {
-        toggleNavMenu = !toggleNavMenu;
+        menuOpen = !menuOpen;
     }
 
     private void CloseNavMeny()
     {
-        if (toggleNavMenu)
+        if (menuOpen)
             ToggleNavMenu();
     }
 }
