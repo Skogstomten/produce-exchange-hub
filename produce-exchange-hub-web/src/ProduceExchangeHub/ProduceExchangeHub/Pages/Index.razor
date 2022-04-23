@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using ProduceExchangeHub.Components
 
 <PageTitle>Index</PageTitle>
 
@@ -6,6 +7,6 @@
     @if (Companies != null)
         @foreach (CompanyListModel company in Companies)
         {
-            <_CompanyCard Company="@company" />
+            <CompanyCard Company="@company" />
         }
 </div>

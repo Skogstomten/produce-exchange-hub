@@ -1,4 +1,4 @@
-﻿@page "/login"
+﻿@page "/authentication/login"
 
 <EditForm Model="@_loginModel" OnValidSubmit="@LoginEventHandler">
     <fieldset>
@@ -6,16 +6,16 @@
         <DataAnnotationsValidator />
         <div>
             <label for="Username">E-postadress</label>
-            <input type="text" name="Username" value="" placeholder="xxxxxx@domain.se" />
+            <InputText @bind-Value=_loginModel.Username />
             <ValidationMessage For="() => _loginModel.Username" />
         </div>
         <div>
             <label for="Password">Lösenord</label>
-            <input type="password" name="Password" value="" />
+            <InputText @bind-Value=_loginModel.Password />
             <ValidationMessage For="() => _loginModel.Password" />
         </div>
         <div>
-            <button type="submit">Logga in</button>
+            <input type="submit" value="Logga in" />
         </div>
     </fieldset>
 </EditForm>

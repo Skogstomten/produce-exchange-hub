@@ -6,5 +6,6 @@ public partial class Login
 
     public async Task LoginEventHandler()
     {
+        Console.WriteLine("Test");
     }
 }
