@@ -34,4 +34,12 @@ public class RestServiceCaller : ICallRestService
             await response.Content.ReadAsStringAsync()
         );
     }
+
+    public Task<TResponse> PostAsync<TRequest, TResponse>(string url, TRequest request)
+    {
+        if (url.StartsWith("/"))
+            url = url.Substring(1);
+
+        return null;
+    }
 }

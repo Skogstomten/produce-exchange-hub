@@ -65,6 +65,7 @@ nav.nav-top {
     font-family: Arial, Helvetica, sans-serif;
     display: inline;
     float: left;
+    margin-right: auto;
 }
 
     .nav-brand a {

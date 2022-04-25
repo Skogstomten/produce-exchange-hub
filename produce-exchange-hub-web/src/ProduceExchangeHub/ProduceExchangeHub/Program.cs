@@ -44,4 +44,6 @@ builder.Services.AddAuthorizationCore(authorizationOptions =>
     //    BethanysPieShopHRM.Shared.Policies.CanManageEmployeesPolicy());
 });
 
-await builder.Build().RunAsync();
+WebAssemblyHost app = builder.Build();
+
+await app.RunAsync();
