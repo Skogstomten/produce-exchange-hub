@@ -57,7 +57,10 @@ chrome-profiler-events*.json
 
 # IDE - VS
 .vs/
+.vs/*
+*/.vs/*
 **/.vs/
+**/.vs/*
 
 # misc
 /.sass-cache

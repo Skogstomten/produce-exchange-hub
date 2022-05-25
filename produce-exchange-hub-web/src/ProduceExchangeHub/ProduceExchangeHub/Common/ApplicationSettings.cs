@@ -2,5 +2,5 @@
 
 public class ApplicationSettings
 {
-    public string? ApiBaseUrl { get; init; }
+    public string ApiBaseUrl { get; init; } = null!;
 }

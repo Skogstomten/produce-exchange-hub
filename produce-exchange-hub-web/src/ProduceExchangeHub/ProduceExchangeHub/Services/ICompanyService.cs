@@ -2,5 +2,5 @@
 
 public interface ICompanyService
 {
-    Task<List<CompanyListModel>> GetCompaniesAsync(int skip, int take, SortOrder sortOrder, string sortBy);
+    Task<IEnumerable<CompanyListModel>> GetCompaniesAsync(int skip, int take, SortOrder sortOrder, string sortBy);
 }

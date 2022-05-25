@@ -19,9 +19,6 @@ public static class ServiceCollectionExtensions
         );
 
         services
-            .AddScoped<ICallRestService, RestServiceCaller>(
-                
-            )
             .AddScoped<ICompanyService, CompanyService>();
 
         return services;
