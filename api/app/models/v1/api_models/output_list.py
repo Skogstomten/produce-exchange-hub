@@ -1,4 +1,4 @@
-from typing import TypeVar, Generic, List
+from typing import TypeVar, Generic
 
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
@@ -8,15 +8,14 @@ T = TypeVar('T', bound=BaseModel)
 
 
 class OutputListModel(Generic[T], GenericModel):
-    items: List[T]
+    items: list[T]
     number_of_items: int
     offset: int | None
     size: int | None
     url: str
 
     @classmethod
-    def create(cls, items: List[T], number_of_items: int, offset: int, size: int, request: Request):
-        print(items)
+    def create(cls, items: list[T], number_of_items: int, offset: int, size: int, request: Request):
         return cls(
             items=items,
             number_of_items=number_of_items,

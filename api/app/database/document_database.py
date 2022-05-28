@@ -1,4 +1,4 @@
-from typing import Any, Callable, Type, TypeVar, List, Dict
+from typing import Any, Callable, TypeVar, NoReturn
 from enum import Enum
 from abc import ABCMeta, abstractmethod
 
@@ -36,6 +36,10 @@ class Document(metaclass=ABCMeta):
     def replace(self, data: dict) -> 'Document':
         ...
 
+    @abstractmethod
+    def delete(self) -> NoReturn:
+        ...
+
 
 class DocumentCollection(metaclass=ABCMeta):
     @abstractmethod
@@ -63,7 +67,7 @@ class DatabaseCollection(metaclass=ABCMeta):
     @abstractmethod
     def get(
         self,
-        filters: Dict[str, Any] = None,
+        filters: dict[str, Any] = None,
     ) -> DocumentCollection:
         ...
 
@@ -76,11 +80,11 @@ class DatabaseCollection(metaclass=ABCMeta):
         ...
     
     @abstractmethod
-    def exists(self, filters: Dict[str, Any]) -> bool:
+    def exists(self, filters: dict[str, Any]) -> bool:
         ...
 
     @abstractmethod
-    def add(self, data: Dict) -> Document:
+    def add(self, data: dict) -> Document:
         ...
 
 

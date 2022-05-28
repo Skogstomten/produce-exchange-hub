@@ -2,8 +2,9 @@ from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes.v1 import companies, token, root, users, timezones
+from .routes.v1 import companies, token, root, users, timezones, claims
 from .errors.error_model import ErrorModel
+from .errors.not_found_error import NotFoundError
 
 app = FastAPI()
 app.include_router(root.router)
@@ -11,6 +12,7 @@ app.include_router(users.router)
 app.include_router(token.router)
 app.include_router(companies.router)
 app.include_router(timezones.router)
+app.include_router(claims.router)
 
 origins = [
     "*",
@@ -34,6 +36,16 @@ def base_exception_handler(request: Request, err: Exception):
                 ErrorModel(
                     err.status_code,
                     err.detail
+                )
+            )
+        )
+    if isinstance(err, NotFoundError):
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content=vars(
+                ErrorModel(
+                    status.HTTP_404_NOT_FOUND,
+                    f"No resource found at '{request.url.path}'"
                 )
             )
         )

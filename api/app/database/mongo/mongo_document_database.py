@@ -1,3 +1,5 @@
+from typing import Type
+
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
 from pymongo.collection import Collection as MongoCollection
@@ -40,6 +42,9 @@ class MongoDocument(Document):
         )
         return MongoDocument(self._collection.find_one({'_id': ObjectId(self.id)}), self._collection)
 
+    def delete(self) -> NoReturn:
+        self._collection.delete_one({'_id': self._doc.get('_id')})
+
 
 class MongoDocumentCollection(DocumentCollection):
     _cursor: Cursor
@@ -67,7 +72,7 @@ class MongoDocumentCollection(DocumentCollection):
             self._cursor = self._cursor.sort(sort_by, order)
         return self
 
-    def select_for_each(self, factory: Callable[[Document], Type[T]]) -> List[T]:
+    def select_for_each(self, factory: Callable[[Document], Type[T]]) -> list[T]:
         for doc in self._cursor:
             yield factory(MongoDocument(doc, self._collection))
 
@@ -97,7 +102,7 @@ class MongoDatabaseCollection(DatabaseCollection):
             self._collection
         )
 
-    def add(self, data: Dict) -> Document:
+    def add(self, data: dict) -> Document:
         result = self._collection.insert_one(data)
         return self.by_id(result.inserted_id)
 
@@ -109,14 +114,14 @@ class MongoDatabaseCollection(DatabaseCollection):
     
     def get(
         self,
-        filters: Dict[str, Any] = None,
+        filters: dict[str, Any] = None,
     ) -> DocumentCollection:
         if filters is None:
             filters = {}
         cursor = self._collection.find(filters)
         return MongoDocumentCollection(cursor, self._collection)
     
-    def exists(self, filters: Dict[str, Any]) -> bool:
+    def exists(self, filters: dict[str, Any]) -> bool:
         return self._collection.count_documents(filters, limit=1) > 0
 
 

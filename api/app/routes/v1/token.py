@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestFormStrict
 from jose import jwt
 
-from app.models.v1.token import Token
-from app.datastores.user_datastore import UserDatastore, get_user_datastore
-from app.dependencies.auth import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from ...models.v1.token import Token
+from ...datastores.user_datastore import UserDatastore, get_user_datastore
+from ...dependencies.auth import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from ...oauth2.scopes import Scopes
 
 router = APIRouter(prefix='/v1/token')
 
@@ -18,6 +19,8 @@ async def token(
 ):
     user = users.authenticate_user(form_data.username, form_data.password)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    scopes = Scopes(form_data.scopes)
+    claims = users.get_claims(user, scopes)
     access_token = create_access_token(
         data={
             'sub': user.email,

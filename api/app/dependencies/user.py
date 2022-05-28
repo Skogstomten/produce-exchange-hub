@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from jose import jwt, JWTError
 
 from .auth import oauth2_scheme_optional, SECRET_KEY, ALGORITHM
-from app.models.v1.users import UserInternal
+from ..models.v1.users import UserInternal
 from ..datastores.user_datastore import UserDatastore, get_user_datastore
 
 
@@ -19,6 +19,7 @@ def get_current_user_if_any(
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print(payload)
         email: str = payload.get('sub')
         if email is None:
             raise credentials_exception
