@@ -6,7 +6,7 @@ from fastapi import Depends
 from ..dependencies.document_database import get_document_database
 from ..database.document_database import DocumentDatabase
 from ..cryptography import password_hasher as hasher
-from ..models.user import UserInternal, UserRegister, UserAdd
+from app.models.v1.users import UserInternal, UserRegister, UserAdd
 from ..errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
 
 

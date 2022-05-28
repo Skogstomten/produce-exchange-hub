@@ -1,15 +1,11 @@
-from enum import Enum
-
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
-from pymongo.database import Database as MongoDatabase
 from pymongo.collection import Collection as MongoCollection
 from pymongo.cursor import Cursor
-from pymongo.results import UpdateResult
+from pymongo.database import Database as MongoDatabase
 
 from ..document_database import *
 from ...utils.enum_utils import enums_to_string
-
 
 TOutType = TypeVar('TOutType')
 
@@ -18,7 +14,7 @@ class MongoDocument(Document):
     _doc: dict
     _collection: MongoCollection
 
-    def __init__(self, doc: Dict, collection: MongoCollection):
+    def __init__(self, doc: dict, collection: MongoCollection):
         super().__init__()
         self._doc = doc
         self._collection = collection
@@ -33,12 +29,12 @@ class MongoDocument(Document):
     def id(self) -> str:
         return str(self._doc['_id'])
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return self._doc
 
     def replace(self, data: dict) -> Document:
         data = enums_to_string(data)
-        result: UpdateResult = self._collection.replace_one(
+        self._collection.replace_one(
             {'_id': ObjectId(self.id)},
             data,
         )
@@ -75,6 +71,10 @@ class MongoDocumentCollection(DocumentCollection):
         for doc in self._cursor:
             yield factory(MongoDocument(doc, self._collection))
 
+    def to_list(self) -> list[Document]:
+        for doc in self._cursor:
+            yield MongoDocument(doc, self._collection)
+
 
 class MongoDatabaseCollection(DatabaseCollection):
     _collection: MongoCollection
@@ -82,8 +82,11 @@ class MongoDatabaseCollection(DatabaseCollection):
     def __init__(self, collection: MongoCollection):
         self._collection = collection
 
-    def by_id(self, doc_id: str) -> Document:
-        return MongoDocument(self._collection.find_one({'_id': ObjectId(doc_id)}), self._collection)
+    def by_id(self, doc_id: str) -> Document | None:
+        doc = self._collection.find_one({'_id': ObjectId(doc_id)})
+        if doc is None:
+            return None
+        return MongoDocument(doc, self._collection)
     
     def by_key(self, key: str, value: Any) -> Document | None:
         doc = self._collection.find_one({key: value})

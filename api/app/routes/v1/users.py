@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, Body
 
-from ..datastores.user_datastore import UserDatastore, get_user_datastore
-from ..models.user import UserRegister, UserOut
+from app.datastores.user_datastore import UserDatastore, get_user_datastore
+from app.models.v1.users import UserRegister, UserOut
 
-router = APIRouter(prefix='/users')
+router = APIRouter(prefix='/v1/users')
 
 
 @router.post('/register', response_model=UserOut)

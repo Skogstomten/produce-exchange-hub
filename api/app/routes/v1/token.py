@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestFormStrict
 from jose import jwt
 
-from ..models.token import Token
-from ..datastores.user_datastore import UserDatastore, get_user_datastore
-from ..dependencies.auth import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from app.models.v1.token import Token
+from app.datastores.user_datastore import UserDatastore, get_user_datastore
+from app.dependencies.auth import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
 
-router = APIRouter(prefix='/token')
+router = APIRouter(prefix='/v1/token')
 
 
 @router.post('/', response_model=Token)

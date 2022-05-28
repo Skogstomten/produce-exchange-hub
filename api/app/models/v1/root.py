@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from .user import UserInternal
+from app.models.v1.users import UserInternal
 
 
 class Root(BaseModel):

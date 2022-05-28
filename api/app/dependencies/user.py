@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from jose import jwt, JWTError
 
 from .auth import oauth2_scheme_optional, SECRET_KEY, ALGORITHM
-from ..models.user import UserInternal
+from app.models.v1.users import UserInternal
 from ..datastores.user_datastore import UserDatastore, get_user_datastore
 
 

@@ -29,7 +29,7 @@ class Document(metaclass=ABCMeta):
         return convert(self)
 
     @abstractmethod
-    def to_dict(self):
+    def to_dict(self) -> dict:
         ...
 
     @abstractmethod
@@ -39,9 +39,9 @@ class Document(metaclass=ABCMeta):
 
 class DocumentCollection(metaclass=ABCMeta):
     @abstractmethod
-    def select_for_each(self, factory: Callable[[Document], Type[T]]) -> List[T]:
+    def to_list(self) -> list[Document]:
         ...
-    
+
     @abstractmethod
     def skip(self, skip: int | None) -> 'DocumentCollection':
         ...
@@ -68,7 +68,7 @@ class DatabaseCollection(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def by_id(self, doc_id: str) -> Document:
+    def by_id(self, doc_id: str) -> Document | None:
         ...
     
     @abstractmethod
