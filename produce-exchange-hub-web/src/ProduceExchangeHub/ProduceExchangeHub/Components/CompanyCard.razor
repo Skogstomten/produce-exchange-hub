@@ -1,9 +1,11 @@
 ﻿<div>
-    <h3>@Company.Name?["SV"]</h3>
+    <h3>@Company.Name</h3>
     <div>
         <p>
-            This is description <br/>
-            @Company.Description?["SV"]
+            @if (Company.Description != null)
+            {
+                @Company.Description
+            }   
         </p>
     </div>
 </div>

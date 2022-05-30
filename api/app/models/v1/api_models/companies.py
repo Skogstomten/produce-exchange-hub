@@ -26,7 +26,7 @@ class CompanyOutListModel(BaseOutModel):
     company_types: list[str]
     content_languages_iso: list[str]
     activation_date: datetime | None
-    description: dict[str, str] = Field({})
+    description: str | None = Field(None)
 
     @classmethod
     def from_database_model(cls, model: CompanyDatabaseModel, lang: Language, timezone: str, request: Request):
@@ -53,7 +53,7 @@ class CompanyOutListModel(BaseOutModel):
             company_types=model.company_types,
             content_languages_iso=model.content_languages_iso,
             activation_date=activation_date,
-            description=model.description,
+            description=select_localized_text(model.description, lang, model.content_languages_iso),
         )
 
 
@@ -65,7 +65,7 @@ class CompanyOutModel(BaseOutModel):
     company_types: list[str]
     content_languages_iso: list[str]
     activation_date: datetime | None
-    description: dict[str, str] = Field({})
+    description: str | None = Field(None)
 
     @classmethod
     def from_database_model(cls, model: CompanyDatabaseModel, lang: Language, timezone: str, request: Request):
@@ -86,7 +86,7 @@ class CompanyOutModel(BaseOutModel):
             company_types=model.company_types,
             content_languages_iso=model.content_languages_iso,
             activation_date=activation_date,
-            description=model.description,
+            description=select_localized_text(model.description, lang, model.content_languages_iso),
         )
 
 
