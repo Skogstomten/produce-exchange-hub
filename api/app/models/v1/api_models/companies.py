@@ -34,8 +34,16 @@ class CompanyOutListModel(BaseOutModel):
         if activation_date is not None:
             activation_date = ensure_utc(activation_date).astimezone(pytz.timezone(timezone))
 
+        url = f"{request.url.scheme}://{request.url.hostname}"
+        if request.url.port != 80:
+            url += f":{request.url.port}"
+        url += request.url.path
+        if not url.endswith('/'):
+            url += '/'
+        url += str(model.id)
+
         return cls(
-            url=request.url,
+            url=url,
             operations=[],
 
             id=model.id,

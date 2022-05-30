@@ -4,9 +4,8 @@
 <PageTitle>Index</PageTitle>
 
 <div class="container">
-    @if (Companies != null)
-        @foreach (CompanyListModel company in Companies)
-        {
-            <CompanyCard Company="@company" />
-        }
+    @foreach (CompanyListModel company in Companies)
+    {
+        <CompanyCard Company="company" />
+    }
 </div>

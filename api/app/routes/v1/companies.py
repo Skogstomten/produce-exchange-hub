@@ -16,17 +16,17 @@ router = APIRouter(prefix='/v1/{lang}/companies')
 @router.get('/')
 async def get_companies(
         request: Request,
-        size: int = Query(20),
-        offset: int = Query(0),
+        take: int = Query(20),
+        skip: int = Query(0),
         sort_by: str | None = Query(None),
-        sort_order: SortOrder = Query('asc'),
+        sort_order: SortOrder = Query(SortOrder.asc),
         companies: CompanyDatastore = Depends(get_company_datastore),
         lang: Language = Path(...),
         timezone: str = Depends(get_timezone_header),
 ):
     companies = companies.get_companies(
-        offset,
-        size,
+        skip,
+        take,
         sort_by,
         sort_order
     )
@@ -34,7 +34,7 @@ async def get_companies(
     for company in companies:
         item = CompanyOutListModel.from_database_model(company, lang, timezone, request)
         items.append(item)
-    return OutputListModel[CompanyOutListModel].create(items, len(items), offset, size, request)
+    return OutputListModel[CompanyOutListModel].create(items, len(items), skip, take, request)
 
 
 @router.get('/{company_id}', response_model=CompanyOutModel)
