@@ -6,10 +6,10 @@ from pydantic import BaseModel, Field
 from fastapi import Request
 
 from .base_out_model import BaseOutModel
-from ..shared import CompanyStatus, Language
+from ..shared import CompanyStatus, Language, ContactType
 from ..database_models.companies import CompanyDatabaseModel
-from ....utils.lang_utils import select_localized_text
-from ....utils.datetime_utils import ensure_utc
+from app.utils.lang_utils import select_localized_text
+from app.utils.datetime_utils import ensure_utc
 
 
 @unique
@@ -18,43 +18,11 @@ class CompanyTypes(Enum):
     buyer = 'buyer'
 
 
-class CompanyOutListModel(BaseOutModel):
+class ContactOutModel(BaseModel):
     id: str
-    name: str
-    status: CompanyStatus
-    created_date: datetime
-    company_types: list[str]
-    content_languages_iso: list[str]
-    activation_date: datetime | None
-    description: str | None = Field(None)
-
-    @classmethod
-    def from_database_model(cls, model: CompanyDatabaseModel, lang: Language, timezone: str, request: Request):
-        activation_date = model.activation_date
-        if activation_date is not None:
-            activation_date = ensure_utc(activation_date).astimezone(pytz.timezone(timezone))
-
-        url = f"{request.url.scheme}://{request.url.hostname}"
-        if request.url.port != 80:
-            url += f":{request.url.port}"
-        url += request.url.path
-        if not url.endswith('/'):
-            url += '/'
-        url += str(model.id)
-
-        return cls(
-            url=url,
-            operations=[],
-
-            id=model.id,
-            name=select_localized_text(model.name, lang, model.content_languages_iso),
-            status=model.status,
-            created_date=ensure_utc(model.created_date).astimezone(pytz.timezone(timezone)),
-            company_types=model.company_types,
-            content_languages_iso=model.content_languages_iso,
-            activation_date=activation_date,
-            description=select_localized_text(model.description, lang, model.content_languages_iso),
-        )
+    type: ContactType
+    value: str
+    description: str | None
 
 
 class CompanyOutModel(BaseOutModel):
@@ -66,9 +34,17 @@ class CompanyOutModel(BaseOutModel):
     content_languages_iso: list[str]
     activation_date: datetime | None
     description: str | None = Field(None)
+    contacts: list[ContactOutModel] | None
 
     @classmethod
-    def from_database_model(cls, model: CompanyDatabaseModel, lang: Language, timezone: str, request: Request):
+    def from_database_model(
+            cls,
+            model: CompanyDatabaseModel,
+            lang: Language,
+            timezone: str,
+            request: Request,
+            include_contacts: bool,
+    ):
         operations = []
 
         activation_date = model.activation_date
@@ -87,6 +63,8 @@ class CompanyOutModel(BaseOutModel):
             content_languages_iso=model.content_languages_iso,
             activation_date=activation_date,
             description=select_localized_text(model.description, lang, model.content_languages_iso),
+
+            contacts=model.contacts if include_contacts else None,
         )
 
 

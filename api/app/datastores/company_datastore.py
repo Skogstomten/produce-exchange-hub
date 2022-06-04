@@ -1,10 +1,11 @@
 from fastapi import Depends
 
-from ..models.v1.database_models.companies import CompanyDatabaseModel
-from ..models.v1.shared import SortOrder
-from ..database.document_database import DocumentDatabase
-from ..dependencies.document_database import get_document_database
-from ..errors.not_found_error import NotFoundError
+from app.models.v1.database_models.companies import CompanyDatabaseModel
+from app.models.v1.shared import SortOrder
+from app.models.v1.users import User
+from app.database.document_database import DocumentDatabase
+from app.dependencies.document_database import get_document_database
+from app.errors.not_found_error import NotFoundError
 
 IGNORE_ON_UPDATE: list[str] = ['id', 'created_date', 'activation_date']
 
@@ -46,6 +47,7 @@ class CompanyDatastore(object):
     def add_company(
             self,
             company: CompanyDatabaseModel,
+            user: User,
     ) -> CompanyDatabaseModel:
         collection = self.db.collection('companies')
         doc = collection.add(company.dict())
@@ -53,7 +55,8 @@ class CompanyDatastore(object):
 
     def update_company(
             self,
-            company: CompanyDatabaseModel
+            company: CompanyDatabaseModel,
+            user: User,
     ) -> CompanyDatabaseModel:
         collection = self.db.collection('companies')
         doc = collection.by_id(company.id)

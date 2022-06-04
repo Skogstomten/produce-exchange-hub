@@ -9,7 +9,7 @@ from ....utils.query_string_parser import QueryStringParser
 T = TypeVar('T', bound=BaseModel)
 
 
-class OutputListModel(Generic[T], GenericModel):
+class OutputListModel(GenericModel, Generic[T]):
     items: list[T]
     url: str
     number_of_items: int

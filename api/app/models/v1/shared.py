@@ -23,3 +23,9 @@ class CompanyStatus(Enum):
 class Language(Enum):
     sv = 'sv'
     en = 'en'
+
+
+@unique
+class ContactType(Enum):
+    phone_number = 'phone_number'
+    email = 'email'

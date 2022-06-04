@@ -3,16 +3,16 @@ from datetime import datetime
 
 from fastapi import Depends
 
-from ..dependencies.document_database import get_document_database
-from ..database.document_database import DocumentDatabase
-from ..cryptography import password_hasher as hasher
-from ..models.v1.users import UserInternal, UserRegister, UserAdd
-from ..models.v1.user_claim import UserClaim
-from ..models.v1.database_models.claims import ClaimDatabaseModel
-from ..errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
-from ..errors.duplicate_error import DuplicateError
-from ..errors.not_found_error import NotFoundError
-from ..oauth2.scopes import Scopes
+from app.dependencies.document_database import get_document_database
+from app.database.document_database import DocumentDatabase
+from app.cryptography import password_hasher as hasher
+from app.models.v1.users import UserInternal, UserAdd, UserRegister
+from app.models.v1.user_claim import UserClaim
+from app.models.v1.database_models.claims import ClaimDatabaseModel
+from app.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
+from app.errors.duplicate_error import DuplicateError
+from app.errors.not_found_error import NotFoundError
+from app.oauth2.scopes import Scopes
 
 
 class UserDatastore(object):
