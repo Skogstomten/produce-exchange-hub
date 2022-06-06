@@ -29,3 +29,9 @@ class Language(Enum):
 class ContactType(Enum):
     phone_number = 'phone_number'
     email = 'email'
+
+
+@unique
+class RoleType(Enum):
+    global_role = 'global_role'
+    company_role = 'company_role'

@@ -121,6 +121,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         )
 
     def add(self, data: dict) -> Document:
+        data = enums_to_string(data)
         result = self._collection.insert_one(data)
         return self.by_id(result.inserted_id)
 

@@ -3,8 +3,15 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from .base_out_model import BaseOutModel
-from ..database_models.role_database_model import RoleDatabaseModel
 from ..database_models.user_database_model import UserDatabaseModel
+
+
+class UserRoleOutModel(BaseModel):
+    id: str
+    role_id: str
+    role_name: str
+    role_type: str
+    reference: str | None
 
 
 class User(BaseModel):
@@ -27,7 +34,7 @@ class UserOutModel(User, BaseOutModel):
     id: str
     created: datetime
     last_logged_in: datetime | None = Field(None)
-    global_roles: list[RoleDatabaseModel]
+    roles: list[UserRoleOutModel]
 
     @classmethod
     def from_database_model(cls, model: UserDatabaseModel):

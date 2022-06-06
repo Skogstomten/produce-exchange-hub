@@ -1,21 +1,23 @@
 from fastapi import APIRouter, Depends, Path
 
+from app.dependencies.user import get_current_user
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
-from app.models.v1.api_models.roles import RoleOutModel
-from app.models.v1.api_models.users import UserOutModel
+from app.models.v1.api_models.users import UserOutModel, UserRoleOutModel
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
 
 router = APIRouter(prefix='/v1/users/{user_id}/roles', tags=['UserRoles'])
 
 
-@router.get('/', response_model=list[RoleOutModel])
+@router.get('/', response_model=list[UserRoleOutModel])
 async def get_user_roles(
         user_datastore: UserDatastore = Depends(get_user_datastore),
         user_id: str = Path(...),
+        user: UserDatabaseModel = Depends(get_current_user),
 ):
     roles = user_datastore.get_user_roles(user_id)
-    items: list[RoleOutModel] = []
+    items: list[UserRoleOutModel] = []
     for role in roles:
-        items.append(RoleOutModel(**role.dict()))
+        items.append(UserRoleOutModel(**role.dict()))
     return items
 
 
