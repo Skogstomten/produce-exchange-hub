@@ -4,7 +4,7 @@ from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.models.v1.api_models.output_list import OutputListModel
 from app.models.v1.api_models.users import UserRegister, UserOutModel
 
-router = APIRouter(prefix='/v1/users')
+router = APIRouter(prefix='/v1/users', tags=['Users'])
 
 
 @router.post('/register', response_model=UserOutModel)

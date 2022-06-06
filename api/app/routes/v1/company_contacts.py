@@ -6,7 +6,7 @@ from app.models.v1.api_models.contacts import CreateContactModel, ContactOutMode
 from app.datastores.company_datastore import CompanyDatastore, get_company_datastore
 
 
-router = APIRouter(prefix='/v1/{lang}/companies/{company_id}/contacts')
+router = APIRouter(prefix='/v1/{lang}/companies/{company_id}/contacts', tags=['CompanyContacts'])
 
 
 @router.post('/', response_model=ContactOutModel)

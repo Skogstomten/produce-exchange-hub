@@ -8,6 +8,7 @@ from pymongo.database import Database as MongoDatabase
 
 from ..document_database import *
 from ...utils.enum_utils import enums_to_string
+from app.errors.invalid_operation_error import InvalidOperationError
 
 TOutType = TypeVar('TOutType')
 
@@ -21,11 +22,28 @@ class MongoDocument(Document):
         self._doc = doc
         self._collection = collection
 
-    def __getitem__(self, item):
-        return self._doc[item]
+    def __getitem__(self, key):
+        if key == 'id':
+            return self.id
+        return self._doc[key]
 
     def __setitem__(self, key, value):
+        if key == 'id':
+            raise InvalidOperationError("field 'id' can't be set")
         self._doc[key] = value
+
+    def __delitem__(self, key):
+        if key == 'id':
+            raise InvalidOperationError("field 'id' can't be deleted")
+        self._doc.__delitem__(key)
+
+    def __iter__(self):
+        clone = self._doc.copy()
+        clone.update({'id': self.id})
+        return clone.__iter__()
+
+    def __len__(self):
+        return self.__len__() + 1
 
     @property
     def id(self) -> str:
@@ -34,7 +52,7 @@ class MongoDocument(Document):
     def to_dict(self) -> dict:
         return self._doc
 
-    def replace(self, data: dict) -> Document:
+    def replace(self, data: MutableMapping) -> Document:
         data = enums_to_string(data)
         self._collection.replace_one(
             {'_id': ObjectId(self.id)},

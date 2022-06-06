@@ -4,7 +4,7 @@ from app.dependencies.user import get_current_user_if_any
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.root import Root
 
-router = APIRouter()
+router = APIRouter(tags=['Root'])
 
 
 @router.get('/v1', response_model=Root)

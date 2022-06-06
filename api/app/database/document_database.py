@@ -1,6 +1,7 @@
 from typing import Any, Callable, TypeVar, NoReturn
 from enum import Enum
 from abc import ABCMeta, abstractmethod
+from collections.abc import MutableMapping
 
 
 class NotSet(Enum):
@@ -11,13 +12,25 @@ T = TypeVar('T')
 TOutType = TypeVar('TOutType')
 
 
-class Document(metaclass=ABCMeta):
+class Document(MutableMapping, metaclass=ABCMeta):
     @abstractmethod
     def __getitem__(self, item):
         ...
 
     @abstractmethod
     def __setitem__(self, key, value):
+        ...
+
+    @abstractmethod
+    def __delitem__(self, key):
+        ...
+
+    @abstractmethod
+    def __iter__(self):
+        ...
+
+    @abstractmethod
+    def __len__(self):
         ...
 
     @property
@@ -33,7 +46,7 @@ class Document(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def replace(self, data: dict) -> 'Document':
+    def replace(self, data: MutableMapping) -> 'Document':
         ...
 
     @abstractmethod

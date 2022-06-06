@@ -5,7 +5,7 @@ from app.datastores.role_datastore import RoleDatastore, get_role_datastore
 from app.models.v1.api_models.roles import NewRoleModel, RoleOutModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 
-router = APIRouter(prefix='/v1/{lang}/roles')
+router = APIRouter(prefix='/v1/{lang}/roles', tags=['Roles'])
 
 
 @router.get('/', response_model=list[RoleOutModel])

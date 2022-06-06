@@ -9,7 +9,7 @@ from app.models.v1.shared import SortOrder
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.datastores.company_datastore import CompanyDatastore, get_company_datastore
 
-router = APIRouter(prefix='/v1/{lang}/companies')
+router = APIRouter(prefix='/v1/{lang}/companies', tags=['Companies'])
 
 
 @router.get('/', response_model=OutputListModel[CompanyOutModel])

@@ -36,14 +36,14 @@ class CompanyDatastore(object):
 
         result = []
         for doc in docs.to_list():
-            result.append(CompanyDatabaseModel.create_from_doc(doc))
+            result.append(CompanyDatabaseModel(**doc))
 
         return result
     
     def get_company(self, company_id: str) -> CompanyDatabaseModel:
         collection = self.db.collection('companies')
         doc = collection.by_id(company_id)
-        return CompanyDatabaseModel.create_from_doc(doc)
+        return CompanyDatabaseModel(**doc)
 
     def add_company(
             self,
@@ -51,9 +51,8 @@ class CompanyDatastore(object):
             user: UserDatabaseModel,
     ) -> CompanyDatabaseModel:
         collection = self.db.collection('companies')
-        data = company.dict()
         doc = collection.add(company.dict())
-        return CompanyDatabaseModel.create_from_doc(doc)
+        return CompanyDatabaseModel(**doc)
 
     def update_company(
             self,
@@ -69,7 +68,7 @@ class CompanyDatastore(object):
             if key not in IGNORE_ON_UPDATE:
                 data[key] = value
         doc = doc.replace(data)
-        return CompanyDatabaseModel.create_from_doc(doc)
+        return CompanyDatabaseModel(**doc)
 
     def add_contact_to_company(
             self,
@@ -82,11 +81,9 @@ class CompanyDatastore(object):
         if doc is None:
             raise NotFoundError
 
-        data = doc.to_dict()
-        contacts = data.get('contacts') if 'contacts' in data else []
-        contacts.append(model.dict())
-        data['contacts'] = contacts
-        doc.replace(data)
+        company = CompanyDatabaseModel(**doc)
+        company.contacts.append(model.dict())
+        doc.replace(company.dict())
         return model
 
 
