@@ -20,7 +20,7 @@ class CompanyTypes(Enum):
     buyer = 'buyer'
 
 
-class CompanyOutModel(BaseOutModel):
+class CompanyOutListModel(BaseOutModel):
     id: str
     name: str
     status: CompanyStatus
@@ -29,7 +29,6 @@ class CompanyOutModel(BaseOutModel):
     content_languages_iso: list[str]
     activation_date: datetime | None
     description: str | None = Field(None)
-    contacts: list[ContactListModel] | None
 
     @classmethod
     def from_database_model(
@@ -37,8 +36,7 @@ class CompanyOutModel(BaseOutModel):
             model: CompanyDatabaseModel,
             lang: Language,
             timezone: str,
-            request: Request,
-            include_contacts: bool,
+            request: Request
     ):
         operations = []
 
@@ -58,8 +56,41 @@ class CompanyOutModel(BaseOutModel):
             content_languages_iso=model.content_languages_iso,
             activation_date=activation_date,
             description=select_localized_text(model.description, lang, model.content_languages_iso),
+        )
 
-            contacts=model.contacts if include_contacts else None,
+
+class CompanyOutModel(CompanyOutListModel):
+    contacts: list[ContactListModel] | None
+
+    @classmethod
+    def from_database_model(
+            cls,
+            model: CompanyDatabaseModel,
+            lang: Language,
+            timezone: str,
+            request: Request,
+    ):
+
+        operations = []
+
+        activation_date = model.activation_date
+        if activation_date is not None:
+            activation_date = ensure_utc(activation_date).astimezone(pytz.timezone(timezone))
+
+        return cls(
+            url=get_current_request_url_with_additions(request),
+            operations=operations,
+
+            id=model.id,
+            name=select_localized_text(model.name, lang, model.content_languages_iso),
+            status=model.status,
+            created_date=ensure_utc(model.created_date).astimezone(pytz.timezone(timezone)),
+            company_types=model.company_types,
+            content_languages_iso=model.content_languages_iso,
+            activation_date=activation_date,
+            description=select_localized_text(model.description, lang, model.content_languages_iso),
+
+            contacts=model.contacts,
         )
 
 
