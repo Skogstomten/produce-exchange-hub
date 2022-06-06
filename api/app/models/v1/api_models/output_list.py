@@ -18,7 +18,7 @@ class OutputListModel(GenericModel, Generic[T]):
     next_page: str
 
     @classmethod
-    def create(cls, items: list[T], number_of_items: int, skip: int, take: int, request: Request):
+    def create(cls, items: list[T], skip: int, take: int, request: Request):
         query = QueryStringParser(request.url.query)
         port = ""
         if request.url.port != 80:
@@ -37,7 +37,7 @@ class OutputListModel(GenericModel, Generic[T]):
         return cls(
             items=items,
             url=str(request.url),
-            number_of_items=number_of_items,
+            number_of_items=len(items),
             items_per_page=take,
             page_number=skip / take,
             next_page=next_page_url,

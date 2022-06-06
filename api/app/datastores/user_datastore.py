@@ -1,20 +1,17 @@
-import pytz
 from datetime import datetime
 
+import pytz
 from fastapi import Depends
 
-from app.dependencies.document_database import get_document_database
-from app.database.document_database import DocumentDatabase
 from app.cryptography import password_hasher as hasher
-from app.models.v1.api_models.users import UserAdd, UserRegister
-from app.models.v1.api_models.roles import NewRoleModel
-from app.models.v1.database_models.claim_database_model import ClaimDatabaseModel
-from app.models.v1.database_models.role_database_model import RoleDatabaseModel
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
+from app.database.document_database import DocumentDatabase
+from app.dependencies.document_database import get_document_database
 from app.errors.duplicate_error import DuplicateError
+from app.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
 from app.errors.not_found_error import NotFoundError
-from app.errors.unauthorized_error import UnauthorizedError
+from app.models.v1.api_models.users import UserAdd, UserRegister
+from app.models.v1.database_models.claim_database_model import ClaimDatabaseModel
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
 
 
 class UserDatastore(object):
@@ -22,6 +19,14 @@ class UserDatastore(object):
 
     def __init__(self, db: DocumentDatabase):
         self.db = db
+
+    def get_users(self, take: int, skip: int) -> list[UserDatabaseModel]:
+        collection = self.db.collection('users')
+        docs = collection.get_all().skip(skip).take(take).to_list()
+        result = []
+        for doc in docs:
+            result.append(UserDatabaseModel(id=doc.id, **doc.to_dict()))
+        return result
 
     def get_user(self, email: str) -> UserDatabaseModel | None:
         collection = self.db.collection('users')

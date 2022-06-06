@@ -2,7 +2,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from app.models.v1.database_models.role_database_model import RoleDatabaseModel
+from .base_out_model import BaseOutModel
+from ..database_models.role_database_model import RoleDatabaseModel
+from ..database_models.user_database_model import UserDatabaseModel
 
 
 class User(BaseModel):
@@ -21,11 +23,17 @@ class UserAdd(User):
     password_hash: str
 
 
-class UserOut(User):
+class UserOutModel(User, BaseOutModel):
     id: str
     created: datetime
     last_logged_in: datetime | None = Field(None)
     global_roles: list[RoleDatabaseModel]
+
+    @classmethod
+    def from_database_model(cls, model: UserDatabaseModel):
+        return cls(
+            **model.dict(),
+        )
 
 
 class UserRegister(User):

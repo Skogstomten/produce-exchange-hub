@@ -33,7 +33,7 @@ async def get_companies(
     for company in companies:
         item = CompanyOutModel.from_database_model(company, lang, timezone, request, False)
         items.append(item)
-    response = OutputListModel[CompanyOutModel].create(items, len(items), skip, take, request)
+    response = OutputListModel[CompanyOutModel].create(items, skip, take, request)
     return response
 
 
