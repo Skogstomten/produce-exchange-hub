@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from pydantic.generics import GenericModel
 from fastapi import Request
 
-from ....utils.query_string_parser import QueryStringParser
+from app.utils.query.query_string_parser import QueryStringParser
 
 T = TypeVar('T', bound=BaseModel)
 

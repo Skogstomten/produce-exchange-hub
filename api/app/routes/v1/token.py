@@ -19,8 +19,8 @@ async def token(
 ):
     user = users.authenticate_user(form_data.username, form_data.password)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    scopes = Scopes(form_data.scopes)
-    claims = users.get_claims(user, scopes)
+    # scopes = Scopes(form_data.scopes)
+    # claims = users.get_claims(user, scopes)
     access_token = create_access_token(
         data={
             'sub': user.email,

@@ -84,6 +84,9 @@ class CompanyDatastore(object):
         data = doc.to_dict()
         contacts = data.get('contacts') if 'contacts' in data else []
         contacts.append(model.dict())
+        data['contacts'] = contacts
+        doc.replace(data)
+        return model
 
 
 def get_company_datastore(

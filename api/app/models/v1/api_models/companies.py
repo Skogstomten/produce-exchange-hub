@@ -6,23 +6,18 @@ from pydantic import BaseModel, Field
 from fastapi import Request
 
 from .base_out_model import BaseOutModel
-from ..shared import CompanyStatus, Language, ContactType
+from .contacts import ContactListModel
+from ..shared import CompanyStatus, Language
 from ..database_models.companies import CompanyDatabaseModel
 from app.utils.lang_utils import select_localized_text
 from app.utils.datetime_utils import ensure_utc
+from app.utils.request_utils import get_current_request_url_with_additions
 
 
 @unique
 class CompanyTypes(Enum):
     producer = 'producer'
     buyer = 'buyer'
-
-
-class ContactModel(BaseOutModel):
-    id: str
-    type: ContactType
-    value: str
-    description: str | None
 
 
 class CompanyOutModel(BaseOutModel):
@@ -34,7 +29,7 @@ class CompanyOutModel(BaseOutModel):
     content_languages_iso: list[str]
     activation_date: datetime | None
     description: str | None = Field(None)
-    contacts: list[ContactModel] | None
+    contacts: list[ContactListModel] | None
 
     @classmethod
     def from_database_model(
@@ -52,7 +47,7 @@ class CompanyOutModel(BaseOutModel):
             activation_date = ensure_utc(activation_date).astimezone(pytz.timezone(timezone))
 
         return cls(
-            url=str(request.url),
+            url=get_current_request_url_with_additions(request),
             operations=operations,
 
             id=model.id,

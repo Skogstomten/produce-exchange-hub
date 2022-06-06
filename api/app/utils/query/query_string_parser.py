@@ -1,37 +1,8 @@
 from abc import ABC
 from collections.abc import Iterable
 
-
-class StringValues(Iterable[str], ABC):
-    def __init__(self, *args):
-        self.values = []
-        for arg in args:
-            self.values.append(str(arg))
-
-    def append(self, *args):
-        for arg in args:
-            self.values.append(str(arg))
-
-    def __iter__(self):
-        return self.values.__iter__()
-
-
-class QueryParameter:
-    def __init__(self, param_name: str, value: StringValues):
-        self.param_name = param_name
-        if value is None:
-            self.values = StringValues()
-        else:
-            self.values = value
-
-    def __str__(self):
-        val = self.param_name
-        for str_val in self.values:
-            if val == self.param_name:
-                val += f"={str_val}"
-            else:
-                val += f"&{self.param_name}={str_val}"
-        return val
+from .string_values import StringValues
+from .query_parameter import QueryParameter
 
 
 class QueryStringParser(Iterable[QueryParameter], ABC):

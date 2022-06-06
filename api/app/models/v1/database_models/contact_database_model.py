@@ -5,6 +5,6 @@ from ..shared import ContactType
 
 class ContactDatabaseModel(BaseModel):
     id: str
-    type: ContactType
+    type: str
     value: str
     description: str | None
