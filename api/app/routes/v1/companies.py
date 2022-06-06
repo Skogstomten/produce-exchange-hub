@@ -1,14 +1,18 @@
 from fastapi import APIRouter, Depends, Query, Body, Path, Request
 
-from app.dependencies.user import get_current_user
+from app.datastores.company_datastore import CompanyDatastore, get_company_datastore
 from app.dependencies.timezone_header import get_timezone_header
-from app.models.v1.api_models.companies \
-    import CompanyOutModel, CompanyCreateModel, CompanyUpdateModel, CompanyOutListModel
+from app.dependencies.user import get_current_user
+from app.models.v1.api_models.companies import (
+    CompanyOutModel,
+    CompanyCreateModel,
+    CompanyUpdateModel,
+    CompanyOutListModel,
+)
 from app.models.v1.api_models.output_list import OutputListModel
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.shared import Language
 from app.models.v1.shared import SortOrder
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.datastores.company_datastore import CompanyDatastore, get_company_datastore
 
 router = APIRouter(prefix='/v1/{lang}/companies', tags=['Companies'])
 

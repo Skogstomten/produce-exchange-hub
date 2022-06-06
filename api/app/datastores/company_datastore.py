@@ -7,15 +7,18 @@ from app.models.v1.database_models.company_database_model import CompanyDatabase
 from app.database.document_database import DocumentDatabase
 from app.dependencies.document_database import get_document_database
 from app.errors.not_found_error import NotFoundError
+from .user_datastore import UserDatastore, get_user_datastore
 
 IGNORE_ON_UPDATE: list[str] = ['id', 'created_date', 'activation_date']
 
 
 class CompanyDatastore(object):
     db: DocumentDatabase
+    users: UserDatastore
 
-    def __init__(self, db: DocumentDatabase):
+    def __init__(self, db: DocumentDatabase, users: UserDatastore):
         self.db = db
+        self.users = users
 
     def get_companies(
             self,
@@ -82,12 +85,17 @@ class CompanyDatastore(object):
             raise NotFoundError
 
         company = CompanyDatabaseModel(**doc)
-        company.contacts.append(model.dict())
+        company.contacts.append(model)
         doc.replace(company.dict())
         return model
 
+    def add_user_to_company(self, company_id: str, role_name: str, user: UserDatabaseModel) -> list[UserDatabaseModel]:
+        self.users.add_role_to_user(user.id, role_name, company_id)
+        return self.users.get_company_users(company_id)
+
 
 def get_company_datastore(
-        db: DocumentDatabase = Depends(get_document_database)
+        db: DocumentDatabase = Depends(get_document_database),
+        user_datastore: UserDatastore = Depends(get_user_datastore),
 ) -> CompanyDatastore:
-    return CompanyDatastore(db)
+    return CompanyDatastore(db, user_datastore)

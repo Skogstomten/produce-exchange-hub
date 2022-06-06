@@ -1,4 +1,4 @@
-from .string_values import StringValues
+from app.utils.string_values import StringValues
 
 
 class QueryParameter:
