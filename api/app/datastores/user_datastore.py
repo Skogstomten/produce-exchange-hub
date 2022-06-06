@@ -9,29 +9,28 @@ from app.dependencies.document_database import get_document_database
 from app.errors.duplicate_error import DuplicateError
 from app.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
 from app.errors.not_found_error import NotFoundError
+from app.errors.unauthorized_error import UnauthorizedError
 from app.models.v1.api_models.users import UserAdd, UserRegister
 from app.models.v1.database_models.claim_database_model import ClaimDatabaseModel
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.models.v1.database_models.role_database_model import RoleDatabaseModel
+from app.models.v1.database_models.user_database_model import UserDatabaseModel, UserRoleDatabaseModel
+from .role_datastore import RoleDatastore, get_role_datastore
 
 
 class UserDatastore(object):
-    db: DocumentDatabase
+    _db: DocumentDatabase
+    _roles: RoleDatastore
 
-    def __init__(self, db: DocumentDatabase):
-        self.db = db
+    def __init__(self, db: DocumentDatabase, roles: RoleDatastore):
+        self._db = db
+        self._roles = roles
 
     @property
     def _users(self) -> DatabaseCollection:
-        return self.db.collection('users')
-
-    @property
-    def _roles(self) -> DatabaseCollection:
-        return self.db.collection('roles')
+        return self._db.collection('users')
 
     @property
     def _claims(self) -> DatabaseCollection:
-        return self.db.collection('claims')
+        return self._db.collection('claims')
 
     def get_users(self, take: int, skip: int) -> list[UserDatabaseModel]:
         docs = self._users.get_all().skip(skip).take(take).to_list()
@@ -90,12 +89,12 @@ class UserDatastore(object):
     def get_user_roles(
             self,
             user_id: str,
-    ) -> list[RoleDatabaseModel]:
+    ) -> list[UserRoleDatabaseModel]:
         doc = self._users.by_id(user_id)
         if doc is None:
             raise NotFoundError(f"No user with id '{user_id}' was found")
-        user = UserDatabaseModel(**doc.to_dict())
-        return user.global_roles
+        user = UserDatabaseModel(**doc)
+        return user.roles
 
     def add_role_to_user(
             self,
@@ -105,17 +104,16 @@ class UserDatastore(object):
         user_doc = self._users.by_id(user_id)
         if user_doc is None:
             raise NotFoundError(f"No user with id '{user_id}' was found")
-        role_doc = self._roles.by_key('name', role_name)
-        if role_doc is None:
-            raise NotFoundError(f"No role with name '{role_name}' was found")
+        role = self._roles.get_role(role_name)
         user = UserDatabaseModel(**user_doc)
-        role = RoleDatabaseModel(**role_doc)
-        user.global_roles.append(role)
+        user_role = UserRoleDatabaseModel.create(role, None)
+        user.roles.append(user_role)
         user_doc = user_doc.replace(user.dict())
         return UserDatabaseModel(**user_doc)
 
 
 def get_user_datastore(
-        db: DocumentDatabase = Depends(get_document_database)
+        db: DocumentDatabase = Depends(get_document_database),
+        roles: RoleDatastore = Depends(get_role_datastore),
 ) -> UserDatastore:
-    return UserDatastore(db)
+    return UserDatastore(db, roles)

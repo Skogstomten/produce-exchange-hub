@@ -6,6 +6,7 @@ from app.database.document_database import Document
 class RoleDatabaseModel(BaseModel):
     id: str
     name: str
+    type: str
     description: str | None
 
     @classmethod

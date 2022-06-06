@@ -10,7 +10,8 @@ router = APIRouter(prefix='/v1/{lang}/roles', tags=['Roles'])
 
 @router.get('/', response_model=list[RoleOutModel])
 async def get_roles(
-        roles: RoleDatastore = Depends(get_role_datastore)
+        roles: RoleDatastore = Depends(get_role_datastore),
+        user: UserDatabaseModel = Depends(get_current_user),
 ):
     roles = roles.get_roles()
     items = []
@@ -25,5 +26,5 @@ async def add_role(
         body: NewRoleModel = Body(...),
         user: UserDatabaseModel = Depends(get_current_user),
 ):
-    role = roles.add_role(body, user)
+    role = roles.add_role(body)
     return RoleOutModel(**role.dict())

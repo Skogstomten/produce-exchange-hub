@@ -1,10 +1,11 @@
 from pydantic import BaseModel
 
-from ..database_models.role_database_model import RoleDatabaseModel
+from ..shared import RoleType
 
 
 class NewRoleModel(BaseModel):
     name: str
+    type: RoleType
     description: str | None
 
 
