@@ -1,7 +1,7 @@
 from abc import ABC
 from collections.abc import Iterable
 
-from .string_values import StringValues
+from app.utils.string_values import StringValues
 from .query_parameter import QueryParameter
 
 

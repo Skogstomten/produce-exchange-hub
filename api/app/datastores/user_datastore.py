@@ -9,7 +9,6 @@ from app.dependencies.document_database import get_document_database
 from app.errors.duplicate_error import DuplicateError
 from app.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
 from app.errors.not_found_error import NotFoundError
-from app.errors.unauthorized_error import UnauthorizedError
 from app.models.v1.api_models.users import UserAdd, UserRegister
 from app.models.v1.database_models.claim_database_model import ClaimDatabaseModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel, UserRoleDatabaseModel
@@ -39,6 +38,19 @@ class UserDatastore(object):
             result.append(UserDatabaseModel(**doc.to_dict()))
         return result
 
+    def get_users_with_role(self, role_name: str, reference: str | None = None) -> list[UserDatabaseModel]:
+        if reference:
+            filters = {'$and': [{'roles.role_name': role_name}, {'roles.reference': reference}]}
+        else:
+            filters = {'roles.role_name': role_name}
+        docs = self._users.get(filters).to_list()
+        return [UserDatabaseModel(**doc) for doc in docs]
+
+    def get_company_users(self, company_id: str) -> list[UserDatabaseModel]:
+        filters = {'roles.reference': company_id}
+        docs = self._users.get(filters).to_list()
+        return [UserDatabaseModel(**doc) for doc in docs]
+
     def get_user(self, email: str) -> UserDatabaseModel | None:
         doc = self._users.by_key('email', email)
         if doc is None:
@@ -62,15 +74,6 @@ class UserDatastore(object):
         if not hasher.is_correct_password(password, user.password_hash):
             raise InvalidUsernameOrPasswordError()
         return user
-
-    def get_claims(self) -> list[ClaimDatabaseModel]:
-        docs = self._claims.get_all().to_list()
-        claims = []
-        for doc in docs:
-            claims.append(
-                ClaimDatabaseModel.from_doc(doc)
-            )
-        return claims
 
     def add_claim(self, claim: ClaimDatabaseModel) -> ClaimDatabaseModel:
         collection = self._claims
@@ -100,13 +103,14 @@ class UserDatastore(object):
             self,
             user_id: str,
             role_name: str,
+            reference: str | None = None,
     ) -> UserDatabaseModel:
         user_doc = self._users.by_id(user_id)
         if user_doc is None:
             raise NotFoundError(f"No user with id '{user_id}' was found")
         role = self._roles.get_role(role_name)
         user = UserDatabaseModel(**user_doc)
-        user_role = UserRoleDatabaseModel.create(role, None)
+        user_role = UserRoleDatabaseModel.create(role, reference)
         user.roles.append(user_role)
         user_doc = user_doc.replace(user.dict())
         return UserDatabaseModel(**user_doc)
