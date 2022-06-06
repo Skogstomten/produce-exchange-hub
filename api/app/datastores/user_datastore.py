@@ -6,13 +6,15 @@ from fastapi import Depends
 from app.dependencies.document_database import get_document_database
 from app.database.document_database import DocumentDatabase
 from app.cryptography import password_hasher as hasher
-from app.models.v1.users import UserInternal, UserAdd, UserRegister
-from app.models.v1.user_claim import UserClaim
-from app.models.v1.database_models.claims import ClaimDatabaseModel
+from app.models.v1.api_models.users import UserAdd, UserRegister
+from app.models.v1.api_models.roles import NewRoleModel
+from app.models.v1.database_models.claim_database_model import ClaimDatabaseModel
+from app.models.v1.database_models.role_database_model import RoleDatabaseModel
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
 from app.errors.duplicate_error import DuplicateError
 from app.errors.not_found_error import NotFoundError
-from app.oauth2.scopes import Scopes
+from app.errors.unauthorized_error import UnauthorizedError
 
 
 class UserDatastore(object):
@@ -21,14 +23,14 @@ class UserDatastore(object):
     def __init__(self, db: DocumentDatabase):
         self.db = db
 
-    def get_user(self, email: str) -> UserInternal | None:
+    def get_user(self, email: str) -> UserDatabaseModel | None:
         collection = self.db.collection('users')
         doc = collection.by_key('email', email)
         if doc is None:
             return None
-        return UserInternal(id=doc.id, **doc.to_dict())
+        return UserDatabaseModel(id=doc.id, **doc.to_dict())
 
-    def add_user(self, user: UserRegister) -> UserInternal:
+    def add_user(self, user: UserRegister) -> UserDatabaseModel:
         collection = self.db.collection('users')
         new_user = UserAdd(
             password_hash=hasher.hash_password(user.password, hasher.generate_salt()),
@@ -36,20 +38,17 @@ class UserDatastore(object):
             **user.dict()
         )
         doc = collection.add(new_user.dict())
-        return UserInternal(id=doc.id, **doc.to_dict())
+        return UserDatabaseModel(id=doc.id, **doc.to_dict())
 
-    def authenticate_user(self, email: str, password: str) -> UserInternal:
+    def authenticate_user(self, email: str, password: str) -> UserDatabaseModel:
         collection = self.db.collection('users')
         doc = collection.by_key('email', email)
         if doc is None:
             raise InvalidUsernameOrPasswordError()
-        user = UserInternal(id=doc.id, **doc.to_dict())
+        user = UserDatabaseModel(id=doc.id, **doc.to_dict())
         if not hasher.is_correct_password(password, user.password_hash):
             raise InvalidUsernameOrPasswordError()
         return user
-
-    def get_user_claims(self, user: UserInternal, scopes: Scopes) -> list[UserClaim]:
-        pass
 
     def get_claims(self) -> list[ClaimDatabaseModel]:
         collection = self.db.collection('claims')

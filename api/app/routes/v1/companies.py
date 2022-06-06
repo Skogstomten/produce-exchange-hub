@@ -6,7 +6,7 @@ from app.models.v1.api_models.companies import CompanyOutModel, CompanyCreateMod
 from app.models.v1.api_models.output_list import OutputListModel
 from app.models.v1.shared import Language
 from app.models.v1.shared import SortOrder
-from app.models.v1.users import UserInternal
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.datastores.company_datastore import CompanyDatastore, get_company_datastore
 
 router = APIRouter(prefix='/v1/{lang}/companies')
@@ -53,7 +53,7 @@ async def get_company(
 async def add_company(
         request: Request,
         company: CompanyCreateModel = Body(...),
-        user: UserInternal = Depends(get_current_user),
+        user: UserDatabaseModel = Depends(get_current_user),
         companies: CompanyDatastore = Depends(get_company_datastore),
         lang: Language = Path(...),
         timezone: str = Depends(get_timezone_header),
@@ -67,7 +67,7 @@ async def update_company(
         request: Request,
         company_id: str = Path(...),
         company: CompanyUpdateModel = Body(...),
-        user: UserInternal = Depends(get_current_user),
+        user: UserDatabaseModel = Depends(get_current_user),
         companies: CompanyDatastore = Depends(get_company_datastore),
         lang: Language = Path(...),
         timezone: str = Depends(get_timezone_header)

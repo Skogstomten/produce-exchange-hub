@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.models.v1.database_models.role_database_model import RoleDatabaseModel
+
 
 class User(BaseModel):
     email: str
@@ -23,10 +25,7 @@ class UserOut(User):
     id: str
     created: datetime
     last_logged_in: datetime | None = Field(None)
-
-
-class UserInternal(UserOut, UserAdd):
-    pass
+    global_roles: list[RoleDatabaseModel]
 
 
 class UserRegister(User):

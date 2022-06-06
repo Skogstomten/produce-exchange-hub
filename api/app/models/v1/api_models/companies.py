@@ -8,7 +8,7 @@ from fastapi import Request
 from .base_out_model import BaseOutModel
 from .contacts import ContactListModel
 from ..shared import CompanyStatus, Language
-from ..database_models.companies import CompanyDatabaseModel
+from ..database_models.company_database_model import CompanyDatabaseModel
 from app.utils.lang_utils import select_localized_text
 from app.utils.datetime_utils import ensure_utc
 from app.utils.request_utils import get_current_request_url_with_additions

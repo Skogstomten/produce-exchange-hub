@@ -16,6 +16,7 @@ class CompanyDatabaseModel(BaseModel):
     activation_date: datetime | None
     description: dict[str, str]
     contacts: list[ContactDatabaseModel] | None = Field(None)
+    authorized_users: dict[str, str]
 
     @classmethod
     def create_from_doc(cls, doc: Document):

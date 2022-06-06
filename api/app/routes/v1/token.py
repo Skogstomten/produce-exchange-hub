@@ -7,7 +7,6 @@ from jose import jwt
 from ...models.v1.token import Token
 from ...datastores.user_datastore import UserDatastore, get_user_datastore
 from ...dependencies.auth import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
-from ...oauth2.scopes import Scopes
 
 router = APIRouter(prefix='/v1/token')
 

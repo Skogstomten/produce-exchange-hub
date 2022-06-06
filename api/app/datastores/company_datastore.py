@@ -1,9 +1,9 @@
 from fastapi import Depends
 
 from app.models.v1.shared import SortOrder
-from app.models.v1.users import UserInternal
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.database_models.contact_database_model import ContactDatabaseModel
-from app.models.v1.database_models.companies import CompanyDatabaseModel
+from app.models.v1.database_models.company_database_model import CompanyDatabaseModel
 from app.database.document_database import DocumentDatabase
 from app.dependencies.document_database import get_document_database
 from app.errors.not_found_error import NotFoundError
@@ -48,16 +48,17 @@ class CompanyDatastore(object):
     def add_company(
             self,
             company: CompanyDatabaseModel,
-            user: UserInternal,
+            user: UserDatabaseModel,
     ) -> CompanyDatabaseModel:
         collection = self.db.collection('companies')
+        data = company.dict()
         doc = collection.add(company.dict())
         return CompanyDatabaseModel.create_from_doc(doc)
 
     def update_company(
             self,
             company: CompanyDatabaseModel,
-            user: UserInternal,
+            user: UserDatabaseModel,
     ) -> CompanyDatabaseModel:
         collection = self.db.collection('companies')
         doc = collection.by_id(company.id)
@@ -74,7 +75,7 @@ class CompanyDatastore(object):
             self,
             company_id: str,
             model: ContactDatabaseModel,
-            user: UserInternal,
+            user: UserDatabaseModel,
     ) -> ContactDatabaseModel:
         collection = self.db.collection('companies')
         doc = collection.by_id(company_id)

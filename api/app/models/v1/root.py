@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from app.models.v1.users import UserInternal
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
 
 
 class Root(BaseModel):
@@ -9,7 +9,7 @@ class Root(BaseModel):
     @classmethod
     def create(
             cls,
-            user: UserInternal | None
+            user: UserDatabaseModel | None
     ) -> 'Root':
         user_email = None
         if user:

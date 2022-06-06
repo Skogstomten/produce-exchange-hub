@@ -2,14 +2,14 @@ from fastapi import Depends, HTTPException, status
 from jose import jwt, JWTError
 
 from .auth import oauth2_scheme_optional, SECRET_KEY, ALGORITHM
-from ..models.v1.users import UserInternal
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from ..datastores.user_datastore import UserDatastore, get_user_datastore
 
 
 def get_current_user_if_any(
         token: str | None = Depends(oauth2_scheme_optional),
         users: UserDatastore = Depends(get_user_datastore),
-) -> UserInternal | None:
+) -> UserDatabaseModel | None:
     if token is None:
         return None
     credentials_exception = HTTPException(
@@ -33,8 +33,8 @@ def get_current_user_if_any(
 
 
 def get_current_user(
-        user: UserInternal | None = Depends(get_current_user_if_any),
-) -> UserInternal:
+        user: UserDatabaseModel | None = Depends(get_current_user_if_any),
+) -> UserDatabaseModel:
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
