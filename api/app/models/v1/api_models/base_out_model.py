@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .operation import Operation
 
 
 class BaseOutModel(BaseModel):
-    operations: list[Operation]
-    url: str
+    operations: list[Operation] = Field([])
+    url: str = Field('')

@@ -1,8 +1,9 @@
 from fastapi import Depends
 
-from app.models.v1.database_models.companies import CompanyDatabaseModel
 from app.models.v1.shared import SortOrder
-from app.models.v1.users import User
+from app.models.v1.users import UserInternal
+from app.models.v1.database_models.contact_database_model import ContactDatabaseModel
+from app.models.v1.database_models.companies import CompanyDatabaseModel
 from app.database.document_database import DocumentDatabase
 from app.dependencies.document_database import get_document_database
 from app.errors.not_found_error import NotFoundError
@@ -47,7 +48,7 @@ class CompanyDatastore(object):
     def add_company(
             self,
             company: CompanyDatabaseModel,
-            user: User,
+            user: UserInternal,
     ) -> CompanyDatabaseModel:
         collection = self.db.collection('companies')
         doc = collection.add(company.dict())
@@ -56,7 +57,7 @@ class CompanyDatastore(object):
     def update_company(
             self,
             company: CompanyDatabaseModel,
-            user: User,
+            user: UserInternal,
     ) -> CompanyDatabaseModel:
         collection = self.db.collection('companies')
         doc = collection.by_id(company.id)
@@ -68,6 +69,21 @@ class CompanyDatastore(object):
                 data[key] = value
         doc = doc.replace(data)
         return CompanyDatabaseModel.create_from_doc(doc)
+
+    def add_contact_to_company(
+            self,
+            company_id: str,
+            model: ContactDatabaseModel,
+            user: UserInternal,
+    ) -> ContactDatabaseModel:
+        collection = self.db.collection('companies')
+        doc = collection.by_id(company_id)
+        if doc is None:
+            raise NotFoundError
+
+        data = doc.to_dict()
+        contacts = data.get('contacts') if 'contacts' in data else []
+        contacts.append(model.dict())
 
 
 def get_company_datastore(

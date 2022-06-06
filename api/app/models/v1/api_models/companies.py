@@ -18,7 +18,7 @@ class CompanyTypes(Enum):
     buyer = 'buyer'
 
 
-class ContactOutModel(BaseModel):
+class ContactModel(BaseOutModel):
     id: str
     type: ContactType
     value: str
@@ -34,7 +34,7 @@ class CompanyOutModel(BaseOutModel):
     content_languages_iso: list[str]
     activation_date: datetime | None
     description: str | None = Field(None)
-    contacts: list[ContactOutModel] | None
+    contacts: list[ContactModel] | None
 
     @classmethod
     def from_database_model(
