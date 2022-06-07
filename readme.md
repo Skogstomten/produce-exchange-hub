@@ -2,7 +2,7 @@
 ## Requirements
 - Python 3.10
 - Visual Studio 2022
-- Python editor of your choice
+- Python editor of your choice (pycharm is nice)
 
 ## Setup
 - Clone repository
