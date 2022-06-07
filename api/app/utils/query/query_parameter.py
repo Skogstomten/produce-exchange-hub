@@ -1,8 +1,12 @@
+from typing import Any
+
 from app.utils.string_values import StringValues
 
 
 class QueryParameter:
-    def __init__(self, param_name: str, value: StringValues):
+    def __init__(self, param_name: str, value: StringValues | Any):
+        if not isinstance(value, StringValues):
+            value = StringValues(value)
         self.param_name = param_name
         if value is None:
             self.values = StringValues()
