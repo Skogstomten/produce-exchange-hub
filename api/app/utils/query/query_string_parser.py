@@ -33,3 +33,7 @@ class QueryStringParser(Iterable[QueryParameter], ABC):
 
     def __iter__(self):
         return self.query_parameters.values().__iter__()
+
+    def remove(self, parameter_name: str):
+        if parameter_name in self.query_parameters:
+            del self.query_parameters[parameter_name]
