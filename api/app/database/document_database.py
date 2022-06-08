@@ -80,7 +80,7 @@ class DatabaseCollection(metaclass=ABCMeta):
     @abstractmethod
     def get(
         self,
-        filters: dict[str, Any] = None,
+        filters: dict[str, Any] | None = None,
     ) -> DocumentCollection:
         ...
 
