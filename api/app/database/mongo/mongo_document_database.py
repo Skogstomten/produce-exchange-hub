@@ -1,4 +1,5 @@
-from typing import Type
+from typing import Type, TypeVar, NoReturn, Callable, Any
+from collections.abc import MutableMapping
 
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
@@ -6,7 +7,7 @@ from pymongo.collection import Collection as MongoCollection
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
 
-from ..document_database import *
+from ..document_database import Document, DocumentDatabase, DocumentCollection, T, DatabaseCollection
 from ...utils.enum_utils import enums_to_string
 from app.errors.invalid_operation_error import InvalidOperationError
 

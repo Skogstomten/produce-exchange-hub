@@ -4,10 +4,8 @@ from app.database.document_database import DocumentDatabase
 from app.dependencies.document_database import get_document_database
 from app.errors.duplicate_error import DuplicateError
 from app.errors.not_found_error import NotFoundError
-from app.errors.unauthorized_error import UnauthorizedError
 from app.models.v1.api_models.roles import NewRoleModel
 from app.models.v1.database_models.role_database_model import RoleDatabaseModel
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
 
 
 class RoleDatastore(object):
