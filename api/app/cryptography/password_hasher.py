@@ -25,9 +25,9 @@ def hash_password(password: str, salt: bytes) -> str:
     :param salt: salt to use
     :return: hashed password with salt as base64 encoded byte string
     """
-    hashed_value = PBKDF2(password, salt, 64, 1000000, hmac_hash_module=SHA512)
-    hashed_value = base64.urlsafe_b64encode(hashed_value + salt)
-    hashed_value = hashed_value.decode('utf-8')
+    hashed_bytes = PBKDF2(password, salt, 64, 1000000, hmac_hash_module=SHA512)
+    hashed_bytes = base64.urlsafe_b64encode(hashed_bytes + salt)
+    hashed_value = hashed_bytes.decode('utf-8')
     return hashed_value
 
 

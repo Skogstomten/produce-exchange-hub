@@ -6,7 +6,11 @@ from .routes.v1 import companies, token, root, users, timezones, company_contact
 from .errors.error_model import ErrorModel
 from .errors.not_found_error import NotFoundError
 
-app = FastAPI()
+app = FastAPI(
+    title='Produce Exchange Hub Api',
+    description='Has all the business logic for the Produce Exchange Hub Web App',
+)
+
 app.include_router(root.router)
 app.include_router(users.router)
 app.include_router(token.router)
