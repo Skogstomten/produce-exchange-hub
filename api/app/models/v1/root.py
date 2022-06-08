@@ -18,4 +18,3 @@ class Root(BaseModel):
         return cls(
             current_user=user_email
         )
-    
