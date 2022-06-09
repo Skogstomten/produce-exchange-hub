@@ -2,11 +2,11 @@ from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import SecurityScopes
 from jose import jwt, JWTError
 
-from .auth import oauth2_scheme_optional, SECRET_KEY, ALGORITHM
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.models.v1.token import TokenData
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.errors.unauthorized_error import UnauthorizedError
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.token import TokenData
+from .auth import oauth2_scheme_optional, SECRET_KEY, ALGORITHM
 
 
 def get_current_user_if_any(
@@ -72,7 +72,8 @@ def user_has_access(
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
                 f"endpoint '{str(request.url)}' has invalid security claim setup: '{scope}'"
             )
-        if parts[0] == 'roles':
+        claim_type: str = parts[0]
+        if claim_type == 'roles':
             if len(parts) == 2:
                 role_name = parts[1]
                 if role_name in token.roles:
@@ -88,5 +89,11 @@ def user_has_access(
                 reference = request.path_params.get(reference_param_name)
                 if f"{role_name}:{reference}" in token.roles:
                     has_access = True
+        elif claim_type == 'verified':
+            verified: bool = parts[1].lower() == 'true'
+            if verified:
+                if not token.verified:
+                    return False
+
     print('User has access: ' + str(has_access))
     return has_access

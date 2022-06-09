@@ -4,7 +4,7 @@ import pytz
 from fastapi import Depends
 
 from app.cryptography import password_hasher as hasher
-from app.database.document_database import DocumentDatabase, DatabaseCollection
+from app.database.document_database import DocumentDatabase, DatabaseCollection, Document
 from app.dependencies.document_database import get_document_database
 from app.errors.duplicate_error import DuplicateError
 from app.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
@@ -35,7 +35,7 @@ class UserDatastore(object):
         docs = self._users.get_all().skip(skip).take(take).to_list()
         result = []
         for doc in docs:
-            result.append(UserDatabaseModel(**doc.to_dict()))
+            result.append(UserDatabaseModel(**doc))
         return result
 
     def get_users_with_role(self, role_name: str, reference: str | None = None) -> list[UserDatabaseModel]:
@@ -55,22 +55,31 @@ class UserDatastore(object):
         doc = self._users.by_key('email', email)
         if doc is None:
             return None
-        return UserDatabaseModel(**doc.to_dict())
+        return UserDatabaseModel(**doc)
 
     def add_user(self, user: UserRegister) -> UserDatabaseModel:
+        if self._users.exists({'email': user.email}):
+            raise DuplicateError("There's already a user registered with this e-mail address")
+
         new_user = UserAdd(
             password_hash=hasher.hash_password(user.password, hasher.generate_salt()),
             created=datetime.now(pytz.utc),
             **user.dict()
         )
         doc = self._users.add(new_user.dict())
-        return UserDatabaseModel(**doc.to_dict())
+        return UserDatabaseModel(**doc)
+
+    def delete_user(self, user_id: str) -> None:
+        doc: Document = self._users.by_id(user_id)
+        if doc is None:
+            raise NotFoundError(f"No user with id '{user_id}' was found")
+        doc.delete()
 
     def authenticate_user(self, email: str, password: str) -> UserDatabaseModel:
         doc = self._users.by_key('email', email)
         if doc is None:
             raise InvalidUsernameOrPasswordError()
-        user = UserDatabaseModel(**doc.to_dict())
+        user = UserDatabaseModel(**doc)
         if not hasher.is_correct_password(password, user.password_hash):
             raise InvalidUsernameOrPasswordError()
         return user

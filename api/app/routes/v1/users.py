@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Body, Query, Request, Security
+from fastapi import APIRouter, Depends, Body, Query, Request, Security, Path
 
 from app.dependencies.user import get_current_user
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
@@ -11,11 +11,12 @@ router = APIRouter(prefix='/v1/users', tags=['Users'])
 
 @router.post('/register', response_model=UserOutModel)
 async def register(
+        request: Request,
         users: UserDatastore = Depends(get_user_datastore),
         body: UserRegister = Body(...)
 ):
-    user = users.add_user(body)
-    return UserOutModel(**user.dict())
+    user: UserDatabaseModel = users.add_user(body)
+    return UserOutModel.from_database_model(user, request)
 
 
 @router.get('/', response_model=OutputListModel[UserOutModel])
@@ -31,3 +32,14 @@ async def get_users(
     for user in all_users:
         items.append(UserOutModel.from_database_model(user, request))
     return OutputListModel[UserOutModel].create(items, skip, take, request)
+
+
+@router.delete('/{user_id}', response_model=None, responses={
+    200: {'test': 'User deleted'}
+})
+async def delete_user(
+        user_datastore: UserDatastore = Depends(get_user_datastore),
+        user_id: str = Path(...),
+        user: UserDatabaseModel = Security(get_current_user, scopes=('roles:superuser',)),
+) -> None:
+    user_datastore.delete_user(user_id)
