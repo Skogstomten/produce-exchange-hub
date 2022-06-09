@@ -72,10 +72,10 @@ async def update_company(
         request: Request,
         company_id: str = Path(...),
         company: CompanyUpdateModel = Body(...),
-        user: UserDatabaseModel = Depends(get_current_user),
+        user: UserDatabaseModel = Security(get_current_user, scopes=('roles:company_admin:{company_id}',)),
         companies: CompanyDatastore = Depends(get_company_datastore),
         lang: Language = Path(...),
-        timezone: str = Depends(get_timezone_header)
+        timezone: str = Depends(get_timezone_header),
 ):
     company = companies.update_company(company.to_database_model(company_id), user)
     return CompanyOutModel.from_database_model(company, lang, timezone, request)
