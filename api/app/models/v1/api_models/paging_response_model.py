@@ -11,7 +11,7 @@ from app.utils.request_utils import get_current_request_url_with_additions
 T = TypeVar('T', bound=BaseModel)
 
 
-class OutputListModel(GenericModel, Generic[T]):
+class PagingResponseModel(GenericModel, Generic[T]):
     items: list[T]
     url: str
     number_of_items: int
@@ -35,15 +35,15 @@ class OutputListModel(GenericModel, Generic[T]):
             include_query=False,
         )
 
-        previous_page_url = None
+        previous_page_url: str | None = None
         if skip > 0:
-            skip -= take
-            if skip < 0:
-                skip = 0
+            skip_previous_url: int = skip - take
+            if skip_previous_url < 0:
+                skip_previous_url = 0
             previous_page_url = get_current_request_url_with_additions(
                 request,
                 query_parameters=tuple(query) + (
-                    QueryParameter('skip', skip),
+                    QueryParameter('skip', skip_previous_url),
                     QueryParameter('take', take),
                 ),
                 include_query=False,
@@ -54,7 +54,7 @@ class OutputListModel(GenericModel, Generic[T]):
             url=str(request.url),
             number_of_items=len(items),
             items_per_page=take,
-            page_number=skip / take,
+            page_number=int(skip / take) + 1,
             next_page=next_page_url,
             previous_page=previous_page_url,
         )

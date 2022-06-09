@@ -9,7 +9,7 @@ from app.models.v1.api_models.companies import (
     CompanyUpdateModel,
     CompanyOutListModel,
 )
-from app.models.v1.api_models.output_list import OutputListModel
+from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.shared import Language
 from app.models.v1.shared import SortOrder
@@ -17,7 +17,7 @@ from app.models.v1.shared import SortOrder
 router = APIRouter(prefix='/v1/{lang}/companies', tags=['Companies'])
 
 
-@router.get('/', response_model=OutputListModel[CompanyOutListModel])
+@router.get('/', response_model=PagingResponseModel[CompanyOutListModel])
 async def get_companies(
         request: Request,
         take: int = Query(20),
@@ -38,7 +38,7 @@ async def get_companies(
     for company in companies:
         item = CompanyOutListModel.from_database_model(company, lang, timezone, request)
         items.append(item)
-    response = OutputListModel[CompanyOutListModel].create(items, skip, take, request)
+    response = PagingResponseModel[CompanyOutListModel].create(items, skip, take, request)
     return response
 
 
