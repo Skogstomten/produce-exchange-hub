@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Body, Query, Request, Security, Path
 
 from app.dependencies.user import get_current_user
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
-from app.models.v1.api_models.output_list import OutputListModel
+from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.api_models.users import UserRegister, UserOutModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 
@@ -19,7 +19,7 @@ async def register(
     return UserOutModel.from_database_model(user, request)
 
 
-@router.get('/', response_model=OutputListModel[UserOutModel])
+@router.get('/', response_model=PagingResponseModel[UserOutModel])
 async def get_users(
         request: Request,
         user_datastore: UserDatastore = Depends(get_user_datastore),
@@ -31,7 +31,7 @@ async def get_users(
     items: list[UserOutModel] = []
     for user in all_users:
         items.append(UserOutModel.from_database_model(user, request))
-    return OutputListModel[UserOutModel].create(items, skip, take, request)
+    return PagingResponseModel[UserOutModel].create(items, skip, take, request)
 
 
 @router.delete('/{user_id}', response_model=None, responses={
