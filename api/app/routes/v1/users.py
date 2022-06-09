@@ -29,5 +29,5 @@ async def get_users(
     all_users = user_datastore.get_users(take, skip)
     items: list[UserOutModel] = []
     for user in all_users:
-        items.append(UserOutModel.from_database_model(user))
+        items.append(UserOutModel.from_database_model(user, request))
     return OutputListModel[UserOutModel].create(items, skip, take, request)
