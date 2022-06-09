@@ -35,7 +35,7 @@ class UserDatastore(object):
         docs = self._users.get_all().skip(skip).take(take).to_list()
         result = []
         for doc in docs:
-            result.append(UserDatabaseModel(**doc.to_dict()))
+            result.append(UserDatabaseModel(**doc))
         return result
 
     def get_users_with_role(self, role_name: str, reference: str | None = None) -> list[UserDatabaseModel]:
