@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, Body, Path, Request
+from fastapi import APIRouter, Depends, Query, Body, Path, Request, Security
 
 from app.datastores.company_datastore import CompanyDatastore, get_company_datastore
 from app.dependencies.timezone_header import get_timezone_header
@@ -58,7 +58,7 @@ async def get_company(
 async def add_company(
         request: Request,
         company: CompanyCreateModel = Body(...),
-        user: UserDatabaseModel = Depends(get_current_user),
+        user: UserDatabaseModel = Security(get_current_user, scopes=('verified:True',)),
         companies: CompanyDatastore = Depends(get_company_datastore),
         lang: Language = Path(...),
         timezone: str = Depends(get_timezone_header),

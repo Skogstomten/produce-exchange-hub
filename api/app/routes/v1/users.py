@@ -11,11 +11,12 @@ router = APIRouter(prefix='/v1/users', tags=['Users'])
 
 @router.post('/register', response_model=UserOutModel)
 async def register(
+        request: Request,
         users: UserDatastore = Depends(get_user_datastore),
         body: UserRegister = Body(...)
 ):
-    user = users.add_user(body)
-    return UserOutModel(**user.dict())
+    user: UserDatabaseModel = users.add_user(body)
+    return UserOutModel.from_database_model(user, request)
 
 
 @router.get('/', response_model=OutputListModel[UserOutModel])

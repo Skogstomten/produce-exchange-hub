@@ -55,22 +55,25 @@ class UserDatastore(object):
         doc = self._users.by_key('email', email)
         if doc is None:
             return None
-        return UserDatabaseModel(**doc.to_dict())
+        return UserDatabaseModel(**doc)
 
     def add_user(self, user: UserRegister) -> UserDatabaseModel:
+        if self._users.exists({'email': user.email}):
+            raise DuplicateError("There's already a user registered with this e-mail address")
+
         new_user = UserAdd(
             password_hash=hasher.hash_password(user.password, hasher.generate_salt()),
             created=datetime.now(pytz.utc),
             **user.dict()
         )
         doc = self._users.add(new_user.dict())
-        return UserDatabaseModel(**doc.to_dict())
+        return UserDatabaseModel(**doc)
 
     def authenticate_user(self, email: str, password: str) -> UserDatabaseModel:
         doc = self._users.by_key('email', email)
         if doc is None:
             raise InvalidUsernameOrPasswordError()
-        user = UserDatabaseModel(**doc.to_dict())
+        user = UserDatabaseModel(**doc)
         if not hasher.is_correct_password(password, user.password_hash):
             raise InvalidUsernameOrPasswordError()
         return user
