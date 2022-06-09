@@ -4,7 +4,7 @@ import pytz
 from fastapi import Depends
 
 from app.cryptography import password_hasher as hasher
-from app.database.document_database import DocumentDatabase, DatabaseCollection
+from app.database.document_database import DocumentDatabase, DatabaseCollection, Document
 from app.dependencies.document_database import get_document_database
 from app.errors.duplicate_error import DuplicateError
 from app.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
@@ -68,6 +68,12 @@ class UserDatastore(object):
         )
         doc = self._users.add(new_user.dict())
         return UserDatabaseModel(**doc)
+
+    def delete_user(self, user_id: str) -> None:
+        doc: Document = self._users.by_id(user_id)
+        if doc is None:
+            raise NotFoundError(f"No user with id '{user_id}' was found")
+        doc.delete()
 
     def authenticate_user(self, email: str, password: str) -> UserDatabaseModel:
         doc = self._users.by_key('email', email)
