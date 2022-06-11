@@ -63,7 +63,7 @@ async def add_company(
         lang: Language = Path(...),
         timezone: str = Depends(get_timezone_header),
 ):
-    company = companies.add_company(company.to_database_model(), user)
+    company = companies.add_company(company, user)
     return CompanyOutModel.from_database_model(company, lang, timezone, request)
 
 
@@ -77,5 +77,5 @@ async def update_company(
         lang: Language = Path(...),
         timezone: str = Depends(get_timezone_header),
 ):
-    company = companies.update_company(company.to_database_model(company_id), user)
+    company = companies.update_company(company.to_database_model(company_id))
     return CompanyOutModel.from_database_model(company, lang, timezone, request)

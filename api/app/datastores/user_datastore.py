@@ -64,7 +64,7 @@ class UserDatastore(object):
         new_user = UserAdd(
             password_hash=hasher.hash_password(user.password, hasher.generate_salt()),
             created=datetime.now(pytz.utc),
-            **user.dict()
+            **user.dict(),
         )
         doc = self._users.add(new_user.dict())
         return UserDatabaseModel(**doc)
