@@ -99,16 +99,6 @@ class CompanyCreateModel(BaseModel):
     company_types: list[CompanyTypes] = Field(..., min_items=1)
     content_languages_iso: list[str] = Field(..., min_length=2, max_length=2, min_items=1)
 
-    def to_database_model(self) -> CompanyDatabaseModel:
-        return CompanyDatabaseModel(
-            name=self.name,
-            status=CompanyStatus.created,
-            created_date=datetime.now(pytz.UTC),
-            company_types=self.company_types,
-            content_languages_iso=self.content_languages_iso,
-            description={}
-        )
-
 
 class CompanyUpdateModel(BaseModel):
     name: dict[str, str]
