@@ -10,7 +10,10 @@ class StringValues(Iterable[str], Sized, ABC):
 
     def append(self, *args):
         for arg in args:
-            self.values.append(str(arg))
+            if isinstance(arg, StringValues):
+                self.values.extend(arg)
+            else:
+                self.values.append(str(arg))
 
     def __iter__(self):
         return self.values.__iter__()

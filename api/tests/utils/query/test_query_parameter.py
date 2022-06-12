@@ -13,7 +13,7 @@ class QueryParameterTest(TestCase):
     def test_can_initialize_with_only_one_value(self):
         target = QueryParameter('name', 123, 345)
         self.assertEqual(target.values.values[0], '123')
-        self.assertEqual(target.values.values[0], '345')
+        self.assertEqual(target.values.values[1], '345')
 
     def test_str(self):
         target = QueryParameter('name')
@@ -22,4 +22,3 @@ class QueryParameterTest(TestCase):
         self.assertEqual(str(target), 'name=val')
         target = QueryParameter('name', 'val1', 'val2')
         self.assertEqual(str(target), 'name=val1&name=val2')
-    
