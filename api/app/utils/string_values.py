@@ -3,12 +3,12 @@ from typing import Iterable, Sized
 
 
 class StringValues(Iterable[str], Sized, ABC):
-    def __init__(self, *args):
+    def __init__(self, *args: str):
         self.values = []
         for arg in args:
             self.values.append(str(arg))
 
-    def append(self, *args):
+    def append(self, *args: str):
         for arg in args:
             self.values.append(str(arg))
 
