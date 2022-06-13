@@ -6,10 +6,13 @@ from .query_parameter import QueryParameter
 
 
 class QueryStringParser(Iterable[QueryParameter], ABC):
-    def __init__(self, query_string: str):
+    def __init__(self, query_string: str | None):
         self._query_string_raw = query_string
 
-        query_parameters = query_string.split('&')
+        if query_string:
+            query_parameters = query_string.split('&')
+        else:
+            query_parameters = []
         self.query_parameters: dict[str, QueryParameter] = {}
         for query_parameter in query_parameters:
             parts = query_parameter.split('=')
