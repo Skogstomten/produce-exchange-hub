@@ -20,6 +20,7 @@ class SecurityScopeRestrictions(object):
         :param request: HTTP request object, needed to acquire resource keys to check for access to specific resources
         """
         self._roles: list[str] = []
+        self._verified: bool | None = None
 
         for scope in security_scopes.scopes:
             parts: list[str] = scope.split(':')
@@ -37,7 +38,7 @@ class SecurityScopeRestrictions(object):
                     role += f":{reference}"
                 self._roles.append(role)
             if claim_type == 'verified':
-                self._verified: bool | None = parts[1].lower() == 'true'
+                self._verified = parts[1].lower() == 'true'
 
     def user_has_required_roles(self, token: TokenData) -> bool:
         """
