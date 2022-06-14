@@ -46,12 +46,15 @@ def get_url(request: Request) -> str:
 
 
 def get_query_string(request: Request) -> str:
-    query_string = '?'
+    query_string = ''
     for key in request.query_params:
+        if query_string == '':
+            query_string += '?'
         value = request.query_params[key]
         if query_string != '?':
             query_string += '&'
         query_string += str(key)
         if value:
-            query_string += f"={str(value)}"
+            if value.strip() != '':
+                query_string += f"={str(value)}"
     return query_string
