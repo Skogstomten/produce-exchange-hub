@@ -1,3 +1,6 @@
+"""
+Routing module for oauth2 token endpoint.
+"""
 from datetime import timedelta, datetime
 
 from fastapi import APIRouter, Depends
@@ -22,9 +25,17 @@ router = APIRouter(prefix="/v1/token", tags=["Token"])
 @router.post("/", response_model=Token)
 async def token(
     form_data: OAuth2PasswordRequestFormStrict = Depends(),
-    users: UserDatastore = Depends(get_user_datastore),
-):
-    user = users.authenticate_user(form_data.username, form_data.password)
+    user_datastore: UserDatastore = Depends(get_user_datastore),
+) -> Token:
+    """
+    Gets oauth2 access token.
+    :param form_data: url encoded form data with user credentials.
+    :param user_datastore: for accessing user database.
+    :return: Token
+    """
+    user = user_datastore.authenticate_user(
+        form_data.username, form_data.password
+    )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     scopes = Scopes(form_data.scopes)
     claims = get_user_claims(user, scopes)
@@ -40,6 +51,12 @@ async def token(
 
 
 def get_user_claims(user: UserDatabaseModel, scopes: Scopes) -> list[Claim]:
+    """
+    Get claims for user according to provided scopes.
+    :param user: user to get claims for.
+    :param scopes: scopes requested by caller.
+    :return: list of claims.
+    """
     claims = [Claim("verified", user.verified)]
     if scopes.has_scope("profile"):
         claims.extend(
@@ -63,7 +80,12 @@ def get_user_claims(user: UserDatabaseModel, scopes: Scopes) -> list[Claim]:
 def create_access_token(
     data: dict, expires_delta: timedelta | None = None
 ) -> str:
-    # print('data put in token: ' + str(data))
+    """
+    Creates jwt encoded oauth2 access token.
+    :param data: Data to put in token.
+    :param expires_delta: expiration time of token.
+    :return: jwt token as str.
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta

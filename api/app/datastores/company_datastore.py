@@ -1,3 +1,7 @@
+"""
+The company datastore.
+For accessing and manipulating company related data.
+"""
 from datetime import datetime
 from pytz import utc
 
@@ -21,15 +25,26 @@ IGNORE_ON_UPDATE: tuple = ("id", "created_date", "activation_date")
 
 
 class CompanyDatastore(object):
+    """The datastore class."""
+
     db: DocumentDatabase
     users: UserDatastore
 
     def __init__(self, db: DocumentDatabase, users: UserDatastore):
+        """
+        Initializes the datastore with a reference to the document db.
+        :param db: document db instance.
+        :param users: users datastore for cross collection operations.
+        """
         self.db = db
         self.users = users
 
     @property
     def _companies(self) -> DatabaseCollection:
+        """
+        Accessor for companies collection.
+        :return: DatabaseCollection for companies.
+        """
         return self.db.collection("companies")
 
     def get_companies(
@@ -39,6 +54,14 @@ class CompanyDatastore(object):
         sort_by: str | None = None,
         sort_order: SortOrder | None = None,
     ) -> list[CompanyDatabaseModel]:
+        """
+        Gets a list of companies.
+        :param skip: number of companies to skip, for paging.
+        :param take: number of companies to return, to limit response size.
+        :param sort_by: field name to sort by.
+        :param sort_order: asc or desc.
+        :return: list of companies.
+        """
         docs = self._companies.get_all()
         if skip:
             docs = docs.skip(skip)
@@ -55,6 +78,11 @@ class CompanyDatastore(object):
         return result
 
     def get_company(self, company_id: str) -> CompanyDatabaseModel:
+        """
+        Get a single company.
+        :param company_id: id of the company to get.
+        :return: company database model object.
+        """
         doc = self._companies.by_id(company_id)
         return CompanyDatabaseModel(**doc)
 
@@ -63,6 +91,13 @@ class CompanyDatastore(object):
         company: CompanyCreateModel,
         user: UserDatabaseModel,
     ) -> CompanyDatabaseModel:
+        """
+        Add a new company to collection.
+        Also adds the authenticated user as admin for the company.
+        :param company: Model with data for the new company.
+        :param user: The authenticated user.
+        :return: The new company. CompanyDatabaseModel.
+        """
         datum = company.dict()
         datum.update(
             {
@@ -81,9 +116,17 @@ class CompanyDatastore(object):
         self,
         company: CompanyDatabaseModel,
     ) -> CompanyDatabaseModel:
+        """
+        Updates a company with given model.
+        :raise NotFoundError: If company with id is not found.
+        :param company: The data to update.
+        :return: CompanyDatabaseModel. The updated company.
+        """
         doc = self._companies.by_id(company.id)
         if doc is None:
-            raise NotFoundError
+            raise NotFoundError(
+                f"No company with id '{company.id}' was found."
+            )
         data = doc.to_dict()
         for key, value in company.dict().items():
             if key not in IGNORE_ON_UPDATE:
@@ -96,9 +139,18 @@ class CompanyDatastore(object):
         company_id: str,
         model: ContactDatabaseModel,
     ) -> ContactDatabaseModel:
+        """
+        Add a new contact to the company.
+        :raise NotFoundError: If company with given id is not found.
+        :param company_id: The id of the company to add the contact to.
+        :param model: The contact model.
+        :return: The added contact. ContactDatabaseModel.
+        """
         doc = self._companies.by_id(company_id)
         if doc is None:
-            raise NotFoundError
+            raise NotFoundError(
+                f"No company with id '{company_id}' was found."
+            )
 
         company = CompanyDatabaseModel(**doc)
         company.contacts.append(model)
@@ -108,6 +160,18 @@ class CompanyDatastore(object):
     def add_user_to_company(
         self, company_id: str, role_name: str, user: UserDatabaseModel
     ) -> list[UserDatabaseModel]:
+        """
+        Adds user to company with role.
+
+        TODO: This method is wrong. See issue:
+        https://github.com/Skogstomten/produce-exchange-hub/issues/30
+        https://github.com/Skogstomten/produce-exchange-hub/issues/31
+
+        :param company_id: ID of company to add user to.
+        :param role_name: Name of role to give the user.
+        :param user: The user.
+        :return:
+        """
         self.users.add_role_to_user(user.id, role_name, company_id)
         return self.users.get_company_users(company_id)
 
@@ -116,4 +180,10 @@ def get_company_datastore(
     db: DocumentDatabase = Depends(get_document_database),
     user_datastore: UserDatastore = Depends(get_user_datastore),
 ) -> CompanyDatastore:
+    """
+    Dependency injection function to inject CompanyDatastore.
+    :param db: Reference to document db.
+    :param user_datastore: Reference to user datastore.
+    :return: New instance of CompanyDatastore.
+    """
     return CompanyDatastore(db, user_datastore)

@@ -15,11 +15,13 @@ def get_current_request_url_with_additions(
     include_query: bool = True,
 ) -> str:
     """
-    Gets the current request url from given request and optionally add path parameters or query parameters to it.
+    Gets the current request url from given request and optionally add path
+    parameters or query parameters to it.
     :param request: fastapi.Request.
     :param extra_path_parameters: sequence with added parameters.
     :param query_parameters: sequence with query parameters.
-    :param include_query: flag that sets if existing query string in request should be included.
+    :param include_query: flag that sets if existing query string in request
+    should be included.
     :return: url as str.
     """
     url = get_url(request)
@@ -66,7 +68,8 @@ def get_url(request: Request) -> str:
 def get_query_string(request: Request) -> str:
     """
     Get query string from fastapi.Request.
-    Query string will be formatted as so that it can be appended at end of url if needed.
+    Query string will be formatted as so that it can be appended at end of url
+    if needed.
     :param request: the request.
     :return: query string as str
     """
