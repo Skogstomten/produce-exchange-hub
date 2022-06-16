@@ -118,6 +118,9 @@ class MongoDocument(Document):
         :param data: Updated data as a mutable mapping.
         :return: Updated document.
         """
+        if isinstance(data, Document):
+            data = data.to_dict()
+        
         data = enums_to_string(data)
         if "id" in data:
             data["_id"] = self._doc["_id"]
@@ -200,49 +203,103 @@ class MongoDocumentCollection(DocumentCollection):
 
 
 class MongoDatabaseCollection(DatabaseCollection):
+    """
+    Represents a database collection
+    """
     _collection: MongoCollection
 
     def __init__(self, collection: MongoCollection):
+        """
+        Creates a mongo database collection wrapping a Collection from pymongo.
+        :param collection: pymongo.database.collection
+        """
         self._collection = collection
 
     def by_id(self, doc_id: str) -> Document | None:
+        """
+        Get a document by id.
+        :param doc_id: id of document.
+        :return: Document with id or None if no document is found.
+        """
         doc = self._collection.find_one({"_id": ObjectId(doc_id)})
         if doc is None:
             return None
         return MongoDocument(doc, self._collection)
 
     def by_key(self, key: str, value: Any) -> Document | None:
+        """
+        Get a document by key other than id.
+        If more than one document is found, the first document in unspecified order will be returned.
+        Should preferably be used with values that are supposed to be unique.
+
+        :param key: Lookup key.
+        :param value: Lookup value.
+        :return: Document or None if no document is found.
+        """
         doc = self._collection.find_one({key: value})
         if doc is None:
             return None
         return MongoDocument(self._collection.find_one({key: value}), self._collection)
 
     def add(self, data: dict) -> Document:
+        """
+        Add a new document to the database.
+
+        :param data: The data for the document.
+        :return: The newly created document.
+        """
         data = enums_to_string(data)
         result = self._collection.insert_one(data)
         return self.by_id(result.inserted_id)
 
     def get_all(self) -> DocumentCollection:
+        """
+        Get a document collection cursor currently containing all documents in the database collection.
+        Note that no documents are fetched when calling this method.
+        :return: DocumentCollection operating as a cursor.
+        """
         return MongoDocumentCollection(self._collection.find(), self._collection)
 
     def get(
         self,
         filters: dict[str, Any] = None,
     ) -> DocumentCollection:
+        """
+        Get a document collection cursor pointing towards all documents that fit the current filter.
+        :param filters: Filters using mongodb pymongo syntax.
+        :return: DocumentCollection cursor.
+        """
         if filters is None:
             filters = {}
         cursor = self._collection.find(filters)
         return MongoDocumentCollection(cursor, self._collection)
 
     def exists(self, filters: dict[str, Any]) -> bool:
+        """
+        Check if document matching filter exists.
+        :param filters: Filter using mongodb pymongo syntax.
+        :return: True if document exists, else False.
+        """
         return self._collection.count_documents(filters, limit=1) > 0
 
 
 class MongoDocumentDatabase(DocumentDatabase):
+    """
+    Wrapper for MongoDB database.
+    """
     _db: MongoDatabase
 
     def __init__(self, db: MongoDatabase):
+        """
+        Creates a MongoDb wrapper.
+        :param db:
+        """
         self._db = db
 
     def collection(self, collection_name: str) -> DatabaseCollection:
+        """
+        Gets database collection by name.
+        :param collection_name: Name of collection.
+        :return: Database collection to perform operations on the selected collection.
+        """
         return MongoDatabaseCollection(self._db.get_collection(collection_name))

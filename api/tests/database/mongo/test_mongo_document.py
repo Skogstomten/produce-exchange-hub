@@ -1,4 +1,4 @@
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock
 
 from bson import ObjectId
 from pymongo.collection import Collection
@@ -29,30 +29,37 @@ def test_converting_doc_to_dict_gives_you_correct_data(collection):
 
 
 def test_replacing_document_with_dict_does_not_insert_id_into_database(collection):
+    def _verify_call(filters, data_obj):
+        assert len(filters) == 1
+        assert "_id" in filters
+        assert str(filters["_id"]) == str(obj_id)
+        assert len(data_obj) == 2
+        assert "name" in data_obj
+        assert "_id" in data_obj
+        assert str(data_obj["_id"]) == str(obj_id)
+
     obj_id = ObjectId()
     collection.find_one.return_value = {"_id": obj_id, "name": "Egon"}
-    collection.replace_one = MagicMock()
+    collection.replace_one = _verify_call
     target = MongoDocument({"_id": obj_id, "name": "Nisse"}, collection)
     data = target.to_dict()
     data["name"] = "Egon"
     target.replace(data)
-    collection.replace_one.replace_one.assert_called_with(
-        {"_id": obj_id},
-        {
-            "_id": obj_id,
-            "name": "Egon",
-        }
-    )
 
 
 def test_replacing_doc_works_by_passing_doc(collection):
+    def _verify_call(filters, data_obj):
+        assert len(filters) == 1
+        assert "_id" in filters
+        assert str(filters["_id"]) == str(obj_id)
+        assert len(data_obj) == 2
+        assert "name" in data_obj
+        assert "_id" in data_obj
+        assert str(data_obj["_id"]) == str(obj_id)
+
     obj_id = ObjectId()
     collection.find_one.return_value = {"_id": obj_id, "name": "Egon"}
-    collection.replace_one = MagicMock()
+    collection.replace_one = _verify_call
     target = MongoDocument({"_id": obj_id, "name": "Nisse"}, collection)
     target["name"] = "Egon"
     target.replace(target)
-    collection.replace_one.replace_one.assert_called_with({
-        "_id": obj_id,
-        "name": "Egon",
-    })
