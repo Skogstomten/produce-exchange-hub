@@ -10,12 +10,12 @@ class QueryStringParser(Iterable[QueryParameter], ABC):
         self._query_string_raw = query_string
 
         if query_string:
-            query_parameters = query_string.split('&')
+            query_parameters = query_string.split("&")
         else:
             query_parameters = []
         self.query_parameters: dict[str, QueryParameter] = {}
         for query_parameter in query_parameters:
-            parts = query_parameter.split('=')
+            parts = query_parameter.split("=")
             key = None
             value = None
             if len(parts) > 0:
@@ -37,7 +37,7 @@ class QueryStringParser(Iterable[QueryParameter], ABC):
     def __iter__(self):
         return self.query_parameters.values().__iter__()
 
-    def remove(self, parameter_name: str) -> 'QueryStringParser':
+    def remove(self, parameter_name: str) -> "QueryStringParser":
         if parameter_name in self.query_parameters:
             del self.query_parameters[parameter_name]
         return self

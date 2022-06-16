@@ -2,13 +2,22 @@ from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes.v1 import companies, token, root, users, timezones, company_contacts, roles, user_roles
+from .routes.v1 import (
+    companies,
+    token,
+    root,
+    users,
+    timezones,
+    company_contacts,
+    roles,
+    user_roles,
+)
 from .errors.error_model import ErrorModel
 from .errors.not_found_error import NotFoundError
 
 app = FastAPI(
-    title='Produce Exchange Hub Api',
-    description='Has all the business logic for the Produce Exchange Hub Web App',
+    title="Produce Exchange Hub Api",
+    description="Has all the business logic for the Produce Exchange Hub Web App",
 )
 
 app.include_router(root.router)
@@ -38,12 +47,7 @@ def base_exception_handler(request: Request, err: Exception):
     if isinstance(err, HTTPException):
         return JSONResponse(
             status_code=err.status_code,
-            content=vars(
-                ErrorModel(
-                    err.status_code,
-                    err.detail
-                )
-            )
+            content=vars(ErrorModel(err.status_code, err.detail)),
         )
     if isinstance(err, NotFoundError):
         return JSONResponse(
@@ -51,16 +55,11 @@ def base_exception_handler(request: Request, err: Exception):
             content=vars(
                 ErrorModel(
                     status.HTTP_404_NOT_FOUND,
-                    f"No resource found at '{request.url.path}'"
+                    f"No resource found at '{request.url.path}'",
                 )
-            )
+            ),
         )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=vars(
-            ErrorModel(
-                status.HTTP_500_INTERNAL_SERVER_ERROR,
-                str(err)
-            )
-        )
+        content=vars(ErrorModel(status.HTTP_500_INTERNAL_SERVER_ERROR, str(err))),
     )

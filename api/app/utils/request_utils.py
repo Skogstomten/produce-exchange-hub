@@ -4,14 +4,14 @@ from .query.query_parameter import QueryParameter
 
 
 def get_current_request_url_with_additions(
-        request: Request,
-        extra_path_parameters: tuple[str] = (),
-        query_parameters: tuple[QueryParameter] = (),
-        include_query: bool = True,
+    request: Request,
+    extra_path_parameters: tuple[str] = (),
+    query_parameters: tuple[QueryParameter] = (),
+    include_query: bool = True,
 ) -> str:
     url = get_url(request)
-    if not url.endswith('/'):
-        url += '/'
+    if not url.endswith("/"):
+        url += "/"
 
     if include_query:
         url += get_query_string(request)
@@ -20,7 +20,7 @@ def get_current_request_url_with_additions(
         url += f"{path_parameter}/"
 
     if len(query_parameters) > 0:
-        url += '?'
+        url += "?"
         for query_parameter in query_parameters:
             url += query_parameter.param_name
             for index, value in enumerate(query_parameter.values):
@@ -46,15 +46,15 @@ def get_url(request: Request) -> str:
 
 
 def get_query_string(request: Request) -> str:
-    query_string = ''
+    query_string = ""
     for key in request.query_params:
-        if query_string == '':
-            query_string += '?'
+        if query_string == "":
+            query_string += "?"
         value = request.query_params[key]
-        if query_string != '?':
-            query_string += '&'
+        if query_string != "?":
+            query_string += "&"
         query_string += str(key)
         if value:
-            if value.strip() != '':
+            if value.strip() != "":
                 query_string += f"={str(value)}"
     return query_string

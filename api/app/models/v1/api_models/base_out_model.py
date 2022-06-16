@@ -5,4 +5,4 @@ from .operation import Operation
 
 class BaseOutModel(BaseModel):
     operations: list[Operation] = Field([])
-    url: str = Field('')
+    url: str = Field("")

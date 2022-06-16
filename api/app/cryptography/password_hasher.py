@@ -35,7 +35,7 @@ def hash_password(password: str, salt: bytes) -> str:
     """
     hashed_bytes = PBKDF2(password, salt, 64, 1000000, hmac_hash_module=SHA512)
     hashed_bytes = base64.urlsafe_b64encode(hashed_bytes + salt)
-    hashed_value = hashed_bytes.decode('utf-8')
+    hashed_value = hashed_bytes.decode("utf-8")
     return hashed_value
 
 
@@ -55,7 +55,7 @@ def is_correct_password(in_password: str, hashed_password: str) -> bool:
     :param hashed_password:
     :return: True of password is a match
     """
-    hashed_password_bytes = hashed_password.encode('utf-8')
+    hashed_password_bytes = hashed_password.encode("utf-8")
     hashed_password_bytes = base64.urlsafe_b64decode(hashed_password_bytes)
     salt = hashed_password_bytes[64:]
     hashed_in_password = hash_password(in_password, salt)

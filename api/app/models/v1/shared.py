@@ -3,35 +3,35 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
-T = TypeVar('T', bound=BaseModel)
+T = TypeVar("T", bound=BaseModel)
 
 
 @unique
 class SortOrder(Enum):
-    asc = 'asc'
-    desc = 'desc'
+    asc = "asc"
+    desc = "desc"
 
 
 @unique
 class CompanyStatus(Enum):
-    created = 'created'
-    active = 'active'
-    deactivated = 'deactivated'
+    created = "created"
+    active = "active"
+    deactivated = "deactivated"
 
 
 @unique
 class Language(Enum):
-    sv = 'sv'
-    en = 'en'
+    sv = "sv"
+    en = "en"
 
 
 @unique
 class ContactType(Enum):
-    phone_number = 'phone_number'
-    email = 'email'
+    phone_number = "phone_number"
+    email = "email"
 
 
 @unique
 class RoleType(Enum):
-    global_role = 'global_role'
-    company_role = 'company_role'
+    global_role = "global_role"
+    company_role = "company_role"

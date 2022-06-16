@@ -31,8 +31,8 @@ class UserDatabaseModel(BaseModel):
     lastname: str
     city: str
     country_iso: str
-    timezone: str = Field('Europe/Stockholm')
-    language_iso: str = Field('SV')
+    timezone: str = Field("Europe/Stockholm")
+    language_iso: str = Field("SV")
     verified: bool = Field(True)
     password_hash: str
     created: datetime

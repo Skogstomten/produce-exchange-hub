@@ -7,11 +7,17 @@ from pymongo.collection import Collection as MongoCollection
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
 
-from ..document_database import Document, DocumentDatabase, DocumentCollection, T, DatabaseCollection
+from ..document_database import (
+    Document,
+    DocumentDatabase,
+    DocumentCollection,
+    T,
+    DatabaseCollection,
+)
 from ...utils.enum_utils import enums_to_string
 from app.errors.invalid_operation_error import InvalidOperationError
 
-TOutType = TypeVar('TOutType')
+TOutType = TypeVar("TOutType")
 
 
 class MongoDocument(Document):
@@ -24,23 +30,23 @@ class MongoDocument(Document):
         self._collection = collection
 
     def __getitem__(self, key):
-        if key == 'id':
+        if key == "id":
             return self.id
         return self._doc[key]
 
     def __setitem__(self, key, value):
-        if key == 'id':
+        if key == "id":
             raise InvalidOperationError("field 'id' can't be set")
         self._doc[key] = value
 
     def __delitem__(self, key):
-        if key == 'id':
+        if key == "id":
             raise InvalidOperationError("field 'id' can't be deleted")
         self._doc.__delitem__(key)
 
     def __iter__(self):
         clone = self._doc.copy()
-        clone.update({'id': self.id})
+        clone.update({"id": self.id})
         return clone.__iter__()
 
     def __len__(self):
@@ -48,7 +54,7 @@ class MongoDocument(Document):
 
     @property
     def id(self) -> str:
-        return str(self._doc['_id'])
+        return str(self._doc["_id"])
 
     def to_dict(self) -> dict:
         return self._doc
@@ -56,13 +62,15 @@ class MongoDocument(Document):
     def replace(self, data: MutableMapping) -> Document:
         data = enums_to_string(data)
         self._collection.replace_one(
-            {'_id': ObjectId(self.id)},
+            {"_id": ObjectId(self.id)},
             data,
         )
-        return MongoDocument(self._collection.find_one({'_id': ObjectId(self.id)}), self._collection)
+        return MongoDocument(
+            self._collection.find_one({"_id": ObjectId(self.id)}), self._collection
+        )
 
     def delete(self) -> NoReturn:
-        self._collection.delete_one({'_id': self._doc.get('_id')})
+        self._collection.delete_one({"_id": self._doc.get("_id")})
 
 
 class MongoDocumentCollection(DocumentCollection):
@@ -72,21 +80,21 @@ class MongoDocumentCollection(DocumentCollection):
     def __init__(self, cursor: Cursor, collection: MongoCollection):
         self._cursor = cursor
         self._collection = collection
-    
-    def skip(self, skip: int | None) -> 'DocumentCollection':
+
+    def skip(self, skip: int | None) -> "DocumentCollection":
         if skip is not None:
             self._cursor = self._cursor.skip(skip)
         return self
-    
-    def take(self, take: int | None) -> 'DocumentCollection':
+
+    def take(self, take: int | None) -> "DocumentCollection":
         if take is not None:
             self._cursor = self._cursor.limit(take)
         return self
-    
-    def sort(self, sort_by: str | None, sort_order: str | None) -> 'DocumentCollection':
+
+    def sort(self, sort_by: str | None, sort_order: str | None) -> "DocumentCollection":
         if sort_by is not None:
             order = ASCENDING
-            if sort_order == 'desc':
+            if sort_order == "desc":
                 order = DESCENDING
             self._cursor = self._cursor.sort(sort_by, order)
         return self
@@ -107,19 +115,16 @@ class MongoDatabaseCollection(DatabaseCollection):
         self._collection = collection
 
     def by_id(self, doc_id: str) -> Document | None:
-        doc = self._collection.find_one({'_id': ObjectId(doc_id)})
+        doc = self._collection.find_one({"_id": ObjectId(doc_id)})
         if doc is None:
             return None
         return MongoDocument(doc, self._collection)
-    
+
     def by_key(self, key: str, value: Any) -> Document | None:
         doc = self._collection.find_one({key: value})
         if doc is None:
             return None
-        return MongoDocument(
-            self._collection.find_one({key: value}),
-            self._collection
-        )
+        return MongoDocument(self._collection.find_one({key: value}), self._collection)
 
     def add(self, data: dict) -> Document:
         data = enums_to_string(data)
@@ -127,11 +132,8 @@ class MongoDatabaseCollection(DatabaseCollection):
         return self.by_id(result.inserted_id)
 
     def get_all(self) -> DocumentCollection:
-        return MongoDocumentCollection(
-            self._collection.find(),
-            self._collection
-        )
-    
+        return MongoDocumentCollection(self._collection.find(), self._collection)
+
     def get(
         self,
         filters: dict[str, Any] = None,
@@ -140,7 +142,7 @@ class MongoDatabaseCollection(DatabaseCollection):
             filters = {}
         cursor = self._collection.find(filters)
         return MongoDocumentCollection(cursor, self._collection)
-    
+
     def exists(self, filters: dict[str, Any]) -> bool:
         return self._collection.count_documents(filters, limit=1) > 0
 
@@ -152,6 +154,4 @@ class MongoDocumentDatabase(DocumentDatabase):
         self._db = db
 
     def collection(self, collection_name: str) -> DatabaseCollection:
-        return MongoDatabaseCollection(
-            self._db.get_collection(collection_name)
-        )
+        return MongoDatabaseCollection(self._db.get_collection(collection_name))

@@ -13,7 +13,7 @@ from app.dependencies.document_database import get_document_database
 from app.errors.not_found_error import NotFoundError
 from .user_datastore import UserDatastore, get_user_datastore
 
-IGNORE_ON_UPDATE: tuple = ('id', 'created_date', 'activation_date')
+IGNORE_ON_UPDATE: tuple = ("id", "created_date", "activation_date")
 
 
 class CompanyDatastore(object):
@@ -26,14 +26,14 @@ class CompanyDatastore(object):
 
     @property
     def _companies(self) -> DatabaseCollection:
-        return self.db.collection('companies')
+        return self.db.collection("companies")
 
     def get_companies(
-            self,
-            skip: int | None = None,
-            take: int | None = None,
-            sort_by: str | None = None,
-            sort_order: SortOrder | None = None,
+        self,
+        skip: int | None = None,
+        take: int | None = None,
+        sort_by: str | None = None,
+        sort_order: SortOrder | None = None,
     ) -> list[CompanyDatabaseModel]:
         docs = self._companies.get_all()
         if skip:
@@ -49,31 +49,33 @@ class CompanyDatastore(object):
             result.append(CompanyDatabaseModel(**doc))
 
         return result
-    
+
     def get_company(self, company_id: str) -> CompanyDatabaseModel:
         doc = self._companies.by_id(company_id)
         return CompanyDatabaseModel(**doc)
 
     def add_company(
-            self,
-            company: CompanyCreateModel,
-            user: UserDatabaseModel,
+        self,
+        company: CompanyCreateModel,
+        user: UserDatabaseModel,
     ) -> CompanyDatabaseModel:
         datum = company.dict()
-        datum.update({
-            'status': CompanyStatus.created.value,
-            'created_date': datetime.now(utc),
-            'activation_date': None,
-            'description': {},
-            'contacts': [],
-        })
+        datum.update(
+            {
+                "status": CompanyStatus.created.value,
+                "created_date": datetime.now(utc),
+                "activation_date": None,
+                "description": {},
+                "contacts": [],
+            }
+        )
         doc = self._companies.add(datum)
-        self.add_user_to_company(doc.id, 'company_admin', user)
+        self.add_user_to_company(doc.id, "company_admin", user)
         return CompanyDatabaseModel(**doc)
 
     def update_company(
-            self,
-            company: CompanyDatabaseModel,
+        self,
+        company: CompanyDatabaseModel,
     ) -> CompanyDatabaseModel:
         doc = self._companies.by_id(company.id)
         if doc is None:
@@ -86,9 +88,9 @@ class CompanyDatastore(object):
         return CompanyDatabaseModel(**doc)
 
     def add_contact_to_company(
-            self,
-            company_id: str,
-            model: ContactDatabaseModel,
+        self,
+        company_id: str,
+        model: ContactDatabaseModel,
     ) -> ContactDatabaseModel:
         doc = self._companies.by_id(company_id)
         if doc is None:
@@ -99,13 +101,15 @@ class CompanyDatastore(object):
         doc.replace(company.dict())
         return model
 
-    def add_user_to_company(self, company_id: str, role_name: str, user: UserDatabaseModel) -> list[UserDatabaseModel]:
+    def add_user_to_company(
+        self, company_id: str, role_name: str, user: UserDatabaseModel
+    ) -> list[UserDatabaseModel]:
         self.users.add_role_to_user(user.id, role_name, company_id)
         return self.users.get_company_users(company_id)
 
 
 def get_company_datastore(
-        db: DocumentDatabase = Depends(get_document_database),
-        user_datastore: UserDatastore = Depends(get_user_datastore),
+    db: DocumentDatabase = Depends(get_document_database),
+    user_datastore: UserDatastore = Depends(get_user_datastore),
 ) -> CompanyDatastore:
     return CompanyDatastore(db, user_datastore)
