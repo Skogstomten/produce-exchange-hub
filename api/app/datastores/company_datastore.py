@@ -6,8 +6,12 @@ from fastapi import Depends
 from app.models.v1.shared import SortOrder, CompanyStatus
 from app.models.v1.api_models.companies import CompanyCreateModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.models.v1.database_models.contact_database_model import ContactDatabaseModel
-from app.models.v1.database_models.company_database_model import CompanyDatabaseModel
+from app.models.v1.database_models.contact_database_model import (
+    ContactDatabaseModel,
+)
+from app.models.v1.database_models.company_database_model import (
+    CompanyDatabaseModel,
+)
 from app.database.document_database import DocumentDatabase, DatabaseCollection
 from app.dependencies.document_database import get_document_database
 from app.errors.not_found_error import NotFoundError

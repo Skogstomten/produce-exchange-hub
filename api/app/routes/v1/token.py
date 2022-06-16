@@ -7,7 +7,11 @@ from jose import jwt
 from app.models.v1.token import Token
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
-from app.dependencies.auth import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from app.dependencies.auth import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    SECRET_KEY,
+    ALGORITHM,
+)
 from app.oauth2.scopes import Scopes
 from app.oauth2.claim import Claim
 from app.utils.string_values import StringValues
@@ -56,7 +60,9 @@ def get_user_claims(user: UserDatabaseModel, scopes: Scopes) -> list[Claim]:
     return claims
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+def create_access_token(
+    data: dict, expires_delta: timedelta | None = None
+) -> str:
     # print('data put in token: ' + str(data))
     to_encode = data.copy()
     if expires_delta:

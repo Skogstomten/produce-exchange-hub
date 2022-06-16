@@ -8,6 +8,7 @@ class QueryParameter:
     """
     Represents a single query parameter
     """
+
     def __init__(self, param_name: str, *args) -> None:
         """
         Creates a query parameter with name and one or more values that will be stringified

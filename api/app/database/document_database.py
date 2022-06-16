@@ -68,7 +68,9 @@ class DocumentCollection(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def sort(self, sort_by: str | None, sort_order: str | None) -> "DocumentCollection":
+    def sort(
+        self, sort_by: str | None, sort_order: str | None
+    ) -> "DocumentCollection":
         ...
 
 

@@ -9,6 +9,7 @@ class StringValues(Iterable[str], Sized, ABC):
     """
     Represents one or more string values.
     """
+
     def __init__(self, *args):
         """
         Creates an instance of StringValues.

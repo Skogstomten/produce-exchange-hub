@@ -3,7 +3,10 @@ from fastapi import APIRouter, Depends, Security, Path, Request
 from app.dependencies.user import get_current_user
 from app.models.v1.api_models.users import UserOutModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.datastores.company_datastore import CompanyDatastore, get_company_datastore
+from app.datastores.company_datastore import (
+    CompanyDatastore,
+    get_company_datastore,
+)
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
 
 router = APIRouter(
@@ -16,7 +19,8 @@ async def get_company_users(
     request: Request,
     company_id: str = Path(...),
     user: UserDatabaseModel = Security(
-        get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
+        get_current_user,
+        scopes=("roles:superuser", "roles:company_admin:{company_id}"),
     ),
     user_datastore: UserDatastore = Depends(get_user_datastore),
 ):

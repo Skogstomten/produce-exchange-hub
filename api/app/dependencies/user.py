@@ -31,7 +31,9 @@ class SecurityScopeRestrictions(object):
                 role_name: str = parts[1]
                 reference: str | None = None
                 if len(parts) == 3:
-                    reference_name: str = parts[3].translate({"{": "", "}": ""})
+                    reference_name: str = parts[3].translate(
+                        {"{": "", "}": ""}
+                    )
                     if reference_name in request.path_params:
                         reference = request.path_params.get(reference_name)
                 role: str = f"roles:{role_name}"
@@ -161,7 +163,9 @@ def user_has_access(
     :return: Bool True if user is authorized to access specific endpoint, otherwise False
     """
     print("Checking if user has access")
-    security_scope_restrictions = SecurityScopeRestrictions(security_scopes, request)
+    security_scope_restrictions = SecurityScopeRestrictions(
+        security_scopes, request
+    )
     if security_scope_restrictions.user_has_required_roles(token):
         if security_scope_restrictions.check_verified(token):
             return True

@@ -11,10 +11,14 @@ from app.database.document_database import (
 )
 from app.dependencies.document_database import get_document_database
 from app.errors.duplicate_error import DuplicateError
-from app.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
+from app.errors.invalid_username_or_password_error import (
+    InvalidUsernameOrPasswordError,
+)
 from app.errors.not_found_error import NotFoundError
 from app.models.v1.api_models.users import UserAdd, UserRegister
-from app.models.v1.database_models.claim_database_model import ClaimDatabaseModel
+from app.models.v1.database_models.claim_database_model import (
+    ClaimDatabaseModel,
+)
 from app.models.v1.database_models.user_database_model import (
     UserDatabaseModel,
     UserRoleDatabaseModel,
@@ -50,7 +54,10 @@ class UserDatastore(object):
     ) -> list[UserDatabaseModel]:
         if reference:
             filters = {
-                "$and": [{"roles.role_name": role_name}, {"roles.reference": reference}]
+                "$and": [
+                    {"roles.role_name": role_name},
+                    {"roles.reference": reference},
+                ]
             }
         else:
             filters = {"roles.role_name": role_name}
@@ -75,7 +82,9 @@ class UserDatastore(object):
             )
 
         new_user = UserAdd(
-            password_hash=hasher.hash_password(user.password, hasher.generate_salt()),
+            password_hash=hasher.hash_password(
+                user.password, hasher.generate_salt()
+            ),
             created=datetime.now(pytz.utc),
             **user.dict(),
         )
@@ -88,7 +97,9 @@ class UserDatastore(object):
             raise NotFoundError(f"No user with id '{user_id}' was found")
         doc.delete()
 
-    def authenticate_user(self, email: str, password: str) -> UserDatabaseModel:
+    def authenticate_user(
+        self, email: str, password: str
+    ) -> UserDatabaseModel:
         doc = self._users.by_key("email", email)
         if doc is None:
             raise InvalidUsernameOrPasswordError()
@@ -109,7 +120,9 @@ class UserDatastore(object):
     def delete_claim(self, claim_type: str) -> ClaimDatabaseModel:
         doc = self._claims.by_key("claim_type", claim_type)
         if doc is None:
-            raise NotFoundError(f"No claim with claim type '{claim_type}' was found")
+            raise NotFoundError(
+                f"No claim with claim type '{claim_type}' was found"
+            )
         doc.delete()
         return ClaimDatabaseModel.from_doc(doc)
 

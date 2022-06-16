@@ -2,7 +2,7 @@
 Has utility functions for working with datetime objects.
 """
 from datetime import datetime
-from pytz import utc, timezone
+from pytz import utc
 
 
 def ensure_utc(date: datetime) -> datetime:
@@ -17,6 +17,7 @@ def ensure_utc(date: datetime) -> datetime:
     >>> d.tzinfo == utc
     True
 
+    >>> from pytz import timezone
     >>> d = ensure_utc(datetime.now(timezone('Europe/Stockholm')))
     >>> d.tzinfo == utc
     True

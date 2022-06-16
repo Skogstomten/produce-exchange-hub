@@ -21,5 +21,7 @@ def get_mongo_client() -> MongoClient:
 # ?x?x9e9h@7T45dNe
 
 
-def get_mongo_db(mongo_client: MongoClient = Depends(get_mongo_client)) -> Database:
+def get_mongo_db(
+    mongo_client: MongoClient = Depends(get_mongo_client),
+) -> Database:
     return mongo_client.get_database()

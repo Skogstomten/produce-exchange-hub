@@ -28,7 +28,9 @@ class ContactListModel(CreateContactModel):
 
 class ContactOutModel(ContactListModel, BaseOutModel):
     @classmethod
-    def from_database_model(cls, model: ContactDatabaseModel, request: Request):
+    def from_database_model(
+        cls, model: ContactDatabaseModel, request: Request
+    ):
         return cls(
             **model.dict(),
             operations=[],

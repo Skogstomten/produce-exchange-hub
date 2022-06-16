@@ -50,7 +50,9 @@ class CompanyOutListModel(BaseOutModel):
             url=get_current_request_url_with_additions(request),
             operations=operations,
             id=model.id,
-            name=select_localized_text(model.name, lang, model.content_languages_iso),
+            name=select_localized_text(
+                model.name, lang, model.content_languages_iso
+            ),
             status=model.status,
             created_date=ensure_utc(model.created_date).astimezone(
                 pytz.timezone(timezone)
@@ -88,7 +90,9 @@ class CompanyOutModel(CompanyOutListModel):
             url=get_current_request_url_with_additions(request),
             operations=operations,
             id=model.id,
-            name=select_localized_text(model.name, lang, model.content_languages_iso),
+            name=select_localized_text(
+                model.name, lang, model.content_languages_iso
+            ),
             status=model.status,
             created_date=ensure_utc(model.created_date).astimezone(
                 pytz.timezone(timezone)

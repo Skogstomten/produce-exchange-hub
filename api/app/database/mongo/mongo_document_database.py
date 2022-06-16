@@ -131,7 +131,8 @@ class MongoDocument(Document):
             data,
         )
         return MongoDocument(
-            self._collection.find_one({"_id": ObjectId(self.id)}), self._collection
+            self._collection.find_one({"_id": ObjectId(self.id)}),
+            self._collection,
         )
 
     def delete(self) -> None:
@@ -181,7 +182,9 @@ class MongoDocumentCollection(DocumentCollection):
             self._cursor = self._cursor.limit(take)
         return self
 
-    def sort(self, sort_by: str | None, sort_order: str | None) -> "DocumentCollection":
+    def sort(
+        self, sort_by: str | None, sort_order: str | None
+    ) -> "DocumentCollection":
         """
         Sorts the document.
         :param sort_by: Name of db field to sort by.
@@ -242,7 +245,9 @@ class MongoDatabaseCollection(DatabaseCollection):
         doc = self._collection.find_one({key: value})
         if doc is None:
             return None
-        return MongoDocument(self._collection.find_one({key: value}), self._collection)
+        return MongoDocument(
+            self._collection.find_one({key: value}), self._collection
+        )
 
     def add(self, data: dict) -> Document:
         """
@@ -261,7 +266,9 @@ class MongoDatabaseCollection(DatabaseCollection):
         Note that no documents are fetched when calling this method.
         :return: DocumentCollection operating as a cursor.
         """
-        return MongoDocumentCollection(self._collection.find(), self._collection)
+        return MongoDocumentCollection(
+            self._collection.find(), self._collection
+        )
 
     def get(
         self,
@@ -306,4 +313,6 @@ class MongoDocumentDatabase(DocumentDatabase):
         :param collection_name: Name of collection.
         :return: Database collection to perform operations on the selected collection.
         """
-        return MongoDatabaseCollection(self._db.get_collection(collection_name))
+        return MongoDatabaseCollection(
+            self._db.get_collection(collection_name)
+        )

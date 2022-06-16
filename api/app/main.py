@@ -61,5 +61,7 @@ def base_exception_handler(request: Request, err: Exception):
         )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=vars(ErrorModel(status.HTTP_500_INTERNAL_SERVER_ERROR, str(err))),
+        content=vars(
+            ErrorModel(status.HTTP_500_INTERNAL_SERVER_ERROR, str(err))
+        ),
     )

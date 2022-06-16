@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, Query, Body, Path, Request, Security
 
-from app.datastores.company_datastore import CompanyDatastore, get_company_datastore
+from app.datastores.company_datastore import (
+    CompanyDatastore,
+    get_company_datastore,
+)
 from app.dependencies.timezone_header import get_timezone_header
 from app.dependencies.user import get_current_user
 from app.models.v1.api_models.companies import (
@@ -31,7 +34,9 @@ async def get_companies(
     companies = companies.get_companies(skip, take, sort_by, sort_order)
     items: list[CompanyOutListModel] = []
     for company in companies:
-        item = CompanyOutListModel.from_database_model(company, lang, timezone, request)
+        item = CompanyOutListModel.from_database_model(
+            company, lang, timezone, request
+        )
         items.append(item)
     response = PagingResponseModel[CompanyOutListModel].create(
         items, skip, take, request
@@ -48,20 +53,26 @@ async def get_company(
     timezone: str = Depends(get_timezone_header),
 ):
     company = companies.get_company(company_id)
-    return CompanyOutModel.from_database_model(company, lang, timezone, request)
+    return CompanyOutModel.from_database_model(
+        company, lang, timezone, request
+    )
 
 
 @router.post("/", response_model=CompanyOutModel)
 async def add_company(
     request: Request,
     company: CompanyCreateModel = Body(...),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("verified:True",)),
+    user: UserDatabaseModel = Security(
+        get_current_user, scopes=("verified:True",)
+    ),
     companies: CompanyDatastore = Depends(get_company_datastore),
     lang: Language = Path(...),
     timezone: str = Depends(get_timezone_header),
 ):
     company = companies.add_company(company, user)
-    return CompanyOutModel.from_database_model(company, lang, timezone, request)
+    return CompanyOutModel.from_database_model(
+        company, lang, timezone, request
+    )
 
 
 @router.put("/{company_id}", response_model=CompanyOutModel)
@@ -77,4 +88,6 @@ async def update_company(
     timezone: str = Depends(get_timezone_header),
 ):
     company = companies.update_company(company.to_database_model(company_id))
-    return CompanyOutModel.from_database_model(company, lang, timezone, request)
+    return CompanyOutModel.from_database_model(
+        company, lang, timezone, request
+    )

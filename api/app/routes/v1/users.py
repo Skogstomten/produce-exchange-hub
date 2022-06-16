@@ -25,7 +25,9 @@ async def get_users(
     user_datastore: UserDatastore = Depends(get_user_datastore),
     take: int = Query(20),
     skip: int = Query(0),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
+    user: UserDatabaseModel = Security(
+        get_current_user, scopes=("roles:superuser",)
+    ),
 ):
     all_users = user_datastore.get_users(take, skip)
     items: list[UserOutModel] = []
@@ -35,11 +37,15 @@ async def get_users(
 
 
 @router.delete(
-    "/{user_id}", response_model=None, responses={200: {"test": "User deleted"}}
+    "/{user_id}",
+    response_model=None,
+    responses={200: {"test": "User deleted"}},
 )
 async def delete_user(
     user_datastore: UserDatastore = Depends(get_user_datastore),
     user_id: str = Path(...),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
+    user: UserDatabaseModel = Security(
+        get_current_user, scopes=("roles:superuser",)
+    ),
 ) -> None:
     user_datastore.delete_user(user_id)

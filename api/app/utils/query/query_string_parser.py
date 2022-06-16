@@ -12,6 +12,7 @@ class QueryStringParser(Iterable[QueryParameter], ABC):
     """
     Used to parse and handle query string.
     """
+
     def __init__(self, query_string: str | None):
         """
         Creates a QueryStringParser.
@@ -42,11 +43,14 @@ class QueryStringParser(Iterable[QueryParameter], ABC):
                         str_values = StringValues()
                     else:
                         str_values = StringValues(value)
-                    self.query_parameters.update({key: QueryParameter(key, str_values)})
+                    self.query_parameters.update(
+                        {key: QueryParameter(key, str_values)}
+                    )
 
     def __iter__(self):
         """
-        Iterating the query string parser will iterate over the individual query parameters found in the query string
+        Iterating the query string parser will iterate over
+        the individual query parameters found in the query string
         :return:
         """
         return self.query_parameters.values().__iter__()
