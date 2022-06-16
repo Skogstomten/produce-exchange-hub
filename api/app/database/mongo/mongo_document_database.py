@@ -24,6 +24,7 @@ class MongoDocument(Document):
     """
     Mongo db document.
     """
+
     _doc: dict
     _collection: MongoCollection
 
@@ -120,7 +121,7 @@ class MongoDocument(Document):
         """
         if isinstance(data, Document):
             data = data.to_dict()
-        
+
         data = enums_to_string(data)
         if "id" in data:
             data["_id"] = self._doc["_id"]
@@ -146,6 +147,7 @@ class MongoDocumentCollection(DocumentCollection):
     A collection of documents.
     Technically wraps a mongodb cursor to be able to filter selection before fetching all data.
     """
+
     _cursor: Cursor
     _collection: MongoCollection
 
@@ -206,6 +208,7 @@ class MongoDatabaseCollection(DatabaseCollection):
     """
     Represents a database collection
     """
+
     _collection: MongoCollection
 
     def __init__(self, collection: MongoCollection):
@@ -287,6 +290,7 @@ class MongoDocumentDatabase(DocumentDatabase):
     """
     Wrapper for MongoDB database.
     """
+
     _db: MongoDatabase
 
     def __init__(self, db: MongoDatabase):

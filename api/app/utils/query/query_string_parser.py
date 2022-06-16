@@ -1,3 +1,6 @@
+"""
+Contains the QueryStringParser class which parses a query string, obviously.
+"""
 from abc import ABC
 from collections.abc import Iterable
 
@@ -6,7 +9,14 @@ from .query_parameter import QueryParameter
 
 
 class QueryStringParser(Iterable[QueryParameter], ABC):
+    """
+    Used to parse and handle query string.
+    """
     def __init__(self, query_string: str | None):
+        """
+        Creates a QueryStringParser.
+        :param query_string: the query string to be parsed.
+        """
         self._query_string_raw = query_string
 
         if query_string:
@@ -35,9 +45,18 @@ class QueryStringParser(Iterable[QueryParameter], ABC):
                     self.query_parameters.update({key: QueryParameter(key, str_values)})
 
     def __iter__(self):
+        """
+        Iterating the query string parser will iterate over the individual query parameters found in the query string
+        :return:
+        """
         return self.query_parameters.values().__iter__()
 
     def remove(self, parameter_name: str) -> "QueryStringParser":
+        """
+        Removes a query parameter from the current query string parameter
+        :param parameter_name:
+        :return:
+        """
         if parameter_name in self.query_parameters:
             del self.query_parameters[parameter_name]
         return self
