@@ -5,7 +5,7 @@ from datetime import datetime
 from pytz import utc
 
 
-def ensure_utc(date: datetime) -> datetime:
+def ensure_utc(dt: datetime) -> datetime:
     """
     Makes sure datetime has timezone utc.
 
@@ -22,9 +22,11 @@ def ensure_utc(date: datetime) -> datetime:
     >>> d.tzinfo == utc
     True
 
-    :param date: the datetime object to be checked.
+    :param dt: the datetime object to be checked.
     :return: datetime instance of the same time but ensured to be utc timezone.
     """
-    if date.tzinfo is None or date.tzinfo.utcoffset(date) is None:
-        date = utc.localize(date)
-    return date
+    if dt.tzinfo is not None:
+        if dt.tzinfo.utcoffset(dt) is not None:
+            if dt.tzinfo == utc:
+                return dt
+    return dt.astimezone(utc)

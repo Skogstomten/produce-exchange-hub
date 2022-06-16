@@ -77,7 +77,12 @@ def test_scope_restriction_verified(
     ],
 )
 def test_scope_restrictions_user_has_required_roles(
-    security_scope, http_request, scopes, path_params, token_data_roles, expected
+    scopes,
+    path_params,
+    token_data_roles,
+    expected,
+    security_scope,
+    http_request,
 ):
     type(security_scope).scopes = PropertyMock(return_value=scopes)
     type(http_request).path_params = PropertyMock(return_value=path_params)

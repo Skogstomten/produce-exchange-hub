@@ -11,14 +11,16 @@ from .auth import oauth2_scheme_optional, SECRET_KEY, ALGORITHM
 
 class SecurityScopeRestrictions(object):
     """
-    Parses and strictures the scope restrictions set on endpoint for easy verification
+    Parses and strictures the scope restrictions set on endpoint for easy
+    verification
     """
 
     def __init__(self, security_scopes: SecurityScopes, request: Request):
         """
         Parses and stores the security scopes
         :param security_scopes: SecurityScopes object received from fastapi
-        :param request: HTTP request object, needed to acquire resource keys to check for access to specific resources
+        :param request: HTTP request object, needed to acquire resource keys
+        to check for access to specific resources
         """
         self._roles: list[str] = []
         self._verified: bool | None = None
@@ -31,12 +33,12 @@ class SecurityScopeRestrictions(object):
                 role_name: str = parts[1]
                 reference: str | None = None
                 if len(parts) == 3:
-                    reference_name: str = parts[3].translate(
-                        {"{": "", "}": ""}
+                    reference_name: str = (
+                        parts[2].replace("{", "").replace("}", "")
                     )
                     if reference_name in request.path_params:
                         reference = request.path_params.get(reference_name)
-                role: str = f"roles:{role_name}"
+                role: str = role_name
                 if reference is not None:
                     role += f":{reference}"
                 self._roles.append(role)
@@ -45,12 +47,15 @@ class SecurityScopeRestrictions(object):
 
     def user_has_required_roles(self, token: TokenData) -> bool:
         """
-        Will check if user has any of the required roles set as a requirement on the endpoint
+        Will check if user has any of the required roles set as a requirement
+        on the endpoint.
 
-        if no required roles are set on the endpoint being called, this will always return True
+        if no required roles are set on the endpoint being called, this will
+        always return True.
 
-        :param token: Deserialized access token data
-        :return: True if user has any of the required roles or if no roles are required
+        :param token: Deserialized access token data.
+        :return: True if user has any of the required roles or if no roles are
+                 required.
         """
         if len(self._roles) == 0:
             return True
@@ -64,7 +69,8 @@ class SecurityScopeRestrictions(object):
         """
         Checks if verified is required and if user is verified
         :param token: Deserialized access token datum
-        :return: True if verified is not required or if verified is required and user is verified
+        :return: True if verified is not required or if verified is required
+        and user is verified
         """
         if self._verified is None:
             return True
@@ -124,7 +130,9 @@ def get_current_user_if_any(
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"User is not authorized to access endpoint '{request_url}'",
+            detail="User is not authorized to access endpoint '{}'".format(
+                request_url,
+            ),
             headers={"WWW-Authenticate": authenticate_value},
         )
     return user
@@ -157,10 +165,13 @@ def user_has_access(
     """
     Checks if user has access according to specifications in security scopes
 
-    :param security_scopes: Scopes defined on endpoint of type fastapi.SecurityScopes
+    :param security_scopes: Scopes defined on endpoint of type
+    fastapi.SecurityScopes
     :param request: HTTP Request object of type fastapi.Request
-    :param token: Deserialized access token of type app.models.v1.token.TokenData
-    :return: Bool True if user is authorized to access specific endpoint, otherwise False
+    :param token: Deserialized access token of type
+    app.models.v1.token.TokenData
+    :return: Bool True if user is authorized to access specific endpoint,
+    otherwise False
     """
     print("Checking if user has access")
     security_scope_restrictions = SecurityScopeRestrictions(
@@ -178,7 +189,8 @@ def _ensure_correct_scopes_format(
     """
     Verifies that the scope restriction is formatted correctly
 
-    :raises HTTPException: 500 Internal Server Error if scope restriction has invalid format
+    :raises HTTPException: 500 Internal Server Error if scope restriction has
+    invalid format
     :param scope: raw scope string
     :param parts: scope string in parts split by colon
     :param request: HTTP request object
@@ -187,5 +199,8 @@ def _ensure_correct_scopes_format(
     if len(parts) not in (2, 3):
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
-            f"endpoint '{str(request.url)}' has invalid security claim setup: '{scope}'",
+            "endpoint '{}' has invalid security claim setup: '{}'".format(
+                str(request.url),
+                scope,
+            ),
         )

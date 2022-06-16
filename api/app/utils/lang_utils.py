@@ -13,17 +13,26 @@ def select_localized_text(
     language is not available.
 
     >>> select_localized_text({"sv": "Some text"}, Language.en, [])
-    None
+    ''
 
-    :param data: dict of str, str with languagecode as key and translated text as value.
+    >>> d: dict[str, str] = {"sv": "This is wrong", "en": "This is right"}
+    >>> select_localized_text(d, Language.en, ["nb"])
+    'This is right'
+
+    >>> d: dict[str, str] = {"en": "I want this"}
+    >>> select_localized_text(d, Language.sv, ["nb", "sv", "en"])
+    'I want this'
+
+    :param data: dict of str, str with languagecode as key and translated text
+    as value.
     :param lang:
     :param company_languages:
     :return:
     """
-    value = data.get(lang.value)
+    value = data.get(lang.value, None)
     if value is None:
         for company_lang in company_languages:
             value = data.get(company_lang)
             if value is not None:
                 break
-    return value
+    return value or ""

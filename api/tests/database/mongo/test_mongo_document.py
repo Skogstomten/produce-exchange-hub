@@ -28,7 +28,9 @@ def test_converting_doc_to_dict_gives_you_correct_data(collection):
     assert data["name"] == "Nisse"
 
 
-def test_replacing_document_with_dict_does_not_insert_id_into_database(collection):
+def test_replacing_document_with_dict_does_not_insert_id_into_database(
+    collection,
+):
     def _verify_call(filters, data_obj):
         assert len(filters) == 1
         assert "_id" in filters
