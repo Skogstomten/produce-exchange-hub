@@ -5,11 +5,11 @@ from collections.abc import MutableMapping
 
 
 class NotSet(Enum):
-    not_set = 'NotSet'
+    not_set = "NotSet"
 
 
-T = TypeVar('T')
-TOutType = TypeVar('TOutType')
+T = TypeVar("T")
+TOutType = TypeVar("TOutType")
 
 
 class Document(MutableMapping, metaclass=ABCMeta):
@@ -38,7 +38,7 @@ class Document(MutableMapping, metaclass=ABCMeta):
     def id(self) -> str:
         ...
 
-    def to(self, convert: Callable[['Document'], T]) -> T:
+    def to(self, convert: Callable[["Document"], T]) -> T:
         return convert(self)
 
     @abstractmethod
@@ -46,7 +46,7 @@ class Document(MutableMapping, metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def replace(self, data: MutableMapping) -> 'Document':
+    def replace(self, data: MutableMapping) -> "Document":
         ...
 
     @abstractmethod
@@ -60,15 +60,17 @@ class DocumentCollection(metaclass=ABCMeta):
         ...
 
     @abstractmethod
-    def skip(self, skip: int | None) -> 'DocumentCollection':
+    def skip(self, skip: int | None) -> "DocumentCollection":
         ...
-    
+
     @abstractmethod
-    def take(self, take: int | None) -> 'DocumentCollection':
+    def take(self, take: int | None) -> "DocumentCollection":
         ...
-    
+
     @abstractmethod
-    def sort(self, sort_by: str | None, sort_order: str | None) -> 'DocumentCollection':
+    def sort(
+        self, sort_by: str | None, sort_order: str | None
+    ) -> "DocumentCollection":
         ...
 
 
@@ -76,7 +78,7 @@ class DatabaseCollection(metaclass=ABCMeta):
     @abstractmethod
     def get_all(self) -> DocumentCollection:
         ...
-    
+
     @abstractmethod
     def get(
         self,
@@ -87,11 +89,11 @@ class DatabaseCollection(metaclass=ABCMeta):
     @abstractmethod
     def by_id(self, doc_id: str) -> Document | None:
         ...
-    
+
     @abstractmethod
     def by_key(self, key: str, value: Any) -> Document | None:
         ...
-    
+
     @abstractmethod
     def exists(self, filters: dict[str, Any]) -> bool:
         ...

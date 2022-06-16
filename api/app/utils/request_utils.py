@@ -1,17 +1,32 @@
+"""
+Utility functions for fastapi.Request object.
+"""
+from collections.abc import Sequence
+
 from fastapi import Request
 
 from .query.query_parameter import QueryParameter
 
 
 def get_current_request_url_with_additions(
-        request: Request,
-        extra_path_parameters: tuple[str] = (),
-        query_parameters: tuple[QueryParameter] = (),
-        include_query: bool = True,
+    request: Request,
+    extra_path_parameters: Sequence[str] = (),
+    query_parameters: Sequence[QueryParameter] = (),
+    include_query: bool = True,
 ) -> str:
+    """
+    Gets the current request url from given request and optionally add path
+    parameters or query parameters to it.
+    :param request: fastapi.Request.
+    :param extra_path_parameters: sequence with added parameters.
+    :param query_parameters: sequence with query parameters.
+    :param include_query: flag that sets if existing query string in request
+    should be included.
+    :return: url as str.
+    """
     url = get_url(request)
-    if not url.endswith('/'):
-        url += '/'
+    if not url.endswith("/"):
+        url += "/"
 
     if include_query:
         url += get_query_string(request)
@@ -20,7 +35,7 @@ def get_current_request_url_with_additions(
         url += f"{path_parameter}/"
 
     if len(query_parameters) > 0:
-        url += '?'
+        url += "?"
         for query_parameter in query_parameters:
             url += query_parameter.param_name
             for index, value in enumerate(query_parameter.values):
@@ -33,6 +48,11 @@ def get_current_request_url_with_additions(
 
 
 def get_url(request: Request) -> str:
+    """
+    Gets url as str from fastapi.Request object.
+    :param request: The request.
+    :return: url as str.
+    """
     scheme = request.url.scheme
     host = request.url.hostname
     port = request.url.port
@@ -46,12 +66,22 @@ def get_url(request: Request) -> str:
 
 
 def get_query_string(request: Request) -> str:
-    query_string = '?'
+    """
+    Get query string from fastapi.Request.
+    Query string will be formatted as so that it can be appended at end of url
+    if needed.
+    :param request: the request.
+    :return: query string as str
+    """
+    query_string = ""
     for key in request.query_params:
+        if query_string == "":
+            query_string += "?"
         value = request.query_params[key]
-        if query_string != '?':
-            query_string += '&'
+        if query_string != "?":
+            query_string += "&"
         query_string += str(key)
         if value:
-            query_string += f"={str(value)}"
+            if value.strip() != "":
+                query_string += f"={str(value)}"
     return query_string

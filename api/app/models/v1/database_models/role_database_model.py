@@ -11,7 +11,4 @@ class RoleDatabaseModel(BaseModel):
 
     @classmethod
     def from_doc(cls, doc: Document):
-        cls(
-            id=doc.id,
-            **doc.to_dict()
-        )
+        cls(id=doc.id, **doc.to_dict())

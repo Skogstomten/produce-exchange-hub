@@ -16,8 +16,8 @@ from app.utils.request_utils import get_current_request_url_with_additions
 
 @unique
 class CompanyTypes(Enum):
-    producer = 'producer'
-    buyer = 'buyer'
+    producer = "producer"
+    buyer = "buyer"
 
 
 class CompanyOutListModel(BaseOutModel):
@@ -32,30 +32,37 @@ class CompanyOutListModel(BaseOutModel):
 
     @classmethod
     def from_database_model(
-            cls,
-            model: CompanyDatabaseModel,
-            lang: Language,
-            timezone: str,
-            request: Request
+        cls,
+        model: CompanyDatabaseModel,
+        lang: Language,
+        timezone: str,
+        request: Request,
     ):
         operations = []
 
         activation_date = model.activation_date
         if activation_date is not None:
-            activation_date = ensure_utc(activation_date).astimezone(pytz.timezone(timezone))
+            activation_date = ensure_utc(activation_date).astimezone(
+                pytz.timezone(timezone)
+            )
 
         return cls(
             url=get_current_request_url_with_additions(request),
             operations=operations,
-
             id=model.id,
-            name=select_localized_text(model.name, lang, model.content_languages_iso),
+            name=select_localized_text(
+                model.name, lang, model.content_languages_iso
+            ),
             status=model.status,
-            created_date=ensure_utc(model.created_date).astimezone(pytz.timezone(timezone)),
+            created_date=ensure_utc(model.created_date).astimezone(
+                pytz.timezone(timezone)
+            ),
             company_types=model.company_types,
             content_languages_iso=model.content_languages_iso,
             activation_date=activation_date,
-            description=select_localized_text(model.description, lang, model.content_languages_iso),
+            description=select_localized_text(
+                model.description, lang, model.content_languages_iso
+            ),
         )
 
 
@@ -64,32 +71,38 @@ class CompanyOutModel(CompanyOutListModel):
 
     @classmethod
     def from_database_model(
-            cls,
-            model: CompanyDatabaseModel,
-            lang: Language,
-            timezone: str,
-            request: Request,
+        cls,
+        model: CompanyDatabaseModel,
+        lang: Language,
+        timezone: str,
+        request: Request,
     ):
 
         operations = []
 
         activation_date = model.activation_date
         if activation_date is not None:
-            activation_date = ensure_utc(activation_date).astimezone(pytz.timezone(timezone))
+            activation_date = ensure_utc(activation_date).astimezone(
+                pytz.timezone(timezone)
+            )
 
         return cls(
             url=get_current_request_url_with_additions(request),
             operations=operations,
-
             id=model.id,
-            name=select_localized_text(model.name, lang, model.content_languages_iso),
+            name=select_localized_text(
+                model.name, lang, model.content_languages_iso
+            ),
             status=model.status,
-            created_date=ensure_utc(model.created_date).astimezone(pytz.timezone(timezone)),
+            created_date=ensure_utc(model.created_date).astimezone(
+                pytz.timezone(timezone)
+            ),
             company_types=model.company_types,
             content_languages_iso=model.content_languages_iso,
             activation_date=activation_date,
-            description=select_localized_text(model.description, lang, model.content_languages_iso),
-
+            description=select_localized_text(
+                model.description, lang, model.content_languages_iso
+            ),
             contacts=model.contacts,
         )
 
@@ -97,14 +110,18 @@ class CompanyOutModel(CompanyOutListModel):
 class CompanyCreateModel(BaseModel):
     name: dict[str, str]
     company_types: list[CompanyTypes] = Field(..., min_items=1)
-    content_languages_iso: list[str] = Field(..., min_length=2, max_length=2, min_items=1)
+    content_languages_iso: list[str] = Field(
+        ..., min_length=2, max_length=2, min_items=1
+    )
 
 
 class CompanyUpdateModel(BaseModel):
     name: dict[str, str]
     status: CompanyStatus = Field(...)
     company_types: list[CompanyTypes] = Field(..., min_items=1)
-    content_languages_iso: list[str] = Field(..., min_length=2, max_length=2, min_items=1)
+    content_languages_iso: list[str] = Field(
+        ..., min_length=2, max_length=2, min_items=1
+    )
     description: dict[str, str] = Field({})
 
     def to_database_model(self, company_id: str):
@@ -114,5 +131,5 @@ class CompanyUpdateModel(BaseModel):
             status=self.status,
             company_types=self.company_types,
             content_languages_iso=self.content_languages_iso,
-            description=self.description
+            description=self.description,
         )

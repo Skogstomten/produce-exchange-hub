@@ -11,42 +11,51 @@ from .auth import oauth2_scheme_optional, SECRET_KEY, ALGORITHM
 
 class SecurityScopeRestrictions(object):
     """
-    Parses and strictures the scope restrictions set on endpoint for easy verification
+    Parses and strictures the scope restrictions set on endpoint for easy
+    verification
     """
+
     def __init__(self, security_scopes: SecurityScopes, request: Request):
         """
         Parses and stores the security scopes
         :param security_scopes: SecurityScopes object received from fastapi
-        :param request: HTTP request object, needed to acquire resource keys to check for access to specific resources
+        :param request: HTTP request object, needed to acquire resource keys
+        to check for access to specific resources
         """
         self._roles: list[str] = []
+        self._verified: bool | None = None
 
         for scope in security_scopes.scopes:
-            parts: list[str] = scope.split(':')
+            parts: list[str] = scope.split(":")
             _ensure_correct_scopes_format(scope, parts, request)
             claim_type: str = parts[0]
-            if claim_type == 'roles':
+            if claim_type == "roles":
                 role_name: str = parts[1]
                 reference: str | None = None
                 if len(parts) == 3:
-                    reference_name: str = parts[3].translate({'{': '', '}': ''})
+                    reference_name: str = (
+                        parts[2].replace("{", "").replace("}", "")
+                    )
                     if reference_name in request.path_params:
                         reference = request.path_params.get(reference_name)
-                role: str = f"roles:{role_name}"
+                role: str = role_name
                 if reference is not None:
                     role += f":{reference}"
                 self._roles.append(role)
-            if claim_type == 'verified':
-                self._verified: bool | None = parts[1].lower() == 'true'
+            if claim_type == "verified":
+                self._verified = parts[1].lower() == "true"
 
     def user_has_required_roles(self, token: TokenData) -> bool:
         """
-        Will check if user has any of the required roles set as a requirement on the endpoint
+        Will check if user has any of the required roles set as a requirement
+        on the endpoint.
 
-        if no required roles are set on the endpoint being called, this will always return True
+        if no required roles are set on the endpoint being called, this will
+        always return True.
 
-        :param token: Deserialized access token data
-        :return: True if user has any of the required roles or if no roles are required
+        :param token: Deserialized access token data.
+        :return: True if user has any of the required roles or if no roles are
+                 required.
         """
         if len(self._roles) == 0:
             return True
@@ -60,7 +69,8 @@ class SecurityScopeRestrictions(object):
         """
         Checks if verified is required and if user is verified
         :param token: Deserialized access token datum
-        :return: True if verified is not required or if verified is required and user is verified
+        :return: True if verified is not required or if verified is required
+        and user is verified
         """
         if self._verified is None:
             return True
@@ -70,10 +80,10 @@ class SecurityScopeRestrictions(object):
 
 
 def get_current_user_if_any(
-        request: Request,
-        security_scopes: SecurityScopes,
-        token: str | None = Depends(oauth2_scheme_optional),
-        users: UserDatastore = Depends(get_user_datastore),
+    request: Request,
+    security_scopes: SecurityScopes,
+    token: str | None = Depends(oauth2_scheme_optional),
+    users: UserDatastore = Depends(get_user_datastore),
 ) -> UserDatabaseModel | None:
     """
     Gets current user from access token, if there is an access token
@@ -88,44 +98,48 @@ def get_current_user_if_any(
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
-        authenticate_value = 'Bearer'
+        authenticate_value = "Bearer"
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail='Could not validate credentials',
-        headers={'WWW-Authenticate': authenticate_value},
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": authenticate_value},
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenData(**payload)
         print(payload)
-        email: str = payload.get('sub')
+        email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
     except JWTError as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Unable to decode jwt token: ' + str(err),
-            headers={'WWW-Authenticate': authenticate_value},
+            detail="Unable to decode jwt token: " + str(err),
+            headers={"WWW-Authenticate": authenticate_value},
         )
     user = users.get_user(email)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='No user was found for the provided username',
-            headers={'WWW-Authenticate': authenticate_value},
+            detail="No user was found for the provided username",
+            headers={"WWW-Authenticate": authenticate_value},
         )
     if not user_has_access(security_scopes, request, token_data):
-        request_url: str = get_current_request_url_with_additions(request, include_query=False)
+        request_url: str = get_current_request_url_with_additions(
+            request, include_query=False
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"User is not authorized to access endpoint '{request_url}'",
-            headers={'WWW-Authenticate': authenticate_value},
+            detail="User is not authorized to access endpoint '{}'".format(
+                request_url,
+            ),
+            headers={"WWW-Authenticate": authenticate_value},
         )
     return user
 
 
 def get_current_user(
-        user: UserDatabaseModel | None = Depends(get_current_user_if_any),
+    user: UserDatabaseModel | None = Depends(get_current_user_if_any),
 ) -> UserDatabaseModel:
     """
     Get current user
@@ -137,38 +151,46 @@ def get_current_user(
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Could not validate credentials',
-            headers={'WWW-Authenticate': 'Bearer'},
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     return user
 
 
 def user_has_access(
-        security_scopes: SecurityScopes,
-        request: Request,
-        token: TokenData,
+    security_scopes: SecurityScopes,
+    request: Request,
+    token: TokenData,
 ) -> bool:
     """
     Checks if user has access according to specifications in security scopes
 
-    :param security_scopes: Scopes defined on endpoint of type fastapi.SecurityScopes
+    :param security_scopes: Scopes defined on endpoint of type
+    fastapi.SecurityScopes
     :param request: HTTP Request object of type fastapi.Request
-    :param token: Deserialized access token of type app.models.v1.token.TokenData
-    :return: Bool True if user is authorized to access specific endpoint, otherwise False
+    :param token: Deserialized access token of type
+    app.models.v1.token.TokenData
+    :return: Bool True if user is authorized to access specific endpoint,
+    otherwise False
     """
-    print('Checking if user has access')
-    security_scope_restrictions = SecurityScopeRestrictions(security_scopes, request)
+    print("Checking if user has access")
+    security_scope_restrictions = SecurityScopeRestrictions(
+        security_scopes, request
+    )
     if security_scope_restrictions.user_has_required_roles(token):
         if security_scope_restrictions.check_verified(token):
             return True
     return False
 
 
-def _ensure_correct_scopes_format(scope: str, parts: list[str], request: Request) -> None:
+def _ensure_correct_scopes_format(
+    scope: str, parts: list[str], request: Request
+) -> None:
     """
     Verifies that the scope restriction is formatted correctly
 
-    :raises HTTPException: 500 Internal Server Error if scope restriction has invalid format
+    :raises HTTPException: 500 Internal Server Error if scope restriction has
+    invalid format
     :param scope: raw scope string
     :param parts: scope string in parts split by colon
     :param request: HTTP request object
@@ -177,5 +199,8 @@ def _ensure_correct_scopes_format(scope: str, parts: list[str], request: Request
     if len(parts) not in (2, 3):
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
-            f"endpoint '{str(request.url)}' has invalid security claim setup: '{scope}'"
+            "endpoint '{}' has invalid security claim setup: '{}'".format(
+                str(request.url),
+                scope,
+            ),
         )

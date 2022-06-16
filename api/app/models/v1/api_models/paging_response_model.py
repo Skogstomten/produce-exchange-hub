@@ -8,7 +8,7 @@ from app.utils.query.query_parameter import QueryParameter
 from app.utils.query.query_string_parser import QueryStringParser
 from app.utils.request_utils import get_current_request_url_with_additions
 
-T = TypeVar('T', bound=BaseModel)
+T = TypeVar("T", bound=BaseModel)
 
 
 class PagingResponseModel(GenericModel, Generic[T]):
@@ -23,14 +23,15 @@ class PagingResponseModel(GenericModel, Generic[T]):
     @classmethod
     def create(cls, items: list[T], skip: int, take: int, request: Request):
         query = QueryStringParser(request.url.query)
-        query.remove('take')
-        query.remove('skip')
+        query.remove("take")
+        query.remove("skip")
 
         next_page_url = get_current_request_url_with_additions(
             request,
-            query_parameters=tuple(query) + (
-                QueryParameter('take', take),
-                QueryParameter('skip', skip + take),
+            query_parameters=tuple(query)
+            + (
+                QueryParameter("take", take),
+                QueryParameter("skip", skip + take),
             ),
             include_query=False,
         )
@@ -42,9 +43,10 @@ class PagingResponseModel(GenericModel, Generic[T]):
                 skip_previous_url = 0
             previous_page_url = get_current_request_url_with_additions(
                 request,
-                query_parameters=tuple(query) + (
-                    QueryParameter('skip', skip_previous_url),
-                    QueryParameter('take', take),
+                query_parameters=tuple(query)
+                + (
+                    QueryParameter("skip", skip_previous_url),
+                    QueryParameter("take", take),
                 ),
                 include_query=False,
             )

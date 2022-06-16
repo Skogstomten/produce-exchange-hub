@@ -6,6 +6,6 @@ class UnsupportedTimezoneError(HTTPException):
         super(UnsupportedTimezoneError, self).__init__(
             status_code=400,
             detail=f"Timezone '{timezone}' is not supported. "
-                   f"List of available timezones can be found here: "
-                   f""
+            f"List of available timezones can be found here: "
+            f"",
         )

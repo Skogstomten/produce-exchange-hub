@@ -22,8 +22,8 @@ class User(BaseModel):
     lastname: str
     city: str
     country_iso: str
-    timezone: str = Field('Europe/Stockholm')
-    language_iso: str = Field('sv')
+    timezone: str = Field("Europe/Stockholm")
+    language_iso: str = Field("sv")
     verified: bool = Field(True)
 
 
@@ -40,12 +40,14 @@ class UserOutModel(User, BaseOutModel):
 
     @classmethod
     def from_database_model(
-            cls,
-            model: UserDatabaseModel,
-            request: Request,
-    ) -> 'UserOutModel':
+        cls,
+        model: UserDatabaseModel,
+        request: Request,
+    ) -> "UserOutModel":
         return cls(
-            url=get_current_request_url_with_additions(request, (str(model.id),), include_query=False),
+            url=get_current_request_url_with_additions(
+                request, (str(model.id),), include_query=False
+            ),
             **model.dict(),
         )
 
