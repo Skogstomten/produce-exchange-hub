@@ -17,4 +17,5 @@ class CompanyDatabaseModel(BaseModel):
     content_languages_iso: list[str]
     activation_date: datetime | None
     description: dict[str, str]
+    external_website_url: str | None
     contacts: list[ContactDatabaseModel] | None = Field(None)

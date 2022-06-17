@@ -1,7 +1,7 @@
 """
 Routing module for companies endpoint.
 """
-from fastapi import APIRouter, Depends, Query, Body, Path, Request, Security
+from fastapi import APIRouter, Depends, Query, Body, Path, Security
 
 from app.datastores.company_datastore import (
     CompanyDatastore,
@@ -12,7 +12,6 @@ from app.dependencies.paging_information import (
     PagingInformation,
     get_paging_information,
 )
-from app.dependencies.timezone_header import get_timezone_header
 from app.dependencies.user import get_current_user
 from app.models.v1.api_models.companies import (
     CompanyOutModel,
@@ -22,7 +21,6 @@ from app.models.v1.api_models.companies import (
 )
 from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.models.v1.shared import Language
 from app.models.v1.shared import SortOrder
 
 router = APIRouter(prefix="/companies", tags=["Companies"])
@@ -68,24 +66,20 @@ async def get_companies(
 
 @router.get("/{company_id}", response_model=CompanyOutModel)
 async def get_company(
-    request: Request,
     company_id: str = Path(...),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    lang: Language = Path(...),
-    timezone: str = Depends(get_timezone_header),
+    essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
     """
     Get a company by id.
-    :param request: HTTP request.
+    :param essentials: Essential dependencies.
     :param company_id: ID of company.
     :param company_datastore: Company database access.
-    :param lang: User language.
-    :param timezone: User timezone.
     :return: CompanyOutModel.
     """
     company = company_datastore.get_company(company_id)
     return CompanyOutModel.from_database_model(
-        company, lang, timezone, request
+        company, essentials.language, essentials.timezone, essentials.request
     )
 
 
