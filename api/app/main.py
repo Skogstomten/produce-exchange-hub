@@ -1,3 +1,4 @@
+"""Main file for application."""
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -43,6 +44,7 @@ app.add_middleware(
 
 @app.exception_handler(Exception)
 def base_exception_handler(err: Exception):
+    """Exception handler for application."""
     if isinstance(err, HTTPException):
         return JSONResponse(
             status_code=err.status_code,

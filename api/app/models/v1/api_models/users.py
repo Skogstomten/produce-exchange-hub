@@ -13,6 +13,7 @@ from ..database_models.user_database_model import UserDatabaseModel
 
 class UserRoleOutModel(BaseModel):
     """User roles for api output."""
+
     id: str
     role_id: str
     role_name: str
@@ -22,6 +23,7 @@ class UserRoleOutModel(BaseModel):
 
 class User(BaseModel):
     """User base model."""
+
     email: str
     firstname: str
     lastname: str
@@ -34,12 +36,14 @@ class User(BaseModel):
 
 class UserAdd(User):
     """Model for adding user."""
+
     created: datetime
     password_hash: str
 
 
 class UserOutModel(User, BaseOutModel):
     """Model for returning user in api call."""
+
     id: str
     created: datetime
     last_logged_in: datetime | None = Field(None)
@@ -67,4 +71,5 @@ class UserOutModel(User, BaseOutModel):
 
 class UserRegister(User):
     """API model when adding new user via user registration."""
+
     password: str

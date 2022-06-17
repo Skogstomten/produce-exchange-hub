@@ -11,6 +11,7 @@ from app.utils.request_utils import get_current_request_url_with_additions
 
 class CreateContactModel(BaseModel):
     """Model used for creating a contact."""
+
     type: ContactType
     value: str
     description: str | None = Field(None)
@@ -27,11 +28,13 @@ class CreateContactModel(BaseModel):
 
 class ContactListModel(CreateContactModel):
     """Model used when listing contacts."""
+
     id: str
 
 
 class ContactOutModel(ContactListModel, BaseOutModel):
     """Model used when getting a single contact."""
+
     @classmethod
     def from_database_model(
         cls, model: ContactDatabaseModel, request: Request

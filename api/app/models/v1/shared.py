@@ -1,3 +1,4 @@
+"""Shared models and enums."""
 from enum import Enum, unique
 from typing import TypeVar
 
@@ -8,12 +9,16 @@ T = TypeVar("T", bound=BaseModel)
 
 @unique
 class SortOrder(Enum):
+    """Sort order."""
+
     asc = "asc"
     desc = "desc"
 
 
 @unique
 class CompanyStatus(Enum):
+    """Available statuses for companies."""
+
     created = "created"
     active = "active"
     deactivated = "deactivated"
@@ -21,17 +26,23 @@ class CompanyStatus(Enum):
 
 @unique
 class Language(Enum):
+    """Available languages."""
+
     sv = "sv"
     en = "en"
 
 
 @unique
 class ContactType(Enum):
+    """Available contact types."""
+
     phone_number = "phone_number"
     email = "email"
 
 
 @unique
 class RoleType(Enum):
+    """Available role types."""
+
     global_role = "global_role"
     company_role = "company_role"

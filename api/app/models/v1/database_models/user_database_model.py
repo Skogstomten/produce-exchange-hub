@@ -1,3 +1,4 @@
+"""Database models for users"""
 from datetime import datetime
 
 from pydantic import BaseModel, Field
@@ -7,6 +8,8 @@ from .role_database_model import RoleDatabaseModel
 
 
 class UserRoleDatabaseModel(BaseModel):
+    """User roles model"""
+
     id: str
     role_id: str
     role_name: str
@@ -15,6 +18,7 @@ class UserRoleDatabaseModel(BaseModel):
 
     @classmethod
     def create(cls, role: RoleDatabaseModel, reference: str | None):
+        """Creates model from role database model."""
         return cls(
             id=str(ObjectId()),
             role_id=role.id,
@@ -25,6 +29,8 @@ class UserRoleDatabaseModel(BaseModel):
 
 
 class UserDatabaseModel(BaseModel):
+    """User model"""
+
     id: str
     email: str
     firstname: str
