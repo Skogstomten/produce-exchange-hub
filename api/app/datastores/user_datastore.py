@@ -1,3 +1,6 @@
+"""
+Datastore for accessing user database.
+"""
 from datetime import datetime
 
 import pytz
@@ -16,9 +19,6 @@ from app.errors.invalid_username_or_password_error import (
 )
 from app.errors.not_found_error import NotFoundError
 from app.models.v1.api_models.users import UserAdd, UserRegister
-from app.models.v1.database_models.claim_database_model import (
-    ClaimDatabaseModel,
-)
 from app.models.v1.database_models.user_database_model import (
     UserDatabaseModel,
     UserRoleDatabaseModel,
@@ -26,23 +26,38 @@ from app.models.v1.database_models.user_database_model import (
 from .role_datastore import RoleDatastore, get_role_datastore
 
 
-class UserDatastore(object):
+class UserDatastore:
+    """
+    Accesses user database.
+    """
+
     _db: DocumentDatabase
     _roles: RoleDatastore
 
     def __init__(self, db: DocumentDatabase, roles: RoleDatastore):
+        """
+        Creates a datastore.
+        :param db: DB reference.
+        :param roles: Roles datastore for cross collection operations.
+        """
         self._db = db
         self._roles = roles
 
     @property
     def _users(self) -> DatabaseCollection:
+        """
+        Accessor for users collection
+        :return:
+        """
         return self._db.collection("users")
 
-    @property
-    def _claims(self) -> DatabaseCollection:
-        return self._db.collection("claims")
-
     def get_users(self, take: int, skip: int) -> list[UserDatabaseModel]:
+        """
+        Get users.
+        :param take: Number of users.
+        :param skip: Offset.
+        :return: List of UserDatabaseModel.
+        """
         docs = self._users.get_all().skip(skip).take(take).to_list()
         result = []
         for doc in docs:
@@ -52,6 +67,13 @@ class UserDatastore(object):
     def get_users_with_role(
         self, role_name: str, reference: str | None = None
     ) -> list[UserDatabaseModel]:
+        """
+        Get users with specific role.
+        :param role_name: Role name.
+        :param reference: Reference, if any. For example company id for a
+        company role.
+        :return: List of UserDatabaseModel.
+        """
         if reference:
             filters = {
                 "$and": [
@@ -65,17 +87,33 @@ class UserDatastore(object):
         return [UserDatabaseModel(**doc) for doc in docs]
 
     def get_company_users(self, company_id: str) -> list[UserDatabaseModel]:
+        """
+        Get users with access to specified company.
+        :param company_id: ID of company.
+        :return: List of UserDatabaseModel.
+        """
         filters = {"roles.reference": company_id}
         docs = self._users.get(filters).to_list()
         return [UserDatabaseModel(**doc) for doc in docs]
 
     def get_user(self, email: str) -> UserDatabaseModel | None:
+        """
+        Get user by email.
+        :param email: EMail/UserName of user.
+        :return: UserDatabaseModel or None if user was not found.
+        """
         doc = self._users.by_key("email", email)
         if doc is None:
             return None
         return UserDatabaseModel(**doc)
 
     def add_user(self, user: UserRegister) -> UserDatabaseModel:
+        """
+        Add new user.
+        :raise DuplcateError: If e-mail is already registered.
+        :param user: New user model
+        :return: UserDatabaseModel for new user.
+        """
         if self._users.exists({"email": user.email}):
             raise DuplicateError(
                 "There's already a user registered with this e-mail address"
@@ -92,6 +130,12 @@ class UserDatastore(object):
         return UserDatabaseModel(**doc)
 
     def delete_user(self, user_id: str) -> None:
+        """
+        Delete user.
+        :raise NotFoundError: If user with id doesn't exist.
+        :param user_id: ID of user.
+        :return: None.
+        """
         doc: Document = self._users.by_id(user_id)
         if doc is None:
             raise NotFoundError(f"No user with id '{user_id}' was found")
@@ -100,6 +144,14 @@ class UserDatastore(object):
     def authenticate_user(
         self, email: str, password: str
     ) -> UserDatabaseModel:
+        """
+        Authenticate that provided username and password matches stored.
+        :raise InvalidUsernameOrPasswordError: If user can't be found with
+        email or if password is not correct.
+        :param email: UserName.
+        :param password: Password in clear text.
+        :return: UserDatabaseModel for user, if credentials are correct.
+        """
         doc = self._users.by_key("email", email)
         if doc is None:
             raise InvalidUsernameOrPasswordError()
@@ -108,28 +160,15 @@ class UserDatastore(object):
             raise InvalidUsernameOrPasswordError()
         return user
 
-    def add_claim(self, claim: ClaimDatabaseModel) -> ClaimDatabaseModel:
-        collection = self._claims
-        if collection.exists({"claim_type": claim.claim_type}):
-            raise DuplicateError(
-                f"There's already a claim with claim_type='{claim.claim_type}'"
-            )
-        doc = collection.add(claim.dict())
-        return ClaimDatabaseModel.from_doc(doc)
-
-    def delete_claim(self, claim_type: str) -> ClaimDatabaseModel:
-        doc = self._claims.by_key("claim_type", claim_type)
-        if doc is None:
-            raise NotFoundError(
-                f"No claim with claim type '{claim_type}' was found"
-            )
-        doc.delete()
-        return ClaimDatabaseModel.from_doc(doc)
-
     def get_user_roles(
         self,
         user_id: str,
     ) -> list[UserRoleDatabaseModel]:
+        """
+        Get roles for user.
+        :param user_id: ID of user.
+        :return: List of UserRoleDatabaseModel for user.
+        """
         doc = self._users.by_id(user_id)
         if doc is None:
             raise NotFoundError(f"No user with id '{user_id}' was found")
@@ -142,6 +181,14 @@ class UserDatastore(object):
         role_name: str,
         reference: str | None = None,
     ) -> UserDatabaseModel:
+        """
+        Add new role to user.
+        :raise NotFoundError: If user is not found.
+        :param user_id: ID of user.
+        :param role_name: Name of role to add.
+        :param reference: Reference if role requires it.
+        :return: Updated UserDatabaseModel.
+        """
         user_doc = self._users.by_id(user_id)
         if user_doc is None:
             raise NotFoundError(f"No user with id '{user_id}' was found")
@@ -157,4 +204,10 @@ def get_user_datastore(
     db: DocumentDatabase = Depends(get_document_database),
     roles: RoleDatastore = Depends(get_role_datastore),
 ) -> UserDatastore:
+    """
+    Dependecy injection method for user datastore.
+    :param db: DB reference.
+    :param roles: Roles datastore.
+    :return: New UserDatastore.
+    """
     return UserDatastore(db, roles)

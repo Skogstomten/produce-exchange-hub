@@ -33,7 +33,8 @@ class MongoDocument(Document):
         Creates a new document.
 
         :param doc: dict with document data.
-        :param collection: reference to collection for performing operations on the document.
+        :param collection: reference to collection for performing operations
+        on the document.
         """
         super().__init__()
         self._doc = doc
@@ -68,7 +69,8 @@ class MongoDocument(Document):
         Delete item from document.
         Note!! Will not update document in database!
 
-        :raise InvalidOperationError: if id field is trying to be deleted. This is not allowed.
+        :raise InvalidOperationError: if id field is trying to be deleted.
+        This is not allowed.
         :param key: Key of value to be deleted.
         :return: None.
         """
@@ -79,8 +81,8 @@ class MongoDocument(Document):
     def __iter__(self) -> Iterable:
         """
         Iterable implementation.
-        Returns a copy of the dictionary containing the data, with the id inserted
-        as "id" instead of mongoDB default "_id".
+        Returns a copy of the dictionary containing the data, with the id
+        inserted as "id" instead of mongoDB default "_id".
         :return: Iterable for dict.
         """
         clone = self._doc.copy()
@@ -114,8 +116,8 @@ class MongoDocument(Document):
 
     def replace(self, data: MutableMapping) -> Document:
         """
-        Replaces document data with given data and gives back the updated document.
-
+        Replaces document data with given data and gives back the updated
+        document.
         :param data: Updated data as a mutable mapping.
         :return: Updated document.
         """
@@ -146,7 +148,8 @@ class MongoDocument(Document):
 class MongoDocumentCollection(DocumentCollection):
     """
     A collection of documents.
-    Technically wraps a mongodb cursor to be able to filter selection before fetching all data.
+    Technically wraps a mongodb cursor to be able to filter selection before
+    fetching all data.
     """
 
     _cursor: Cursor
@@ -200,7 +203,8 @@ class MongoDocumentCollection(DocumentCollection):
 
     def to_list(self) -> list[Document]:
         """
-        Converts the whole cursor of documents to an in memory document collection.
+        Converts the whole cursor of documents to an in memory document
+        collection.
         :return: list of Document.
         """
         for doc in self._cursor:
@@ -235,7 +239,8 @@ class MongoDatabaseCollection(DatabaseCollection):
     def by_key(self, key: str, value: Any) -> Document | None:
         """
         Get a document by key other than id.
-        If more than one document is found, the first document in unspecified order will be returned.
+        If more than one document is found, the first document in unspecified
+        order will be returned.
         Should preferably be used with values that are supposed to be unique.
 
         :param key: Lookup key.
@@ -262,7 +267,8 @@ class MongoDatabaseCollection(DatabaseCollection):
 
     def get_all(self) -> DocumentCollection:
         """
-        Get a document collection cursor currently containing all documents in the database collection.
+        Get a document collection cursor currently containing all documents
+        in the database collection.
         Note that no documents are fetched when calling this method.
         :return: DocumentCollection operating as a cursor.
         """
@@ -275,7 +281,8 @@ class MongoDatabaseCollection(DatabaseCollection):
         filters: dict[str, Any] = None,
     ) -> DocumentCollection:
         """
-        Get a document collection cursor pointing towards all documents that fit the current filter.
+        Get a document collection cursor pointing towards all documents that
+        fit the current filter.
         :param filters: Filters using mongodb pymongo syntax.
         :return: DocumentCollection cursor.
         """
@@ -311,7 +318,8 @@ class MongoDocumentDatabase(DocumentDatabase):
         """
         Gets database collection by name.
         :param collection_name: Name of collection.
-        :return: Database collection to perform operations on the selected collection.
+        :return: Database collection to perform operations on the selected
+        collection.
         """
         return MongoDatabaseCollection(
             self._db.get_collection(collection_name)
