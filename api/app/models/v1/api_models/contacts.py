@@ -1,3 +1,4 @@
+"""Api models for contacts."""
 from pydantic import BaseModel, Field
 from bson.objectid import ObjectId
 from fastapi import Request
@@ -9,11 +10,13 @@ from app.utils.request_utils import get_current_request_url_with_additions
 
 
 class CreateContactModel(BaseModel):
+    """Model used for creating a contact."""
     type: ContactType
     value: str
     description: str | None = Field(None)
 
     def to_database_model(self) -> ContactDatabaseModel:
+        """Converts model to database model."""
         return ContactDatabaseModel(
             id=str(ObjectId()),
             type=self.type.value,
@@ -23,14 +26,17 @@ class CreateContactModel(BaseModel):
 
 
 class ContactListModel(CreateContactModel):
+    """Model used when listing contacts."""
     id: str
 
 
 class ContactOutModel(ContactListModel, BaseOutModel):
+    """Model used when getting a single contact."""
     @classmethod
     def from_database_model(
         cls, model: ContactDatabaseModel, request: Request
     ):
+        """Creates model instance from database model."""
         return cls(
             **model.dict(),
             operations=[],

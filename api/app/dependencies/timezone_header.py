@@ -5,7 +5,7 @@ from pytz import all_timezones_set
 
 from fastapi import Header
 
-from app.errors.unsupported_timezone_error import UnsupportedTimezoneError
+from app.errors import UnsupportedTimezoneError
 
 
 def get_timezone_header(timezone: str = Header("Europe/Stockholm")) -> str:

@@ -1,7 +1,8 @@
-from fastapi import FastAPI, Request, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
+from .errors import ErrorModel
 from .routes.v1 import (
     companies,
     token,
@@ -11,8 +12,6 @@ from .routes.v1 import (
     roles,
     user_roles,
 )
-from .errors.error_model import ErrorModel
-from .errors.not_found_error import NotFoundError
 
 app = FastAPI(
     title="Produce Exchange Hub Api",
@@ -43,25 +42,15 @@ app.add_middleware(
 
 
 @app.exception_handler(Exception)
-def base_exception_handler(request: Request, err: Exception):
+def base_exception_handler(err: Exception):
     if isinstance(err, HTTPException):
         return JSONResponse(
             status_code=err.status_code,
-            content=vars(ErrorModel(err.status_code, err.detail)),
-        )
-    if isinstance(err, NotFoundError):
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content=vars(
-                ErrorModel(
-                    status.HTTP_404_NOT_FOUND,
-                    f"No resource found at '{request.url.path}'",
-                )
-            ),
+            content=ErrorModel(err.status_code, err.detail).dict(),
         )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=vars(
-            ErrorModel(status.HTTP_500_INTERNAL_SERVER_ERROR, str(err))
-        ),
+        content=ErrorModel(
+            status.HTTP_500_INTERNAL_SERVER_ERROR, str(err)
+        ).dict(),
     )

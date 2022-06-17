@@ -1,3 +1,4 @@
+"""Contains PagingResponseModel class."""
 from typing import TypeVar, Generic
 
 from fastapi import Request
@@ -12,6 +13,7 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class PagingResponseModel(GenericModel, Generic[T]):
+    """Generic response model for paging responses when listing items."""
     items: list[T]
     url: str
     number_of_items: int
@@ -22,6 +24,7 @@ class PagingResponseModel(GenericModel, Generic[T]):
 
     @classmethod
     def create(cls, items: list[T], skip: int, take: int, request: Request):
+        """Creates a paging responses for the given data."""
         query = QueryStringParser(request.url.query)
         query.remove("take")
         query.remove("skip")

@@ -1,3 +1,6 @@
+"""
+Api model classes for user.
+"""
 from datetime import datetime
 
 from fastapi import Request
@@ -9,6 +12,7 @@ from ..database_models.user_database_model import UserDatabaseModel
 
 
 class UserRoleOutModel(BaseModel):
+    """User roles for api output."""
     id: str
     role_id: str
     role_name: str
@@ -17,6 +21,7 @@ class UserRoleOutModel(BaseModel):
 
 
 class User(BaseModel):
+    """User base model."""
     email: str
     firstname: str
     lastname: str
@@ -28,11 +33,13 @@ class User(BaseModel):
 
 
 class UserAdd(User):
+    """Model for adding user."""
     created: datetime
     password_hash: str
 
 
 class UserOutModel(User, BaseOutModel):
+    """Model for returning user in api call."""
     id: str
     created: datetime
     last_logged_in: datetime | None = Field(None)
@@ -44,6 +51,12 @@ class UserOutModel(User, BaseOutModel):
         model: UserDatabaseModel,
         request: Request,
     ) -> "UserOutModel":
+        """
+        Creates model from database model.
+        :param model: UserDatabaseModel.
+        :param request: HTTP request. fastapi.Request.
+        :return: New instance of UserOutModel.
+        """
         return cls(
             url=get_current_request_url_with_additions(
                 request, (str(model.id),), include_query=False
@@ -53,4 +66,5 @@ class UserOutModel(User, BaseOutModel):
 
 
 class UserRegister(User):
+    """API model when adding new user via user registration."""
     password: str

@@ -1,3 +1,4 @@
+"""API model classes for companies."""
 from enum import Enum, unique
 from datetime import datetime
 import pytz
@@ -16,11 +17,13 @@ from app.utils.request_utils import get_current_request_url_with_additions
 
 @unique
 class CompanyTypes(Enum):
+    """Enum with the available company types."""
     producer = "producer"
     buyer = "buyer"
 
 
 class CompanyOutListModel(BaseOutModel):
+    """Company model used when listing companies."""
     id: str
     name: str
     status: CompanyStatus
@@ -38,6 +41,7 @@ class CompanyOutListModel(BaseOutModel):
         timezone: str,
         request: Request,
     ):
+        """Creates model from database model with localization."""
         operations = []
 
         activation_date = model.activation_date
@@ -67,6 +71,7 @@ class CompanyOutListModel(BaseOutModel):
 
 
 class CompanyOutModel(CompanyOutListModel):
+    """Company model used when getting a single company."""
     contacts: list[ContactListModel] | None
 
     @classmethod
@@ -77,7 +82,7 @@ class CompanyOutModel(CompanyOutListModel):
         timezone: str,
         request: Request,
     ):
-
+        """Creates model from database model with localization."""
         operations = []
 
         activation_date = model.activation_date
@@ -108,6 +113,7 @@ class CompanyOutModel(CompanyOutListModel):
 
 
 class CompanyCreateModel(BaseModel):
+    """Model used when creating a new company."""
     name: dict[str, str]
     company_types: list[CompanyTypes] = Field(..., min_items=1)
     content_languages_iso: list[str] = Field(
@@ -116,6 +122,7 @@ class CompanyCreateModel(BaseModel):
 
 
 class CompanyUpdateModel(BaseModel):
+    """Model used when updating company."""
     name: dict[str, str]
     status: CompanyStatus = Field(...)
     company_types: list[CompanyTypes] = Field(..., min_items=1)
@@ -124,7 +131,8 @@ class CompanyUpdateModel(BaseModel):
     )
     description: dict[str, str] = Field({})
 
-    def to_database_model(self, company_id: str):
+    def to_database_model(self, company_id: str) -> CompanyDatabaseModel:
+        """Transforms api model to database model."""
         return CompanyDatabaseModel(
             id=company_id,
             name=self.name,

@@ -10,13 +10,13 @@ from pymongo.collection import Collection as MongoCollection
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
 
-from app.errors.invalid_operation_error import InvalidOperationError
 from ..document_database import (
     Document,
     DocumentDatabase,
     DocumentCollection,
     DatabaseCollection,
 )
+from ...errors import InvalidOperationError
 from ...utils.enum_utils import enums_to_string
 
 
