@@ -24,7 +24,7 @@ from .user_datastore import UserDatastore, get_user_datastore
 IGNORE_ON_UPDATE: tuple = ("id", "created_date", "activation_date")
 
 
-class CompanyDatastore(object):
+class CompanyDatastore:
     """The datastore class."""
 
     db: DocumentDatabase
