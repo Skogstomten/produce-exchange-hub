@@ -14,6 +14,7 @@ T = TypeVar("T", bound=BaseModel)
 
 class PagingResponseModel(GenericModel, Generic[T]):
     """Generic response model for paging responses when listing items."""
+
     items: list[T]
     url: str
     number_of_items: int
