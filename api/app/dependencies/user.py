@@ -1,3 +1,6 @@
+"""
+Module for user related dependencies
+"""
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import SecurityScopes
 from jose import jwt, JWTError
@@ -6,10 +9,10 @@ from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.token import TokenData
 from app.utils.request_utils import get_current_request_url_with_additions
-from .auth import oauth2_scheme_optional, SECRET_KEY, ALGORITHM
+from .auth import OAUTH2_SCHEME_OPTIONAL, SECRET_KEY, ALGORITHM
 
 
-class SecurityScopeRestrictions(object):
+class SecurityScopeRestrictions:
     """
     Parses and strictures the scope restrictions set on endpoint for easy
     verification
@@ -82,16 +85,18 @@ class SecurityScopeRestrictions(object):
 def get_current_user_if_any(
     request: Request,
     security_scopes: SecurityScopes,
-    token: str | None = Depends(oauth2_scheme_optional),
+    token: str | None = Depends(OAUTH2_SCHEME_OPTIONAL),
     users: UserDatastore = Depends(get_user_datastore),
 ) -> UserDatabaseModel | None:
     """
-    Gets current user from access token, if there is an access token
-    :param request: HTTP request object
-    :param security_scopes: security scope restrictions for current endpoint
-    :param token: encoded jwt token
-    :param users: datastore for user database access
-    :return: User model from database
+    Gets current user from access token, if there is an access token.
+    :raise HTTPException: If Authentication of token or authorization of
+    user should in any way fail.
+    :param request: HTTP request object.
+    :param security_scopes: security scope restrictions for current endpoint.
+    :param token: encoded jwt token.
+    :param users: datastore for user database access.
+    :return: User model from database.
     """
     if token is None:
         return None
@@ -99,24 +104,23 @@ def get_current_user_if_any(
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
         authenticate_value = "Bearer"
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": authenticate_value},
-    )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenData(**payload)
         print(payload)
         email: str = payload.get("sub")
         if email is None:
-            raise credentials_exception
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="No email found in token.",
+                headers={"WWW-Authenticate": authenticate_value},
+            )
     except JWTError as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unable to decode jwt token: " + str(err),
             headers={"WWW-Authenticate": authenticate_value},
-        )
+        ) from err
     user = users.get_user(email)
     if user is None:
         raise HTTPException(
@@ -130,9 +134,8 @@ def get_current_user_if_any(
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User is not authorized to access endpoint '{}'".format(
-                request_url,
-            ),
+            detail="User is not authorized to access endpoint "
+                   f"'{request_url}'",
             headers={"WWW-Authenticate": authenticate_value},
         )
     return user
@@ -142,11 +145,10 @@ def get_current_user(
     user: UserDatabaseModel | None = Depends(get_current_user_if_any),
 ) -> UserDatabaseModel:
     """
-    Get current user
-
-    :raises HTTPException: if user is not authenticated
-    :param user: The user, if any
-    :return: The user, if any
+    Get current user.
+    :raises HTTPException: if user is not authenticated.
+    :param user: The user, if any.
+    :return: The user, if any.
     """
     if user is None:
         raise HTTPException(
@@ -163,8 +165,7 @@ def user_has_access(
     token: TokenData,
 ) -> bool:
     """
-    Checks if user has access according to specifications in security scopes
-
+    Checks if user has access according to specifications in security scopes.
     :param security_scopes: Scopes defined on endpoint of type
     fastapi.SecurityScopes
     :param request: HTTP Request object of type fastapi.Request
@@ -187,20 +188,17 @@ def _ensure_correct_scopes_format(
     scope: str, parts: list[str], request: Request
 ) -> None:
     """
-    Verifies that the scope restriction is formatted correctly
-
+    Verifies that the scope restriction is formatted correctly.
     :raises HTTPException: 500 Internal Server Error if scope restriction has
-    invalid format
-    :param scope: raw scope string
-    :param parts: scope string in parts split by colon
-    :param request: HTTP request object
-    :return: None
+    invalid format.
+    :param scope: raw scope string.
+    :param parts: scope string in parts split by colon.
+    :param request: HTTP request object.
+    :return: None.
     """
     if len(parts) not in (2, 3):
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
-            "endpoint '{}' has invalid security claim setup: '{}'".format(
-                str(request.url),
-                scope,
-            ),
+            f"endpoint '{str(request.url)}' "
+            f"has invalid security claim setup: '{scope}'",
         )
