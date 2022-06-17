@@ -1,8 +1,16 @@
+"""
+Routing module for companies endpoint.
+"""
 from fastapi import APIRouter, Depends, Query, Body, Path, Request, Security
 
 from app.datastores.company_datastore import (
     CompanyDatastore,
     get_company_datastore,
+)
+from app.dependencies.essentials import Essentials, get_essentials
+from app.dependencies.paging_information import (
+    PagingInformation,
+    get_paging_information,
 )
 from app.dependencies.timezone_header import get_timezone_header
 from app.dependencies.user import get_current_user
@@ -17,29 +25,43 @@ from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.shared import Language
 from app.models.v1.shared import SortOrder
 
-router = APIRouter(prefix="/v1/{lang}/companies", tags=["Companies"])
+router = APIRouter(prefix="/companies", tags=["Companies"])
 
 
 @router.get("/", response_model=PagingResponseModel[CompanyOutListModel])
 async def get_companies(
-    request: Request,
-    take: int = Query(20),
-    skip: int = Query(0),
     sort_by: str | None = Query(None),
     sort_order: SortOrder = Query(SortOrder.asc),
-    companies: CompanyDatastore = Depends(get_company_datastore),
-    lang: Language = Path(...),
-    timezone: str = Depends(get_timezone_header),
-):
-    companies = companies.get_companies(skip, take, sort_by, sort_order)
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    essentials: Essentials = Depends(get_essentials),
+    paging_information: PagingInformation = Depends(get_paging_information),
+) -> PagingResponseModel[CompanyOutListModel]:
+    """
+    Get list of companies wrapped in a paging response.
+    :param paging_information: Data needed for paging.
+    :param essentials: Essential dependencies.
+    :param sort_by: Sort by value name.
+    :param sort_order: Value=asc or desc.
+    :param company_datastore:
+    :return: PagingResponseModel of CompanyOutListModel.
+    """
+    company_datastore = company_datastore.get_companies(
+        paging_information.skip, paging_information.take, sort_by, sort_order
+    )
     items: list[CompanyOutListModel] = []
-    for company in companies:
+    for company in company_datastore:
         item = CompanyOutListModel.from_database_model(
-            company, lang, timezone, request
+            company,
+            essentials.language,
+            essentials.timezone,
+            essentials.request,
         )
         items.append(item)
     response = PagingResponseModel[CompanyOutListModel].create(
-        items, skip, take, request
+        items,
+        paging_information.skip,
+        paging_information.take,
+        essentials.request,
     )
     return response
 
@@ -48,11 +70,20 @@ async def get_companies(
 async def get_company(
     request: Request,
     company_id: str = Path(...),
-    companies: CompanyDatastore = Depends(get_company_datastore),
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
     lang: Language = Path(...),
     timezone: str = Depends(get_timezone_header),
-):
-    company = companies.get_company(company_id)
+) -> CompanyOutModel:
+    """
+    Get a company by id.
+    :param request: HTTP request.
+    :param company_id: ID of company.
+    :param company_datastore: Company database access.
+    :param lang: User language.
+    :param timezone: User timezone.
+    :return: CompanyOutModel.
+    """
+    company = company_datastore.get_company(company_id)
     return CompanyOutModel.from_database_model(
         company, lang, timezone, request
     )
@@ -60,34 +91,54 @@ async def get_company(
 
 @router.post("/", response_model=CompanyOutModel)
 async def add_company(
-    request: Request,
     company: CompanyCreateModel = Body(...),
     user: UserDatabaseModel = Security(
         get_current_user, scopes=("verified:True",)
     ),
-    companies: CompanyDatastore = Depends(get_company_datastore),
-    lang: Language = Path(...),
-    timezone: str = Depends(get_timezone_header),
-):
-    company = companies.add_company(company, user)
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    essentials: Essentials = Depends(get_essentials),
+) -> CompanyOutModel:
+    """
+    Add a new company.
+    :param essentials:
+    :param company: HTTP request body serialized to model object.
+    :param user: Current authenticated user.
+    :param company_datastore: Company database access class.
+    :return: CompanyOutModel.
+    """
+    company = company_datastore.add_company(company, user)
     return CompanyOutModel.from_database_model(
-        company, lang, timezone, request
+        company, essentials.language, essentials.timezone, essentials.request
     )
 
 
 @router.put("/{company_id}", response_model=CompanyOutModel)
 async def update_company(
-    request: Request,
     company_id: str = Path(...),
     company: CompanyUpdateModel = Body(...),
     user: UserDatabaseModel = Security(
-        get_current_user, scopes=("roles:company_admin:{company_id}",)
+        get_current_user,
+        scopes=(
+            "roles:company_admin:{company_id}",
+            "roles:superuser",
+        ),
     ),
-    companies: CompanyDatastore = Depends(get_company_datastore),
-    lang: Language = Path(...),
-    timezone: str = Depends(get_timezone_header),
-):
-    company = companies.update_company(company.to_database_model(company_id))
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    essentials: Essentials = Depends(get_essentials),
+) -> CompanyOutModel:
+    """
+    Update a company.
+    :param essentials:
+    :param company_id: ID of company to update.
+    :param company: HTTP request body serialized to model object.
+    :param user: Current authenticated user.
+    :param company_datastore: Company database access.
+    :return: CompanyOutModel.
+    """
+    print(user.email)
+    company = company_datastore.update_company(
+        company.to_database_model(company_id)
+    )
     return CompanyOutModel.from_database_model(
-        company, lang, timezone, request
+        company, essentials.language, essentials.timezone, essentials.request
     )

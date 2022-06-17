@@ -18,6 +18,7 @@ app = FastAPI(
     title="Produce Exchange Hub Api",
     description="Has all the business logic for the Produce Exchange Hub Web "
     "App",
+    root_path="/v1/{lang}",
 )
 
 app.include_router(users.router)

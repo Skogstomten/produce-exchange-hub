@@ -14,7 +14,8 @@ class StringValues(Iterable[str], Sized, ABC):
         """
         Creates an instance of StringValues.
 
-        :param args: non str args will be converted to str using the str(arg) function.
+        :param args: non str args will be converted to str using the str(arg)
+        function.
         """
         self.values = []
         for arg in args:
@@ -23,7 +24,8 @@ class StringValues(Iterable[str], Sized, ABC):
     def append(self, *args) -> None:
         """
         Appends any number of values to the StringValues instance.
-        :param args: args of any types. Will be converted to str using the str(arg) function.
+        :param args: args of any types. Will be converted to str using the
+        str(arg) function.
         :return: None
         """
         for arg in args:
