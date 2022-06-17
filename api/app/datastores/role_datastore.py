@@ -5,8 +5,7 @@ from fastapi import Depends
 
 from app.database.document_database import DocumentDatabase, DatabaseCollection
 from app.dependencies.document_database import get_document_database
-from app.errors.duplicate_error import DuplicateError
-from app.errors.not_found_error import NotFoundError
+from app.errors import NotFoundError, DuplicateError
 from app.models.v1.api_models.roles import NewRoleModel
 from app.models.v1.database_models.role_database_model import RoleDatabaseModel
 

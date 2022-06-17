@@ -18,8 +18,8 @@ from app.models.v1.database_models.company_database_model import (
 )
 from app.database.document_database import DocumentDatabase, DatabaseCollection
 from app.dependencies.document_database import get_document_database
-from app.errors.not_found_error import NotFoundError
 from .user_datastore import UserDatastore, get_user_datastore
+from ..errors import NotFoundError
 
 IGNORE_ON_UPDATE: tuple = ("id", "created_date", "activation_date")
 

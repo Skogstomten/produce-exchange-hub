@@ -13,17 +13,17 @@ from app.database.document_database import (
     Document,
 )
 from app.dependencies.document_database import get_document_database
-from app.errors.duplicate_error import DuplicateError
-from app.errors.invalid_username_or_password_error import (
-    InvalidUsernameOrPasswordError,
-)
-from app.errors.not_found_error import NotFoundError
 from app.models.v1.api_models.users import UserAdd, UserRegister
 from app.models.v1.database_models.user_database_model import (
     UserDatabaseModel,
     UserRoleDatabaseModel,
 )
 from .role_datastore import RoleDatastore, get_role_datastore
+from ..errors import (
+    DuplicateError,
+    NotFoundError,
+    InvalidUsernameOrPasswordError,
+)
 
 
 class UserDatastore:

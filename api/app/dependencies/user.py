@@ -135,7 +135,7 @@ def get_current_user_if_any(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User is not authorized to access endpoint "
-                   f"'{request_url}'",
+            f"'{request_url}'",
             headers={"WWW-Authenticate": authenticate_value},
         )
     return user
