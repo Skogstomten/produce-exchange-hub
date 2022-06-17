@@ -43,12 +43,14 @@ def is_correct_password(in_password: str, hashed_password: str) -> bool:
     """
     Verifies that provided password is same as hashed password
 
-    >>> hashed_password = '1OBCLoBuoHI9JCC662fmmxiLAXsOz8xbrBlsQzQ92TIWesr8knPRbL4waA0RKMABsurKCFdJrE3BI-cnAoo3sHNhbHQ='
-    >>> is_correct_password('Password', hashed_password)
+    >>> hashed = '1OBCLoBuoHI9JCC662fmmxiLAXsOz8xbrBlsQzQ92TIWesr'
+    ...          '8knPRbL4waA0RKMABsurKCFdJrE3BI-cnAoo3sHNhbHQ='
+    >>> is_correct_password('Password', hashed)
     True
 
-    >>> hashed_password = '1OBCLoBuoHI9JCC662fmmxiLAXsOz8xbrBlsQzQ92TIWesr8knPRbL4waA0RKMABsurKCFdJrE3BI-cnAoo3sHNhbHQ='
-    >>> is_correct_password('WrongPassword', hashed_password)
+    >>> hashed = '1OBCLoBuoHI9JCC662fmmxiLAXsOz8xbrBlsQzQ92TIWes'
+    ...          '8knPRbL4waA0RKMABsurKCFdJrE3BI-cnAoo3sHNhbHQ='
+    >>> is_correct_password('WrongPassword', hashed)
     False
 
     :param in_password:
