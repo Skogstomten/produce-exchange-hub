@@ -2,6 +2,7 @@
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.requests import Request
 
 from .errors import ErrorModel
 from .routes.v1 import (
@@ -13,12 +14,12 @@ from .routes.v1 import (
     roles,
     user_roles,
 )
+from .utils.request_utils import get_url
 
 app = FastAPI(
     title="Produce Exchange Hub Api",
     description="Has all the business logic for the Produce Exchange Hub Web "
     "App",
-    root_path="/v1/{lang}",
 )
 
 app.include_router(users.router)
@@ -43,16 +44,18 @@ app.add_middleware(
 
 
 @app.exception_handler(Exception)
-def base_exception_handler(err: Exception):
+def base_exception_handler(request: Request, err: Exception):
     """Exception handler for application."""
     if isinstance(err, HTTPException):
         return JSONResponse(
             status_code=err.status_code,
-            content=ErrorModel(err.status_code, err.detail).dict(),
+            content=ErrorModel(
+                err.status_code, err.detail, get_url(request)
+            ).dict(),
         )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content=ErrorModel(
-            status.HTTP_500_INTERNAL_SERVER_ERROR, str(err)
+            status.HTTP_500_INTERNAL_SERVER_ERROR, str(err), get_url(request)
         ).dict(),
     )

@@ -23,7 +23,7 @@ from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.shared import SortOrder
 
-router = APIRouter(prefix="/companies", tags=["Companies"])
+router = APIRouter(prefix="/v1/{lang}/companies", tags=["Companies"])
 
 
 @router.get("/", response_model=PagingResponseModel[CompanyOutListModel])
@@ -34,15 +34,7 @@ async def get_companies(
     essentials: Essentials = Depends(get_essentials),
     paging_information: PagingInformation = Depends(get_paging_information),
 ) -> PagingResponseModel[CompanyOutListModel]:
-    """
-    Get list of companies wrapped in a paging response.
-    :param paging_information: Data needed for paging.
-    :param essentials: Essential dependencies.
-    :param sort_by: Sort by value name.
-    :param sort_order: Value=asc or desc.
-    :param company_datastore:
-    :return: PagingResponseModel of CompanyOutListModel.
-    """
+    """Get list of companies wrapped in a paging response."""
     company_datastore = company_datastore.get_companies(
         paging_information.skip, paging_information.take, sort_by, sort_order
     )
@@ -70,13 +62,7 @@ async def get_company(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
-    """
-    Get a company by id.
-    :param essentials: Essential dependencies.
-    :param company_id: ID of company.
-    :param company_datastore: Company database access.
-    :return: CompanyOutModel.
-    """
+    """Get a company by id."""
     company = company_datastore.get_company(company_id)
     return CompanyOutModel.from_database_model(
         company, essentials.language, essentials.timezone, essentials.request
@@ -92,14 +78,7 @@ async def add_company(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
-    """
-    Add a new company.
-    :param essentials:
-    :param company: HTTP request body serialized to model object.
-    :param user: Current authenticated user.
-    :param company_datastore: Company database access class.
-    :return: CompanyOutModel.
-    """
+    """Add a new company."""
     company = company_datastore.add_company(company, user)
     return CompanyOutModel.from_database_model(
         company, essentials.language, essentials.timezone, essentials.request
@@ -120,19 +99,9 @@ async def update_company(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
-    """
-    Update a company.
-    :param essentials:
-    :param company_id: ID of company to update.
-    :param company: HTTP request body serialized to model object.
-    :param user: Current authenticated user.
-    :param company_datastore: Company database access.
-    :return: CompanyOutModel.
-    """
+    """Update a company."""
     print(user.email)
-    company = company_datastore.update_company(
-        company.to_database_model(company_id)
-    )
+    company = company_datastore.update_company(company_id, company)
     return CompanyOutModel.from_database_model(
         company, essentials.language, essentials.timezone, essentials.request
     )

@@ -113,6 +113,7 @@ class CompanyOutModel(CompanyOutListModel):
             description=select_localized_text(
                 model.description, lang, model.content_languages_iso
             ),
+            external_website_url=model.external_website_url,
             contacts=model.contacts,
         )
 
@@ -139,10 +140,3 @@ class CompanyUpdateModel(BaseModel):
     )
     description: dict[str, str] = Field({})
     external_website_url: str | None
-
-    def to_database_model(self, company_id: str) -> CompanyDatabaseModel:
-        """Transforms api model to database model."""
-        return CompanyDatabaseModel(
-            id=company_id,
-            **self.dict(),
-        )
