@@ -1,7 +1,7 @@
 """
 Routing module for companies endpoint.
 """
-from fastapi import APIRouter, Depends, Query, Body, Path, Request, Security
+from fastapi import APIRouter, Depends, Query, Body, Path, Security
 
 from app.datastores.company_datastore import (
     CompanyDatastore,
@@ -12,7 +12,6 @@ from app.dependencies.paging_information import (
     PagingInformation,
     get_paging_information,
 )
-from app.dependencies.timezone_header import get_timezone_header
 from app.dependencies.user import get_current_user
 from app.models.v1.api_models.companies import (
     CompanyOutModel,
@@ -22,10 +21,9 @@ from app.models.v1.api_models.companies import (
 )
 from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.models.v1.shared import Language
 from app.models.v1.shared import SortOrder
 
-router = APIRouter(prefix="/companies", tags=["Companies"])
+router = APIRouter(prefix="/v1/{lang}/companies", tags=["Companies"])
 
 
 @router.get("/", response_model=PagingResponseModel[CompanyOutListModel])
@@ -36,15 +34,7 @@ async def get_companies(
     essentials: Essentials = Depends(get_essentials),
     paging_information: PagingInformation = Depends(get_paging_information),
 ) -> PagingResponseModel[CompanyOutListModel]:
-    """
-    Get list of companies wrapped in a paging response.
-    :param paging_information: Data needed for paging.
-    :param essentials: Essential dependencies.
-    :param sort_by: Sort by value name.
-    :param sort_order: Value=asc or desc.
-    :param company_datastore:
-    :return: PagingResponseModel of CompanyOutListModel.
-    """
+    """Get list of companies wrapped in a paging response."""
     company_datastore = company_datastore.get_companies(
         paging_information.skip, paging_information.take, sort_by, sort_order
     )
@@ -68,24 +58,14 @@ async def get_companies(
 
 @router.get("/{company_id}", response_model=CompanyOutModel)
 async def get_company(
-    request: Request,
     company_id: str = Path(...),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    lang: Language = Path(...),
-    timezone: str = Depends(get_timezone_header),
+    essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
-    """
-    Get a company by id.
-    :param request: HTTP request.
-    :param company_id: ID of company.
-    :param company_datastore: Company database access.
-    :param lang: User language.
-    :param timezone: User timezone.
-    :return: CompanyOutModel.
-    """
+    """Get a company by id."""
     company = company_datastore.get_company(company_id)
     return CompanyOutModel.from_database_model(
-        company, lang, timezone, request
+        company, essentials.language, essentials.timezone, essentials.request
     )
 
 
@@ -98,14 +78,7 @@ async def add_company(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
-    """
-    Add a new company.
-    :param essentials:
-    :param company: HTTP request body serialized to model object.
-    :param user: Current authenticated user.
-    :param company_datastore: Company database access class.
-    :return: CompanyOutModel.
-    """
+    """Add a new company."""
     company = company_datastore.add_company(company, user)
     return CompanyOutModel.from_database_model(
         company, essentials.language, essentials.timezone, essentials.request
@@ -126,19 +99,9 @@ async def update_company(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
-    """
-    Update a company.
-    :param essentials:
-    :param company_id: ID of company to update.
-    :param company: HTTP request body serialized to model object.
-    :param user: Current authenticated user.
-    :param company_datastore: Company database access.
-    :return: CompanyOutModel.
-    """
+    """Update a company."""
     print(user.email)
-    company = company_datastore.update_company(
-        company.to_database_model(company_id)
-    )
+    company = company_datastore.update_company(company_id, company)
     return CompanyOutModel.from_database_model(
         company, essentials.language, essentials.timezone, essentials.request
     )

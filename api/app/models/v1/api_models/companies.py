@@ -34,6 +34,7 @@ class CompanyOutListModel(BaseOutModel):
     content_languages_iso: list[str]
     activation_date: datetime | None
     description: str | None = Field(None)
+    external_website_url: str | None
 
     @classmethod
     def from_database_model(
@@ -69,6 +70,7 @@ class CompanyOutListModel(BaseOutModel):
             description=select_localized_text(
                 model.description, lang, model.content_languages_iso
             ),
+            external_website_url=model.external_website_url,
         )
 
 
@@ -111,6 +113,7 @@ class CompanyOutModel(CompanyOutListModel):
             description=select_localized_text(
                 model.description, lang, model.content_languages_iso
             ),
+            external_website_url=model.external_website_url,
             contacts=model.contacts,
         )
 
@@ -123,6 +126,7 @@ class CompanyCreateModel(BaseModel):
     content_languages_iso: list[str] = Field(
         ..., min_length=2, max_length=2, min_items=1
     )
+    external_website_url: str | None
 
 
 class CompanyUpdateModel(BaseModel):
@@ -135,14 +139,4 @@ class CompanyUpdateModel(BaseModel):
         ..., min_length=2, max_length=2, min_items=1
     )
     description: dict[str, str] = Field({})
-
-    def to_database_model(self, company_id: str) -> CompanyDatabaseModel:
-        """Transforms api model to database model."""
-        return CompanyDatabaseModel(
-            id=company_id,
-            name=self.name,
-            status=self.status,
-            company_types=self.company_types,
-            content_languages_iso=self.content_languages_iso,
-            description=self.description,
-        )
+    external_website_url: str | None

@@ -8,7 +8,8 @@ from pytz import utc
 from fastapi import Depends
 
 from app.models.v1.shared import SortOrder, CompanyStatus
-from app.models.v1.api_models.companies import CompanyCreateModel
+from app.models.v1.api_models.companies import CompanyCreateModel, \
+    CompanyUpdateModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.database_models.contact_database_model import (
     ContactDatabaseModel,
@@ -20,8 +21,6 @@ from app.database.document_database import DocumentDatabase, DatabaseCollection
 from app.dependencies.document_database import get_document_database
 from .user_datastore import UserDatastore, get_user_datastore
 from ..errors import NotFoundError
-
-IGNORE_ON_UPDATE: tuple = ("id", "created_date", "activation_date")
 
 
 class CompanyDatastore:
@@ -114,24 +113,24 @@ class CompanyDatastore:
 
     def update_company(
         self,
-        company: CompanyDatabaseModel,
+        company_id: str,
+        company: CompanyUpdateModel,
     ) -> CompanyDatabaseModel:
         """
         Updates a company with given model.
         :raise NotFoundError: If company with id is not found.
+        :param company_id: Id of company to update.
         :param company: The data to update.
         :return: CompanyDatabaseModel. The updated company.
         """
-        doc = self._companies.by_id(company.id)
+        doc = self._companies.by_id(company_id)
         if doc is None:
             raise NotFoundError(
-                f"No company with id '{company.id}' was found."
+                f"No company with id '{company_id}' was found."
             )
-        data = doc.to_dict()
         for key, value in company.dict().items():
-            if key not in IGNORE_ON_UPDATE:
-                data[key] = value
-        doc = doc.replace(data)
+            doc[key] = value
+        doc = doc.replace(doc)
         return CompanyDatabaseModel(**doc)
 
     def add_contact_to_company(
