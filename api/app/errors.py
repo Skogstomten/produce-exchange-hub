@@ -2,7 +2,6 @@
 Errors and exceptions
 """
 from fastapi import HTTPException
-from pydantic import BaseModel
 from starlette import status
 
 
