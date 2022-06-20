@@ -21,10 +21,6 @@ async def register(
 ) -> UserOutModel:
     """
     Register new user.
-    :param request: http request.
-    :param user_datastore: datastore to access user database.
-    :param body: http request body object.
-    :return: UserOutModel
     """
     user: UserDatabaseModel = user_datastore.add_user(body)
     return UserOutModel.from_database_model(user, request)
@@ -42,12 +38,6 @@ async def get_users(
 ) -> PagingResponseModel[UserOutModel]:
     """
     Get list of users wrapped in a paging response object.
-    :param request: http request object.
-    :param user_datastore: for accessing user database.
-    :param take: Number of users to return in each response.
-    :param skip: Number users to skip. For paging.
-    :param user: Current authenticated user, for security checking.
-    :return: PagingResponseModel[UserOutModel].
     """
     print(f"User {user.email} is accessing roles.")
     all_users = user_datastore.get_users(take, skip)
@@ -85,11 +75,6 @@ async def delete_user(
 ) -> None:
     """
     Delete a user.
-
-    :param user_datastore: Accesses user database.
-    :param user_id: id of user to be deleted.
-    :param user: Current authenticated user for authentication.
-    :return: None.
     """
     print(f"User {user.email} is deleting user {user_id}")
     user_datastore.delete_user(user_id)

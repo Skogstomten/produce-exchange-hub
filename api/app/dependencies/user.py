@@ -10,6 +10,21 @@ from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.token import TokenData
 from app.utils.request_utils import get_current_request_url_with_additions
 from .auth import OAUTH2_SCHEME_OPTIONAL, SECRET_KEY, ALGORITHM
+from ..utils.str_utils import remove_brackets
+
+
+def _append_ref_if_any(
+    current_val: str, parts: list[str], i: int, request: Request
+) -> str:
+    """Appends the ref from selected index to value if there is a ref."""
+    ref = None
+    try:
+        ref_name = remove_brackets(parts[i])
+    except IndexError:
+        print(f"parts contains no index {i}: {repr(parts)}")
+    else:
+        ref = request.path_params.get(ref_name, None)
+    return current_val + f":{ref}" if ref else current_val
 
 
 class SecurityScopeRestrictions:
@@ -40,21 +55,15 @@ class SecurityScopeRestrictions:
             claim_type: str = parts[0]
             if claim_type == "roles":
                 role_name: str = parts[1]
-                reference: str | None = None
-                if len(parts) == 3:
-                    reference_name: str = (
-                        parts[2].replace("{", "").replace("}", "")
-                    )
-                    if reference_name in request.path_params:
-                        reference = request.path_params.get(reference_name)
                 role: str = role_name
-                if reference is not None:
-                    role += f":{reference}"
+                role = _append_ref_if_any(role, parts, 2, request)
                 self._roles.append(role)
             if claim_type == "verified":
                 self._verified = parts[1].lower() == "true"
             if claim_type == "self":
-                self._roles.append(f"{claim_type}:{parts[1]}")
+                self._roles.append(
+                    _append_ref_if_any(claim_type, parts, 1, request)
+                )
 
     def user_has_required_roles(self, token: TokenData) -> bool:
         """
@@ -146,7 +155,7 @@ def get_current_user_if_any(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User is not authorized to access endpoint "
-            f"'{request_url}'",
+                   f"'{request_url}'",
             headers={"WWW-Authenticate": authenticate_value},
         )
     return user
