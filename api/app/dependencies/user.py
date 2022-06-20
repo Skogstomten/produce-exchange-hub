@@ -10,6 +10,21 @@ from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.token import TokenData
 from app.utils.request_utils import get_current_request_url_with_additions
 from .auth import OAUTH2_SCHEME_OPTIONAL, SECRET_KEY, ALGORITHM
+from ..utils.str_utils import remove_brackets
+
+
+def _append_ref_if_any(
+    current_val: str, parts: list[str], i: int, request: Request
+) -> str:
+    """Appends the ref from selected index to value if there is a ref."""
+    ref = None
+    try:
+        ref_name = remove_brackets(parts[i])
+    except IndexError:
+        print(f"parts contains no index {i}: {repr(parts)}")
+    else:
+        ref = request.path_params.get(ref_name, None)
+    return current_val + f":{ref}" if ref else current_val
 
 
 class SecurityScopeRestrictions:
@@ -18,7 +33,12 @@ class SecurityScopeRestrictions:
     verification
     """
 
-    def __init__(self, security_scopes: SecurityScopes, request: Request):
+    def __init__(
+        self,
+        security_scopes: SecurityScopes,
+        request: Request,
+        authenticated_user: UserDatabaseModel,
+    ):
         """
         Parses and stores the security scopes
         :param security_scopes: SecurityScopes object received from fastapi
@@ -27,6 +47,7 @@ class SecurityScopeRestrictions:
         """
         self._roles: list[str] = []
         self._verified: bool | None = None
+        self.authenticated_user = authenticated_user
 
         for scope in security_scopes.scopes:
             parts: list[str] = scope.split(":")
@@ -34,19 +55,15 @@ class SecurityScopeRestrictions:
             claim_type: str = parts[0]
             if claim_type == "roles":
                 role_name: str = parts[1]
-                reference: str | None = None
-                if len(parts) == 3:
-                    reference_name: str = (
-                        parts[2].replace("{", "").replace("}", "")
-                    )
-                    if reference_name in request.path_params:
-                        reference = request.path_params.get(reference_name)
                 role: str = role_name
-                if reference is not None:
-                    role += f":{reference}"
+                role = _append_ref_if_any(role, parts, 2, request)
                 self._roles.append(role)
             if claim_type == "verified":
                 self._verified = parts[1].lower() == "true"
+            if claim_type == "self":
+                self._roles.append(
+                    _append_ref_if_any(claim_type, parts, 1, request)
+                )
 
     def user_has_required_roles(self, token: TokenData) -> bool:
         """
@@ -64,6 +81,9 @@ class SecurityScopeRestrictions:
             return True
 
         for role in self._roles:
+            if role.startswith("self:"):
+                if role.split(":")[1] == self.authenticated_user.id:
+                    return True
             if role in token.roles:
                 return True
         return False
@@ -121,21 +141,21 @@ def get_current_user_if_any(
             detail="Unable to decode jwt token: " + str(err),
             headers={"WWW-Authenticate": authenticate_value},
         ) from err
-    user = users.get_user(email)
+    user = users.get_user_by_email(email)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="No user was found for the provided username",
             headers={"WWW-Authenticate": authenticate_value},
         )
-    if not user_has_access(security_scopes, request, token_data):
+    if not user_has_access(security_scopes, request, token_data, user):
         request_url: str = get_current_request_url_with_additions(
             request, include_query=False
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User is not authorized to access endpoint "
-            f"'{request_url}'",
+                   f"'{request_url}'",
             headers={"WWW-Authenticate": authenticate_value},
         )
     return user
@@ -163,6 +183,7 @@ def user_has_access(
     security_scopes: SecurityScopes,
     request: Request,
     token: TokenData,
+    authenticated_user: UserDatabaseModel,
 ) -> bool:
     """
     Checks if user has access according to specifications in security scopes.
@@ -171,12 +192,13 @@ def user_has_access(
     :param request: HTTP Request object of type fastapi.Request
     :param token: Deserialized access token of type
     app.models.v1.token.TokenData
+    :param authenticated_user:
     :return: Bool True if user is authorized to access specific endpoint,
     otherwise False
     """
     print("Checking if user has access")
     security_scope_restrictions = SecurityScopeRestrictions(
-        security_scopes, request
+        security_scopes, request, authenticated_user
     )
     if security_scope_restrictions.user_has_required_roles(token):
         if security_scope_restrictions.check_verified(token):
