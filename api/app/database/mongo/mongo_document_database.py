@@ -16,7 +16,7 @@ from ..document_database import (
     DocumentCollection,
     DatabaseCollection,
 )
-from ...errors import InvalidOperationError
+from ...errors import InvalidOperationError, NotFoundError
 from ...utils.enum_utils import enums_to_string
 
 
@@ -298,6 +298,18 @@ class MongoDatabaseCollection(DatabaseCollection):
         :return: True if document exists, else False.
         """
         return self._collection.count_documents(filters, limit=1) > 0
+
+    def patch_document(self, doc_id: str, updates: dict[str, Any]) -> None:
+        """Se base class"""
+        update_result = self._collection.update_one(
+            {"_id": ObjectId(doc_id)},
+            {"$set": updates}
+        )
+        if update_result.modified_count < 1:
+            raise NotFoundError(
+                f"No document with key='{doc_id}' "
+                f"was found in collection='{self._collection.name}'"
+            )
 
 
 class MongoDocumentDatabase(DocumentDatabase):
