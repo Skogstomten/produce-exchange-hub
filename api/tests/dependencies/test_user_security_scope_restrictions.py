@@ -119,11 +119,15 @@ def test_scope_restrictions_user_has_required_roles(
     (
         ("62b0581674e22082fe2a721a", "62b0581674e22082fe2a721a", True),
         ("62b0581674e22082fe2a721a", str(ObjectId()), False),
-    )
+    ),
 )
 def test_self_restriction_works(
-    security_scope, http_request, authenticated_user,
-    req_user_id, user_id, expected,
+    security_scope,
+    http_request,
+    authenticated_user,
+    req_user_id,
+    user_id,
+    expected,
 ):
     type(security_scope).scopes = PropertyMock(
         return_value=("self:{user_id}",)
@@ -131,12 +135,14 @@ def test_self_restriction_works(
     type(http_request).path_params = PropertyMock(
         return_value={"user_id": req_user_id}
     )
-    token_data = TokenData(**{
-        "sub": "nisse@perssons.se",
-        "scopes": [],
-        "verified": True,
-        "roles": [],
-    })
+    token_data = TokenData(
+        **{
+            "sub": "nisse@perssons.se",
+            "scopes": [],
+            "verified": True,
+            "roles": [],
+        }
+    )
     type(authenticated_user).id = PropertyMock(return_value=user_id)
     target = SecurityScopeRestrictions(
         security_scope, http_request, authenticated_user

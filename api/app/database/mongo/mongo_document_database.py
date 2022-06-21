@@ -302,8 +302,7 @@ class MongoDatabaseCollection(DatabaseCollection):
     def patch_document(self, doc_id: str, updates: dict[str, Any]) -> None:
         """Se base class"""
         update_result = self._collection.update_one(
-            {"_id": ObjectId(doc_id)},
-            {"$set": updates}
+            {"_id": ObjectId(doc_id)}, {"$set": enums_to_string(updates)}
         )
         if update_result.modified_count < 1:
             raise NotFoundError(
