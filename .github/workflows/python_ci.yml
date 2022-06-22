@@ -32,4 +32,4 @@ jobs:
         flake8 api/ --max-line-length=79 --extend-ignore=F403,W293
     - name: Run tests
       run: |
-        pytest --doctest-modules --cov-report=html --cov=app
+        pytest api/ --doctest-modules --cov-report=html --cov=app
