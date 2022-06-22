@@ -185,9 +185,7 @@ class MongoDocumentCollection(DocumentCollection):
             self._cursor = self._cursor.limit(take)
         return self
 
-    def sort(
-        self, sort_by: str | None, sort_order: str | None
-    ) -> "DocumentCollection":
+    def sort(self, sort_by: str | None, sort_order: str | None) -> "DocumentCollection":
         """
         Sorts the document.
         :param sort_by: Name of db field to sort by.
@@ -250,9 +248,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         doc = self._collection.find_one({key: value})
         if doc is None:
             return None
-        return MongoDocument(
-            self._collection.find_one({key: value}), self._collection
-        )
+        return MongoDocument(self._collection.find_one({key: value}), self._collection)
 
     def add(self, data: dict) -> Document:
         """
@@ -272,9 +268,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         Note that no documents are fetched when calling this method.
         :return: DocumentCollection operating as a cursor.
         """
-        return MongoDocumentCollection(
-            self._collection.find(), self._collection
-        )
+        return MongoDocumentCollection(self._collection.find(), self._collection)
 
     def get(
         self,
@@ -301,14 +295,9 @@ class MongoDatabaseCollection(DatabaseCollection):
 
     def patch_document(self, doc_id: str, updates: dict[str, Any]) -> None:
         """Se base class"""
-        update_result = self._collection.update_one(
-            {"_id": ObjectId(doc_id)}, {"$set": enums_to_string(updates)}
-        )
+        update_result = self._collection.update_one({"_id": ObjectId(doc_id)}, {"$set": enums_to_string(updates)})
         if update_result.modified_count < 1:
-            raise NotFoundError(
-                f"No document with key='{doc_id}' "
-                f"was found in collection='{self._collection.name}'"
-            )
+            raise NotFoundError(f"No document with key='{doc_id}' " f"was found in collection='{self._collection.name}'")
 
 
 class MongoDocumentDatabase(DocumentDatabase):
@@ -332,6 +321,4 @@ class MongoDocumentDatabase(DocumentDatabase):
         :return: Database collection to perform operations on the selected
         collection.
         """
-        return MongoDatabaseCollection(
-            self._db.get_collection(collection_name)
-        )
+        return MongoDatabaseCollection(self._db.get_collection(collection_name))

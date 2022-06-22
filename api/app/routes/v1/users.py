@@ -32,9 +32,7 @@ async def get_users(
     user_datastore: UserDatastore = Depends(get_user_datastore),
     take: int = Query(20),
     skip: int = Query(0),
-    user: UserDatabaseModel = Security(
-        get_current_user, scopes=("roles:superuser",)
-    ),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> PagingResponseModel[UserOutModel]:
     """
     Get list of users wrapped in a paging response object.
@@ -51,9 +49,7 @@ async def get_users(
 async def get_user(
     user_id: str = Path(...),
     user_datastore: UserDatastore = Depends(get_user_datastore),
-    user: UserDatabaseModel = Security(
-        get_current_user, scopes=("roles:superuser", "self:{user_id}")
-    ),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "self:{user_id}")),
     essentials: Essentials = Depends(get_essentials),
 ) -> UserOutModel:
     """Get user by id."""
@@ -69,9 +65,7 @@ async def get_user(
 async def delete_user(
     user_datastore: UserDatastore = Depends(get_user_datastore),
     user_id: str = Path(...),
-    user: UserDatabaseModel = Security(
-        get_current_user, scopes=("roles:superuser",)
-    ),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> None:
     """
     Delete a user.

@@ -36,12 +36,6 @@ class ContactOutModel(ContactListModel, BaseOutModel):
     """Model used when getting a single contact."""
 
     @classmethod
-    def from_database_model(
-        cls, model: ContactDatabaseModel, request: Request
-    ):
+    def from_database_model(cls, model: ContactDatabaseModel, request: Request):
         """Creates model instance from database model."""
-        return cls(
-            **model.dict(),
-            operations=[],
-            url=get_current_request_url_with_additions(request, (model.id,))
-        )
+        return cls(**model.dict(), operations=[], url=get_current_request_url_with_additions(request, (model.id,)))

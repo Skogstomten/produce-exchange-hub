@@ -35,7 +35,5 @@ def test_activate_company():
     result = target.activate_company(str(doc_id))
 
     db.collection.assert_called_with("companies")
-    collection.patch_document.assert_called_once_with(
-        str(doc_id), {"status": CompanyStatus.active}
-    )
+    collection.patch_document.assert_called_once_with(str(doc_id), {"status": CompanyStatus.active})
     assert result is not None

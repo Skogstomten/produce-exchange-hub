@@ -26,18 +26,14 @@ def get_target(collection):
 
 
 def configure_collection(collection, modified_count):
-    type(collection.update_one.return_value).modified_count = PropertyMock(
-        return_value=modified_count
-    )
+    type(collection.update_one.return_value).modified_count = PropertyMock(return_value=modified_count)
 
 
 def test_patch_document_document_found(collection):
     configure_collection(collection, 1)
 
     doc_id, target = get_target(collection)
-    target.patch_document(
-        doc_id, {"field_name": "new_value", "enum_val": CompanyStatus.active}
-    )
+    target.patch_document(doc_id, {"field_name": "new_value", "enum_val": CompanyStatus.active})
 
     collection.update_one.assert_called_once_with(
         {"_id": ObjectId(doc_id)},
@@ -57,7 +53,6 @@ def test_patch_document_document_not_found(collection):
     doc_id, target = get_target(collection)
     with pytest.raises(
         NotFoundError,
-        match=f"No document with key='{doc_id}' "
-        f"was found in collection='stuff'",
+        match=f"No document with key='{doc_id}' " f"was found in collection='stuff'",
     ):
         target.patch_document(doc_id, {"key": "value"})

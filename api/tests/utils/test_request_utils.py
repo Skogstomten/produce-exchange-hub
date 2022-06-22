@@ -22,9 +22,7 @@ def http_request():
     ],
 )
 def test_get_query_string(http_request, query_params, expected):
-    type(http_request).query_params = PropertyMock(
-        return_value=QueryParams(query_params)
-    )
+    type(http_request).query_params = PropertyMock(return_value=QueryParams(query_params))
     assert get_query_string(http_request) == expected
 
 

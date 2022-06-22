@@ -64,25 +64,19 @@ async def get_company(
 ) -> CompanyOutModel:
     """Get a company by id."""
     company = company_datastore.get_company(company_id)
-    return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request
-    )
+    return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request)
 
 
 @router.post("/", response_model=CompanyOutModel)
 async def add_company(
     company: CompanyCreateModel = Body(...),
-    user: UserDatabaseModel = Security(
-        get_current_user, scopes=("verified:True",)
-    ),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("verified:True",)),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
     """Add a new company."""
     company = company_datastore.add_company(company, user)
-    return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request
-    )
+    return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request)
 
 
 @router.put("/{company_id}", response_model=CompanyOutModel)
@@ -102,9 +96,7 @@ async def update_company(
     """Update a company."""
     print(user.email)
     company = company_datastore.update_company(company_id, company)
-    return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request
-    )
+    return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request)
 
 
 # noinspection PyUnusedLocal
@@ -116,12 +108,10 @@ async def activate_company(
         scopes=(
             "roles:superuser",
             "roles:company_admin:{company_id}",
-        )
+        ),
     ),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    essenties: Essentials = Depends(get_essentials)
+    essenties: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
     company = company_datastore.activate_company(company_id)
-    return CompanyOutModel.from_database_model(
-        company, essenties.language, essenties.timezone, essenties.request
-    )
+    return CompanyOutModel.from_database_model(company, essenties.language, essenties.timezone, essenties.request)

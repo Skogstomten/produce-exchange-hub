@@ -62,9 +62,7 @@ class UserOutModel(User, BaseOutModel):
         :return: New instance of UserOutModel.
         """
         return cls(
-            url=get_current_request_url_with_additions(
-                request, (str(model.id),), include_query=False
-            ),
+            url=get_current_request_url_with_additions(request, (str(model.id),), include_query=False),
             **model.dict(),
         )
 

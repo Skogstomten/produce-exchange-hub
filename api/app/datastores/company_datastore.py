@@ -127,9 +127,7 @@ class CompanyDatastore:
         """
         doc = self._companies.by_id(company_id)
         if doc is None:
-            raise NotFoundError(
-                f"No company with id '{company_id}' was found."
-            )
+            raise NotFoundError(f"No company with id '{company_id}' was found.")
         for key, value in company.dict().items():
             doc[key] = value
         doc = doc.replace(doc)
@@ -149,18 +147,14 @@ class CompanyDatastore:
         """
         doc = self._companies.by_id(company_id)
         if doc is None:
-            raise NotFoundError(
-                f"No company with id '{company_id}' was found."
-            )
+            raise NotFoundError(f"No company with id '{company_id}' was found.")
 
         company = CompanyDatabaseModel(**doc)
         company.contacts.append(model)
         doc.replace(company.dict())
         return model
 
-    def add_user_to_company(
-        self, company_id: str, role_name: str, user: UserDatabaseModel
-    ) -> list[UserDatabaseModel]:
+    def add_user_to_company(self, company_id: str, role_name: str, user: UserDatabaseModel) -> list[UserDatabaseModel]:
         """
         Adds user to company with role.
 
@@ -178,9 +172,7 @@ class CompanyDatastore:
 
     def activate_company(self, company_id: str) -> CompanyDatabaseModel:
         """Updates a companys status to active."""
-        self._companies.patch_document(
-            company_id, {"status": CompanyStatus.active}
-        )
+        self._companies.patch_document(company_id, {"status": CompanyStatus.active})
         return self.get_company(company_id)
 
 

@@ -79,9 +79,7 @@ class NotFoundError(HTTPException):
 
     def __init__(self, detail: str):
         """Creates new instance."""
-        super(NotFoundError, self).__init__(
-            status_code=status.HTTP_404_NOT_FOUND, detail=detail
-        )
+        super(NotFoundError, self).__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
 
 
 class UnauthorizedError(HTTPException):
@@ -108,7 +106,5 @@ class UnsupportedTimezoneError(HTTPException):
         """Creates UnsupportedTimezoneError."""
         super(UnsupportedTimezoneError, self).__init__(
             status_code=400,
-            detail=f"Timezone '{timezone}' is not supported. "
-            f"List of available timezones can be found here: "
-            f"",
+            detail=f"Timezone '{timezone}' is not supported. " f"List of available timezones can be found here: " f"",
         )

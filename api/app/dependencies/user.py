@@ -13,9 +13,7 @@ from .auth import OAUTH2_SCHEME_OPTIONAL, SECRET_KEY, ALGORITHM
 from ..utils.str_utils import remove_brackets
 
 
-def _append_ref_if_any(
-    current_val: str, parts: list[str], i: int, request: Request
-) -> str:
+def _append_ref_if_any(current_val: str, parts: list[str], i: int, request: Request) -> str:
     """Appends the ref from selected index to value if there is a ref."""
     ref = None
     try:
@@ -61,9 +59,7 @@ class SecurityScopeRestrictions:
             if claim_type == "verified":
                 self._verified = parts[1].lower() == "true"
             if claim_type == "self":
-                self._roles.append(
-                    _append_ref_if_any(claim_type, parts, 1, request)
-                )
+                self._roles.append(_append_ref_if_any(claim_type, parts, 1, request))
 
     def user_has_required_roles(self, token: TokenData) -> bool:
         """
@@ -149,13 +145,10 @@ def get_current_user_if_any(
             headers={"WWW-Authenticate": authenticate_value},
         )
     if not user_has_access(security_scopes, request, token_data, user):
-        request_url: str = get_current_request_url_with_additions(
-            request, include_query=False
-        )
+        request_url: str = get_current_request_url_with_additions(request, include_query=False)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User is not authorized to access endpoint "
-            f"'{request_url}'",
+            detail="User is not authorized to access endpoint " f"'{request_url}'",
             headers={"WWW-Authenticate": authenticate_value},
         )
     return user
@@ -197,18 +190,14 @@ def user_has_access(
     otherwise False
     """
     print("Checking if user has access")
-    security_scope_restrictions = SecurityScopeRestrictions(
-        security_scopes, request, authenticated_user
-    )
+    security_scope_restrictions = SecurityScopeRestrictions(security_scopes, request, authenticated_user)
     if security_scope_restrictions.user_has_required_roles(token):
         if security_scope_restrictions.check_verified(token):
             return True
     return False
 
 
-def _ensure_correct_scopes_format(
-    scope: str, parts: list[str], request: Request
-) -> None:
+def _ensure_correct_scopes_format(scope: str, parts: list[str], request: Request) -> None:
     """
     Verifies that the scope restriction is formatted correctly.
     :raises HTTPException: 500 Internal Server Error if scope restriction has
@@ -221,6 +210,5 @@ def _ensure_correct_scopes_format(
     if len(parts) not in (2, 3):
         raise HTTPException(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
-            f"endpoint '{str(request.url)}' "
-            f"has invalid security claim setup: '{scope}'",
+            f"endpoint '{str(request.url)}' " f"has invalid security claim setup: '{scope}'",
         )
