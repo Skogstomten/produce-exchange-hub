@@ -25,11 +25,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8
         pip install pytest
-        pip install pytest-cov
         pip install -r api/requirements.txt
     - name: Analysing the code with flake8
       run: |
         flake8 api/ --max-line-length=79 --extend-ignore=F403,W293
     - name: Run tests
       run: |
-        pytest api/ --doctest-modules --cov-report=html --cov=app
+        pytest api/ --doctest-modules
