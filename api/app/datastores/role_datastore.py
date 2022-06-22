@@ -64,9 +64,7 @@ class RoleDatastore:
         """
         collection = self.db.collection("roles")
         if collection.exists({"name": model.name}):
-            raise DuplicateError(
-                f"Role with name '{model.name}' already exists"
-            )
+            raise DuplicateError(f"Role with name '{model.name}' already exists")
         doc = collection.add(model.dict())
         return RoleDatabaseModel(id=doc.id, **doc.to_dict())
 

@@ -18,8 +18,7 @@ from .utils.request_utils import get_url
 
 app = FastAPI(
     title="Produce Exchange Hub Api",
-    description="Has all the business logic for the Produce Exchange Hub Web "
-    "App",
+    description="Has all the business logic for the Produce Exchange Hub Web " "App",
 )
 
 app.include_router(users.router)
@@ -49,13 +48,9 @@ def base_exception_handler(request: Request, err: Exception):
     if isinstance(err, HTTPException):
         return JSONResponse(
             status_code=err.status_code,
-            content=ErrorModel(
-                err.status_code, err.detail, get_url(request)
-            ).dict(),
+            content=ErrorModel(err.status_code, err.detail, get_url(request)).dict(),
         )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=ErrorModel(
-            status.HTTP_500_INTERNAL_SERVER_ERROR, str(err), get_url(request)
-        ).dict(),
+        content=ErrorModel(status.HTTP_500_INTERNAL_SERVER_ERROR, str(err), get_url(request)).dict(),
     )

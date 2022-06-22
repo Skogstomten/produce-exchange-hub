@@ -33,9 +33,7 @@ async def token(
     :param user_datastore: for accessing user database.
     :return: Token
     """
-    user = user_datastore.authenticate_user(
-        form_data.username, form_data.password
-    )
+    user = user_datastore.authenticate_user(form_data.username, form_data.password)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     scopes = Scopes(form_data.scopes)
     claims = get_user_claims(user, scopes)
@@ -77,9 +75,7 @@ def get_user_claims(user: UserDatabaseModel, scopes: Scopes) -> list[Claim]:
     return claims
 
 
-def create_access_token(
-    data: dict, expires_delta: timedelta | None = None
-) -> str:
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """
     Creates jwt encoded oauth2 access token.
     :param data: Data to put in token.

@@ -39,7 +39,5 @@ def add_contact(
     :return:
     """
     print(user.email)
-    contact = companies.add_contact_to_company(
-        company_id, model.to_database_model()
-    )
+    contact = companies.add_contact_to_company(company_id, model.to_database_model())
     return ContactOutModel.from_database_model(contact, request)

@@ -133,9 +133,7 @@ class DocumentCollection(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def sort(
-        self, sort_by: str | None, sort_order: str | None
-    ) -> "DocumentCollection":
+    def sort(self, sort_by: str | None, sort_order: str | None) -> "DocumentCollection":
         """
         Sort the documents in the cursor.
         :param sort_by: field to sort by.
@@ -198,6 +196,24 @@ class DatabaseCollection(metaclass=ABCMeta):
         Add a document to the collection.
         :param data: The data to put in the document.
         :return: The created document.
+        """
+
+    @abstractmethod
+    def patch_document(self, doc_id: str, updates: dict[str, Any]) -> None:
+        """
+        Updates the specified fields for document with given id.
+        :param doc_id:
+
+        :param updates:
+        fields_to_update = {
+            "field_name": var_with_value,
+            "sub_doc.sub_doc_field_name": whatever_thing_that_has,
+        }
+
+        :return: None
+
+        :raise app.errors.NotFoundError:
+        If there's no document with the given key
         """
 
 

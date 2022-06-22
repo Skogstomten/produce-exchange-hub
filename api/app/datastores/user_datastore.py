@@ -64,9 +64,7 @@ class UserDatastore:
             result.append(UserDatabaseModel(**doc))
         return result
 
-    def get_users_with_role(
-        self, role_name: str, reference: str | None = None
-    ) -> list[UserDatabaseModel]:
+    def get_users_with_role(self, role_name: str, reference: str | None = None) -> list[UserDatabaseModel]:
         """
         Get users with specific role.
         :param role_name: Role name.
@@ -96,9 +94,7 @@ class UserDatastore:
         docs = self._users.get(filters).to_list()
         return [UserDatabaseModel(**doc) for doc in docs]
 
-    def get_user_by_id(
-        self, user_id: str, current_user: UserDatabaseModel
-    ) -> UserDatabaseModel:
+    def get_user_by_id(self, user_id: str, current_user: UserDatabaseModel) -> UserDatabaseModel:
         """
         Get user by user id.
         :raise NotFoundError: If no user with id is found
@@ -132,14 +128,10 @@ class UserDatastore:
         :return: UserDatabaseModel for new user.
         """
         if self._users.exists({"email": user.email}):
-            raise DuplicateError(
-                "There's already a user registered with this e-mail address"
-            )
+            raise DuplicateError("There's already a user registered with this e-mail address")
 
         new_user = UserAdd(
-            password_hash=hasher.hash_password(
-                user.password, hasher.generate_salt()
-            ),
+            password_hash=hasher.hash_password(user.password, hasher.generate_salt()),
             created=datetime.now(pytz.utc),
             **user.dict(),
         )
@@ -158,9 +150,7 @@ class UserDatastore:
             raise NotFoundError(f"No user with id '{user_id}' was found")
         doc.delete()
 
-    def authenticate_user(
-        self, email: str, password: str
-    ) -> UserDatabaseModel:
+    def authenticate_user(self, email: str, password: str) -> UserDatabaseModel:
         """
         Authenticate that provided username and password matches stored.
         :raise InvalidUsernameOrPasswordError: If user can't be found with

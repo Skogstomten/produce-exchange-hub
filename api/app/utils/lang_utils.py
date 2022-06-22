@@ -4,9 +4,7 @@ Utility functions related to language handling.
 from ..models.v1.shared import Language
 
 
-def select_localized_text(
-    data: dict[str, str], lang: Language, company_languages: list[str]
-) -> str:
+def select_localized_text(data: dict[str, str], lang: Language, company_languages: list[str]) -> str:
     """
     Selects localized text from dict for given language or first available
     of company's languages if the requested

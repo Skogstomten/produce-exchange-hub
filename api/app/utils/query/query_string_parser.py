@@ -43,9 +43,7 @@ class QueryStringParser(Iterable[QueryParameter], ABC):
                         str_values = StringValues()
                     else:
                         str_values = StringValues(value)
-                    self.query_parameters.update(
-                        {key: QueryParameter(key, str_values)}
-                    )
+                    self.query_parameters.update({key: QueryParameter(key, str_values)})
 
     def __iter__(self):
         """

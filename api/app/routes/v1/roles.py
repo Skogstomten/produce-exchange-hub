@@ -14,9 +14,7 @@ router = APIRouter(prefix="/v1/{lang}/roles", tags=["Roles"])
 @router.get("/", response_model=list[RoleOutModel])
 async def get_roles(
     role_datastore: RoleDatastore = Depends(get_role_datastore),
-    user: UserDatabaseModel = Security(
-        get_current_user, scopes=("roles:superuser",)
-    ),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> list[RoleOutModel]:
     """
     Gets a list of all roles.
@@ -36,9 +34,7 @@ async def get_roles(
 async def add_role(
     roles_datastore: RoleDatastore = Depends(get_role_datastore),
     body: NewRoleModel = Body(...),
-    user: UserDatabaseModel = Security(
-        get_current_user, scopes=("roles:superuser",)
-    ),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> RoleOutModel:
     """
     Adds new role.

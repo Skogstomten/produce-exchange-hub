@@ -38,9 +38,7 @@ async def add_role_to_user(
     user_datastore: UserDatastore = Depends(get_user_datastore),
     user_id: str = Path(...),
     role_name: str = Path(...),
-    user: UserDatabaseModel = Security(
-        get_current_user, scopes=("roles:superuser",)
-    ),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> UserOutModel:
     """
     Adds a role to a user.

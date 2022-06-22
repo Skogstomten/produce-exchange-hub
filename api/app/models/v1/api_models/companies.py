@@ -49,27 +49,19 @@ class CompanyOutListModel(BaseOutModel):
 
         activation_date = model.activation_date
         if activation_date is not None:
-            activation_date = ensure_utc(activation_date).astimezone(
-                pytz.timezone(timezone)
-            )
+            activation_date = ensure_utc(activation_date).astimezone(pytz.timezone(timezone))
 
         return cls(
             url=get_current_request_url_with_additions(request),
             operations=operations,
             id=model.id,
-            name=select_localized_text(
-                model.name, lang, model.content_languages_iso
-            ),
+            name=select_localized_text(model.name, lang, model.content_languages_iso),
             status=model.status,
-            created_date=ensure_utc(model.created_date).astimezone(
-                pytz.timezone(timezone)
-            ),
+            created_date=ensure_utc(model.created_date).astimezone(pytz.timezone(timezone)),
             company_types=model.company_types,
             content_languages_iso=model.content_languages_iso,
             activation_date=activation_date,
-            description=select_localized_text(
-                model.description, lang, model.content_languages_iso
-            ),
+            description=select_localized_text(model.description, lang, model.content_languages_iso),
             external_website_url=model.external_website_url,
         )
 
@@ -92,27 +84,19 @@ class CompanyOutModel(CompanyOutListModel):
 
         activation_date = model.activation_date
         if activation_date is not None:
-            activation_date = ensure_utc(activation_date).astimezone(
-                pytz.timezone(timezone)
-            )
+            activation_date = ensure_utc(activation_date).astimezone(pytz.timezone(timezone))
 
         return cls(
             url=get_current_request_url_with_additions(request),
             operations=operations,
             id=model.id,
-            name=select_localized_text(
-                model.name, lang, model.content_languages_iso
-            ),
+            name=select_localized_text(model.name, lang, model.content_languages_iso),
             status=model.status,
-            created_date=ensure_utc(model.created_date).astimezone(
-                pytz.timezone(timezone)
-            ),
+            created_date=ensure_utc(model.created_date).astimezone(pytz.timezone(timezone)),
             company_types=model.company_types,
             content_languages_iso=model.content_languages_iso,
             activation_date=activation_date,
-            description=select_localized_text(
-                model.description, lang, model.content_languages_iso
-            ),
+            description=select_localized_text(model.description, lang, model.content_languages_iso),
             external_website_url=model.external_website_url,
             contacts=model.contacts,
         )
@@ -123,9 +107,7 @@ class CompanyCreateModel(BaseModel):
 
     name: dict[str, str]
     company_types: list[CompanyTypes] = Field(..., min_items=1)
-    content_languages_iso: list[str] = Field(
-        ..., min_length=2, max_length=2, min_items=1
-    )
+    content_languages_iso: list[str] = Field(..., min_length=2, max_length=2, min_items=1)
     external_website_url: str | None
 
 
@@ -135,8 +117,6 @@ class CompanyUpdateModel(BaseModel):
     name: dict[str, str]
     status: CompanyStatus = Field(...)
     company_types: list[CompanyTypes] = Field(..., min_items=1)
-    content_languages_iso: list[str] = Field(
-        ..., min_length=2, max_length=2, min_items=1
-    )
+    content_languages_iso: list[str] = Field(..., min_length=2, max_length=2, min_items=1)
     description: dict[str, str] = Field({})
     external_website_url: str | None

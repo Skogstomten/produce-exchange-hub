@@ -8,8 +8,10 @@ from pytz import utc
 from fastapi import Depends
 
 from app.models.v1.shared import SortOrder, CompanyStatus
-from app.models.v1.api_models.companies import CompanyCreateModel, \
-    CompanyUpdateModel
+from app.models.v1.api_models.companies import (
+    CompanyCreateModel,
+    CompanyUpdateModel,
+)
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.database_models.contact_database_model import (
     ContactDatabaseModel,
@@ -125,9 +127,7 @@ class CompanyDatastore:
         """
         doc = self._companies.by_id(company_id)
         if doc is None:
-            raise NotFoundError(
-                f"No company with id '{company_id}' was found."
-            )
+            raise NotFoundError(f"No company with id '{company_id}' was found.")
         for key, value in company.dict().items():
             doc[key] = value
         doc = doc.replace(doc)
@@ -147,18 +147,14 @@ class CompanyDatastore:
         """
         doc = self._companies.by_id(company_id)
         if doc is None:
-            raise NotFoundError(
-                f"No company with id '{company_id}' was found."
-            )
+            raise NotFoundError(f"No company with id '{company_id}' was found.")
 
         company = CompanyDatabaseModel(**doc)
         company.contacts.append(model)
         doc.replace(company.dict())
         return model
 
-    def add_user_to_company(
-        self, company_id: str, role_name: str, user: UserDatabaseModel
-    ) -> list[UserDatabaseModel]:
+    def add_user_to_company(self, company_id: str, role_name: str, user: UserDatabaseModel) -> list[UserDatabaseModel]:
         """
         Adds user to company with role.
 
@@ -173,6 +169,11 @@ class CompanyDatastore:
         """
         self.users.add_role_to_user(user.id, role_name, company_id)
         return self.users.get_company_users(company_id)
+
+    def activate_company(self, company_id: str) -> CompanyDatabaseModel:
+        """Updates a companys status to active."""
+        self._companies.patch_document(company_id, {"status": CompanyStatus.active})
+        return self.get_company(company_id)
 
 
 def get_company_datastore(
