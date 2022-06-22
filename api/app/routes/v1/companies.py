@@ -105,3 +105,23 @@ async def update_company(
     return CompanyOutModel.from_database_model(
         company, essentials.language, essentials.timezone, essentials.request
     )
+
+
+# noinspection PyUnusedLocal
+@router.put("/{company_id}/activate", response_model=CompanyOutModel)
+async def activate_company(
+    company_id: str = Path(...),
+    user: UserDatabaseModel = Security(
+        get_current_user,
+        scopes=(
+            "roles:superuser",
+            "roles:company_admin:{company_id}",
+        )
+    ),
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    essenties: Essentials = Depends(get_essentials)
+) -> CompanyOutModel:
+    company = company_datastore.activate_company(company_id)
+    return CompanyOutModel.from_database_model(
+        company, essenties.language, essenties.timezone, essenties.request
+    )
