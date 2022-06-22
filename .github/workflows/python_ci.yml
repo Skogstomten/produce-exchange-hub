@@ -28,7 +28,7 @@ jobs:
         pip install -r api/requirements.txt
     - name: Analysing the code with flake8
       run: |
-        flake8 api/ --max-line-length=79 --extend-ignore=F403,W293
+        flake8 api/ --max-line-length=121 --extend-ignore=F403,W293
     - name: Run tests
       run: |
         pytest api/ --doctest-modules
