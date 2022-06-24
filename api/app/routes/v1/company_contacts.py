@@ -29,15 +29,6 @@ def add_contact(
     companies: CompanyDatastore = Depends(get_company_datastore),
     user: UserDatabaseModel = Depends(get_current_user),
 ) -> ContactOutModel:
-    """
-    Add a contact to a company.
-    :param request: http request object.
-    :param company_id: id of the company to add the contact too.
-    :param model:
-    :param companies:
-    :param user:
-    :return:
-    """
-    print(user.email)
+    """Add a contact to a company."""
     contact = companies.add_contact_to_company(company_id, model.to_database_model())
     return ContactOutModel.from_database_model(contact, request)

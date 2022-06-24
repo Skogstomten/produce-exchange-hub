@@ -110,7 +110,7 @@ class CompanyDatastore:
             }
         )
         doc = self._companies.add(datum)
-        self.add_user_to_company(doc.id, "company_admin", user)
+        self.add_user_to_company(doc.id, "company_admin", user.id)
         return CompanyDatabaseModel(**doc)
 
     def update_company(
@@ -121,7 +121,7 @@ class CompanyDatastore:
         """
         Updates a company with given model.
         :raise NotFoundError: If company with id is not found.
-        :param company_id: Id of company to update.
+        :param company_id: ID of company to update.
         :param company: The data to update.
         :return: CompanyDatabaseModel. The updated company.
         """
@@ -154,7 +154,9 @@ class CompanyDatastore:
         doc.replace(company.dict())
         return model
 
-    def add_user_to_company(self, company_id: str, role_name: str, user: UserDatabaseModel) -> list[UserDatabaseModel]:
+    def add_user_to_company(
+        self, company_id: str, role_name: str, user_id: str, authenticated_user: UserDatabaseModel
+    ) -> list[UserDatabaseModel]:
         """
         Adds user to company with role.
 
@@ -164,10 +166,11 @@ class CompanyDatastore:
 
         :param company_id: ID of company to add user to.
         :param role_name: Name of role to give the user.
-        :param user: The user.
+        :param user_id: ID of user to receive the role.
+        :param authenticated_user: User performing operation.
         :return:
         """
-        self.users.add_role_to_user(user.id, role_name, company_id)
+        self.users.add_role_to_user(user_id, role_name, company_id)
         return self.users.get_company_users(company_id)
 
     def activate_company(self, company_id: str) -> CompanyDatabaseModel:

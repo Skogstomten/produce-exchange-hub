@@ -27,12 +27,7 @@ async def token(
     form_data: OAuth2PasswordRequestFormStrict = Depends(),
     user_datastore: UserDatastore = Depends(get_user_datastore),
 ) -> Token:
-    """
-    Gets oauth2 access token.
-    :param form_data: url encoded form data with user credentials.
-    :param user_datastore: for accessing user database.
-    :return: Token
-    """
+    """Gets oauth2 access token."""
     user = user_datastore.authenticate_user(form_data.username, form_data.password)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     scopes = Scopes(form_data.scopes)
