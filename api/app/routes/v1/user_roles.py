@@ -17,14 +17,7 @@ async def get_user_roles(
     user_id: str = Path(...),
     user: UserDatabaseModel = Depends(get_current_user),
 ) -> list[UserRoleOutModel]:
-    """
-    Get roles on user.
-    :param user_datastore: For accessing user database.
-    :param user_id: Id of user to get roles for.
-    :param user: Current authenticated user for authorization.
-    :return: list of UserRoleOutModel.
-    """
-    print(f"User {user.email} is accessing user roles for user {user_id}")
+    """Get roles on user."""
     roles = user_datastore.get_user_roles(user_id)
     items: list[UserRoleOutModel] = []
     for role in roles:
@@ -40,15 +33,6 @@ async def add_role_to_user(
     role_name: str = Path(...),
     user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> UserOutModel:
-    """
-    Adds a role to a user.
-    :param request: http request.
-    :param user_datastore: user database access.
-    :param user_id: user id of user to add role to.
-    :param role_name: name of role to add.
-    :param user: Current authenticated user for authorization.
-    :return: Updated user.
-    """
-    print(f"User {user.email} adding role {role_name} to user {user_id}")
+    """Adds a role to a user."""
     user = user_datastore.add_role_to_user(user_id, role_name)
     return UserOutModel.from_database_model(user, request)

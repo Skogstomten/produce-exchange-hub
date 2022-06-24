@@ -138,11 +138,12 @@ class UserDatastore:
         doc = self._users.add(new_user.dict())
         return UserDatabaseModel(**doc)
 
-    def delete_user(self, user_id: str) -> None:
+    def delete_user(self, user_id: str, authenticated_user: UserDatabaseModel) -> None:
         """
         Delete user.
         :raise NotFoundError: If user with id doesn't exist.
         :param user_id: ID of user.
+        :param authenticated_user: User performing operation.
         :return: None.
         """
         doc: Document = self._users.by_id(user_id)

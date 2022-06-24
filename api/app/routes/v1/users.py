@@ -34,10 +34,7 @@ async def get_users(
     skip: int = Query(0),
     user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> PagingResponseModel[UserOutModel]:
-    """
-    Get list of users wrapped in a paging response object.
-    """
-    print(f"User {user.email} is accessing roles.")
+    """Get list of users wrapped in a paging response object."""
     all_users = user_datastore.get_users(take, skip)
     items: list[UserOutModel] = []
     for usr in all_users:
@@ -67,8 +64,5 @@ async def delete_user(
     user_id: str = Path(...),
     user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> None:
-    """
-    Delete a user.
-    """
-    print(f"User {user.email} is deleting user {user_id}")
-    user_datastore.delete_user(user_id)
+    """Delete a user."""
+    user_datastore.delete_user(user_id, user)

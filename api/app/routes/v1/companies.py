@@ -94,12 +94,10 @@ async def update_company(
     essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
     """Update a company."""
-    print(user.email)
     company = company_datastore.update_company(company_id, company)
     return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request)
 
 
-# noinspection PyUnusedLocal
 @router.put("/{company_id}/activate", response_model=CompanyOutModel)
 async def activate_company(
     company_id: str = Path(...),
@@ -113,5 +111,6 @@ async def activate_company(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essenties: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
+    """Activates new company."""
     company = company_datastore.activate_company(company_id)
     return CompanyOutModel.from_database_model(company, essenties.language, essenties.timezone, essenties.request)

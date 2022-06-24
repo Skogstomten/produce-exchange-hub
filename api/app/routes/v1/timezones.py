@@ -11,9 +11,7 @@ router = APIRouter(prefix="/v1/{lang}/timezones", tags=["Timezones"])
 @router.get("/", response_model=list[str])
 async def get_timezones() -> list[str]:
     """
-    Kind of pointless endpoint but it's mainly here for the UI to be able to
-    get the available timezones instead of having to hardcode
-    in the web application or something like that.
-    :return: list of str with timezone names.
+    Kind of pointless endpoint but it's mainly here for the UI to be able to get the available timezones instead of
+    having to hardcode in the web application or something like that.
     """
     return all_timezones
