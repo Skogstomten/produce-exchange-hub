@@ -36,7 +36,7 @@ python -m venv venv
 ```
 - Install dependencies
 ```
-pip install -r requirements.test.txt
+pip install -r requirements.dev.txt
 ```
 
 ## Start
@@ -47,3 +47,10 @@ uvicorn app.main:app --reload
 ```
 - Open web project in Visual Studio
 - Start debugger with F5
+
+## Formatting API
+Black is being used for formatting with a line lenght of 121. While in active virtual environment with dev requirements loaded, run:
+```
+black app --line-length=121
+black tests --line-length=121
+```
