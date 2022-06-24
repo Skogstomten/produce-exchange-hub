@@ -1,7 +1,7 @@
 """
 Routing module for company contacts.
 """
-from fastapi import APIRouter, Path, Body, Request, Depends
+from fastapi import APIRouter, Path, Body, Request, Depends, Security
 
 from app.dependencies.user import get_current_user
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
@@ -27,7 +27,7 @@ def add_contact(
     company_id: str = Path(...),
     model: CreateContactModel = Body(...),
     companies: CompanyDatastore = Depends(get_company_datastore),
-    user: UserDatabaseModel = Depends(get_current_user),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
 ) -> ContactOutModel:
     """Add a contact to a company."""
     contact = companies.add_contact_to_company(company_id, model.to_database_model())
