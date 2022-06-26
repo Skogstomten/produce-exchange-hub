@@ -1,9 +1,11 @@
 """Main file for application."""
+
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
 
+from .dependencies.log import AppLogger
 from .errors import ErrorModel
 from .routes.v1 import (
     companies,
@@ -16,6 +18,9 @@ from .routes.v1 import (
     company_users,
 )
 from .utils.request_utils import get_url
+
+logger = AppLogger("main")
+logger.info("Application Starting...")
 
 app = FastAPI(
     title="Produce Exchange Hub Api",
@@ -56,3 +61,19 @@ def base_exception_handler(request: Request, err: Exception):
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content=ErrorModel(status.HTTP_500_INTERNAL_SERVER_ERROR, str(err), get_url(request)).dict(),
     )
+
+
+# @app.middleware("http")
+# async def sla_log(request: Request, call_next):
+#     """
+#     Logs sla log.
+#     :param request: HTTP request.
+#     :param call_next: Next call to make.
+#     """
+#     start_time = datetime.now()
+#     call_start = datetime.now(utc)
+#     response: Response = await call_next(request)
+#     if response.status_code not in(307, 308):
+#         time_delta = datetime.now() - start_time
+#         call_end = datetime.now(utc)
+#     return response

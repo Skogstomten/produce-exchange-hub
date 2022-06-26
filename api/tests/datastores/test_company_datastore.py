@@ -1,3 +1,4 @@
+"""Tests for CompanyDatastore class."""
 from datetime import datetime
 from unittest.mock import Mock
 
@@ -11,6 +12,7 @@ from app.database.document_database import (
 from app.database.mongo.mongo_document_database import MongoDocument
 from app.datastores.company_datastore import CompanyDatastore
 from app.datastores.user_datastore import UserDatastore
+from app.dependencies.log import AppLogger
 from app.models.v1.shared import CompanyStatus
 
 
@@ -30,8 +32,9 @@ def test_activate_company():
     db = Mock(DocumentDatabase)
     db.collection.return_value = collection
     user_datastore = Mock(UserDatastore)
+    logger = Mock(AppLogger)
 
-    target = CompanyDatastore(db, user_datastore)
+    target = CompanyDatastore(db, user_datastore, logger)
     result = target.activate_company(str(doc_id))
 
     db.collection.assert_called_with("companies")
