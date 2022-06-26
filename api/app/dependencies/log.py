@@ -1,35 +1,39 @@
 """Dependencies for logging"""
+import functools
 from abc import ABCMeta
-from datetime import datetime
 from logging import DEBUG, StreamHandler, getLogger, Formatter, Handler
 from logging.handlers import TimedRotatingFileHandler
 from typing import Any, Callable
 
-from starlette.requests import Request
-from starlette.responses import Response
-
-from app.dependencies.datetime import DATE_FORMAT
-from app.utils.http_helper import is_successfull
-from app.utils.request_utils import get_url
-
 LOG_LEVEL = DEBUG
 LOG_FILE_PATH = "C:/logs/produce_exchange_hub.log"
-SLA_LOG_FILE_PATH = "C:/logs/produce_exchange_hub.sla.log"
+# SLA_LOG_FILE_PATH = "C:/logs/produce_exchange_hub.sla.log"
 
 DEFAULT_FORMATTER = Formatter("%(asctime)s|%(levelname)s|%(threadName)s|%(name)s|%(message)s")
-SLA_FORMATTER = Formatter("%(asctime)s|%(levelname)s|%(threadName)s|%(name)s|%(message)s")
+# SLA_FORMATTER = Formatter("%(asctime)s|%(levelname)s|%(threadName)s|%(name)s|%(message)s")
 
-file_handler = TimedRotatingFileHandler(LOG_FILE_PATH, "midnight", 1, 5, "utf8", False, True)
-file_handler.setLevel(LOG_LEVEL)
-file_handler.setFormatter(DEFAULT_FORMATTER)
 
-console_handler = StreamHandler()
-console_handler.setLevel(LOG_LEVEL)
-console_handler.setFormatter(DEFAULT_FORMATTER)
+@functools.lru_cache(None)
+def get_file_handler():
+    """Injection method for file handler for logger."""
+    file_handler = TimedRotatingFileHandler(LOG_FILE_PATH, "midnight", 1, 5, "utf8", False, True)
+    file_handler.setLevel(LOG_LEVEL)
+    file_handler.setFormatter(DEFAULT_FORMATTER)
+    return file_handler
 
-sla_handler = TimedRotatingFileHandler(SLA_LOG_FILE_PATH, "midnight", 1, 5, "utf8", False, True)
-sla_handler.setLevel(LOG_LEVEL)
-sla_handler.setFormatter(SLA_FORMATTER)
+
+@functools.lru_cache(None)
+def get_console_handler():
+    """Injection method for console handler for logger."""
+    console_handler = StreamHandler()
+    console_handler.setLevel(LOG_LEVEL)
+    console_handler.setFormatter(DEFAULT_FORMATTER)
+    return console_handler
+
+
+# sla_handler = TimedRotatingFileHandler(SLA_LOG_FILE_PATH, "midnight", 1, 5, "utf8", False, True)
+# sla_handler.setLevel(LOG_LEVEL)
+# sla_handler.setFormatter(SLA_FORMATTER)
 
 
 def _log(log_function: Callable, message: Any, exception: Exception = None) -> None:
@@ -77,42 +81,42 @@ class AppLogger(BaseLogger):
     """Standard logger for logging debug, info, warning and error information"""
 
     def __init__(self, logger_name: str):
-        super().__init__(logger_name, LOG_LEVEL, [console_handler, file_handler])
+        super().__init__(logger_name, LOG_LEVEL, [get_console_handler(), get_file_handler()])
 
 
-class SLALogger(BaseLogger):
-    """Used for logging to SLA log"""
-
-    def __init__(self):
-        super().__init__("sla", LOG_LEVEL, [sla_handler])
-
-    def log_sla(
-        self,
-        call_start_time: datetime,
-        call_end_time: datetime,
-        request: Request,
-        response: Response | None = None,
-        exception: BaseException | None = None,
-    ) -> None:
-        """Logs call to sla log."""
-        time_delta = call_end_time - call_start_time
-        call_status = "OK" if exception is None else "FAILED"
-        http_status = response.status_code if response is not None else "NoResponse"
-        detail = "None"
-        if response is not None:
-            if not is_successfull(response.status_code):
-                if response.body is not None:
-                    pass
-
-        message = f"{get_url(request)}"
-        message += f"|{time_delta.microseconds}"
-        message += f"|{call_start_time.strftime(DATE_FORMAT)}"
-        message += f"|{call_end_time.strftime(DATE_FORMAT)}"
-        message += f"|{call_status}"
-        message += f"|{http_status}"
-        message += f"|{detail}"
-
-        _log(self.logger.info, message)
+# class SLALogger(BaseLogger):
+#     """Used for logging to SLA log"""
+#
+#     def __init__(self):
+#         super().__init__("sla", LOG_LEVEL, [sla_handler])
+#
+#     def log_sla(
+#         self,
+#         call_start_time: datetime,
+#         call_end_time: datetime,
+#         request: Request,
+#         response: Response | None = None,
+#         exception: BaseException | None = None,
+#     ) -> None:
+#         """Logs call to sla log."""
+#         time_delta = call_end_time - call_start_time
+#         call_status = "OK" if exception is None else "FAILED"
+#         http_status = response.status_code if response is not None else "NoResponse"
+#         detail = "None"
+#         if response is not None:
+#             if not is_successfull(response.status_code):
+#                 if response.body is not None:
+#                     pass
+#
+#         message = f"{get_url(request)}"
+#         message += f"|{time_delta.microseconds}"
+#         message += f"|{call_start_time.strftime(DATE_FORMAT)}"
+#         message += f"|{call_end_time.strftime(DATE_FORMAT)}"
+#         message += f"|{call_status}"
+#         message += f"|{http_status}"
+#         message += f"|{detail}"
+#
+#         _log(self.logger.info, message)
 
 
 class AppLoggerInjector:
