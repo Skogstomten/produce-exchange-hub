@@ -14,21 +14,29 @@ DEFAULT_FORMATTER = Formatter("%(asctime)s|%(levelname)s|%(threadName)s|%(name)s
 
 
 @functools.lru_cache(None)
-def get_file_handler():
+def get_file_handler() -> Handler | None:
     """Injection method for file handler for logger."""
-    file_handler = TimedRotatingFileHandler(LOG_FILE_PATH, "midnight", 1, 5, "utf8", False, True)
-    file_handler.setLevel(LOG_LEVEL)
-    file_handler.setFormatter(DEFAULT_FORMATTER)
-    return file_handler
+    try:
+        file_handler = TimedRotatingFileHandler(LOG_FILE_PATH, "midnight", 1, 5, "utf8", False, True)
+        file_handler.setLevel(LOG_LEVEL)
+        file_handler.setFormatter(DEFAULT_FORMATTER)
+        return file_handler
+    except Exception as err:
+        print(f"Failed to create logging file handler: {str(err)}")
+    return None
 
 
 @functools.lru_cache(None)
-def get_console_handler():
+def get_console_handler() -> Handler | None:
     """Injection method for console handler for logger."""
-    console_handler = StreamHandler()
-    console_handler.setLevel(LOG_LEVEL)
-    console_handler.setFormatter(DEFAULT_FORMATTER)
-    return console_handler
+    try:
+        console_handler = StreamHandler()
+        console_handler.setLevel(LOG_LEVEL)
+        console_handler.setFormatter(DEFAULT_FORMATTER)
+        return console_handler
+    except Exception as err:
+        print(f"Failed to create logging console handler: {str(err)}")
+    return None
 
 
 # sla_handler = TimedRotatingFileHandler(SLA_LOG_FILE_PATH, "midnight", 1, 5, "utf8", False, True)
@@ -51,7 +59,7 @@ class BaseLogger(metaclass=ABCMeta):
     def __init__(self, logger_name: str, log_level: int, handlers: list[Handler]):
         self.logger = getLogger(logger_name)
         self.logger.setLevel(log_level)
-        for handler in handlers:
+        for handler in (h for h in handlers if h is not None):
             self.logger.addHandler(handler)
 
     def debug(self, message: Any, exception: Exception = None) -> None:
