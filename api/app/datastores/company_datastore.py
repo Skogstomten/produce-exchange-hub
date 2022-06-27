@@ -22,7 +22,10 @@ from app.models.v1.database_models.company_database_model import (
 from app.database.document_database import DocumentDatabase, DatabaseCollection
 from app.dependencies.document_database import get_document_database
 from .user_datastore import UserDatastore, get_user_datastore
+from ..dependencies.log import AppLoggerInjector, AppLogger
 from ..errors import NotFoundError
+
+logger_injector = AppLoggerInjector("company_datastore")
 
 
 class CompanyDatastore:
@@ -31,7 +34,7 @@ class CompanyDatastore:
     db: DocumentDatabase
     users: UserDatastore
 
-    def __init__(self, db: DocumentDatabase, users: UserDatastore):
+    def __init__(self, db: DocumentDatabase, users: UserDatastore, logger: AppLogger):
         """
         Initializes the datastore with a reference to the document db.
         :param db: document db instance.
@@ -39,6 +42,7 @@ class CompanyDatastore:
         """
         self.db = db
         self.users = users
+        self.logger = logger
 
     @property
     def _companies(self) -> DatabaseCollection:
@@ -63,6 +67,9 @@ class CompanyDatastore:
         :param sort_order: asc or desc.
         :return: list of companies.
         """
+        self.logger.debug(
+            f"CompanyDatastore.get_companies(skip={skip}, take={take}, sort_by={sort_by}, sort_order={sort_order})"
+        )
         docs = self._companies.get_all()
         if skip:
             docs = docs.skip(skip)
@@ -110,7 +117,7 @@ class CompanyDatastore:
             }
         )
         doc = self._companies.add(datum)
-        self.add_user_to_company(doc.id, "company_admin", user.id)
+        self.add_user_to_company(doc.id, "company_admin", user.id, user)
         return CompanyDatabaseModel(**doc)
 
     def update_company(
@@ -182,11 +189,13 @@ class CompanyDatastore:
 def get_company_datastore(
     db: DocumentDatabase = Depends(get_document_database),
     user_datastore: UserDatastore = Depends(get_user_datastore),
+    logger: AppLogger = Depends(logger_injector),
 ) -> CompanyDatastore:
     """
     Dependency injection function to inject CompanyDatastore.
     :param db: Reference to document db.
     :param user_datastore: Reference to user datastore.
+    :param logger: Class logger.
     :return: New instance of CompanyDatastore.
     """
-    return CompanyDatastore(db, user_datastore)
+    return CompanyDatastore(db, user_datastore, logger)

@@ -96,6 +96,12 @@ class MongoDocument(Document):
         """
         return self._doc.__len__()
 
+    def __str__(self):
+        return str(self._doc)
+
+    def __repr__(self):
+        return f"MongoDocument({repr(self._doc)}, {repr(self._collection)})"
+
     @property
     def id(self) -> str:
         """
@@ -164,6 +170,12 @@ class MongoDocumentCollection(DocumentCollection):
         self._cursor = cursor
         self._collection = collection
 
+    def __str__(self):
+        return f"{str(self._cursor)}, {str(self._collection)}"
+
+    def __repr__(self):
+        return f"MongoDocumentCollection({repr(self._cursor)}, {repr(self._collection)})"
+
     def skip(self, skip: int | None) -> "DocumentCollection":
         """
         Tells cursor to skip a certain number of documents.
@@ -222,6 +234,12 @@ class MongoDatabaseCollection(DatabaseCollection):
         :param collection: pymongo.database.collection
         """
         self._collection = collection
+
+    def __str__(self):
+        return str(self._collection)
+
+    def __repr__(self):
+        return f"MongoDatabaseCollection({repr(self._collection)})"
 
     def by_id(self, doc_id: str) -> Document | None:
         """
@@ -313,6 +331,9 @@ class MongoDocumentDatabase(DocumentDatabase):
         :param db:
         """
         self._db = db
+
+    def __str__(self):
+        return str(self._db)
 
     def collection(self, collection_name: str) -> DatabaseCollection:
         """
