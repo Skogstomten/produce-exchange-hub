@@ -191,10 +191,13 @@ class UserDatastore:
     ) -> UserDatabaseModel:
         """
         Add new role to user.
+
         :raise NotFoundError: If user is not found.
+
         :param user_id: ID of user.
         :param role_name: Name of role to add.
         :param reference: Reference if role requires it.
+
         :return: Updated UserDatabaseModel.
         """
         user_doc = self._users.by_id(user_id)

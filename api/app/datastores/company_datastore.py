@@ -18,6 +18,8 @@ from app.models.v1.database_models.contact_database_model import (
 )
 from app.models.v1.database_models.company_database_model import (
     CompanyDatabaseModel,
+    ChangeDatabaseModel,
+    ChangeType,
 )
 from app.database.document_database import DocumentDatabase, DatabaseCollection
 from app.dependencies.document_database import get_document_database
@@ -161,6 +163,38 @@ class CompanyDatastore:
         doc.replace(company.dict())
         return model
 
+    def delete_contact(self, company_id: str, contact_id: str, user: UserDatabaseModel) -> None:
+        """
+        Delete a contact from company.
+
+        :param company_id: ID of company to delete from.
+        :param contact_id: ID of contact to be deleted.
+        :param user: Authenticated user who's deleting.
+
+        :return: None.
+
+        :raises app.errors.NotFoundError: if company or contact does not exist.
+        """
+        company_doc = self._companies.by_id(company_id)
+        if company_doc is None:
+            raise NotFoundError(f"No company with id '{company_id}' was found.")
+
+        company = CompanyDatabaseModel(**company_doc)
+        contact = next((c for c in company.contacts if c.id == contact_id), None)
+        if contact is None:
+            raise NotFoundError(f"No contact with id '{contact_id}' was found.")
+
+        company.changes.append(
+            ChangeDatabaseModel.create(
+                f"company.contacts.{contact_id}",
+                ChangeType.delete,
+                user.id,
+                user.email,
+            )
+        )
+        company.contacts.remove(contact)
+        company_doc.replace(company.dict())
+
     def add_user_to_company(
         self, company_id: str, role_name: str, user_id: str, authenticated_user: UserDatabaseModel
     ) -> list[UserDatabaseModel]:
@@ -175,9 +209,17 @@ class CompanyDatastore:
         :param role_name: Name of role to give the user.
         :param user_id: ID of user to receive the role.
         :param authenticated_user: User performing operation.
-        :return:
+
+        :return: List of users connected to company.
+
+        :raise app.errors.NotFoundError: If company or user is not found.
         """
+        company_doc = self._companies.by_id(company_id)
+        if company_doc is None:
+            raise NotFoundError(f"Company with id '{company_id}' not found.")
+
         self.users.add_role_to_user(user_id, role_name, company_id)
+
         return self.users.get_company_users(company_id)
 
     def activate_company(self, company_id: str) -> CompanyDatabaseModel:
