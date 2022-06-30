@@ -1,9 +1,40 @@
 """CompanyDatabaseModel"""
 from datetime import datetime
+from enum import Enum
 
+from bson import ObjectId
 from pydantic import BaseModel, Field
 
 from .contact_database_model import ContactDatabaseModel
+
+
+class ChangeType(Enum):
+    """Enum containing change types for change model."""
+
+    add = "add"
+    update = "update"
+    delete = "delete"
+
+
+class ChangeDatabaseModel(BaseModel):
+    """Database model for changes."""
+
+    id: str
+    path: str
+    change_type: ChangeType
+    actor_id: str
+    actor_username: str
+
+    @classmethod
+    def create(cls, path: str, change_type: ChangeType, user_id: str, username: str):
+        """Creates a new instance of ChangeDatabaseModel."""
+        return cls(
+            id=str(ObjectId()),
+            path=path,
+            change_type=change_type,
+            actor_id=user_id,
+            actor_username=username,
+        )
 
 
 class CompanyDatabaseModel(BaseModel):
@@ -19,3 +50,4 @@ class CompanyDatabaseModel(BaseModel):
     description: dict[str, str]
     external_website_url: str | None
     contacts: list[ContactDatabaseModel] | None = Field(None)
+    changes: list[ChangeDatabaseModel] = Field([])

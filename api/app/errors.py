@@ -2,10 +2,11 @@
 Errors and exceptions
 """
 from fastapi import HTTPException
+from pydantic import BaseModel
 from starlette import status
 
 
-class ErrorModel:
+class ErrorModel(BaseModel):
     """
     Response model for errors.
     """
@@ -14,19 +15,10 @@ class ErrorModel:
     detail: str
     request_url: str
 
-    def __init__(self, status_code: int, detail: str, request_url: str):
-        """
-        Creates an error model.
-        :param status_code:
-        :param detail:
-        """
-        super().__init__()
-        self.status_code = status_code
-        self.detail = detail
-        self.request_url = request_url
-
-    def dict(self) -> dict:
-        return vars(self)
+    @classmethod
+    def create(cls, status_code: int, detail: str, request_url: str):
+        """Creates instance of ErrorModel."""
+        return cls(status_code=status_code, detail=detail, request_url=request_url)
 
 
 class DuplicateError(HTTPException):
