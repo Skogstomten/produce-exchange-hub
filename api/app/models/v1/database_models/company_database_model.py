@@ -49,5 +49,5 @@ class CompanyDatabaseModel(BaseModel):
     activation_date: datetime | None
     description: dict[str, str]
     external_website_url: str | None
-    contacts: list[ContactDatabaseModel] | None = Field(None)
+    contacts: list[ContactDatabaseModel] | None = Field([])
     changes: list[ChangeDatabaseModel] = Field([])

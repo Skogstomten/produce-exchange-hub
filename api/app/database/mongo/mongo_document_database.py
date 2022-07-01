@@ -20,6 +20,21 @@ from ...errors import InvalidOperationError, NotFoundError
 from ...utils.enum_utils import enums_to_string
 
 
+def id_to__id(data: dict) -> dict:
+    """Converts data dict id field to mongodb _id field."""
+    data = data.copy()
+    if "id" in data:
+        temp_id = data["id"]
+        data["_id"] = ObjectId(temp_id)
+        del data["id"]
+    return data
+
+
+def _ensure_updated(update_result, doc_id, collection_name):
+    if update_result.modified_count < 1:
+        raise NotFoundError(f"No document with key='{doc_id}' " f"was found in collection='{collection_name}'")
+
+
 class MongoDocument(Document):
     """
     Mongo db document.
@@ -131,9 +146,7 @@ class MongoDocument(Document):
             data = data.to_dict()
 
         data = enums_to_string(data)
-        if "id" in data:
-            data["_id"] = self._doc["_id"]
-            del data["id"]
+        data = id_to__id(data)
         self._collection.replace_one(
             {"_id": ObjectId(self.id)},
             data,
@@ -312,10 +325,16 @@ class MongoDatabaseCollection(DatabaseCollection):
         return self._collection.count_documents(filters, limit=1) > 0
 
     def patch_document(self, doc_id: str, updates: dict[str, Any]) -> None:
-        """Se base class"""
+        """See base class."""
         update_result = self._collection.update_one({"_id": ObjectId(doc_id)}, {"$set": enums_to_string(updates)})
-        if update_result.modified_count < 1:
-            raise NotFoundError(f"No document with key='{doc_id}' " f"was found in collection='{self._collection.name}'")
+        _ensure_updated(update_result, doc_id, self._collection.name)
+
+    def add_to_sub_collection(self, doc_id: str, sub_collection_path: str, new_sub_collection_value: Any) -> None:
+        """See base class."""
+        update_result = self._collection.update_one(
+            {"_id": ObjectId(doc_id)}, {"$push": {sub_collection_path: enums_to_string(new_sub_collection_value)}}
+        )
+        _ensure_updated(update_result, doc_id, self._collection.name)
 
 
 class MongoDocumentDatabase(DocumentDatabase):

@@ -25,7 +25,7 @@ logger.info("Application Starting...")
 app = FastAPI(
     title="Produce Exchange Hub Api",
     description="Has all the business logic for the Produce Exchange Hub Web " "App",
-    responses={"500": {"description": "Internal Server Error", "model": ErrorModel}}
+    responses={"500": {"description": "Internal Server Error", "model": ErrorModel}},
 )
 
 app.include_router(users.router)
