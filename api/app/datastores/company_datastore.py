@@ -142,25 +142,20 @@ class CompanyDatastore:
         doc = doc.replace(doc)
         return CompanyDatabaseModel(**doc)
 
-    def add_contact_to_company(
+    def add_contact(
         self,
         company_id: str,
         model: ContactDatabaseModel,
     ) -> ContactDatabaseModel:
         """
         Add a new contact to the company.
-        :raise NotFoundError: If company with given id is not found.
+
         :param company_id: The id of the company to add the contact to.
         :param model: The contact model.
+
         :return: The added contact. ContactDatabaseModel.
         """
-        doc = self._companies.by_id(company_id)
-        if doc is None:
-            raise NotFoundError(f"No company with id '{company_id}' was found.")
-
-        company = CompanyDatabaseModel(**doc)
-        company.contacts.append(model)
-        doc.replace(company.dict())
+        self._companies.add_to_sub_collection(company_id, "contacts", model)
         return model
 
     def delete_contact(self, company_id: str, contact_id: str, user: UserDatabaseModel) -> None:

@@ -36,7 +36,7 @@ async def add_contact(
     user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
 ) -> ContactOutModel:
     """Add a contact to a company."""
-    contact = companies.add_contact_to_company(company_id, model.to_database_model())
+    contact = companies.add_contact(company_id, model.to_database_model(user))
     return ContactOutModel.from_database_model(contact, request)
 
 

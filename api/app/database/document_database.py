@@ -216,6 +216,19 @@ class DatabaseCollection(metaclass=ABCMeta):
         If there's no document with the given key
         """
 
+    @abstractmethod
+    def add_to_sub_collection(self, doc_id: str, sub_collection_path: str, new_sub_collection_value: Any) -> None:
+        """
+        Adds sub document to sub collection of document.
+
+        :param doc_id: ID of document containing sub collection.
+        :param sub_collection_path: Path to sub collection. IE: name_of_subcollection
+        :param new_sub_collection_value: Value to add to sub collection.
+        :return: None.
+
+        :raise NotFoundError: If no document with doc_id exists.
+        """
+
 
 class DocumentDatabase(metaclass=ABCMeta):
     """
