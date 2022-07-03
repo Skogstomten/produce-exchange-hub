@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from app.utils.request_utils import get_current_request_url_with_additions
 from .base_out_model import BaseOutModel
 from ..database_models.user_database_model import UserDatabaseModel
+from ..shared import RoleType
 
 
 class UserRoleOutModel(BaseModel):
@@ -17,7 +18,7 @@ class UserRoleOutModel(BaseModel):
     id: str
     role_id: str
     role_name: str
-    role_type: str
+    role_type: RoleType
     reference: str | None
 
 

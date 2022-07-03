@@ -13,6 +13,7 @@ from app.models.v1.shared import CompanyStatus
 
 @pytest.fixture
 def collection():
+    """Fixture for pymongo.collection"""
     update_result = Mock(UpdateResult)
     collection = Mock(Collection)
     collection.update_one.return_value = update_result

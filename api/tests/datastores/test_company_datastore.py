@@ -6,10 +6,6 @@ import pytest
 from bson import ObjectId
 from pytz import utc
 
-from app.database.document_database import (
-    DocumentDatabase,
-    DatabaseCollection,
-)
 from app.database.mongo.mongo_document_database import MongoDocument
 from app.datastores.company_datastore import CompanyDatastore
 from app.datastores.user_datastore import UserDatastore
@@ -20,15 +16,6 @@ from app.models.v1.shared import CompanyStatus, ContactType
 
 def _get_id() -> str:
     return str(ObjectId())
-
-
-@pytest.fixture
-def db_collection():
-    """Fixture setting up db mock."""
-    collection = Mock(DatabaseCollection)
-    db = Mock(DocumentDatabase)
-    db.collection.return_value = collection
-    return db, collection
 
 
 @pytest.fixture
@@ -86,8 +73,8 @@ def fake_company_document(company_id):
     return str(doc_id), fake_doc
 
 
-def test_activate_company(db_collection, user_datastore, logger, fake_company_document):
-    db, collection = db_collection
+def test_activate_company(doc_database_collection_mocks, user_datastore, logger, fake_company_document):
+    db, collection = doc_database_collection_mocks
     company_id, company_doc = fake_company_document
     collection.by_id.return_value = MongoDocument(company_doc, collection)
 
@@ -99,8 +86,8 @@ def test_activate_company(db_collection, user_datastore, logger, fake_company_do
     assert result is not None
 
 
-def test_add_contact_adds_contact(db_collection, user_datastore, logger, contact_model, company_id):
-    db, collection = db_collection
+def test_add_contact_adds_contact(doc_database_collection_mocks, user_datastore, logger, contact_model, company_id):
+    db, collection = doc_database_collection_mocks
 
     target = CompanyDatastore(db, user_datastore, logger)
     target.add_contact(company_id, contact_model)

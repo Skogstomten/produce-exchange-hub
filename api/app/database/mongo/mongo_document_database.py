@@ -20,13 +20,22 @@ from ...errors import InvalidOperationError, NotFoundError
 from ...utils.enum_utils import enums_to_string
 
 
-def id_to__id(data: dict) -> dict:
+def _convert_str_id_to_object_id(data: dict) -> dict:
     """Converts data dict id field to mongodb _id field."""
     data = data.copy()
     if "id" in data:
         temp_id = data["id"]
         data["_id"] = ObjectId(temp_id)
         del data["id"]
+    return data
+
+
+def _convert_object_id_to_str_id(data: dict) -> dict:
+    data = data.copy()
+    if "_id" in data:
+        temp_obj_id = data["_id"]
+        data["id"] = str(temp_obj_id)
+        del data["_id"]
     return data
 
 
@@ -40,10 +49,7 @@ class MongoDocument(Document):
     Mongo db document.
     """
 
-    _doc: dict
-    _collection: MongoCollection
-
-    def __init__(self, doc: dict, collection: MongoCollection):
+    def __init__(self, doc: dict, collection: "MongoDatabaseCollection"):
         """
         Creates a new document.
 
@@ -101,7 +107,7 @@ class MongoDocument(Document):
         :return: Iterable for dict.
         """
         clone = self._doc.copy()
-        clone.update({"id": self.id})
+        clone = _convert_object_id_to_str_id(clone)
         return clone.__iter__()
 
     def __len__(self) -> int:
@@ -130,10 +136,7 @@ class MongoDocument(Document):
         Gets document as dict.
         :return: dict.
         """
-        data = self._doc.copy()
-        data["id"] = self.id
-        del data["_id"]
-        return data
+        return _convert_object_id_to_str_id(self._doc)
 
     def replace(self, data: MutableMapping) -> Document:
         """
@@ -144,24 +147,18 @@ class MongoDocument(Document):
         """
         if isinstance(data, Document):
             data = data.to_dict()
-
-        data = enums_to_string(data)
-        data = id_to__id(data)
-        self._collection.replace_one(
-            {"_id": ObjectId(self.id)},
+        self._collection.replace(
+            self.id,
             data,
         )
-        return MongoDocument(
-            self._collection.find_one({"_id": ObjectId(self.id)}),
-            self._collection,
-        )
+        return self._collection.by_id(self.id)
 
     def delete(self) -> None:
         """
         delete document from database.
         :return:
         """
-        self._collection.delete_one({"_id": self._doc.get("_id")})
+        self._collection.delete(self.id)
 
 
 class MongoDocumentCollection(DocumentCollection):
@@ -171,10 +168,7 @@ class MongoDocumentCollection(DocumentCollection):
     fetching all data.
     """
 
-    _cursor: Cursor
-    _collection: MongoCollection
-
-    def __init__(self, cursor: Cursor, collection: MongoCollection) -> None:
+    def __init__(self, cursor: Cursor, collection: "MongoDatabaseCollection") -> None:
         """
         Creates a mongo document collection.
         :param cursor: Reference to db cursor.
@@ -239,20 +233,18 @@ class MongoDatabaseCollection(DatabaseCollection):
     Represents a database collection
     """
 
-    _collection: MongoCollection
-
     def __init__(self, collection: MongoCollection):
         """
         Creates a mongo database collection wrapping a Collection from pymongo.
         :param collection: pymongo.database.collection
         """
-        self._collection = collection
+        self.mongo_collection = collection
 
     def __str__(self):
-        return str(self._collection)
+        return str(self.mongo_collection)
 
     def __repr__(self):
-        return f"MongoDatabaseCollection({repr(self._collection)})"
+        return f"MongoDatabaseCollection({repr(self.mongo_collection)})"
 
     def by_id(self, doc_id: str) -> Document | None:
         """
@@ -260,10 +252,10 @@ class MongoDatabaseCollection(DatabaseCollection):
         :param doc_id: id of document.
         :return: Document with id or None if no document is found.
         """
-        doc = self._collection.find_one({"_id": ObjectId(doc_id)})
+        doc = self.mongo_collection.find_one({"_id": ObjectId(doc_id)})
         if doc is None:
             return None
-        return MongoDocument(doc, self._collection)
+        return MongoDocument(doc, self)
 
     def by_key(self, key: str, value: Any) -> Document | None:
         """
@@ -276,10 +268,10 @@ class MongoDatabaseCollection(DatabaseCollection):
         :param value: Lookup value.
         :return: Document or None if no document is found.
         """
-        doc = self._collection.find_one({key: value})
+        doc = self.mongo_collection.find_one({key: value})
         if doc is None:
             return None
-        return MongoDocument(self._collection.find_one({key: value}), self._collection)
+        return MongoDocument(self.mongo_collection.find_one({key: value}), self)
 
     def add(self, data: dict) -> Document:
         """
@@ -289,7 +281,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         :return: The newly created document.
         """
         data = enums_to_string(data)
-        result = self._collection.insert_one(data)
+        result = self.mongo_collection.insert_one(data)
         return self.by_id(result.inserted_id)
 
     def get_all(self) -> DocumentCollection:
@@ -299,7 +291,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         Note that no documents are fetched when calling this method.
         :return: DocumentCollection operating as a cursor.
         """
-        return MongoDocumentCollection(self._collection.find(), self._collection)
+        return MongoDocumentCollection(self.mongo_collection.find(), self)
 
     def get(
         self,
@@ -313,28 +305,43 @@ class MongoDatabaseCollection(DatabaseCollection):
         """
         if filters is None:
             filters = {}
-        cursor = self._collection.find(filters)
-        return MongoDocumentCollection(cursor, self._collection)
+        cursor = self.mongo_collection.find(filters)
+        return MongoDocumentCollection(cursor, self)
 
     def exists(self, filters: dict[str, Any]) -> bool:
         """
         Check if document matching filter exists.
+
         :param filters: Filter using mongodb pymongo syntax.
+        If filter value contains "id", the parameter name will be converted to "_id" and wrapped in an ObjectId object.
+
         :return: True if document exists, else False.
         """
-        return self._collection.count_documents(filters, limit=1) > 0
+        filters = _convert_str_id_to_object_id(filters)
+        filters = enums_to_string(filters)
+        return self.mongo_collection.count_documents(filters, limit=1) > 0
 
     def patch_document(self, doc_id: str, updates: dict[str, Any]) -> None:
         """See base class."""
-        update_result = self._collection.update_one({"_id": ObjectId(doc_id)}, {"$set": enums_to_string(updates)})
-        _ensure_updated(update_result, doc_id, self._collection.name)
+        update_result = self.mongo_collection.update_one({"_id": ObjectId(doc_id)}, {"$set": enums_to_string(updates)})
+        _ensure_updated(update_result, doc_id, self.mongo_collection.name)
 
     def add_to_sub_collection(self, doc_id: str, sub_collection_path: str, new_sub_collection_value: Any) -> None:
         """See base class."""
-        update_result = self._collection.update_one(
+        update_result = self.mongo_collection.update_one(
             {"_id": ObjectId(doc_id)}, {"$push": {sub_collection_path: enums_to_string(new_sub_collection_value)}}
         )
-        _ensure_updated(update_result, doc_id, self._collection.name)
+        _ensure_updated(update_result, doc_id, self.mongo_collection.name)
+
+    def replace(self, doc_id: str, data: dict) -> None:
+        """Replaces data for document."""
+        data = _convert_str_id_to_object_id(data)
+        data = enums_to_string(data)
+        self.mongo_collection.replace_one({"_id": ObjectId(doc_id)}, data)
+
+    def delete(self, doc_id: str) -> None:
+        """Deletes a document."""
+        self.mongo_collection.delete_one({"_id": ObjectId(doc_id)})
 
 
 class MongoDocumentDatabase(DocumentDatabase):

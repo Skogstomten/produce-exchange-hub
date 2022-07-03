@@ -100,3 +100,10 @@ class UnsupportedTimezoneError(HTTPException):
             status_code=400,
             detail=f"Timezone '{timezone}' is not supported. " f"List of available timezones can be found here: " f"",
         )
+
+
+class InvalidInputError(HTTPException):
+    """Raised when any input is invalid."""
+
+    def __init__(self, message: str):
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=message)

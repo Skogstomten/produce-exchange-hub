@@ -7,7 +7,7 @@ from pytz import utc
 
 from fastapi import Depends
 
-from app.models.v1.shared import SortOrder, CompanyStatus
+from app.models.v1.shared import SortOrder, CompanyStatus, RoleType
 from app.models.v1.api_models.companies import (
     CompanyCreateModel,
     CompanyUpdateModel,
@@ -25,7 +25,7 @@ from app.database.document_database import DocumentDatabase, DatabaseCollection
 from app.dependencies.document_database import get_document_database
 from .user_datastore import UserDatastore, get_user_datastore
 from ..dependencies.log import AppLoggerInjector, AppLogger
-from ..errors import NotFoundError
+from ..errors import NotFoundError, InvalidInputError
 
 logger_injector = AppLoggerInjector("company_datastore")
 
@@ -53,6 +53,11 @@ class CompanyDatastore:
         :return: DatabaseCollection for companies.
         """
         return self.db.collection("companies")
+
+    @property
+    def _roles(self) -> DatabaseCollection:
+        """Accessor for roles collection."""
+        return self.db.collection("roles")
 
     def get_companies(
         self,
@@ -196,25 +201,31 @@ class CompanyDatastore:
         """
         Adds user to company with role.
 
-        TODO: This method is wrong. See issue:
-        https://github.com/Skogstomten/produce-exchange-hub/issues/30
-        https://github.com/Skogstomten/produce-exchange-hub/issues/31
-
         :param company_id: ID of company to add user to.
-        :param role_name: Name of role to give the user.
+        :param role_name: Name of role to give the user. Has to be role of type company_role.
+            It is not allowed to give other roles to user through this method.
         :param user_id: ID of user to receive the role.
         :param authenticated_user: User performing operation.
 
         :return: List of users connected to company.
 
         :raise app.errors.NotFoundError: If company or user is not found.
+        :raise app.errors.InvalidInputError: If provided role is not of type company_role.
         """
-        company_doc = self._companies.by_id(company_id)
-        if company_doc is None:
-            raise NotFoundError(f"Company with id '{company_id}' not found.")
+        if not self._companies.exists({"id": company_id}):
+            raise NotFoundError(f"No company with id '{company_id}' was found.")
+
+        if not self._roles.exists({"name": role_name, "type": RoleType.company_role}):
+            raise InvalidInputError(f"Invalid role.")
 
         self.users.add_role_to_user(user_id, role_name, company_id)
-
+        self._companies.add_to_sub_collection(
+            company_id,
+            "changes",
+            ChangeDatabaseModel.create(
+                f"company.users.{user_id}", ChangeType.add, authenticated_user.id, authenticated_user.email
+            ).dict(),
+        )
         return self.users.get_company_users(company_id)
 
     def activate_company(self, company_id: str) -> CompanyDatabaseModel:
