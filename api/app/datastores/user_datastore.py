@@ -203,6 +203,7 @@ class UserDatastore:
         user_doc = self._users.by_id(user_id)
         if user_doc is None:
             raise NotFoundError(f"No user with id '{user_id}' was found")
+
         role = self._roles.get_role(role_name)
         user = UserDatabaseModel(**user_doc)
         user_role = UserRoleDatabaseModel.create(role, reference)

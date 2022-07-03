@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from bson.objectid import ObjectId
 
 from .role_database_model import RoleDatabaseModel
+from ..shared import RoleType
 
 
 class UserRoleDatabaseModel(BaseModel):
@@ -13,7 +14,7 @@ class UserRoleDatabaseModel(BaseModel):
     id: str
     role_id: str
     role_name: str
-    role_type: str
+    role_type: RoleType
     reference: str | None
 
     @classmethod
