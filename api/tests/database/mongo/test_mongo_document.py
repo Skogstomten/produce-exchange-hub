@@ -1,6 +1,5 @@
 """Tests for MongoDocument class in mongo_document_database module."""
 import pytest
-from bson import ObjectId
 
 from app.database.mongo.mongo_document_database import MongoDocument
 

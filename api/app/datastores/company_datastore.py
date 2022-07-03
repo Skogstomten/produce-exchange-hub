@@ -216,7 +216,7 @@ class CompanyDatastore:
             raise NotFoundError(f"No company with id '{company_id}' was found.")
 
         if not self._roles.exists({"name": role_name, "type": RoleType.company_role}):
-            raise InvalidInputError(f"Invalid role.")
+            raise InvalidInputError("Invalid role.")
 
         self.users.add_role_to_user(user_id, role_name, company_id)
         self._companies.add_to_sub_collection(
