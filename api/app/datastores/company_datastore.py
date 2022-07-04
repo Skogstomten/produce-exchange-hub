@@ -163,6 +163,28 @@ class CompanyDatastore:
         self._companies.add_to_sub_collection(company_id, "contacts", model)
         return model
 
+    def update_contact(
+        self,
+        company_id: str,
+        model: ContactDatabaseModel,
+        authenticated_user: UserDatabaseModel,
+    ):
+        """
+        Updates contact on company.
+        :param company_id: ID of company to update contact on.
+        :param model: Database model object with updated contact data.
+        :param authenticated_user: User object for authenticated user. For change logging.
+        :return: Updated contact model.
+        """
+        company_doc = self._companies.by_id(company_id)
+        if company_doc is None:
+            raise NotFoundError(f"Company with id '{company_id}' not found.")
+
+        company = CompanyDatabaseModel(**company_doc)
+        contact = next((c for c in company.contacts if c.id == model.id), None)
+        if contact is None:
+            raise NotFoundError(f"Contact with id '{model.id}' not found on company '{company_id}'.")
+
     def delete_contact(self, company_id: str, contact_id: str, user: UserDatabaseModel) -> None:
         """
         Delete a contact from company.

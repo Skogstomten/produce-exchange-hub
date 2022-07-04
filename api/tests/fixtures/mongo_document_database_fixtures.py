@@ -5,7 +5,7 @@ import pytest
 from bson import ObjectId
 
 from app.database.document_database import DatabaseCollection, DocumentDatabase
-from app.database.mongo.mongo_document_database import MongoDatabaseCollection
+from app.database.mongo.mongo_document_database import MongoDatabaseCollection, MongoDocument
 
 
 @pytest.fixture
@@ -18,6 +18,12 @@ def mongo_database_collection_mock():
 def obj_id():
     """Fixture with a random doc id of type bson.ObjectId"""
     return ObjectId()
+
+
+@pytest.fixture
+def doc_id(obj_id):
+    """Fixture with random doc id as str."""
+    return str(obj_id)
 
 
 @pytest.fixture
