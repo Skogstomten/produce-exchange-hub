@@ -242,3 +242,18 @@ class DocumentDatabase(metaclass=ABCMeta):
         :param collection_name: Name of collection.
         :return: DatabaseCollection.
         """
+
+    @abstractmethod
+    def transaction(self, datastore, function, *args, **kwargs):
+        """Creates a transaction of function. To be used as decorator."""
+
+
+def transaction(function):
+    def wrapper(self: "BaseDatastore", *args, **kwargs):
+        DocumentDatabase.transaction(self.db, self, function, *args, **kwargs)
+    return wrapper
+
+
+class BaseDatastore:
+    def __init__(self, db: DocumentDatabase):
+        self.db = db

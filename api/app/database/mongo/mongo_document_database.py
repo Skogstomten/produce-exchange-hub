@@ -6,6 +6,7 @@ from typing import Any
 
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
+from pymongo.client_session import ClientSession
 from pymongo.collection import Collection as MongoCollection
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
@@ -348,9 +349,6 @@ class MongoDocumentDatabase(DocumentDatabase):
     """
     Wrapper for MongoDB database.
     """
-
-    _db: MongoDatabase
-
     def __init__(self, db: MongoDatabase):
         """
         Creates a MongoDb wrapper.
@@ -365,7 +363,17 @@ class MongoDocumentDatabase(DocumentDatabase):
         """
         Gets database collection by name.
         :param collection_name: Name of collection.
-        :return: Database collection to perform operations on the selected
-        collection.
+        :return: Database collection to perform operations on the selected collection.
         """
         return MongoDatabaseCollection(self._db.get_collection(collection_name))
+
+    def transaction(self, datastore, function, *args, **kwargs):
+        def callback(session: ClientSession):
+            temp_db = self._db
+            self._db = session.client.get_database()
+            result = function(datastore, *args, **kwargs)
+            self._db = temp_db
+            return result
+
+        with self._db.client.start_session() as s:
+            return s.with_transaction(callback)

@@ -21,7 +21,7 @@ from app.models.v1.database_models.company_database_model import (
     ChangeDatabaseModel,
     ChangeType,
 )
-from app.database.document_database import DocumentDatabase, DatabaseCollection
+from app.database.document_database import DocumentDatabase, DatabaseCollection, transaction, BaseDatastore
 from app.dependencies.document_database import get_document_database
 from .user_datastore import UserDatastore, get_user_datastore
 from ..dependencies.log import AppLoggerInjector, AppLogger
@@ -30,19 +30,15 @@ from ..errors import NotFoundError, InvalidInputError
 logger_injector = AppLoggerInjector("company_datastore")
 
 
-class CompanyDatastore:
+class CompanyDatastore(BaseDatastore):
     """The datastore class."""
-
-    db: DocumentDatabase
-    users: UserDatastore
-
     def __init__(self, db: DocumentDatabase, users: UserDatastore, logger: AppLogger):
         """
         Initializes the datastore with a reference to the document db.
         :param db: document db instance.
         :param users: users datastore for cross collection operations.
         """
-        self.db = db
+        super().__init__(db)
         self.users = users
         self.logger = logger
 
@@ -163,12 +159,13 @@ class CompanyDatastore:
         self._companies.add_to_sub_collection(company_id, "contacts", model)
         return model
 
+    @transaction
     def update_contact(
         self,
         company_id: str,
         model: ContactDatabaseModel,
         authenticated_user: UserDatabaseModel,
-    ):
+    ) -> ContactDatabaseModel:
         """
         Updates contact on company.
         :param company_id: ID of company to update contact on.
