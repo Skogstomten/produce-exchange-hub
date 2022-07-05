@@ -107,7 +107,7 @@ async def activate_company(
             "roles:superuser",
             "roles:company_admin:{company_id}",
         ),
-    ),  # TODO: FInd a use for this.
+    ),  # TODO: Find a use for this.
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essenties: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:

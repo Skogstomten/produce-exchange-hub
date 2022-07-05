@@ -43,6 +43,12 @@ class CompanyDatastore(BaseDatastore):
         self.users = users
         self.logger = logger
 
+    def __str__(self):
+        return self.__repr__()
+
+    def __repr__(self):
+        return f"CompanyDatastore(db={self.db}, users={self.users}, logger={self.logger})"
+
     @property
     def _companies(self) -> DatabaseCollection:
         """
