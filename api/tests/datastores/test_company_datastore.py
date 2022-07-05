@@ -24,7 +24,7 @@ def _get_contact_model(
     contact_id: str = _get_id(),
     contact_type: ContactType = ContactType.email,
     value: str = "nisse@perssons.se",
-    created_by: str = _get_id(),
+    created_by: str = "user@email.com",
     created_at: datetime = datetime.now(utc),
 ) -> ContactDatabaseModel:
     return ContactDatabaseModel(
@@ -139,7 +139,7 @@ def add_contact_to_company_doc_dict(company_doc_dict, contact_model):
             "id": contact_model.id,
             "type": ContactType.email.value,
             "value": "old_email@shit.com",
-            "created_by": str(ObjectId()),
+            "created_by": "user@email.com",
             "created_at": datetime.now(utc),
             "changed_by": None,
             "changed_at": None,
@@ -182,7 +182,7 @@ def test_update_contact_changes_contact(
         assert contact["type"] == contact_model.type
         assert contact["value"] == contact_model.value
         assert contact["description"] == contact_model.description
-        assert contact["changed_by"] == authenticated_user_default.id
+        assert contact["changed_by"] == authenticated_user_default.email
         assert contact["changed_at"].year == datetime.now(utc).year
         assert contact["changed_at"].month == datetime.now(utc).month
         assert contact["changed_at"].day == datetime.now(utc).day

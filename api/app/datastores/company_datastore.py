@@ -185,7 +185,7 @@ class CompanyDatastore(BaseDatastore):
         contact.type = model.type
         contact.value = model.value
         contact.description = model.description
-        contact.changed_by = authenticated_user.id
+        contact.changed_by = authenticated_user.email
         contact.changed_at = datetime.now(utc)
 
         change = ChangeDatabaseModel.create(

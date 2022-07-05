@@ -8,7 +8,7 @@ from app.dependencies.user import get_current_user
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.api_models.contacts import (
     CreateContactModel,
-    ContactOutModel,
+    ContactOutModel, UpdateContactModel,
 )
 from app.datastores.company_datastore import (
     CompanyDatastore,
@@ -37,6 +37,29 @@ async def add_contact(
 ) -> ContactOutModel:
     """Add a contact to a company."""
     contact = companies.add_contact(company_id, model.to_database_model(user))
+    return ContactOutModel.from_database_model(contact, request)
+
+
+@router.put(
+    "/{contact_id}",
+    response_model=ContactOutModel,
+    responses={
+        200: {"description": "Updated successfully."},
+        404: {"description": "Either company or contact was not found."}
+    },
+)
+async def update_contact(
+    request: Request,
+    company_id: str = Path(...),
+    contact_id: str = Path(...),
+    contact: UpdateContactModel = Body(...),
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    user: UserDatabaseModel = Security(
+        get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
+    )
+):
+    """Update contact on company."""
+    contact = company_datastore.update_contact(company_id, contact.to_database_model(contact_id), user)
     return ContactOutModel.from_database_model(contact, request)
 
 
