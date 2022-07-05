@@ -1,11 +1,12 @@
 """Api models for contacts."""
-from datetime import datetime
+from datetime import datetime, tzinfo
 
 from pydantic import BaseModel, Field
 from bson.objectid import ObjectId
 from fastapi import Request
 from pytz import utc
 
+from app.utils.datetime_utils import to_timezone
 from .base_out_model import BaseOutModel
 from ..database_models.contact_database_model import ContactDatabaseModel
 from ..database_models.user_database_model import UserDatabaseModel
@@ -55,7 +56,7 @@ class ContactListModel(BaseContactModel, BaseOutModel):
     changed_at: datetime | None
 
     @classmethod
-    def from_database_model(cls, model: ContactDatabaseModel, request: Request):
+    def from_database_model(cls, model: ContactDatabaseModel, request: Request, tz: str | tzinfo):
         """Creates model instance from database model."""
         return cls(
             id=model.id,
@@ -63,9 +64,9 @@ class ContactListModel(BaseContactModel, BaseOutModel):
             value=model.value,
             description=model.description,
             created_by=model.created_by,
-            created_at=model.created_at,  # TODO: Fix timezone
+            created_at=to_timezone(model.created_at, tz),
             changed_by=model.changed_by,
-            changed_at=model.changed_at,  # TODO: Fix timezone
+            changed_at=to_timezone(model.changed_at, tz),
             operations=[],
             url=get_current_request_url_with_additions(request, (model.id,))
         )

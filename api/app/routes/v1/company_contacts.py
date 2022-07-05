@@ -1,20 +1,20 @@
 """
 Routing module for company contacts.
 """
-from fastapi import APIRouter, Path, Body, Request, Depends, Security
+from fastapi import APIRouter, Path, Body, Depends, Security
 from starlette import status
 
-from app.dependencies.user import get_current_user
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.models.v1.api_models.contacts import (
-    CreateContactModel,
-    ContactOutModel, UpdateContactModel,
-)
 from app.datastores.company_datastore import (
     CompanyDatastore,
     get_company_datastore,
 )
-
+from app.dependencies.essentials import Essentials, get_essentials
+from app.dependencies.user import get_current_user
+from app.models.v1.api_models.contacts import (
+    CreateContactModel,
+    ContactOutModel, UpdateContactModel,
+)
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
 
 router = APIRouter(
     prefix="/v1/{lang}/companies/{company_id}/contacts",
@@ -29,15 +29,15 @@ router = APIRouter(
     responses={201: {"description": "Contact has been created", "model": ContactOutModel}},
 )
 async def add_contact(
-    request: Request,
     company_id: str = Path(...),
     model: CreateContactModel = Body(...),
     companies: CompanyDatastore = Depends(get_company_datastore),
     user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    essentials: Essentials = Depends(get_essentials),
 ) -> ContactOutModel:
     """Add a contact to a company."""
     contact = companies.add_contact(company_id, model.to_database_model(user))
-    return ContactOutModel.from_database_model(contact, request)
+    return ContactOutModel.from_database_model(contact, essentials.request, essentials.timezone)
 
 
 @router.put(
@@ -49,18 +49,18 @@ async def add_contact(
     },
 )
 async def update_contact(
-    request: Request,
     company_id: str = Path(...),
     contact_id: str = Path(...),
     contact: UpdateContactModel = Body(...),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     user: UserDatabaseModel = Security(
         get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
-    )
+    ),
+    essentials: Essentials = Depends(get_essentials),
 ):
     """Update contact on company."""
     contact = company_datastore.update_contact(company_id, contact.to_database_model(contact_id), user)
-    return ContactOutModel.from_database_model(contact, request)
+    return ContactOutModel.from_database_model(contact, essentials.request, essentials.timezone)
 
 
 @router.delete(
