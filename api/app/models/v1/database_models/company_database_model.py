@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from pytz import utc
 
 from .contact_database_model import ContactDatabaseModel
+from ..shared import Language
 
 
 class ChangeType(Enum):

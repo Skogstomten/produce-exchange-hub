@@ -134,12 +134,14 @@ class CompanyDatastore(BaseDatastore):
         self,
         company_id: str,
         company: CompanyUpdateModel,
+        authenticated_user: UserDatabaseModel,
     ) -> CompanyDatabaseModel:
         """
         Updates a company with given model.
         :raise NotFoundError: If company with id is not found.
         :param company_id: ID of company to update.
         :param company: The data to update.
+        :param authenticated_user: User performing the update.
         :return: CompanyDatabaseModel. The updated company.
         """
         doc = self._companies.by_id(company_id)
@@ -268,7 +270,7 @@ class CompanyDatastore(BaseDatastore):
         )
         return self.users.get_company_users(company_id)
 
-    def activate_company(self, company_id: str) -> CompanyDatabaseModel:
+    def activate_company(self, company_id: str, authenticated_user: UserDatabaseModel) -> CompanyDatabaseModel:
         """Updates a companys status to active."""
         self._companies.patch_document(company_id, {"status": CompanyStatus.active})
         return self.get_company(company_id)

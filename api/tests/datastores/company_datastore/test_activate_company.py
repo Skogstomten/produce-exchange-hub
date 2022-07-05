@@ -3,13 +3,15 @@ from app.datastores.company_datastore import CompanyDatastore
 from app.models.v1.shared import CompanyStatus
 
 
-def test_activate_company(doc_database_collection_mocks, user_datastore, logger, fake_company_data):
+def test_activate_company(
+    doc_database_collection_mocks, user_datastore, logger, fake_company_data, authenticated_user_default
+):
     db, collection = doc_database_collection_mocks
     company_id, company_doc = fake_company_data
     collection.by_id.return_value = MongoDocument(company_doc, collection)
 
     target = CompanyDatastore(db, user_datastore, logger)
-    result = target.activate_company(company_id)
+    result = target.activate_company(company_id, authenticated_user_default)
 
     db.collection.assert_called_with("companies")
     collection.patch_document.assert_called_once_with(company_id, {"status": CompanyStatus.active})
