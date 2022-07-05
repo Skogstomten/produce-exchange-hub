@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 from bson import ObjectId
 
-from app.database.document_database import DatabaseCollection, DocumentDatabase
+from app.database.document_database import DocumentDatabase
 from app.database.mongo.mongo_document_database import MongoDatabaseCollection
 
 
@@ -29,15 +29,15 @@ def doc_id(obj_id):
 @pytest.fixture
 def doc_database_collection_mocks():
     """
-    Fixture setting up mock of app.database.document_database.DatabaseCollection.
+    Fixture setting up mock of app.database.document_database.DocumentDatabase.
     Is also setup for using the transaction decorator.
     :return: Mock(DocumentDatabase)
-        with collection.return_value = Mock(DatabaseCollection)
-        as tuple[Mock[DocumentDatabase], Mock[DatabaseCollection]]
+        with collection.return_value = Mock(MongoDatabaseCollection)
+        as tuple[Mock[DocumentDatabase], Mock[MongoDatabaseCollection]]
     """
     def fake_decorator_function(_, datastore, function, *args, **kwargs):
         return function(datastore, *args, **kwargs)
-    collection_mock = Mock(DatabaseCollection)
+    collection_mock = Mock(MongoDatabaseCollection)
     db_mock = Mock(DocumentDatabase)
 
     DocumentDatabase.transaction = fake_decorator_function

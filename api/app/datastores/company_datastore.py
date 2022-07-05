@@ -182,6 +182,20 @@ class CompanyDatastore(BaseDatastore):
         if contact is None:
             raise NotFoundError(f"Contact with id '{model.id}' not found on company '{company_id}'.")
 
+        contact.type = model.type
+        contact.value = model.value
+        contact.description = model.description
+        contact.changed_by = authenticated_user.id
+        contact.changed_at = datetime.now(utc)
+
+        change = ChangeDatabaseModel.create(
+            f"contacts.{contact.id}", ChangeType.update, authenticated_user.id, authenticated_user.email
+        )
+        company.changes.append(change)
+
+        company_doc.replace(company.dict())
+        return contact
+
     def delete_contact(self, company_id: str, contact_id: str, user: UserDatabaseModel) -> None:
         """
         Delete a contact from company.

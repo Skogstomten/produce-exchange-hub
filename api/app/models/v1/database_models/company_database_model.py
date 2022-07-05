@@ -4,6 +4,7 @@ from enum import Enum
 
 from bson import ObjectId
 from pydantic import BaseModel, Field
+from pytz import utc
 
 from .contact_database_model import ContactDatabaseModel
 
@@ -24,6 +25,7 @@ class ChangeDatabaseModel(BaseModel):
     change_type: ChangeType
     actor_id: str
     actor_username: str
+    changed_at: datetime
 
     @classmethod
     def create(cls, path: str, change_type: ChangeType, user_id: str, username: str):
@@ -34,6 +36,7 @@ class ChangeDatabaseModel(BaseModel):
             change_type=change_type,
             actor_id=user_id,
             actor_username=username,
+            changed_at=datetime.now(utc),
         )
 
 
