@@ -136,7 +136,7 @@ async def activate_company(
                         "en": "Company name",
                     }
                 }
-            }
+            },
         },
         status.HTTP_404_NOT_FOUND: {
             "description": "Company not found.",
@@ -180,9 +180,7 @@ async def get_company_names(
 async def update_company_names(
     company_id: str,
     names: dict[str, str] = Body(...),
-    user: UserDatabaseModel = Security(
-        get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
-    ),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ):
