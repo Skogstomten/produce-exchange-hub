@@ -35,11 +35,11 @@ def doc_database_collection_mocks():
         with collection.return_value = Mock(MongoDatabaseCollection)
         as tuple[Mock[DocumentDatabase], Mock[MongoDatabaseCollection]]
     """
-    def fake_decorator_function(_, datastore, function, *args, **kwargs):
+    def fake_decorator_function(datastore, function, *args, **kwargs):
         return function(datastore, *args, **kwargs)
     collection_mock = Mock(MongoDatabaseCollection)
     db_mock = Mock(DocumentDatabase)
 
-    DocumentDatabase.transaction = fake_decorator_function
+    db_mock.transaction = fake_decorator_function
     db_mock.collection.return_value = collection_mock
     return db_mock, collection_mock

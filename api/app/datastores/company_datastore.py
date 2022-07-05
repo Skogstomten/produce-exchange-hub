@@ -156,7 +156,7 @@ class CompanyDatastore(BaseDatastore):
 
         :return: The added contact. ContactDatabaseModel.
         """
-        self._companies.add_to_sub_collection(company_id, "contacts", model)
+        self._companies.add_to_sub_collection(company_id, "contacts", model.dict())
         return model
 
     @transaction
