@@ -353,6 +353,7 @@ class MongoDocumentDatabase(DocumentDatabase):
     """
     Wrapper for MongoDB database.
     """
+
     def __init__(self, db: MongoDatabase, logger: AppLogger):
         self._db = db
         self._logger = logger

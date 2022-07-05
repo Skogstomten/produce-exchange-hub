@@ -32,6 +32,7 @@ logger_injector = AppLoggerInjector("company_datastore")
 
 class CompanyDatastore(BaseDatastore):
     """The datastore class."""
+
     def __init__(self, db: DocumentDatabase, users: UserDatastore, logger: AppLogger):
         """
         Initializes the datastore with a reference to the document db.

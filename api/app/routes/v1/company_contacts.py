@@ -12,7 +12,8 @@ from app.dependencies.essentials import Essentials, get_essentials
 from app.dependencies.user import get_current_user
 from app.models.v1.api_models.contacts import (
     CreateContactModel,
-    ContactOutModel, UpdateContactModel,
+    ContactOutModel,
+    UpdateContactModel,
 )
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 
@@ -45,7 +46,7 @@ async def add_contact(
     response_model=ContactOutModel,
     responses={
         200: {"description": "Updated successfully."},
-        404: {"description": "Either company or contact was not found."}
+        404: {"description": "Either company or contact was not found."},
     },
 )
 async def update_contact(
@@ -53,9 +54,7 @@ async def update_contact(
     contact_id: str = Path(...),
     contact: UpdateContactModel = Body(...),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    user: UserDatabaseModel = Security(
-        get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
-    ),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
     essentials: Essentials = Depends(get_essentials),
 ):
     """Update contact on company."""

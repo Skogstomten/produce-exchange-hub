@@ -16,6 +16,7 @@ from app.utils.request_utils import get_current_request_url_with_additions
 
 class BaseContactModel(BaseModel):
     """Base contact model."""
+
     type: ContactType
     value: str
     description: str | None = Field(None)
@@ -23,6 +24,7 @@ class BaseContactModel(BaseModel):
 
 class CreateContactModel(BaseContactModel):
     """Model used for creating a contact."""
+
     def to_database_model(self, user: UserDatabaseModel) -> ContactDatabaseModel:
         """Converts model to database model."""
         return ContactDatabaseModel(
@@ -49,6 +51,7 @@ class UpdateContactModel(BaseContactModel):
 
 class ContactListModel(BaseContactModel, BaseOutModel):
     """Model used when listing contacts."""
+
     id: str
     created_by: str
     created_at: datetime
@@ -68,7 +71,7 @@ class ContactListModel(BaseContactModel, BaseOutModel):
             changed_by=model.changed_by,
             changed_at=to_timezone(model.changed_at, tz),
             operations=[],
-            url=get_current_request_url_with_additions(request, (model.id,))
+            url=get_current_request_url_with_additions(request, (model.id,)),
         )
 
 

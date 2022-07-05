@@ -257,6 +257,7 @@ def transaction(function):
     def wrapper(self: "BaseDatastore", *args, **kwargs):
         logger.debug(f"transaction decorator is called. self={self}, *args={args}, **kwargs={kwargs}")
         return self.db.transaction(self, function, *args, **kwargs)
+
     return wrapper
 
 
