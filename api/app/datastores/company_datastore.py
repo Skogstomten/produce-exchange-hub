@@ -144,13 +144,14 @@ class CompanyDatastore(BaseDatastore):
         :param authenticated_user: User performing the update.
         :return: CompanyDatabaseModel. The updated company.
         """
-        doc = self._companies.by_id(company_id)
-        if doc is None:
+        company_doc = self._companies.by_id(company_id)
+        if company_doc is None:
             raise NotFoundError(f"No company with id '{company_id}' was found.")
+
         for key, value in company.dict().items():
-            doc[key] = value
-        doc = doc.replace(doc)
-        return CompanyDatabaseModel(**doc)
+            company_doc[key] = value
+        company_doc = company_doc.replace(company_doc)
+        return CompanyDatabaseModel(**company_doc)
 
     def add_contact(
         self,
