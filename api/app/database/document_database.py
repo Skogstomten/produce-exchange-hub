@@ -6,6 +6,11 @@ from collections.abc import MutableMapping
 from enum import Enum
 from typing import Any, Callable, TypeVar
 
+from app.dependencies.log import AppLoggerInjector
+
+logger_injector = AppLoggerInjector("document_database")
+logger = logger_injector()
+
 
 class NotSet(Enum):
     """
@@ -242,3 +247,20 @@ class DocumentDatabase(metaclass=ABCMeta):
         :param collection_name: Name of collection.
         :return: DatabaseCollection.
         """
+
+    @abstractmethod
+    def transaction(self, datastore, function, *args, **kwargs):
+        """Creates a transaction of function. To be used as decorator."""
+
+
+def transaction(function):
+    def wrapper(self: "BaseDatastore", *args, **kwargs):
+        logger.debug(f"transaction decorator is called. self={self}, *args={args}, **kwargs={kwargs}")
+        return self.db.transaction(self, function, *args, **kwargs)
+
+    return wrapper
+
+
+class BaseDatastore:
+    def __init__(self, db: DocumentDatabase):
+        self.db = db

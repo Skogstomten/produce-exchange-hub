@@ -16,3 +16,5 @@ class ContactDatabaseModel(BaseModel):
     description: str | None
     created_by: str = Field("MISSING")
     created_at: datetime = Field(datetime.now(utc))
+    changed_by: str | None
+    changed_at: datetime | None

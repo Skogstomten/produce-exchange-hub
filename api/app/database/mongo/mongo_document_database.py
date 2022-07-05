@@ -2,10 +2,12 @@
 MongoDb implementation of document database interface
 """
 from collections.abc import MutableMapping, Iterable
+from datetime import datetime
 from typing import Any
 
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
+from pymongo.client_session import ClientSession
 from pymongo.collection import Collection as MongoCollection
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
@@ -16,6 +18,7 @@ from ..document_database import (
     DocumentCollection,
     DatabaseCollection,
 )
+from ...dependencies.log import AppLogger
 from ...errors import InvalidOperationError, NotFoundError
 from ...utils.enum_utils import enums_to_string
 
@@ -326,7 +329,9 @@ class MongoDatabaseCollection(DatabaseCollection):
         update_result = self.mongo_collection.update_one({"_id": ObjectId(doc_id)}, {"$set": enums_to_string(updates)})
         _ensure_updated(update_result, doc_id, self.mongo_collection.name)
 
-    def add_to_sub_collection(self, doc_id: str, sub_collection_path: str, new_sub_collection_value: Any) -> None:
+    def add_to_sub_collection(
+        self, doc_id: str, sub_collection_path: str, new_sub_collection_value: dict | list | str | int | datetime
+    ) -> None:
         """See base class."""
         update_result = self.mongo_collection.update_one(
             {"_id": ObjectId(doc_id)}, {"$push": {sub_collection_path: enums_to_string(new_sub_collection_value)}}
@@ -349,14 +354,9 @@ class MongoDocumentDatabase(DocumentDatabase):
     Wrapper for MongoDB database.
     """
 
-    _db: MongoDatabase
-
-    def __init__(self, db: MongoDatabase):
-        """
-        Creates a MongoDb wrapper.
-        :param db:
-        """
+    def __init__(self, db: MongoDatabase, logger: AppLogger):
         self._db = db
+        self._logger = logger
 
     def __str__(self):
         return str(self._db)
@@ -365,7 +365,24 @@ class MongoDocumentDatabase(DocumentDatabase):
         """
         Gets database collection by name.
         :param collection_name: Name of collection.
-        :return: Database collection to perform operations on the selected
-        collection.
+        :return: Database collection to perform operations on the selected collection.
         """
         return MongoDatabaseCollection(self._db.get_collection(collection_name))
+
+    def transaction(self, datastore, function, *args, **kwargs):
+        self._logger.debug(
+            f"MongoDocumentDatabase.transaction(self={self}, datastore={datastore}, function={function}, "
+            f"*args={args}, **kwargs={kwargs})"
+        )
+
+        def callback(session: ClientSession):
+            self._logger.debug(f"MongoDocumentDatabase.transaction.callback(session={session})")
+            temp_db = self._db
+            self._db = session.client.get_database()
+            result = function(datastore, *args, **kwargs)
+            self._db = temp_db
+            return result
+
+        with self._db.client.start_session() as s:
+            self._logger.debug("MongoDocumentDatabase.transaction: Starting session...")
+            return s.with_transaction(callback)
