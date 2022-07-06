@@ -8,7 +8,7 @@ from bson import ObjectId
 from fastapi import Depends
 from pytz import utc
 
-from app.database.document_database import DocumentDatabase, DatabaseCollection, transaction, BaseDatastore
+from app.database.document_database import DocumentDatabase, DatabaseCollection, transaction, BaseDatastore, Document
 from app.dependencies.document_database import get_document_database
 from app.models.v1.api_models.companies import (
     CompanyCreateModel,
@@ -119,14 +119,16 @@ class CompanyDatastore(BaseDatastore):
 
         return result
 
-    def get_company(self, company_id: str) -> CompanyDatabaseModel:
+    def get_company(self, company_id: str, user: UserDatabaseModel | None) -> CompanyDatabaseModel:
         """
         Get a single company.
         :param company_id: id of the company to get.
+        :param user: Authenticated user.
         :return: company database model object.
         """
-        doc = self._companies.by_id(company_id)
-        return CompanyDatabaseModel(**doc)
+        # TODO: Make sure user has rights to access this.
+        company_doc = self._get_company_doc(company_id)
+        return CompanyDatabaseModel(**company_doc)
 
     def add_company(
         self,
@@ -168,9 +170,7 @@ class CompanyDatastore(BaseDatastore):
         :param authenticated_user: User performing the update.
         :return: CompanyDatabaseModel. The updated company.
         """
-        company_doc = self._companies.by_id(company_id)
-        if company_doc is None:
-            raise NotFoundError(f"No company with id '{company_id}' was found.")
+        company_doc = self._get_company_doc(company_id)
 
         company = CompanyDatabaseModel(**company_doc)
         for key, value in model.__dict__.items():
@@ -183,6 +183,33 @@ class CompanyDatastore(BaseDatastore):
 
         company_doc = company_doc.replace(company.dict())
         return CompanyDatabaseModel(**company_doc)
+
+    @transaction
+    def update_company_names(
+        self, company_id: str, names: dict[str, str], user: UserDatabaseModel
+    ) -> CompanyDatabaseModel:
+        self._companies.update_document(
+            company_id,
+            {
+                "$set": {"name": names},
+                "$push": {"changes": ChangeDatabaseModel.create("name", ChangeType.update, user.id, user.email).dict()},
+            },
+        )  # TODO: Figure out a less implementation specific solution for this.
+        return self.get_company(company_id, user)
+
+    def update_company_descriptions(
+        self, company_id: str, descriptions: dict[str, str], user: UserDatabaseModel
+    ) -> CompanyDatabaseModel:
+        self._companies.update_document(
+            company_id,
+            {
+                "$set": {"description": descriptions},
+                "$push": {
+                    "changes": ChangeDatabaseModel.create("description", ChangeType.update, user.id, user.email).dict()
+                },
+            },
+        )  # TODO: Figure out a less implementation specific solution for this.
+        return self.get_company(company_id, user)
 
     def add_contact(
         self,
@@ -214,10 +241,7 @@ class CompanyDatastore(BaseDatastore):
         :param authenticated_user: User object for authenticated user. For change logging.
         :return: Updated contact model.
         """
-        company_doc = self._companies.by_id(company_id)
-        if company_doc is None:
-            raise NotFoundError(f"Company with id '{company_id}' not found.")
-
+        company_doc = self._get_company_doc(company_id)
         company = CompanyDatabaseModel(**company_doc)
         contact = next((c for c in company.contacts if c.id == model.id), None)
         if contact is None:
@@ -249,10 +273,7 @@ class CompanyDatastore(BaseDatastore):
 
         :raises app.errors.NotFoundError: if company or contact does not exist.
         """
-        company_doc = self._companies.by_id(company_id)
-        if company_doc is None:
-            raise NotFoundError(f"No company with id '{company_id}' was found.")
-
+        company_doc = self._get_company_doc(company_id)
         company = CompanyDatabaseModel(**company_doc)
         contact = next((c for c in company.contacts if c.id == contact_id), None)
         if contact is None:
@@ -304,8 +325,15 @@ class CompanyDatastore(BaseDatastore):
 
     def activate_company(self, company_id: str, authenticated_user: UserDatabaseModel) -> CompanyDatabaseModel:
         """Updates a companys status to active."""
+        # TODO: Record change by user
         self._companies.patch_document(company_id, {"status": CompanyStatus.active})
-        return self.get_company(company_id)
+        return self.get_company(company_id, authenticated_user)
+
+    def _get_company_doc(self, company_id: str) -> Document:
+        company_doc = self._companies.by_id(company_id)
+        if company_doc is None:
+            raise NotFoundError(f"Company with id '{company_id}' not found")
+        return company_doc
 
 
 def get_company_datastore(

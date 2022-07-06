@@ -74,9 +74,10 @@ async def get_company(
     company_id: str = Path(...),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
+    user: UserDatabaseModel = Depends(get_current_user_if_any),
 ) -> CompanyOutModel:
     """Get a company by id."""
-    company = company_datastore.get_company(company_id)
+    company = company_datastore.get_company(company_id, user)
     return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request)
 
 
@@ -178,11 +179,11 @@ async def get_company_names(
 ):
     """Get the map of names for company for easy edit and update."""
     logger.debug(f"Incoming={get_url(request)}: company_id={company_id}, user={user}")
-    company = company_datastore.get_company(company_id)
+    company = company_datastore.get_company(company_id, user)
     return company.name
 
 
-@router.put("/{copany_id}/names", response_model=CompanyOutModel)
+@router.put("/{company_id}/names", response_model=CompanyOutModel)
 async def update_company_names(
     company_id: str,
     names: dict[str, str] = Body(...),
@@ -190,8 +191,27 @@ async def update_company_names(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ):
-    company = company_datastore.get_company(company_id)
-    update_model = CompanyUpdateModel(**company.dict())
-    update_model.name = names
-    company = company_datastore.update_company(company_id, update_model, user)
+    company = company_datastore.update_company_names(company_id, names, user)
+    return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request)
+
+
+@router.get("/{company_id}/descriptions", response_model=dict[str, str])
+async def get_company_descriptions(
+    company_id: str,
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+):
+    company = company_datastore.get_company(company_id, user)
+    return company.description
+
+
+@router.put("/{company_id}/descriptions", response_model=CompanyOutModel)
+async def update_company_descriptions(
+    company_id: str,
+    descriptions: dict[str, str] = Body(...),
+    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    essentials: Essentials = Depends(get_essentials),
+):
+    company = company_datastore.update_company_descriptions(company_id, descriptions, user)
     return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request)

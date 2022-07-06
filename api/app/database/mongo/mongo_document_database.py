@@ -342,6 +342,11 @@ class MongoDatabaseCollection(DatabaseCollection):
         )
         _ensure_updated(update_result, doc_id, self._mongo_collection.name)
 
+    def update_document(self, doc_id: str, updates: Any) -> None:
+        updates = enums_to_string(updates)
+        update_result = self._mongo_collection.update_one({"_id": ObjectId(doc_id)}, updates)
+        _ensure_updated(update_result, doc_id, self._mongo_collection.name)
+
     def replace(self, doc_id: str, data: dict) -> None:
         """Replaces data for document."""
         data = _convert_str_id_to_object_id(data)
