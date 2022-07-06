@@ -3,26 +3,26 @@ The company datastore.
 For accessing and manipulating company related data.
 """
 from datetime import datetime
-from pytz import utc
 
 from fastapi import Depends
+from pytz import utc
 
-from app.models.v1.shared import SortOrder, CompanyStatus, RoleType
+from app.database.document_database import DocumentDatabase, DatabaseCollection, transaction, BaseDatastore
+from app.dependencies.document_database import get_document_database
 from app.models.v1.api_models.companies import (
     CompanyCreateModel,
     CompanyUpdateModel,
-)
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.models.v1.database_models.contact_database_model import (
-    ContactDatabaseModel,
 )
 from app.models.v1.database_models.company_database_model import (
     CompanyDatabaseModel,
     ChangeDatabaseModel,
     ChangeType,
 )
-from app.database.document_database import DocumentDatabase, DatabaseCollection, transaction, BaseDatastore
-from app.dependencies.document_database import get_document_database
+from app.models.v1.database_models.contact_database_model import (
+    ContactDatabaseModel,
+)
+from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.shared import SortOrder, CompanyStatus, RoleType
 from .user_datastore import UserDatastore, get_user_datastore
 from ..dependencies.log import AppLoggerInjector, AppLogger
 from ..errors import NotFoundError, InvalidInputError
@@ -68,6 +68,7 @@ class CompanyDatastore(BaseDatastore):
         take: int | None = None,
         sort_by: str | None = None,
         sort_order: SortOrder | None = None,
+        authenticated_user: UserDatabaseModel | None = None,
     ) -> list[CompanyDatabaseModel]:
         """
         Gets a list of companies.
@@ -75,12 +76,25 @@ class CompanyDatastore(BaseDatastore):
         :param take: number of companies to return, to limit response size.
         :param sort_by: field name to sort by.
         :param sort_order: asc or desc.
+        :param authenticated_user: If any.
         :return: list of companies.
         """
         self.logger.debug(
             f"CompanyDatastore.get_companies(skip={skip}, take={take}, sort_by={sort_by}, sort_order={sort_order})"
         )
-        docs = self._companies.get_all()
+
+        filters = {}
+        if authenticated_user is None:
+            filters["status"] = CompanyStatus.active
+        else:
+            if not authenticated_user.is_superuser():
+                company_admin = authenticated_user.get_role("company_admin")
+                if company_admin is None:
+                    filters["status"] = CompanyStatus.active
+                else:
+                    filters.update({"$or": [{"status": CompanyStatus.active}, {"id": company_admin.reference}]})
+
+        docs = self._companies.get(filters)
         if skip:
             docs = docs.skip(skip)
         if take:

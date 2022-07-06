@@ -308,6 +308,8 @@ class MongoDatabaseCollection(DatabaseCollection):
         """
         if filters is None:
             filters = {}
+        filters = enums_to_string(filters)
+        filters = _convert_str_id_to_object_id(filters)
         cursor = self.mongo_collection.find(filters)
         return MongoDocumentCollection(cursor, self)
 
