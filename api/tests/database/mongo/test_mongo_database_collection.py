@@ -20,9 +20,9 @@ def collection():
     return collection
 
 
-def get_target(collection):
+def get_target(collection, logger):
     doc_id = str(ObjectId())
-    target: DatabaseCollection = MongoDatabaseCollection(collection)
+    target: DatabaseCollection = MongoDatabaseCollection(collection, logger)
     return doc_id, target
 
 
@@ -30,10 +30,10 @@ def configure_collection(collection, modified_count):
     type(collection.update_one.return_value).modified_count = PropertyMock(return_value=modified_count)
 
 
-def test_patch_document_document_found(collection):
+def test_patch_document_document_found(collection, logger):
     configure_collection(collection, 1)
 
-    doc_id, target = get_target(collection)
+    doc_id, target = get_target(collection, logger)
     target.patch_document(doc_id, {"field_name": "new_value", "enum_val": CompanyStatus.active})
 
     collection.update_one.assert_called_once_with(
@@ -47,11 +47,11 @@ def test_patch_document_document_found(collection):
     )
 
 
-def test_patch_document_document_not_found(collection):
+def test_patch_document_document_not_found(collection, logger):
     configure_collection(collection, 0)
     type(collection).name = PropertyMock(return_value="stuff")
 
-    doc_id, target = get_target(collection)
+    doc_id, target = get_target(collection, logger)
     with pytest.raises(
         NotFoundError,
         match=f"No document with key='{doc_id}' " f"was found in collection='stuff'",
