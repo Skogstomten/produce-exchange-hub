@@ -45,7 +45,7 @@ def test_update_contact_raises_not_found_error_if_company_not_found(
     collection.by_id.return_value = None
 
     target = CompanyDatastore(db, user_datastore, logger)
-    with pytest.raises(NotFoundError, match=f"Company with id '{company_id}' not found."):
+    with pytest.raises(NotFoundError, match=f"Company with id '{company_id}' not found"):
         target.update_contact(company_id, contact_model, authenticated_user_default)
 
 

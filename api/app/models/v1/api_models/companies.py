@@ -105,8 +105,6 @@ class CompanyCreateModel(BaseModel):
 class CompanyUpdateModel(BaseModel):
     """Model used when updating company."""
 
-    name: dict[str, str]
     company_types: list[CompanyTypes] = Field(..., min_items=1)
     content_languages_iso: list[str] = Field(..., min_length=2, max_length=2, min_items=1)
-    description: dict[str, str] = Field({})
     external_website_url: str | None

@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from pytz import utc
 
 from .contact_database_model import ContactDatabaseModel
+from ..shared import CompanyStatus
 
 
 class ChangeType(Enum):
@@ -45,7 +46,7 @@ class CompanyDatabaseModel(BaseModel):
 
     id: str
     name: dict[str, str]
-    status: str
+    status: CompanyStatus
     created_date: datetime
     company_types: list[str]
     content_languages_iso: list[str]

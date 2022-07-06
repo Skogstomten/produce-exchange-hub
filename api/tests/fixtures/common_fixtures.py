@@ -8,7 +8,7 @@ from pytz import utc
 from app.datastores.user_datastore import UserDatastore
 from app.dependencies.log import AppLogger
 from app.models.v1.database_models.contact_database_model import ContactDatabaseModel
-from app.models.v1.shared import ContactType
+from app.models.v1.shared import ContactType, CompanyStatus
 
 
 def _get_id() -> str:
@@ -29,6 +29,47 @@ def _get_contact_model(
         created_by=created_by,
         created_at=created_at,
     )
+
+
+def get_company_database_dict(
+    company_id: ObjectId = ObjectId(),
+    name: dict[str, str] = None,
+    status: CompanyStatus = CompanyStatus.active,
+    created_date: datetime = datetime.now(utc),
+    company_types: list[str] | None = None,
+    content_languages_iso: list[str] | None = None,
+    activation_date: datetime | None = None,
+    description: dict[str, str] | None = None,
+    external_website_url: str | None = None,
+    contacts: list[dict] | None = None,
+    changes: list[dict] | None = None,
+):
+    if name is None:
+        name = {}
+    if company_types is None:
+        company_types = []
+    if content_languages_iso is None:
+        content_languages_iso = []
+    if description is None:
+        description = []
+    if contacts is None:
+        contacts = []
+    if changes is None:
+        changes = []
+
+    return {
+        "_id": company_id,
+        "name": name,
+        "status": status,
+        "created_date": created_date,
+        "company_types": company_types,
+        "content_languages_iso": content_languages_iso,
+        "activation_date": activation_date,
+        "description": description,
+        "external_website_url": external_website_url,
+        "contacts": contacts,
+        "changes": changes,
+    }
 
 
 @pytest.fixture

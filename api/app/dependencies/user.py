@@ -10,7 +10,10 @@ from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.token import TokenData
 from app.utils.request_utils import get_current_request_url_with_additions
 from .auth import OAUTH2_SCHEME_OPTIONAL, SECRET_KEY, ALGORITHM
+from .log import AppLogger, AppLoggerInjector
 from ..utils.str_utils import remove_brackets
+
+logger_injector = AppLoggerInjector("dependencies.user")
 
 
 def _append_ref_if_any(current_val: str, parts: list[str], i: int, request: Request) -> str:
@@ -103,6 +106,7 @@ def get_current_user_if_any(
     security_scopes: SecurityScopes,
     token: str | None = Depends(OAUTH2_SCHEME_OPTIONAL),
     users: UserDatastore = Depends(get_user_datastore),
+    logger: AppLogger = Depends(logger_injector),
 ) -> UserDatabaseModel | None:
     """
     Gets current user from access token, if there is an access token.
@@ -112,8 +116,12 @@ def get_current_user_if_any(
     :param security_scopes: security scope restrictions for current endpoint.
     :param token: encoded jwt token.
     :param users: datastore for user database access.
+    :param logger: AppLogger
     :return: User model from database.
     """
+    logger.debug(
+        f"get_current_user_if_any(request={request}, security_scopes={security_scopes}, token={token}, users={users})"
+    )
     if token is None:
         return None
     if security_scopes.scopes:

@@ -234,6 +234,10 @@ class DatabaseCollection(metaclass=ABCMeta):
         :raise NotFoundError: If no document with doc_id exists.
         """
 
+    @abstractmethod
+    def update_document(self, doc_id: str, updates: Any) -> None:
+        """Updates individual document."""
+
 
 class DocumentDatabase(metaclass=ABCMeta):
     """
