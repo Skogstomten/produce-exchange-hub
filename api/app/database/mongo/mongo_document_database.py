@@ -236,18 +236,19 @@ class MongoDatabaseCollection(DatabaseCollection):
     Represents a database collection
     """
 
-    def __init__(self, collection: MongoCollection):
+    def __init__(self, collection: MongoCollection, logger: AppLogger):
         """
         Creates a mongo database collection wrapping a Collection from pymongo.
         :param collection: pymongo.database.collection
         """
-        self.mongo_collection = collection
+        self._mongo_collection = collection
+        self._logger = logger
 
     def __str__(self):
-        return str(self.mongo_collection)
+        return str(self._mongo_collection)
 
     def __repr__(self):
-        return f"MongoDatabaseCollection({repr(self.mongo_collection)})"
+        return f"MongoDatabaseCollection({repr(self._mongo_collection)})"
 
     def by_id(self, doc_id: str) -> Document | None:
         """
@@ -255,7 +256,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         :param doc_id: id of document.
         :return: Document with id or None if no document is found.
         """
-        doc = self.mongo_collection.find_one({"_id": ObjectId(doc_id)})
+        doc = self._mongo_collection.find_one({"_id": ObjectId(doc_id)})
         if doc is None:
             return None
         return MongoDocument(doc, self)
@@ -271,10 +272,10 @@ class MongoDatabaseCollection(DatabaseCollection):
         :param value: Lookup value.
         :return: Document or None if no document is found.
         """
-        doc = self.mongo_collection.find_one({key: value})
+        doc = self._mongo_collection.find_one({key: value})
         if doc is None:
             return None
-        return MongoDocument(self.mongo_collection.find_one({key: value}), self)
+        return MongoDocument(self._mongo_collection.find_one({key: value}), self)
 
     def add(self, data: dict) -> Document:
         """
@@ -284,7 +285,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         :return: The newly created document.
         """
         data = enums_to_string(data)
-        result = self.mongo_collection.insert_one(data)
+        result = self._mongo_collection.insert_one(data)
         return self.by_id(result.inserted_id)
 
     def get_all(self) -> DocumentCollection:
@@ -294,7 +295,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         Note that no documents are fetched when calling this method.
         :return: DocumentCollection operating as a cursor.
         """
-        return MongoDocumentCollection(self.mongo_collection.find(), self)
+        return MongoDocumentCollection(self._mongo_collection.find(), self)
 
     def get(
         self,
@@ -310,7 +311,8 @@ class MongoDatabaseCollection(DatabaseCollection):
             filters = {}
         filters = enums_to_string(filters)
         filters = _convert_str_id_to_object_id(filters)
-        cursor = self.mongo_collection.find(filters)
+        self._logger.debug(f"MongoDatabaseCollection.get(filters={filters})")
+        cursor = self._mongo_collection.find(filters)
         return MongoDocumentCollection(cursor, self)
 
     def exists(self, filters: dict[str, Any]) -> bool:
@@ -324,31 +326,31 @@ class MongoDatabaseCollection(DatabaseCollection):
         """
         filters = _convert_str_id_to_object_id(filters)
         filters = enums_to_string(filters)
-        return self.mongo_collection.count_documents(filters, limit=1) > 0
+        return self._mongo_collection.count_documents(filters, limit=1) > 0
 
     def patch_document(self, doc_id: str, updates: dict[str, Any]) -> None:
         """See base class."""
-        update_result = self.mongo_collection.update_one({"_id": ObjectId(doc_id)}, {"$set": enums_to_string(updates)})
-        _ensure_updated(update_result, doc_id, self.mongo_collection.name)
+        update_result = self._mongo_collection.update_one({"_id": ObjectId(doc_id)}, {"$set": enums_to_string(updates)})
+        _ensure_updated(update_result, doc_id, self._mongo_collection.name)
 
     def add_to_sub_collection(
         self, doc_id: str, sub_collection_path: str, new_sub_collection_value: dict | list | str | int | datetime
     ) -> None:
         """See base class."""
-        update_result = self.mongo_collection.update_one(
+        update_result = self._mongo_collection.update_one(
             {"_id": ObjectId(doc_id)}, {"$push": {sub_collection_path: enums_to_string(new_sub_collection_value)}}
         )
-        _ensure_updated(update_result, doc_id, self.mongo_collection.name)
+        _ensure_updated(update_result, doc_id, self._mongo_collection.name)
 
     def replace(self, doc_id: str, data: dict) -> None:
         """Replaces data for document."""
         data = _convert_str_id_to_object_id(data)
         data = enums_to_string(data)
-        self.mongo_collection.replace_one({"_id": ObjectId(doc_id)}, data)
+        self._mongo_collection.replace_one({"_id": ObjectId(doc_id)}, data)
 
     def delete(self, doc_id: str) -> None:
         """Deletes a document."""
-        self.mongo_collection.delete_one({"_id": ObjectId(doc_id)})
+        self._mongo_collection.delete_one({"_id": ObjectId(doc_id)})
 
 
 class MongoDocumentDatabase(DocumentDatabase):
@@ -369,7 +371,7 @@ class MongoDocumentDatabase(DocumentDatabase):
         :param collection_name: Name of collection.
         :return: Database collection to perform operations on the selected collection.
         """
-        return MongoDatabaseCollection(self._db.get_collection(collection_name))
+        return MongoDatabaseCollection(self._db.get_collection(collection_name), self._logger)
 
     def transaction(self, datastore, function, *args, **kwargs):
         self._logger.debug(

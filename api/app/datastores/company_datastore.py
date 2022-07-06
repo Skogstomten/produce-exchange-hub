@@ -4,6 +4,7 @@ For accessing and manipulating company related data.
 """
 from datetime import datetime
 
+from bson import ObjectId
 from fastapi import Depends
 from pytz import utc
 
@@ -41,13 +42,13 @@ class CompanyDatastore(BaseDatastore):
         """
         super().__init__(db)
         self.users = users
-        self.logger = logger
+        self._logger = logger
 
     def __str__(self):
         return self.__repr__()
 
     def __repr__(self):
-        return f"CompanyDatastore(db={self.db}, users={self.users}, logger={self.logger})"
+        return f"CompanyDatastore(db={self.db}, users={self.users}, logger={self._logger})"
 
     @property
     def _companies(self) -> DatabaseCollection:
@@ -79,7 +80,7 @@ class CompanyDatastore(BaseDatastore):
         :param authenticated_user: If any.
         :return: list of companies.
         """
-        self.logger.debug(
+        self._logger.debug(
             f"CompanyDatastore.get_companies(skip={skip}, take={take}, sort_by={sort_by}, sort_order={sort_order}, "
             f"authenticated_user={authenticated_user})"
         )
@@ -94,9 +95,15 @@ class CompanyDatastore(BaseDatastore):
                     filters["status"] = CompanyStatus.active
                 else:
                     filters.update(
-                        {"$or": [{"status": CompanyStatus.active}, *[{"id": role.reference} for role in company_admins]]}
+                        {
+                            "$or": [
+                                {"status": CompanyStatus.active},
+                                *[{"_id": ObjectId(role.reference)} for role in company_admins],
+                            ]
+                        }
                     )
 
+        self._logger.debug(f"Querying companies: filters={filters}")
         docs = self._companies.get(filters)
         if skip:
             docs = docs.skip(skip)
@@ -150,14 +157,14 @@ class CompanyDatastore(BaseDatastore):
     def update_company(
         self,
         company_id: str,
-        company: CompanyUpdateModel,
+        model: CompanyUpdateModel,
         authenticated_user: UserDatabaseModel,
     ) -> CompanyDatabaseModel:
         """
         Updates a company with given model.
         :raise NotFoundError: If company with id is not found.
         :param company_id: ID of company to update.
-        :param company: The data to update.
+        :param model: The data to update.
         :param authenticated_user: User performing the update.
         :return: CompanyDatabaseModel. The updated company.
         """
@@ -165,9 +172,16 @@ class CompanyDatastore(BaseDatastore):
         if company_doc is None:
             raise NotFoundError(f"No company with id '{company_id}' was found.")
 
-        for key, value in company.dict().items():
-            company_doc[key] = value
-        company_doc = company_doc.replace(company_doc)
+        company = CompanyDatabaseModel(**company_doc)
+        for key, value in model.__dict__.items():
+            current_value = company.__dict__.get(key, None)
+            if current_value != value:
+                company.__dict__[key] = value
+                company.changes.append(
+                    ChangeDatabaseModel.create(key, ChangeType.update, authenticated_user.id, authenticated_user.email)
+                )
+
+        company_doc = company_doc.replace(company.dict())
         return CompanyDatabaseModel(**company_doc)
 
     def add_contact(

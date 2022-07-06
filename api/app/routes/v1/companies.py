@@ -15,7 +15,7 @@ from app.dependencies.paging_information import (
     PagingInformation,
     get_paging_information,
 )
-from app.dependencies.user import get_current_user
+from app.dependencies.user import get_current_user, get_current_user_if_any
 from app.errors import ErrorModel
 from app.models.v1.api_models.companies import (
     CompanyOutModel,
@@ -40,10 +40,16 @@ async def get_companies(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
     paging_information: PagingInformation = Depends(get_paging_information),
+    user: UserDatabaseModel = Depends(get_current_user_if_any),
+    logger: AppLogger = Depends(logger_injector),
 ) -> PagingResponseModel[CompanyOutListModel]:
     """Get list of companies wrapped in a paging response."""
+    logger.debug(
+        f"Incoming={get_url(essentials.request)}: sort_by={sort_by}, sort_order={sort_order}, "
+        f"essentials={essentials}, paging_information={paging_information}, user={user}"
+    )
     company_datastore = company_datastore.get_companies(
-        paging_information.skip, paging_information.take, sort_by, sort_order
+        paging_information.skip, paging_information.take, sort_by, sort_order, user
     )
     items: list[CompanyOutListModel] = []
     for company in company_datastore:
