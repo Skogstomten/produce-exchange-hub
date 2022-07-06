@@ -80,7 +80,8 @@ class CompanyDatastore(BaseDatastore):
         :return: list of companies.
         """
         self.logger.debug(
-            f"CompanyDatastore.get_companies(skip={skip}, take={take}, sort_by={sort_by}, sort_order={sort_order})"
+            f"CompanyDatastore.get_companies(skip={skip}, take={take}, sort_by={sort_by}, sort_order={sort_order}, "
+            f"authenticated_user={authenticated_user})"
         )
 
         filters = {}
@@ -88,11 +89,13 @@ class CompanyDatastore(BaseDatastore):
             filters["status"] = CompanyStatus.active
         else:
             if not authenticated_user.is_superuser():
-                company_admin = authenticated_user.get_role("company_admin")
-                if company_admin is None:
+                company_admins = authenticated_user.get_roles("company_admin")
+                if not company_admins:
                     filters["status"] = CompanyStatus.active
                 else:
-                    filters.update({"$or": [{"status": CompanyStatus.active}, {"id": company_admin.reference}]})
+                    filters.update(
+                        {"$or": [{"status": CompanyStatus.active}, *[{"id": role.reference} for role in company_admins]]}
+                    )
 
         docs = self._companies.get(filters)
         if skip:

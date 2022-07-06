@@ -51,3 +51,6 @@ class UserDatabaseModel(BaseModel):
 
     def get_role(self, role_name: str) -> UserRoleDatabaseModel:
         return next((role for role in self.roles if role.role_name == role_name), None)
+
+    def get_roles(self, role_name: str) -> list[UserRoleDatabaseModel]:
+        return [role for role in self.roles if role.role_name == role_name]
