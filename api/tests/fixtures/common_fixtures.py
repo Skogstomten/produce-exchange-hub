@@ -7,6 +7,7 @@ from pytz import utc
 
 from app.datastores.user_datastore import UserDatastore
 from app.dependencies.log import AppLogger
+from app.io.file_manager import FileManager
 from app.models.v1.database_models.contact_database_model import ContactDatabaseModel
 from app.models.v1.shared import ContactType, CompanyStatus
 
@@ -120,3 +121,8 @@ def contact_id():
 def contact_model(contact_id):
     """Initiates a contact model."""
     return _get_contact_model()
+
+
+@pytest.fixture
+def file_manager():
+    return Mock(FileManager)

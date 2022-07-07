@@ -26,7 +26,14 @@ def add_contact_to_company_doc_dict(company_doc_dict, contact_model):
 
 
 def perform_operation(
-    db_collection, user_datastore, logger, fake_company_data, authenticated_user, contact_model, verification_function
+    db_collection,
+    user_datastore,
+    logger,
+    fake_company_data,
+    authenticated_user,
+    contact_model,
+    verification_function,
+    file_manager,
 ):
     db, collection = db_collection
     company_id, company_doc_dict = fake_company_data
@@ -34,29 +41,41 @@ def perform_operation(
     collection.by_id.return_value = MongoDocument(company_doc_dict, collection)
     collection.replace = verification_function
 
-    target = CompanyDatastore(db, user_datastore, logger)
+    target = CompanyDatastore(db, file_manager, user_datastore, logger)
     target.update_contact(company_id, contact_model, authenticated_user)
 
 
 def test_update_contact_raises_not_found_error_if_company_not_found(
-    doc_database_collection_mocks, user_datastore, logger, company_id, authenticated_user_default, contact_model
+    doc_database_collection_mocks,
+    user_datastore,
+    logger,
+    company_id,
+    authenticated_user_default,
+    contact_model,
+    file_manager,
 ):
     db, collection = doc_database_collection_mocks
     collection.by_id.return_value = None
 
-    target = CompanyDatastore(db, user_datastore, logger)
+    target = CompanyDatastore(db, file_manager, user_datastore, logger)
     with pytest.raises(NotFoundError, match=f"Company with id '{company_id}' not found"):
         target.update_contact(company_id, contact_model, authenticated_user_default)
 
 
 def test_update_contact_raises_not_found_error_if_contact_not_found(
-    doc_database_collection_mocks, user_datastore, logger, fake_company_data, authenticated_user_default, contact_model
+    doc_database_collection_mocks,
+    user_datastore,
+    logger,
+    fake_company_data,
+    authenticated_user_default,
+    contact_model,
+    file_manager,
 ):
     db, collection = doc_database_collection_mocks
     company_id, company_doc_dict = fake_company_data
     collection.by_id.return_value = MongoDocument(company_doc_dict, collection)
 
-    target = CompanyDatastore(db, user_datastore, logger)
+    target = CompanyDatastore(db, file_manager, user_datastore, logger)
     with pytest.raises(
         NotFoundError, match=f"Contact with id '{contact_model.id}' not found on company '{company_id}'."
     ):
@@ -64,21 +83,33 @@ def test_update_contact_raises_not_found_error_if_contact_not_found(
 
 
 def test_update_contact_calls_replace(
-    doc_database_collection_mocks, user_datastore, logger, fake_company_data, authenticated_user_default, contact_model
+    doc_database_collection_mocks,
+    user_datastore,
+    logger,
+    fake_company_data,
+    authenticated_user_default,
+    contact_model,
+    file_manager
 ):
     db, collection = doc_database_collection_mocks
     company_id, company_doc_dict = fake_company_data
     add_contact_to_company_doc_dict(company_doc_dict, contact_model)
     collection.by_id.return_value = MongoDocument(company_doc_dict, collection)
 
-    target = CompanyDatastore(db, user_datastore, logger)
+    target = CompanyDatastore(db, file_manager, user_datastore, logger)
     target.update_contact(company_id, contact_model, authenticated_user_default)
 
     collection.replace.assert_called_once()
 
 
 def test_update_contact_changes_contact(
-    doc_database_collection_mocks, user_datastore, logger, fake_company_data, authenticated_user_default, contact_model
+    doc_database_collection_mocks,
+    user_datastore,
+    logger,
+    fake_company_data,
+    authenticated_user_default,
+    contact_model,
+    file_manager,
 ):
     def _verify_contact_changed(_, doc_dict):
         contact = next((d for d in doc_dict["contacts"] if d["id"] == contact_model.id), None)
@@ -98,11 +129,18 @@ def test_update_contact_changes_contact(
         authenticated_user_default,
         contact_model,
         _verify_contact_changed,
+        file_manager
     )
 
 
 def test_update_contact_changes_added(
-    doc_database_collection_mocks, user_datastore, logger, fake_company_data, authenticated_user_default, contact_model
+    doc_database_collection_mocks,
+    user_datastore,
+    logger,
+    fake_company_data,
+    authenticated_user_default,
+    contact_model,
+    file_manager,
 ):
     def _verify_change_added(_, doc_dict):
         change = next((d for d in doc_dict["changes"]), None)
@@ -120,4 +158,5 @@ def test_update_contact_changes_added(
         authenticated_user_default,
         contact_model,
         _verify_change_added,
+        file_manager,
     )

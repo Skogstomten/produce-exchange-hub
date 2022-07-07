@@ -46,3 +46,10 @@ class RoleType(Enum):
 
     global_role = "global_role"
     company_role = "company_role"
+
+
+@unique
+class FileType(Enum):
+    """Supported file types for images."""
+
+    jpg = "jpg"
