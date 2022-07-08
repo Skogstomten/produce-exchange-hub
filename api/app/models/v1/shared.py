@@ -31,6 +31,9 @@ class Language(Enum):
     sv = "sv"
     en = "en"
 
+    def __str__(self):
+        return self.value
+
 
 @unique
 class ContactType(Enum):
@@ -53,3 +56,6 @@ class FileType(Enum):
     """Supported file types for images."""
 
     jpg = "jpg"
+
+    def __str__(self):
+        return self.value

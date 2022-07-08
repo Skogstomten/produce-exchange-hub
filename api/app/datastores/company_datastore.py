@@ -5,7 +5,7 @@ For accessing and manipulating company related data.
 from datetime import datetime
 
 from bson import ObjectId
-from fastapi import Depends
+from fastapi import Depends, UploadFile
 from pytz import utc
 
 from app.database.document_database import DocumentDatabase, DatabaseCollection, transaction, BaseDatastore, Document
@@ -23,7 +23,7 @@ from app.models.v1.database_models.contact_database_model import (
     ContactDatabaseModel,
 )
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
-from app.models.v1.shared import SortOrder, CompanyStatus, RoleType, FileType
+from app.models.v1.shared import SortOrder, CompanyStatus, RoleType
 from .user_datastore import UserDatastore, get_user_datastore
 from ..dependencies.log import AppLoggerInjector, AppLogger
 from ..errors import NotFoundError, InvalidInputError
@@ -324,20 +324,19 @@ class CompanyDatastore(BaseDatastore):
         self._companies.patch_document(company_id, {"status": CompanyStatus.active})
         return self.get_company(company_id, authenticated_user)
 
-    def save_profile_picture(self, company_id: str, file: bytes, file_type: FileType, user: UserDatabaseModel) -> str:
+    async def save_profile_picture(self, company_id: str, file: UploadFile, user: UserDatabaseModel) -> str:
         """
         Saves profile picture for company.
         If a profile picture already exists for company, it will be overwritten.
         URL of file will be stored on company in DB.
         :param company_id: ID of company to save picture for.
         :param file: Image bytes.
-        :param file_type: File type.
         :param user: Authenticated user.
         :return: URL for new file.
         :raise NotFoundError: If company was not found.
         """
         company = CompanyDatabaseModel(**self._get_company_doc(company_id))
-        file_url = self._file_manager.save_profile_picture(f"{company.id}.{file_type}", file)
+        file_url = await self._file_manager.save_profile_picture(company.id, file)
         company.profile_picture_url = file_url
         company.changes.append(ChangeDatabaseModel.create("profile_picture_url", ChangeType.update, user.id, user.email))
         return file_url
