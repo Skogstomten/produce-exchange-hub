@@ -119,12 +119,18 @@ class CompanyDatastore(BaseDatastore):
     def get_company(self, company_id: str, user: UserDatabaseModel | None) -> CompanyDatabaseModel:
         """
         Get a single company.
-        :param company_id: id of the company to get.
+        :param company_id: ID of the company to get.
         :param user: Authenticated user.
-        :return: company database model object.
+        :return: Company database model object.
         """
         company_doc = self._get_company_doc(company_id)
-        return CompanyDatabaseModel(**company_doc)
+        company = CompanyDatabaseModel(**company_doc)
+        if company.status != CompanyStatus.active:
+            if user.is_superuser():
+                return company
+            if user.get_role("company_admin").reference == company_id:
+                return company
+        raise NotFoundError(f"Company '{company_id}' not found")
 
     def add_company(
         self,
