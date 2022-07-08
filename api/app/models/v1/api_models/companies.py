@@ -103,7 +103,7 @@ class CompanyOutModel(CompanyOutListModel):
         lang: Language,
         tz: str | tzinfo,
         request: Request,
-        profile_picture_path_prefix: str
+        profile_picture_path_prefix: str,
     ):
         """Creates model from database model with localization."""
         return _initialize_company_model(cls, model, lang, tz, request, profile_picture_path_prefix, True)
