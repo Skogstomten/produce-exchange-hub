@@ -89,7 +89,7 @@ def test_update_contact_calls_replace(
     fake_company_data,
     authenticated_user_default,
     contact_model,
-    file_manager
+    file_manager,
 ):
     db, collection = doc_database_collection_mocks
     company_id, company_doc_dict = fake_company_data
@@ -129,7 +129,7 @@ def test_update_contact_changes_contact(
         authenticated_user_default,
         contact_model,
         _verify_contact_changed,
-        file_manager
+        file_manager,
     )
 
 

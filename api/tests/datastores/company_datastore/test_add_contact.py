@@ -2,7 +2,12 @@ from app.datastores.company_datastore import CompanyDatastore
 
 
 def test_add_contact_adds_contact(
-    doc_database_collection_mocks, user_datastore, logger, contact_model, company_id, file_manager,
+    doc_database_collection_mocks,
+    user_datastore,
+    logger,
+    contact_model,
+    company_id,
+    file_manager,
 ):
     db, collection = doc_database_collection_mocks
 
