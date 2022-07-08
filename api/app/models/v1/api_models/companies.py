@@ -22,6 +22,33 @@ class CompanyTypes(Enum):
     buyer = "buyer"
 
 
+def _initialize_company_model(
+    cls,
+    model: CompanyDatabaseModel,
+    lang: Language,
+    tz: str | tzinfo,
+    request: Request,
+):
+    instance = cls(
+        url=get_current_request_url_with_additions(request),
+        operations=[],
+        id=model.id,
+        name=select_localized_text(model.name, lang, model.content_languages_iso),
+        status=model.status,
+        created_date=to_timezone(model.created_date, tz),
+        company_types=model.company_types,
+        content_languages_iso=model.content_languages_iso,
+        activation_date=to_timezone(model.activation_date, tz),
+        description=select_localized_text(model.description, lang, model.content_languages_iso),
+        external_website_url=model.external_website_url,
+        profile_picture_url=model.profile_picture_url,
+    )
+    if isinstance(cls, CompanyOutModel):
+        instance.contacts = model.contacts
+
+    return instance
+
+
 class CompanyOutListModel(BaseOutModel):
     """Company model used when listing companies."""
 
@@ -34,6 +61,7 @@ class CompanyOutListModel(BaseOutModel):
     activation_date: datetime | None
     description: str | None = Field(None)
     external_website_url: str | None
+    profile_picture_url: str | None
 
     @classmethod
     def from_database_model(
@@ -44,21 +72,7 @@ class CompanyOutListModel(BaseOutModel):
         request: Request,
     ):
         """Creates model from database model with localization."""
-        operations = []
-
-        return cls(
-            url=get_current_request_url_with_additions(request),
-            operations=operations,
-            id=model.id,
-            name=select_localized_text(model.name, lang, model.content_languages_iso),
-            status=model.status,
-            created_date=to_timezone(model.created_date, tz),
-            company_types=model.company_types,
-            content_languages_iso=model.content_languages_iso,
-            activation_date=to_timezone(model.activation_date, tz),
-            description=select_localized_text(model.description, lang, model.content_languages_iso),
-            external_website_url=model.external_website_url,
-        )
+        return _initialize_company_model(cls, model, lang, tz, request)
 
 
 class CompanyOutModel(CompanyOutListModel):
@@ -75,22 +89,7 @@ class CompanyOutModel(CompanyOutListModel):
         request: Request,
     ):
         """Creates model from database model with localization."""
-        operations = []
-
-        return cls(
-            url=get_current_request_url_with_additions(request),
-            operations=operations,
-            id=model.id,
-            name=select_localized_text(model.name, lang, model.content_languages_iso),
-            status=model.status,
-            created_date=to_timezone(model.created_date, tz),
-            company_types=model.company_types,
-            content_languages_iso=model.content_languages_iso,
-            activation_date=to_timezone(model.activation_date, tz),
-            description=select_localized_text(model.description, lang, model.content_languages_iso),
-            external_website_url=model.external_website_url,
-            contacts=model.contacts,
-        )
+        return _initialize_company_model(cls, model, lang, tz, request)
 
 
 class CompanyCreateModel(BaseModel):
