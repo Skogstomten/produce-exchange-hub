@@ -341,6 +341,9 @@ class CompanyDatastore(BaseDatastore):
         company.changes.append(ChangeDatabaseModel.create("profile_picture_url", ChangeType.update, user.id, user.email))
         return file_url
 
+    def get_company_profile_picture_physical_path(self, company_id: str, image_file_name: str) -> str:
+        return self._file_manager.get_profile_picture_physical_path(company_id, image_file_name)
+
     def _get_company_doc(self, company_id: str) -> Document:
         company_doc = self._companies.by_id(company_id)
         if company_doc is None:

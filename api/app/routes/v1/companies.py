@@ -2,7 +2,7 @@
 Routing module for companies endpoint.
 """
 from fastapi import APIRouter, Depends, Query, Body, Path, Security, File, UploadFile
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, FileResponse
 from starlette import status
 from starlette.requests import Request
 
@@ -219,7 +219,7 @@ async def update_company_descriptions(
     return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request)
 
 
-@router.post("/{company_id}/profile-picture", response_class=PlainTextResponse)
+@router.post("/{company_id}/profile-pictures", response_class=PlainTextResponse)
 async def upload_profile_picture(
     company_id: str,
     file: UploadFile = File(...),
@@ -238,3 +238,12 @@ async def upload_profile_picture(
         file_path,
         lang=essentials.language,
     )
+
+
+@router.get("/{company_id}/profile_pictures/{image_file_name}", response_class=FileResponse)
+async def get_profile_picture(
+    company_id: str,
+    image_file_name: str,
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+):
+    return company_datastore.get_company_profile_picture_physical_path(company_id, image_file_name)
