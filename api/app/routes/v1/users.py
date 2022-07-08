@@ -4,11 +4,15 @@ Routing for users endpoint.
 from fastapi import APIRouter, Depends, Body, Query, Request, Security, Path
 
 from app.dependencies.essentials import Essentials, get_essentials
+from app.dependencies.log import AppLogger, AppLoggerInjector
 from app.dependencies.user import get_current_user
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.api_models.users import UserRegister, UserOutModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.utils.request_utils import get_url
+
+logger_injector = AppLoggerInjector("users.router")
 
 router = APIRouter(prefix="/v1/{lang}/users", tags=["Users"])
 
@@ -33,8 +37,10 @@ async def get_users(
     take: int = Query(20),
     skip: int = Query(0),
     user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
+    logger: AppLogger = Depends(logger_injector),
 ) -> PagingResponseModel[UserOutModel]:
     """Get list of users wrapped in a paging response object."""
+    logger.debug(f"Incoming={get_url(request)}: take={take}, skip={skip}, user={user}")
     all_users = user_datastore.get_users(take, skip)
     items: list[UserOutModel] = []
     for usr in all_users:
@@ -60,9 +66,12 @@ async def get_user(
     responses={200: {"test": "User deleted"}},
 )
 async def delete_user(
+    request: Request,
     user_datastore: UserDatastore = Depends(get_user_datastore),
     user_id: str = Path(...),
     user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
+    logger: AppLogger = Depends(logger_injector),
 ) -> None:
     """Delete a user."""
-    user_datastore.delete_user(user_id, user)
+    logger.debug(f"Incoming={get_url(request)}: user_id={user_id}, user={user}")
+    user_datastore.delete_user(user_id)

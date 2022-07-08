@@ -5,7 +5,7 @@ For accessing and manipulating company related data.
 from datetime import datetime
 
 from bson import ObjectId
-from fastapi import Depends
+from fastapi import Depends, UploadFile
 from pytz import utc
 
 from app.database.document_database import DocumentDatabase, DatabaseCollection, transaction, BaseDatastore, Document
@@ -27,6 +27,7 @@ from app.models.v1.shared import SortOrder, CompanyStatus, RoleType
 from .user_datastore import UserDatastore, get_user_datastore
 from ..dependencies.log import AppLoggerInjector, AppLogger
 from ..errors import NotFoundError, InvalidInputError
+from ..io.file_manager import FileManager, get_file_manager
 
 logger_injector = AppLoggerInjector("company_datastore")
 
@@ -34,21 +35,17 @@ logger_injector = AppLoggerInjector("company_datastore")
 class CompanyDatastore(BaseDatastore):
     """The datastore class."""
 
-    def __init__(self, db: DocumentDatabase, users: UserDatastore, logger: AppLogger):
-        """
-        Initializes the datastore with a reference to the document db.
-        :param db: document db instance.
-        :param users: users datastore for cross collection operations.
-        """
+    def __init__(self, db: DocumentDatabase, file_manager: FileManager, users: UserDatastore, logger: AppLogger):
         super().__init__(db)
-        self.users = users
+        self._file_manager = file_manager
+        self._users = users
         self._logger = logger
 
     def __str__(self):
         return self.__repr__()
 
     def __repr__(self):
-        return f"CompanyDatastore(db={self.db}, users={self.users}, logger={self._logger})"
+        return f"CompanyDatastore(db={self.db}, users={self._users}, logger={self._logger})"
 
     @property
     def _companies(self) -> DatabaseCollection:
@@ -126,7 +123,6 @@ class CompanyDatastore(BaseDatastore):
         :param user: Authenticated user.
         :return: company database model object.
         """
-        # TODO: Make sure user has rights to access this.
         company_doc = self._get_company_doc(company_id)
         return CompanyDatabaseModel(**company_doc)
 
@@ -194,7 +190,7 @@ class CompanyDatastore(BaseDatastore):
                 "$set": {"name": names},
                 "$push": {"changes": ChangeDatabaseModel.create("name", ChangeType.update, user.id, user.email).dict()},
             },
-        )  # TODO: Figure out a less implementation specific solution for this.
+        )
         return self.get_company(company_id, user)
 
     def update_company_descriptions(
@@ -208,7 +204,7 @@ class CompanyDatastore(BaseDatastore):
                     "changes": ChangeDatabaseModel.create("description", ChangeType.update, user.id, user.email).dict()
                 },
             },
-        )  # TODO: Figure out a less implementation specific solution for this.
+        )
         return self.get_company(company_id, user)
 
     def add_contact(
@@ -313,7 +309,7 @@ class CompanyDatastore(BaseDatastore):
         if not self._roles.exists({"name": role_name, "type": RoleType.company_role}):
             raise InvalidInputError("Invalid role.")
 
-        self.users.add_role_to_user(user_id, role_name, company_id)
+        self._users.add_role_to_user(user_id, role_name, company_id)
         self._companies.add_to_sub_collection(
             company_id,
             "changes",
@@ -321,13 +317,32 @@ class CompanyDatastore(BaseDatastore):
                 f"company.users.{user_id}", ChangeType.add, authenticated_user.id, authenticated_user.email
             ).dict(),
         )
-        return self.users.get_company_users(company_id)
+        return self._users.get_company_users(company_id)
 
     def activate_company(self, company_id: str, authenticated_user: UserDatabaseModel) -> CompanyDatabaseModel:
         """Updates a companys status to active."""
-        # TODO: Record change by user
         self._companies.patch_document(company_id, {"status": CompanyStatus.active})
         return self.get_company(company_id, authenticated_user)
+
+    async def save_profile_picture(self, company_id: str, file: UploadFile, user: UserDatabaseModel) -> str:
+        """
+        Saves profile picture for company.
+        If a profile picture already exists for company, it will be overwritten.
+        URL of file will be stored on company in DB.
+        :param company_id: ID of company to save picture for.
+        :param file: Image bytes.
+        :param user: Authenticated user.
+        :return: URL for new file.
+        :raise NotFoundError: If company was not found.
+        """
+        company = CompanyDatabaseModel(**self._get_company_doc(company_id))
+        file_url = await self._file_manager.save_profile_picture(company.id, file)
+        company.profile_picture_url = file_url
+        company.changes.append(ChangeDatabaseModel.create("profile_picture_url", ChangeType.update, user.id, user.email))
+        return file_url
+
+    def get_company_profile_picture_physical_path(self, company_id: str, image_file_name: str) -> str:
+        return self._file_manager.get_profile_picture_physical_path(company_id, image_file_name)
 
     def _get_company_doc(self, company_id: str) -> Document:
         company_doc = self._companies.by_id(company_id)
@@ -338,14 +353,16 @@ class CompanyDatastore(BaseDatastore):
 
 def get_company_datastore(
     db: DocumentDatabase = Depends(get_document_database),
+    file_manager: FileManager = Depends(get_file_manager),
     user_datastore: UserDatastore = Depends(get_user_datastore),
     logger: AppLogger = Depends(logger_injector),
 ) -> CompanyDatastore:
     """
     Dependency injection function to inject CompanyDatastore.
     :param db: Reference to document db.
+    :param file_manager: app.io.file_manager.FileManager.
     :param user_datastore: Reference to user datastore.
     :param logger: Class logger.
     :return: New instance of CompanyDatastore.
     """
-    return CompanyDatastore(db, user_datastore, logger)
+    return CompanyDatastore(db, file_manager, user_datastore, logger)

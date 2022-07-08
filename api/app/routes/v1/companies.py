@@ -1,7 +1,8 @@
 """
 Routing module for companies endpoint.
 """
-from fastapi import APIRouter, Depends, Query, Body, Path, Security
+from fastapi import APIRouter, Depends, Query, Body, Path, Security, File, UploadFile
+from fastapi.responses import PlainTextResponse, FileResponse
 from starlette import status
 from starlette.requests import Request
 
@@ -27,6 +28,7 @@ from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.shared import SortOrder
 from app.utils.request_utils import get_url
+from app.utils.url_util import assemble_url
 
 logger_injector = AppLoggerInjector("companies_router")
 
@@ -215,3 +217,33 @@ async def update_company_descriptions(
 ):
     company = company_datastore.update_company_descriptions(company_id, descriptions, user)
     return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request)
+
+
+@router.post("/{company_id}/profile-pictures", response_class=PlainTextResponse)
+async def upload_profile_picture(
+    company_id: str,
+    file: UploadFile = File(...),
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    user: UserDatabaseModel = Security(
+        get_current_user,
+        scopes=("roles:superuser", "roles:company_admin:{company_id}"),
+    ),
+    essentials: Essentials = Depends(get_essentials),
+):
+    file_path = await company_datastore.save_profile_picture(company_id, file, user)
+    return assemble_url(
+        essentials.request.base_url,
+        router.prefix,
+        company_id,
+        file_path,
+        lang=essentials.language,
+    )
+
+
+@router.get("/{company_id}/profile_pictures/{image_file_name}", response_class=FileResponse)
+async def get_profile_picture(
+    company_id: str,
+    image_file_name: str,
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+):
+    return company_datastore.get_company_profile_picture_physical_path(company_id, image_file_name)

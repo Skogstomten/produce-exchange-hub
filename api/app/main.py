@@ -1,4 +1,5 @@
 """Main file for application."""
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,6 +28,8 @@ app = FastAPI(
     description="Has all the business logic for the Produce Exchange Hub Web " "App",
     responses={"500": {"description": "Internal Server Error", "model": ErrorModel}},
 )
+
+Path("C:/produce_exchange_hub/images/profile_picturs").mkdir(parents=True, exist_ok=True)
 
 app.include_router(users.router)
 app.include_router(token.router)

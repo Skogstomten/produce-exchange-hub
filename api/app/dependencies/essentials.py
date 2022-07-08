@@ -28,6 +28,12 @@ class Essentials:
         else:  # Will be tzinfo
             self.timezone = tz
 
+    def __str__(self):
+        return f"Essentials(request={self.request}, lang={self.language}, tz={self.timezone})"
+
+    def __repr__(self):
+        return self.__str__()
+
 
 def get_essentials(
     request: Request,
