@@ -10,13 +10,10 @@ def test_activate_company(
     fake_company_data,
     authenticated_user_default,
     file_manager,
-    company_admin_role,
 ):
     db, collection = doc_database_collection_mocks
     company_id, company_doc = fake_company_data
     collection.by_id.return_value = MongoDocument(company_doc, collection)
-    company_admin_role.reference = company_id
-    authenticated_user_default.roles.append(company_admin_role)
 
     target = CompanyDatastore(db, file_manager, user_datastore, logger)
     result = target.activate_company(company_id, authenticated_user_default)

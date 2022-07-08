@@ -130,6 +130,8 @@ class CompanyDatastore(BaseDatastore):
                 return company
             if user.get_role("company_admin").reference == company_id:
                 return company
+        else:
+            return company
         raise NotFoundError(f"Company '{company_id}' not found")
 
     def add_company(
@@ -325,10 +327,10 @@ class CompanyDatastore(BaseDatastore):
         )
         return self._users.get_company_users(company_id)
 
-    def activate_company(self, company_id: str, authenticated_user: UserDatabaseModel) -> CompanyDatabaseModel:
+    def activate_company(self, company_id: str, user: UserDatabaseModel) -> CompanyDatabaseModel:
         """Updates a companys status to active."""
         self._companies.patch_document(company_id, {"status": CompanyStatus.active})
-        return self.get_company(company_id, authenticated_user)
+        return self.get_company(company_id, user)
 
     async def save_profile_picture(self, company_id: str, file: UploadFile, user: UserDatabaseModel) -> str:
         """
