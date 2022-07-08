@@ -22,7 +22,8 @@ from app.models.v1.api_models.companies import (
     CompanyOutModel,
     CompanyCreateModel,
     CompanyUpdateModel,
-    CompanyOutListModel, assemble_company_profile_picture_url,
+    CompanyOutListModel,
+    assemble_company_profile_picture_url,
 )
 from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel

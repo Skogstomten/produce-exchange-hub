@@ -4,7 +4,12 @@ from app.models.v1.shared import CompanyStatus
 
 
 def test_activate_company(
-    doc_database_collection_mocks, user_datastore, logger, fake_company_data, authenticated_user_default, file_manager
+    doc_database_collection_mocks,
+    user_datastore,
+    logger,
+    fake_company_data,
+    authenticated_user_default,
+    file_manager,
 ):
     db, collection = doc_database_collection_mocks
     company_id, company_doc = fake_company_data

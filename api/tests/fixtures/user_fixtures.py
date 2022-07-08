@@ -70,6 +70,11 @@ def superuser_user_role():
 
 
 @pytest.fixture
+def company_admin_role():
+    return get_role()
+
+
+@pytest.fixture
 def authenticated_user_default(doc_id):
     """Creates a default authenticated user object of UserDatabaseModel."""
     return UserDatabaseModel(
