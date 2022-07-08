@@ -337,12 +337,22 @@ class CompanyDatastore(BaseDatastore):
         """
         company = CompanyDatabaseModel(**self._get_company_doc(company_id))
         file_url = await self._file_manager.save_profile_picture(company.id, file)
-        company.profile_picture_url = file_url
         company.changes.append(ChangeDatabaseModel.create("profile_picture_url", ChangeType.update, user.id, user.email))
+        self._companies.update_document(
+            company_id,
+            {
+                "$set": {"profile_picture_url": file_url},
+                "$push": {
+                    "changes": ChangeDatabaseModel.create(
+                        "profile_picture_url", ChangeType.update, user.id, user.email
+                    ).dict()
+                },
+            },
+        )
         return file_url
 
-    def get_company_profile_picture_physical_path(self, company_id: str, image_file_name: str) -> str:
-        return self._file_manager.get_profile_picture_physical_path(company_id, image_file_name)
+    def get_company_profile_picture_physical_path(self, image_file_name: str) -> str:
+        return self._file_manager.get_profile_picture_physical_path(image_file_name)
 
     def _get_company_doc(self, company_id: str) -> Document:
         company_doc = self._companies.by_id(company_id)
