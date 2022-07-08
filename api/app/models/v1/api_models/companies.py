@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from app.utils.datetime_utils import to_timezone
 from app.utils.lang_utils import select_localized_text
 from app.utils.request_utils import get_current_request_url_with_additions
+from app.utils.url_util import assemble_url
 from .base_out_model import BaseOutModel
 from .contacts import ContactListModel
 from ..database_models.company_database_model import CompanyDatabaseModel
@@ -22,6 +23,47 @@ class CompanyTypes(Enum):
     buyer = "buyer"
 
 
+def assemble_company_profile_picture_url(request: Request, path_prefix: str, file_path: str, lang: Language) -> str:
+    return assemble_url(
+        request.base_url,
+        path_prefix,
+        file_path,
+        lang=lang,
+    )
+
+
+def _initialize_company_model(
+    cls,
+    model: CompanyDatabaseModel,
+    lang: Language,
+    tz: str | tzinfo,
+    request: Request,
+    profile_picture_path_prefix: str,
+    include_extras: bool = False,
+):
+    instance = cls(
+        url=get_current_request_url_with_additions(request),
+        operations=[],
+        id=model.id,
+        name=select_localized_text(model.name, lang, model.content_languages_iso),
+        status=model.status,
+        created_date=to_timezone(model.created_date, tz),
+        company_types=model.company_types,
+        content_languages_iso=model.content_languages_iso,
+        activation_date=to_timezone(model.activation_date, tz),
+        description=select_localized_text(model.description, lang, model.content_languages_iso),
+        external_website_url=model.external_website_url,
+        profile_picture_url=assemble_company_profile_picture_url(
+            request, profile_picture_path_prefix, model.profile_picture_url, lang
+        ),
+    )
+
+    if include_extras:
+        instance.contacts = model.contacts
+
+    return instance
+
+
 class CompanyOutListModel(BaseOutModel):
     """Company model used when listing companies."""
 
@@ -34,6 +76,7 @@ class CompanyOutListModel(BaseOutModel):
     activation_date: datetime | None
     description: str | None = Field(None)
     external_website_url: str | None
+    profile_picture_url: str | None
 
     @classmethod
     def from_database_model(
@@ -42,23 +85,10 @@ class CompanyOutListModel(BaseOutModel):
         lang: Language,
         tz: str | tzinfo,
         request: Request,
+        profile_picture_path_prefix: str,
     ):
         """Creates model from database model with localization."""
-        operations = []
-
-        return cls(
-            url=get_current_request_url_with_additions(request),
-            operations=operations,
-            id=model.id,
-            name=select_localized_text(model.name, lang, model.content_languages_iso),
-            status=model.status,
-            created_date=to_timezone(model.created_date, tz),
-            company_types=model.company_types,
-            content_languages_iso=model.content_languages_iso,
-            activation_date=to_timezone(model.activation_date, tz),
-            description=select_localized_text(model.description, lang, model.content_languages_iso),
-            external_website_url=model.external_website_url,
-        )
+        return _initialize_company_model(cls, model, lang, tz, request, profile_picture_path_prefix)
 
 
 class CompanyOutModel(CompanyOutListModel):
@@ -73,24 +103,10 @@ class CompanyOutModel(CompanyOutListModel):
         lang: Language,
         tz: str | tzinfo,
         request: Request,
+        profile_picture_path_prefix: str
     ):
         """Creates model from database model with localization."""
-        operations = []
-
-        return cls(
-            url=get_current_request_url_with_additions(request),
-            operations=operations,
-            id=model.id,
-            name=select_localized_text(model.name, lang, model.content_languages_iso),
-            status=model.status,
-            created_date=to_timezone(model.created_date, tz),
-            company_types=model.company_types,
-            content_languages_iso=model.content_languages_iso,
-            activation_date=to_timezone(model.activation_date, tz),
-            description=select_localized_text(model.description, lang, model.content_languages_iso),
-            external_website_url=model.external_website_url,
-            contacts=model.contacts,
-        )
+        return _initialize_company_model(cls, model, lang, tz, request, profile_picture_path_prefix, True)
 
 
 class CompanyCreateModel(BaseModel):

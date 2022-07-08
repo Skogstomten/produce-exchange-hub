@@ -33,11 +33,10 @@ class FileManager:
         self._logger.debug(f"save_profile_picture: url_path={url_path}")
         return url_path
 
-    def get_profile_picture_physical_path(self, company_id: str, image_file_name: str) -> str:
-        actual_file_name = company_id + splitext(image_file_name)[1]
-        image_file_path = join(self._profile_picture_path, actual_file_name)
+    def get_profile_picture_physical_path(self, image_file_name: str) -> str:
+        image_file_path = join(self._profile_picture_path, image_file_name)
         if not Path(image_file_path).exists():
-            raise NotFoundError(f"There's no profile picture uploaded for company '{company_id}'")
+            raise NotFoundError(f"There's no picture with the name '{image_file_name}'")
         return image_file_path
 
 
