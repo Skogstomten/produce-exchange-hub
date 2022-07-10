@@ -24,6 +24,23 @@ T = TypeVar("T")
 OutT = TypeVar("OutT")
 
 
+class DocumentDatabaseUpdateContext(metaclass=ABCMeta):
+    @abstractmethod
+    def set_values(self, value_dict: dict[str, Any]) -> None:
+        """
+        Dict of key value pairs with key being the database field to update
+        and value being the new value for given field.
+        """
+
+    @abstractmethod
+    def push_to_list(self, list_name: str, data: Any) -> None:
+        """Append given data to document sub collection of list_name."""
+
+    @abstractmethod
+    def to_implementation_specific_update_syntax(self) -> Any:
+        """To be called by database implementation to get the update context converted to the syntax it requires."""
+
+
 class Document(MutableMapping, metaclass=ABCMeta):
     """
     Representation of a document.
@@ -235,8 +252,12 @@ class DatabaseCollection(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def update_document(self, doc_id: str, updates: Any) -> None:
+    def update_document(self, doc_id: str, updates: DocumentDatabaseUpdateContext) -> None:
         """Updates individual document."""
+
+    @abstractmethod
+    def update_context(self) -> DocumentDatabaseUpdateContext:
+        """Returns an update context use to build update queries."""
 
 
 class DocumentDatabase(metaclass=ABCMeta):

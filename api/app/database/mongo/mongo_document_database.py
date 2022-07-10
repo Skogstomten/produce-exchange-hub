@@ -17,6 +17,7 @@ from ..document_database import (
     DocumentDatabase,
     DocumentCollection,
     DatabaseCollection,
+    DocumentDatabaseUpdateContext,
 )
 from ...dependencies.log import AppLogger
 from ...errors import InvalidOperationError, NotFoundError
@@ -45,6 +46,39 @@ def _convert_object_id_to_str_id(data: dict) -> dict:
 def _ensure_updated(update_result, doc_id, collection_name):
     if update_result.modified_count < 1:
         raise NotFoundError(f"No document with key='{doc_id}' " f"was found in collection='{collection_name}'")
+
+
+class MongoDBUpdateContext(DocumentDatabaseUpdateContext):
+    def __init__(self):
+        self._set_updates = []
+        self._list_push_updates = {}
+
+    def set_values(self, value_dict: dict[str, Any]) -> None:
+        self._set_updates.append(value_dict)
+
+    def push_to_list(self, list_name: str, data: Any) -> None:
+        if list_name in self._list_push_updates:
+            self._list_push_updates[list_name].append(data)
+        else:
+            self._list_push_updates[list_name] = [data]
+
+    def to_implementation_specific_update_syntax(self) -> Any:
+        data = {}
+        if any(self._set_updates):
+            data["$set"] = {}
+            for set_update in self._set_updates:
+                data["$set"].update(set_update)
+
+        if any(self._list_push_updates):
+            data["$push"] = {}
+            for key, value in self._list_push_updates.items():
+                if len(value) > 1:
+                    data["$push"][key] = {"$each": value}
+                elif len(value) == 1:
+                    item = value[0]
+                    if item is not None:
+                        data["$push"][key] = item
+        return data
 
 
 class MongoDocument(Document):
@@ -342,9 +376,10 @@ class MongoDatabaseCollection(DatabaseCollection):
         )
         _ensure_updated(update_result, doc_id, self._mongo_collection.name)
 
-    def update_document(self, doc_id: str, updates: Any) -> None:
-        updates = enums_to_string(updates)
-        update_result = self._mongo_collection.update_one({"_id": ObjectId(doc_id)}, updates)
+    def update_document(self, doc_id: str, updates: DocumentDatabaseUpdateContext) -> None:
+        data = updates.to_implementation_specific_update_syntax()
+        data = enums_to_string(data)
+        update_result = self._mongo_collection.update_one({"_id": ObjectId(doc_id)}, data)
         _ensure_updated(update_result, doc_id, self._mongo_collection.name)
 
     def replace(self, doc_id: str, data: dict) -> None:
@@ -356,6 +391,9 @@ class MongoDatabaseCollection(DatabaseCollection):
     def delete(self, doc_id: str) -> None:
         """Deletes a document."""
         self._mongo_collection.delete_one({"_id": ObjectId(doc_id)})
+
+    def update_context(self) -> DocumentDatabaseUpdateContext:
+        return MongoDBUpdateContext()
 
 
 class MongoDocumentDatabase(DocumentDatabase):
