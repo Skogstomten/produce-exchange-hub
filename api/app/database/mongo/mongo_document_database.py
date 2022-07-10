@@ -16,7 +16,8 @@ from ..document_database import (
     Document,
     DocumentDatabase,
     DocumentCollection,
-    DatabaseCollection, DocumentDatabaseUpdateContext,
+    DatabaseCollection,
+    DocumentDatabaseUpdateContext,
 )
 from ...dependencies.log import AppLogger
 from ...errors import InvalidOperationError, NotFoundError
