@@ -42,5 +42,5 @@ async def add_role(
     Adds new role.
     Only accessible to superusers.
     """
-    role = roles_datastore.add_role(body)
+    role = roles_datastore.add_role(body, user)
     return RoleOutModel(**role.dict())

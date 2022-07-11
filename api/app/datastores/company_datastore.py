@@ -10,18 +10,10 @@ from pytz import utc
 
 from app.database.document_database import DocumentDatabase, DatabaseCollection, transaction, BaseDatastore, Document
 from app.dependencies.document_database import get_document_database
-from app.models.v1.api_models.companies import (
-    CompanyCreateModel,
-    CompanyUpdateModel,
-)
-from app.models.v1.database_models.company_database_model import (
-    CompanyDatabaseModel,
-    ChangeDatabaseModel,
-    ChangeType,
-)
-from app.models.v1.database_models.contact_database_model import (
-    ContactDatabaseModel,
-)
+from ..models.v1.api_models.companies import CompanyCreateModel, CompanyUpdateModel
+from ..models.v1.database_models.change_database_model import ChangeDatabaseModel, ChangeType
+from ..models.v1.database_models.company_database_model import CompanyDatabaseModel
+from ..models.v1.database_models.contact_database_model import ContactDatabaseModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.shared import SortOrder, CompanyStatus, RoleType
 from .user_datastore import UserDatastore, get_user_datastore
@@ -146,17 +138,18 @@ class CompanyDatastore(BaseDatastore):
         :param user: The authenticated user.
         :return: The new company. CompanyDatabaseModel.
         """
-        datum = company.dict()
-        datum.update(
+        data = company.dict()
+        data.update(
             {
                 "status": CompanyStatus.created.value,
                 "created_date": datetime.now(utc),
                 "activation_date": None,
                 "description": {},
                 "contacts": [],
+                "changes": [ChangeDatabaseModel.create("init", ChangeType.add, user.email, data)],
             }
         )
-        doc = self._companies.add(datum)
+        doc = self._companies.add(data)
         self.add_user_to_company(doc.id, "company_admin", user.id, user)
         return CompanyDatabaseModel(**doc)
 
@@ -182,7 +175,7 @@ class CompanyDatastore(BaseDatastore):
             if current_value != value:
                 company.__dict__[key] = value
                 company.changes.append(
-                    ChangeDatabaseModel.create(key, ChangeType.update, authenticated_user.id, authenticated_user.email)
+                    ChangeDatabaseModel.create(key, ChangeType.update, authenticated_user.email, value)
                 )
 
         company_doc = company_doc.replace(company.dict())
@@ -195,7 +188,7 @@ class CompanyDatastore(BaseDatastore):
         update_context = self.db.update_context()
         update_context.set_values({"name": names})
         update_context.push_to_list(
-            "changes", ChangeDatabaseModel.create("name", ChangeType.update, user.id, user.email).dict()
+            "changes", ChangeDatabaseModel.create("name", ChangeType.update, user.email, names).dict()
         )
         self._companies.update_document(
             company_id,
@@ -209,7 +202,7 @@ class CompanyDatastore(BaseDatastore):
         update_context = self.db.update_context()
         update_context.set_values({"description": descriptions})
         update_context.push_to_list(
-            "changes", ChangeDatabaseModel.create("description", ChangeType.update, user.id, user.email).dict()
+            "changes", ChangeDatabaseModel.create("description", ChangeType.update, user.email, descriptions).dict()
         )
         self._companies.update_document(company_id, update_context)
         return self.get_company(company_id, user)
@@ -257,7 +250,7 @@ class CompanyDatastore(BaseDatastore):
         contact.changed_at = datetime.now(utc)
 
         change = ChangeDatabaseModel.create(
-            f"contacts.{contact.id}", ChangeType.update, authenticated_user.id, authenticated_user.email
+            f"contacts.{contact.id}", ChangeType.update, authenticated_user.email, contact.dict()
         )
         company.changes.append(change)
 
@@ -286,8 +279,8 @@ class CompanyDatastore(BaseDatastore):
             ChangeDatabaseModel.create(
                 f"company.contacts.{contact_id}",
                 ChangeType.delete,
-                user.id,
                 user.email,
+                None,
             )
         )
         company.contacts.remove(contact)
@@ -321,7 +314,7 @@ class CompanyDatastore(BaseDatastore):
             company_id,
             "changes",
             ChangeDatabaseModel.create(
-                f"company.users.{user_id}", ChangeType.add, authenticated_user.id, authenticated_user.email
+                f"company.users.{user_id}", ChangeType.add, authenticated_user.email, f"{user_id}:{role_name}"
             ).dict(),
         )
         return self._users.get_company_users(company_id)
@@ -331,7 +324,7 @@ class CompanyDatastore(BaseDatastore):
         update_context = self.db.update_context()
         update_context.set_values({"status": CompanyStatus.active})
         update_context.push_to_list(
-            "changes", ChangeDatabaseModel.create("changes", ChangeType.add, user.id, user.email).dict()
+            "changes", ChangeDatabaseModel.create("status", ChangeType.update, user.email, CompanyStatus.active).dict()
         )
         self._companies.update_document(company_id, update_context)
         return self.get_company(company_id, user)
@@ -349,11 +342,10 @@ class CompanyDatastore(BaseDatastore):
         """
         company = CompanyDatabaseModel(**self._get_company_doc(company_id))
         file_url = await self._file_manager.save_profile_picture(company.id, file)
-        company.changes.append(ChangeDatabaseModel.create("profile_picture_url", ChangeType.update, user.id, user.email))
         update_context = self.db.update_context()
         update_context.set_values({"profile_picture_url": file_url})
         update_context.push_to_list(
-            "changes", ChangeDatabaseModel.create("profile_picture_url", ChangeType.update, user.id, user.email).dict()
+            "changes", ChangeDatabaseModel.create("profile_picture_url", ChangeType.update, user.email, file_url).dict()
         )
         self._companies.update_document(
             company_id,
