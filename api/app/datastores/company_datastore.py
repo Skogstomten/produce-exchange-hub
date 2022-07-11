@@ -146,9 +146,7 @@ class CompanyDatastore(BaseDatastore):
                 "activation_date": None,
                 "description": {},
                 "contacts": [],
-                "changes": [
-                    ChangeDatabaseModel.create("init", ChangeType.add, user.email, data)
-                ]
+                "changes": [ChangeDatabaseModel.create("init", ChangeType.add, user.email, data)],
             }
         )
         doc = self._companies.add(data)
