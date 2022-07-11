@@ -27,8 +27,16 @@ def get_mongo_client() -> MongoClient:
     return client
 
 
+@functools.lru_cache(None)
+def get_local_mongo_client() -> MongoClient:
+    """Returns a MongoClient for local mongo db."""
+    client = MongoClient("mongodb://localhost:27017/produce_exchange_hub?retryWrites=true&w=majority")
+    return client
+
+
 def get_mongo_db(
-    mongo_client: MongoClient = Depends(get_mongo_client),
+    # mongo_client: MongoClient = Depends(get_mongo_client),
+    mongo_client: MongoClient = Depends(get_local_mongo_client),
 ) -> Database:
     """
     DI method for database reference.
