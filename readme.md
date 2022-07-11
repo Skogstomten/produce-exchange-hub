@@ -54,3 +54,9 @@ Black is being used for formatting with a line lenght of 121. While in active vi
 black app --line-length=121
 black tests --line-length=121
 ```
+
+## Local DB
+It is possible to run the application towards the cloud db or local db. Local DB is recommended during development.
+To setup local db, install MongoDB server Community edition and create a local connection with local account login.
+Run the application `./tools/remote_db_cloner/main.py`
+This should copy all data from remote DB to your local DB.
