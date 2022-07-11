@@ -37,5 +37,5 @@ async def add_role_to_user(
     user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> UserOutModel:
     """Adds a role to a user."""
-    user = user_datastore.add_role_to_user(user_id, role_name)
-    return UserOutModel.from_database_model(user, request)
+    updated_user = user_datastore.add_role_to_user(user, user_id, role_name)
+    return UserOutModel.from_database_model(updated_user, request)
