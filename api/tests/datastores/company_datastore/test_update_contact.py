@@ -7,7 +7,7 @@ from pytz import utc
 from app.database.mongo.mongo_document_database import MongoDocument
 from app.datastores.company_datastore import CompanyDatastore
 from app.errors import NotFoundError
-from app.models.v1.database_models.company_database_model import ChangeType
+from app.models.v1.database_models.change_database_model import ChangeType
 from app.models.v1.shared import ContactType
 
 
@@ -147,7 +147,6 @@ def test_update_contact_changes_added(
         assert change is not None
         assert change["path"] == f"contacts.{contact_model.id}"
         assert change["change_type"] == ChangeType.update
-        assert change["actor_id"] == authenticated_user_default.id
         assert change["actor_username"] == authenticated_user_default.email
 
     perform_operation(
