@@ -331,7 +331,7 @@ class CompanyDatastore(BaseDatastore):
         update_context = self.db.update_context()
         update_context.set_values({"status": CompanyStatus.active})
         update_context.push_to_list(
-            "changes", ChangeDatabaseModel.create("changes", ChangeType.add, user.id, user.email)
+            "changes", ChangeDatabaseModel.create("changes", ChangeType.add, user.id, user.email).dict()
         )
         self._companies.update_document(company_id, update_context)
         return self.get_company(company_id, user)
