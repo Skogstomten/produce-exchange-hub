@@ -192,7 +192,7 @@ class CompanyDatastore(BaseDatastore):
     def update_company_names(
         self, company_id: str, names: dict[str, str], user: UserDatabaseModel
     ) -> CompanyDatabaseModel:
-        update_context = self._companies.update_context()
+        update_context = self.db.update_context()
         update_context.set_values({"name": names})
         update_context.push_to_list(
             "changes", ChangeDatabaseModel.create("name", ChangeType.update, user.id, user.email).dict()
@@ -206,7 +206,7 @@ class CompanyDatastore(BaseDatastore):
     def update_company_descriptions(
         self, company_id: str, descriptions: dict[str, str], user: UserDatabaseModel
     ) -> CompanyDatabaseModel:
-        update_context = self._companies.update_context()
+        update_context = self.db.update_context()
         update_context.set_values({"description": descriptions})
         update_context.push_to_list(
             "changes", ChangeDatabaseModel.create("description", ChangeType.update, user.id, user.email).dict()
@@ -328,7 +328,12 @@ class CompanyDatastore(BaseDatastore):
 
     def activate_company(self, company_id: str, user: UserDatabaseModel) -> CompanyDatabaseModel:
         """Updates a companys status to active."""
-        self._companies.patch_document(company_id, {"status": CompanyStatus.active})
+        update_context = self.db.update_context()
+        update_context.set_values({"status": CompanyStatus.active})
+        update_context.push_to_list(
+            "changes", ChangeDatabaseModel.create("changes", ChangeType.add, user.id, user.email).dict()
+        )
+        self._companies.update_document(company_id, update_context)
         return self.get_company(company_id, user)
 
     async def save_profile_picture(self, company_id: str, file: UploadFile, user: UserDatabaseModel) -> str:
@@ -345,7 +350,7 @@ class CompanyDatastore(BaseDatastore):
         company = CompanyDatabaseModel(**self._get_company_doc(company_id))
         file_url = await self._file_manager.save_profile_picture(company.id, file)
         company.changes.append(ChangeDatabaseModel.create("profile_picture_url", ChangeType.update, user.id, user.email))
-        update_context = self._companies.update_context()
+        update_context = self.db.update_context()
         update_context.set_values({"profile_picture_url": file_url})
         update_context.push_to_list(
             "changes", ChangeDatabaseModel.create("profile_picture_url", ChangeType.update, user.id, user.email).dict()

@@ -392,9 +392,6 @@ class MongoDatabaseCollection(DatabaseCollection):
         """Deletes a document."""
         self._mongo_collection.delete_one({"_id": ObjectId(doc_id)})
 
-    def update_context(self) -> DocumentDatabaseUpdateContext:
-        return MongoDBUpdateContext()
-
 
 class MongoDocumentDatabase(DocumentDatabase):
     """
@@ -433,3 +430,6 @@ class MongoDocumentDatabase(DocumentDatabase):
         with self._db.client.start_session() as s:
             self._logger.debug("MongoDocumentDatabase.transaction: Starting session...")
             return s.with_transaction(callback)
+
+    def update_context(self) -> DocumentDatabaseUpdateContext:
+        return MongoDBUpdateContext()
