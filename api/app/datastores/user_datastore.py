@@ -11,6 +11,7 @@ from app.database.document_database import (
     DocumentDatabase,
     DatabaseCollection,
     Document,
+    BaseDatastore,
 )
 from app.dependencies.document_database import get_document_database
 from app.models.v1.api_models.users import UserAdd, UserRegister
@@ -24,15 +25,13 @@ from ..errors import (
     NotFoundError,
     InvalidUsernameOrPasswordError,
 )
+from ..models.v1.database_models.change_database_model import ChangeDatabaseModel, ChangeType
 
 
-class UserDatastore:
+class UserDatastore(BaseDatastore):
     """
     Accesses user database.
     """
-
-    _db: DocumentDatabase
-    _roles: RoleDatastore
 
     def __init__(self, db: DocumentDatabase, roles: RoleDatastore):
         """
@@ -40,7 +39,7 @@ class UserDatastore:
         :param db: DB reference.
         :param roles: Roles datastore for cross collection operations.
         """
-        self._db = db
+        super().__init__(db)
         self._roles = roles
 
     @property
@@ -49,7 +48,7 @@ class UserDatastore:
         Accessor for users collection
         :return:
         """
-        return self._db.collection("users")
+        return self.db.collection("users")
 
     def get_users(self, take: int, skip: int) -> list[UserDatabaseModel]:
         """
@@ -184,6 +183,7 @@ class UserDatastore:
 
     def add_role_to_user(
         self,
+        authenticated_user: UserDatabaseModel,
         user_id: str,
         role_name: str,
         reference: str | None = None,
@@ -191,24 +191,23 @@ class UserDatastore:
         """
         Add new role to user.
 
-        :raise NotFoundError: If user is not found.
-
-        :param user_id: ID of user.
+        :param authenticated_user: User performing the operation.
+        :param user_id: ID of the user the role is getting added to.
         :param role_name: Name of role to add.
         :param reference: Reference if role requires it.
 
+        :raise NotFoundError: If user is not found.
+
         :return: Updated UserDatabaseModel.
         """
-        user_doc = self._users.by_id(user_id)
-        if user_doc is None:
-            raise NotFoundError(f"No user with id '{user_id}' was found")
-
         role = self._roles.get_role(role_name)
-        user = UserDatabaseModel(**user_doc)
-        user_role = UserRoleDatabaseModel.create(role, reference)
-        user.roles.append(user_role)
-        user_doc = user_doc.replace(user.dict())
-        return UserDatabaseModel(**user_doc)
+        user_role = UserRoleDatabaseModel.create(role, reference).dict()
+        change = ChangeDatabaseModel.create("roles", ChangeType.add, authenticated_user.email, user_role)
+        update_context = self.db.update_context()
+        update_context.push_to_list("roles", user_role)
+        update_context.push_to_list("changes", change)
+        self._users.update_document(user_id, update_context)
+        return self.get_user_by_id(user_id, authenticated_user)
 
 
 def get_user_datastore(

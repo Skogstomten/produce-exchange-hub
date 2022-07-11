@@ -309,7 +309,7 @@ class CompanyDatastore(BaseDatastore):
         if not self._roles.exists({"name": role_name, "type": RoleType.company_role}):
             raise InvalidInputError("Invalid role.")
 
-        self._users.add_role_to_user(user_id, role_name, company_id)
+        self._users.add_role_to_user(authenticated_user, user_id, role_name, company_id)
         self._companies.add_to_sub_collection(
             company_id,
             "changes",

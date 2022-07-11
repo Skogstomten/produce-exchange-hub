@@ -13,9 +13,8 @@ from app.models.v1.database_models.role_database_model import RoleDatabaseModel
 from app.models.v1.shared import RoleType
 
 
-def test_add_role_to_user_can_add_role():
+def test_add_role_to_user_can_add_role(authenticated_user_default, company_id):
     user_id = str(ObjectId())
-    company_id = str(ObjectId())
     fake_role = RoleDatabaseModel(id=str(ObjectId()), name="company_admin", type=RoleType.company_role)
     fake_user = {
         "_id": ObjectId(user_id),
@@ -40,6 +39,6 @@ def test_add_role_to_user_can_add_role():
     db.collection.return_value = collection
 
     target = UserDatastore(db, role_datastore)
-    target.add_role_to_user(user_id, "company_admin", company_id)
+    target.add_role_to_user(authenticated_user_default, user_id, "company_admin", company_id)
 
-    collection.replace.assert_called_once()
+    collection.update_document.assert_called_once()
