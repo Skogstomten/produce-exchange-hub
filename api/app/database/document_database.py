@@ -255,10 +255,6 @@ class DatabaseCollection(metaclass=ABCMeta):
     def update_document(self, doc_id: str, updates: DocumentDatabaseUpdateContext) -> None:
         """Updates individual document."""
 
-    @abstractmethod
-    def update_context(self) -> DocumentDatabaseUpdateContext:
-        """Returns an update context use to build update queries."""
-
 
 class DocumentDatabase(metaclass=ABCMeta):
     """
@@ -276,6 +272,10 @@ class DocumentDatabase(metaclass=ABCMeta):
     @abstractmethod
     def transaction(self, datastore, function, *args, **kwargs):
         """Creates a transaction of function. To be used as decorator."""
+
+    @abstractmethod
+    def update_context(self) -> DocumentDatabaseUpdateContext:
+        """Returns an update context use to build update queries."""
 
 
 def transaction(function):
