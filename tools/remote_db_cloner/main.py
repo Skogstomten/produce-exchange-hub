@@ -1,7 +1,7 @@
-# This is a sample Python script.
+from urllib.parse import quote_plus
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import certifi
+from pymongo import MongoClient
 
 
 def get_mongo_client() -> MongoClient:
@@ -20,13 +20,32 @@ def get_mongo_client() -> MongoClient:
     return client
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def get_local_mongo_client() -> MongoClient:
+    """Returns a MongoClient for local mongo db."""
+    client = MongoClient("mongodb://localhost:27017/produce_exchange_hub?retryWrites=true&w=majority")
+    return client
 
 
-# Press the green button in the gutter to run the script.
+def get_remote_collections():
+    remote_db = get_mongo_client().get_database()
+    collections = []
+    for col in remote_db.list_collection_names():
+        collections.append(remote_db.get_collection(col))
+    return collections
+
+
+def copy_to_local(remote_collections):
+    local_db = get_local_mongo_client().get_database()
+    for remote_collection in remote_collections:
+        local_collection = local_db.get_collection(remote_collection.name)
+        docs = remote_collection.find()
+        local_collection.insert_many(docs)
+
+
+def main():
+    remote_collections = get_remote_collections()
+    copy_to_local(remote_collections)
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    main()
