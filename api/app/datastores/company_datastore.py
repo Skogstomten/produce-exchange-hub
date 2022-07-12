@@ -319,15 +319,13 @@ class CompanyDatastore(BaseDatastore):
         )
         return self._users.get_company_users(company_id)
 
-    def activate_company(self, company_id: str, user: UserDatabaseModel) -> CompanyDatabaseModel:
+    def activate_company(self, company_id: str, authenticated_user: UserDatabaseModel) -> CompanyDatabaseModel:
         """Updates a companys status to active."""
-        update_context = self.db.update_context()
-        update_context.set_values({"status": CompanyStatus.active})
-        update_context.push_to_list(
-            "changes", ChangeDatabaseModel.create("status", ChangeType.update, user.email, CompanyStatus.active).dict()
-        )
-        self._companies.update_document(company_id, update_context)
-        return self.get_company(company_id, user)
+        return self._change_status(company_id, authenticated_user, CompanyStatus.active)
+
+    def deactivate_company(self, company_id: str, authenticated_user: UserDatabaseModel) -> CompanyDatabaseModel:
+        """Updates company status to 'deactivated'."""
+        return self._change_status(company_id, authenticated_user, CompanyStatus.deactivated)
 
     async def save_profile_picture(self, company_id: str, file: UploadFile, user: UserDatabaseModel) -> str:
         """
@@ -361,6 +359,17 @@ class CompanyDatastore(BaseDatastore):
         if company_doc is None:
             raise NotFoundError(f"Company with id '{company_id}' not found")
         return company_doc
+
+    def _change_status(
+        self, company_id: str, authenticated_user: UserDatabaseModel, status: CompanyStatus
+    ) -> CompanyDatabaseModel:
+        update_context = self.db.update_context()
+        update_context.set_values({"status": status})
+        update_context.push_to_list(
+            "changes", ChangeDatabaseModel.create("status", ChangeType.update, authenticated_user.email, status)
+        )
+        self._companies.update_document(company_id, update_context)
+        return self.get_company(company_id, authenticated_user)
 
 
 def get_company_datastore(

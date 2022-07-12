@@ -117,10 +117,10 @@ async def update_company(
     )
 
 
-@router.put("/{company_id}/activate", response_model=CompanyOutModel)
+@router.post("/{company_id}/activate", response_model=CompanyOutModel)
 async def activate_company(
     company_id: str = Path(...),
-    user: UserDatabaseModel = Security(
+    authenticated_user: UserDatabaseModel = Security(
         get_current_user,
         scopes=(
             "roles:superuser",
@@ -131,9 +131,33 @@ async def activate_company(
     essenties: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
     """Activates new company."""
-    company = company_datastore.activate_company(company_id, user)
+    company = company_datastore.activate_company(company_id, authenticated_user)
     return CompanyOutModel.from_database_model(
         company, essenties.language, essenties.timezone, essenties.request, router
+    )
+
+
+@router.post("/{company_id}/deactivate", response_model=CompanyOutModel)
+async def deactivate_company(
+    company_id: str,
+    authenticated_user: UserDatabaseModel = Security(
+        get_current_user,
+        scopes=(
+            "roles:superuser",
+            "roles:company_admin:{company_id}",
+        ),
+    ),
+    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    essentials: Essentials = Depends(get_essentials),
+):
+    """Deactivates a company."""
+    company = company_datastore.deactivate_company(company_id, authenticated_user)
+    return CompanyOutModel.from_database_model(
+        company,
+        essentials.language,
+        essentials.timezone,
+        essentials.request,
+        router,
     )
 
 
