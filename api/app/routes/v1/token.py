@@ -36,6 +36,7 @@ async def token(
         data={
             "sub": user.email,
             "scopes": form_data.scopes,
+            "id": user.id,
             **{claim.type: claim.get_value() for claim in claims},
         },
         expires_delta=access_token_expires,
