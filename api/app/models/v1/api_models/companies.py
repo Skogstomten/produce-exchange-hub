@@ -89,7 +89,12 @@ class CompanyOutModel(CompanyOutListModel):
 
     @classmethod
     def from_database_model(
-        cls, model: CompanyDatabaseModel, lang: Language, tz: str | tzinfo, request: Request, router: APIRouter,
+        cls,
+        model: CompanyDatabaseModel,
+        lang: Language,
+        tz: str | tzinfo,
+        request: Request,
+        router: APIRouter,
     ):
         """
         Creates model from database model with localization.

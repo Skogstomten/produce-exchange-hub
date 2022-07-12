@@ -55,8 +55,9 @@ async def get_companies(
     )
     items: list[CompanyOutListModel] = []
     for company in company_datastore:
-        item = CompanyOutListModel.from_database_model(company, essentials.language, essentials.timezone,
-                                                       essentials.request, router)
+        item = CompanyOutListModel.from_database_model(
+            company, essentials.language, essentials.timezone, essentials.request, router
+        )
         items.append(item)
     response = PagingResponseModel[CompanyOutListModel].create(
         items,
@@ -76,8 +77,9 @@ async def get_company(
 ) -> CompanyOutModel:
     """Get a company by id."""
     company = company_datastore.get_company(company_id, user)
-    return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request,
-                                               router)
+    return CompanyOutModel.from_database_model(
+        company, essentials.language, essentials.timezone, essentials.request, router
+    )
 
 
 @router.post("/", response_model=CompanyOutModel)
@@ -89,8 +91,9 @@ async def add_company(
 ) -> CompanyOutModel:
     """Add a new company."""
     company = company_datastore.add_company(company, user)
-    return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request,
-                                               router)
+    return CompanyOutModel.from_database_model(
+        company, essentials.language, essentials.timezone, essentials.request, router
+    )
 
 
 @router.put("/{company_id}", response_model=CompanyOutModel)
@@ -109,8 +112,9 @@ async def update_company(
 ):
     """Update a company."""
     company = company_datastore.update_company(company_id, company, user)
-    return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request,
-                                               router)
+    return CompanyOutModel.from_database_model(
+        company, essentials.language, essentials.timezone, essentials.request, router
+    )
 
 
 @router.put("/{company_id}/activate", response_model=CompanyOutModel)
@@ -128,8 +132,9 @@ async def activate_company(
 ) -> CompanyOutModel:
     """Activates new company."""
     company = company_datastore.activate_company(company_id, user)
-    return CompanyOutModel.from_database_model(company, essenties.language, essenties.timezone, essenties.request,
-                                               router)
+    return CompanyOutModel.from_database_model(
+        company, essenties.language, essenties.timezone, essenties.request, router
+    )
 
 
 @router.get(
@@ -194,8 +199,9 @@ async def update_company_names(
     essentials: Essentials = Depends(get_essentials),
 ):
     company = company_datastore.update_company_names(company_id, names, user)
-    return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request,
-                                               router)
+    return CompanyOutModel.from_database_model(
+        company, essentials.language, essentials.timezone, essentials.request, router
+    )
 
 
 @router.get("/{company_id}/descriptions", response_model=dict[str, str])
@@ -217,8 +223,9 @@ async def update_company_descriptions(
     essentials: Essentials = Depends(get_essentials),
 ):
     company = company_datastore.update_company_descriptions(company_id, descriptions, user)
-    return CompanyOutModel.from_database_model(company, essentials.language, essentials.timezone, essentials.request,
-                                               router)
+    return CompanyOutModel.from_database_model(
+        company, essentials.language, essentials.timezone, essentials.request, router
+    )
 
 
 @router.post("/{company_id}/profile-pictures", response_class=PlainTextResponse)

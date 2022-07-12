@@ -221,8 +221,11 @@ class UserDatastore(BaseDatastore):
         update_context.push_to_list(
             "changes",
             ChangeDatabaseModel.create(
-                "profile_picture_url", ChangeType.update, authenticated_user.email, file_url,
-            ).dict()
+                "profile_picture_url",
+                ChangeType.update,
+                authenticated_user.email,
+                file_url,
+            ).dict(),
         )
         self._users.update_document(user_id, update_context)
         return file_url

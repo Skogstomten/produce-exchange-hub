@@ -86,7 +86,8 @@ async def upload_profile_picture(
     file: UploadFile = File(...),
     user_datastore: UserDatastore = Depends(get_user_datastore),
     authenticated_user: UserDatabaseModel = Security(
-        get_current_user, scopes=("verified:True", "self:{user_id}", "roles:superuser"),
+        get_current_user,
+        scopes=("verified:True", "self:{user_id}", "roles:superuser"),
     ),
     essentials: Essentials = Depends(get_essentials),
 ):
