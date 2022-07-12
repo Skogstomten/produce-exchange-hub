@@ -4,7 +4,7 @@ Datastore for accessing user database.
 from datetime import datetime
 
 import pytz
-from fastapi import Depends
+from fastapi import Depends, UploadFile
 
 from app.cryptography import password_hasher as hasher
 from app.database.document_database import (
@@ -25,6 +25,7 @@ from ..errors import (
     NotFoundError,
     InvalidUsernameOrPasswordError,
 )
+from ..io.file_manager import FileManager, get_file_manager
 from ..models.v1.database_models.change_database_model import ChangeDatabaseModel, ChangeType
 
 
@@ -33,14 +34,16 @@ class UserDatastore(BaseDatastore):
     Accesses user database.
     """
 
-    def __init__(self, db: DocumentDatabase, roles: RoleDatastore):
+    def __init__(self, db: DocumentDatabase, roles: RoleDatastore, file_manager: FileManager):
         """
         Creates a datastore.
+        :param file_manager:
         :param db: DB reference.
         :param roles: Roles datastore for cross collection operations.
         """
         super().__init__(db)
         self._roles = roles
+        self._file_manager = file_manager
 
     @property
     def _users(self) -> DatabaseCollection:
@@ -209,15 +212,42 @@ class UserDatastore(BaseDatastore):
         self._users.update_document(user_id, update_context)
         return self.get_user_by_id(user_id, authenticated_user)
 
+    async def save_profile_picture(self, user_id: str, file: UploadFile, authenticated_user: UserDatabaseModel) -> str:
+        """Saves user profile picture to file storage and updates profile picture url."""
+        self._ensure_user_exists(user_id)
+        file_url = await self._file_manager.save_user_profile_picture(user_id, file)
+        update_context = self.db.update_context()
+        update_context.set_values({"profile_picture_url": file_url})
+        update_context.push_to_list(
+            "changes",
+            ChangeDatabaseModel.create(
+                "profile_picture_url", ChangeType.update, authenticated_user.email, file_url,
+            ).dict()
+        )
+        self._users.update_document(user_id, update_context)
+        return file_url
+
+    def _get_user(self, user_id: str) -> UserDatabaseModel:
+        user_document = self._users.by_id(user_id)
+        if user_document is None:
+            raise NotFoundError(f"User '{user_id}' not found")
+        return UserDatabaseModel(**user_document)
+
+    def _ensure_user_exists(self, user_id: str):
+        if not self._users.exists({"id": user_id}):
+            raise NotFoundError(f"User '{user_id}' not found")
+
 
 def get_user_datastore(
     db: DocumentDatabase = Depends(get_document_database),
     roles: RoleDatastore = Depends(get_role_datastore),
+    file_manager: FileManager = Depends(get_file_manager),
 ) -> UserDatastore:
     """
     Dependecy injection method for user datastore.
+    :param file_manager:
     :param db: DB reference.
     :param roles: Roles datastore.
     :return: New UserDatastore.
     """
-    return UserDatastore(db, roles)
+    return UserDatastore(db, roles, file_manager)

@@ -1,16 +1,19 @@
 """
 Routing for users endpoint.
 """
-from fastapi import APIRouter, Depends, Body, Query, Request, Security, Path
+from fastapi import APIRouter, Depends, Body, Query, Request, Security, Path, UploadFile, File
+from fastapi.responses import PlainTextResponse
+from starlette import status
 
+from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.dependencies.essentials import Essentials, get_essentials
 from app.dependencies.log import AppLogger, AppLoggerInjector
 from app.dependencies.user import get_current_user
-from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.api_models.users import UserRegister, UserOutModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.utils.request_utils import get_url
+from app.utils.url_utils import assemble_profile_picture_url
 
 logger_injector = AppLoggerInjector("users.router")
 
@@ -63,7 +66,7 @@ async def get_user(
 @router.delete(
     "/{user_id}",
     response_model=None,
-    responses={200: {"test": "User deleted"}},
+    responses={status.HTTP_204_NO_CONTENT: {"test": "User deleted"}},
 )
 async def delete_user(
     request: Request,
@@ -75,3 +78,17 @@ async def delete_user(
     """Delete a user."""
     logger.debug(f"Incoming={get_url(request)}: user_id={user_id}, user={user}")
     user_datastore.delete_user(user_id)
+
+
+@router.post("/{user_id}/profile-pictures", response_class=PlainTextResponse)
+async def upload_profile_picture(
+    user_id: str,
+    file: UploadFile = File(...),
+    user_datastore: UserDatastore = Depends(get_user_datastore),
+    authenticated_user: UserDatabaseModel = Security(
+        get_current_user, scopes=("verified:True", "self:{user_id}", "roles:superuser"),
+    ),
+    essentials: Essentials = Depends(get_essentials),
+):
+    file_path = await user_datastore.save_profile_picture(user_id, file, authenticated_user)
+    return assemble_profile_picture_url(essentials.request, router, file_path, essentials.language)

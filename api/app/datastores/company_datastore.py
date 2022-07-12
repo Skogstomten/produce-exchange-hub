@@ -341,7 +341,7 @@ class CompanyDatastore(BaseDatastore):
         :raise NotFoundError: If company was not found.
         """
         company = CompanyDatabaseModel(**self._get_company_doc(company_id))
-        file_url = await self._file_manager.save_profile_picture(company.id, file)
+        file_url = await self._file_manager.save_company_profile_picture(company.id, file)
         update_context = self.db.update_context()
         update_context.set_values({"profile_picture_url": file_url})
         update_context.push_to_list(
@@ -354,7 +354,7 @@ class CompanyDatastore(BaseDatastore):
         return file_url
 
     def get_company_profile_picture_physical_path(self, image_file_name: str) -> str:
-        return self._file_manager.get_profile_picture_physical_path(image_file_name)
+        return self._file_manager.get_company_profile_picture_physical_path(image_file_name)
 
     def _get_company_doc(self, company_id: str) -> Document:
         company_doc = self._companies.by_id(company_id)
