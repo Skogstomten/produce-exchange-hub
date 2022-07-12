@@ -11,7 +11,9 @@ from app.utils.request_utils import get_current_request_url_with_additions
 from app.utils.url_utils import assemble_profile_picture_url
 from .base_out_model import BaseOutModel
 from .contacts import ContactListModel
+from ..database_models.change_database_model import ChangeDatabaseModel
 from ..database_models.company_database_model import CompanyDatabaseModel
+from ..database_models.user_database_model import UserDatabaseModel
 from ..shared import CompanyStatus, Language
 
 
@@ -30,7 +32,7 @@ def _initialize_company_model(
     tz: str | tzinfo,
     request: Request,
     router: APIRouter,
-    include_extras: bool = False,
+    authenticated_user: UserDatabaseModel,
 ):
     instance = cls(
         url=get_current_request_url_with_additions(request),
@@ -47,8 +49,13 @@ def _initialize_company_model(
         profile_picture_url=assemble_profile_picture_url(request, router, model.profile_picture_url, lang),
     )
 
-    if include_extras:
+    if isinstance(instance, CompanyOutModel):
         instance.contacts = model.contacts
+        try:
+            if authenticated_user.is_superuser() or authenticated_user.get_role("company_admin").reference == model.id:
+                instance.changes = model.changes
+        except AttributeError:
+            pass
 
     return instance
 
@@ -75,17 +82,19 @@ class CompanyOutListModel(BaseOutModel):
         tz: str | tzinfo,
         request: Request,
         router: APIRouter,
+        authenticated_user: UserDatabaseModel,
     ):
         """
         Creates model from database model with localization.
         """
-        return _initialize_company_model(cls, model, lang, tz, request, router)
+        return _initialize_company_model(cls, model, lang, tz, request, router, authenticated_user)
 
 
 class CompanyOutModel(CompanyOutListModel):
     """Company model used when getting a single company."""
 
     contacts: list[ContactListModel] | None
+    changes: list[ChangeDatabaseModel] | None
 
     @classmethod
     def from_database_model(
@@ -95,11 +104,12 @@ class CompanyOutModel(CompanyOutListModel):
         tz: str | tzinfo,
         request: Request,
         router: APIRouter,
+        authenticated_user: UserDatabaseModel,
     ):
         """
         Creates model from database model with localization.
         """
-        return _initialize_company_model(cls, model, lang, tz, request, router, True)
+        return _initialize_company_model(cls, model, lang, tz, request, router, authenticated_user)
 
 
 class CompanyCreateModel(BaseModel):
