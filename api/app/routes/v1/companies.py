@@ -42,21 +42,21 @@ async def get_companies(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
     paging_information: PagingInformation = Depends(get_paging_information),
-    user: UserDatabaseModel = Depends(get_current_user_if_any),
+    authenticated_user: UserDatabaseModel = Depends(get_current_user_if_any),
     logger: AppLogger = Depends(logger_injector),
 ) -> PagingResponseModel[CompanyOutListModel]:
     """Get list of companies wrapped in a paging response."""
     logger.debug(
         f"Incoming={get_url(essentials.request)}: sort_by={sort_by}, sort_order={sort_order}, "
-        f"essentials={essentials}, paging_information={paging_information}, user={user}"
+        f"essentials={essentials}, paging_information={paging_information}, user={authenticated_user}"
     )
     company_datastore = company_datastore.get_companies(
-        paging_information.skip, paging_information.take, sort_by, sort_order, user
+        paging_information.skip, paging_information.take, sort_by, sort_order, authenticated_user
     )
     items: list[CompanyOutListModel] = []
     for company in company_datastore:
         item = CompanyOutListModel.from_database_model(
-            company, essentials.language, essentials.timezone, essentials.request, router
+            company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
         )
         items.append(item)
     response = PagingResponseModel[CompanyOutListModel].create(
@@ -70,29 +70,29 @@ async def get_companies(
 
 @router.get("/{company_id}", response_model=CompanyOutModel)
 async def get_company(
-    company_id: str = Path(...),
+    company_id: str,
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
-    user: UserDatabaseModel = Depends(get_current_user_if_any),
+    authenticated_user: UserDatabaseModel = Depends(get_current_user_if_any),
 ) -> CompanyOutModel:
     """Get a company by id."""
-    company = company_datastore.get_company(company_id, user)
+    company = company_datastore.get_company(company_id, authenticated_user)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router
+        company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
     )
 
 
 @router.post("/", response_model=CompanyOutModel)
 async def add_company(
     company: CompanyCreateModel = Body(...),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("verified:True",)),
+    authenticated_user: UserDatabaseModel = Security(get_current_user, scopes=("verified:True",)),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
     """Add a new company."""
-    company = company_datastore.add_company(company, user)
+    company = company_datastore.add_company(company, authenticated_user)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router
+        company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
     )
 
 
@@ -100,7 +100,7 @@ async def add_company(
 async def update_company(
     company_id: str = Path(...),
     company: CompanyUpdateModel = Body(...),
-    user: UserDatabaseModel = Security(
+    authenticated_user: UserDatabaseModel = Security(
         get_current_user,
         scopes=(
             "roles:company_admin:{company_id}",
@@ -111,9 +111,9 @@ async def update_company(
     essentials: Essentials = Depends(get_essentials),
 ):
     """Update a company."""
-    company = company_datastore.update_company(company_id, company, user)
+    company = company_datastore.update_company(company_id, company, authenticated_user)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router
+        company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
     )
 
 
@@ -133,7 +133,7 @@ async def activate_company(
     """Activates new company."""
     company = company_datastore.activate_company(company_id, authenticated_user)
     return CompanyOutModel.from_database_model(
-        company, essenties.language, essenties.timezone, essenties.request, router
+        company, essenties.language, essenties.timezone, essenties.request, router, authenticated_user
     )
 
 
@@ -153,11 +153,7 @@ async def deactivate_company(
     """Deactivates a company."""
     company = company_datastore.deactivate_company(company_id, authenticated_user)
     return CompanyOutModel.from_database_model(
-        company,
-        essentials.language,
-        essentials.timezone,
-        essentials.request,
-        router,
+        company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
     )
 
 
@@ -218,13 +214,15 @@ async def get_company_names(
 async def update_company_names(
     company_id: str,
     names: dict[str, str] = Body(...),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    authenticated_user: UserDatabaseModel = Security(
+        get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
+    ),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ):
-    company = company_datastore.update_company_names(company_id, names, user)
+    company = company_datastore.update_company_names(company_id, names, authenticated_user)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router
+        company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
     )
 
 
@@ -242,13 +240,15 @@ async def get_company_descriptions(
 async def update_company_descriptions(
     company_id: str,
     descriptions: dict[str, str] = Body(...),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    authenticated_user: UserDatabaseModel = Security(
+        get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
+    ),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ):
-    company = company_datastore.update_company_descriptions(company_id, descriptions, user)
+    company = company_datastore.update_company_descriptions(company_id, descriptions, authenticated_user)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router
+        company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
     )
 
 
