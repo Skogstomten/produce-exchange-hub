@@ -55,11 +55,11 @@ async def get_users(
 async def get_user(
     user_id: str = Path(...),
     user_datastore: UserDatastore = Depends(get_user_datastore),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "self:{user_id}")),
+    authenticated_user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "self:{user_id}")),
     essentials: Essentials = Depends(get_essentials),
 ) -> UserOutModel:
     """Get user by id."""
-    user = user_datastore.get_user_by_id(user_id, user)
+    user = user_datastore.get_user_by_id(user_id, authenticated_user)
     return UserOutModel.from_database_model(user, essentials.request)
 
 
