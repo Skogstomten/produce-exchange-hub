@@ -10,6 +10,13 @@ from app.errors import NotFoundError
 logger_injector = AppLoggerInjector("FileManager")
 
 
+def _get_profile_picture_physical_path(image_file_name: str, directory: str) -> str:
+    image_file_path = join(directory, image_file_name)
+    if not Path(image_file_path).exists():
+        raise NotFoundError(f"There's no picture with the name '{image_file_name}'")
+    return image_file_path
+
+
 class FileManager:
     def __init__(self, file_root: str, logger: AppLogger):
         self._file_root = file_root
@@ -31,10 +38,10 @@ class FileManager:
         )
 
     def get_company_profile_picture_physical_path(self, image_file_name: str) -> str:
-        image_file_path = join(self._company_profile_picture_path, image_file_name)
-        if not Path(image_file_path).exists():
-            raise NotFoundError(f"There's no picture with the name '{image_file_name}'")
-        return image_file_path
+        return _get_profile_picture_physical_path(image_file_name, self._company_profile_picture_path)
+
+    def get_user_profile_picture_physical_path(self, image_file_name: str) -> str:
+        return _get_profile_picture_physical_path(image_file_name, self._user_profile_picture_path)
 
     async def save_user_profile_picture(self, user_id: str, file: UploadFile) -> str:
         return await self._save_profile_picture("user_id", user_id, file, self._user_profile_picture_path)
