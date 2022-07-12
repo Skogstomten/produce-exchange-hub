@@ -45,6 +45,7 @@ class UserDatabaseModel(BaseModel):
     created: datetime
     last_logged_in: datetime | None
     roles: list[UserRoleDatabaseModel] = Field([])
+    profile_picture_url: str | None
 
     def is_superuser(self) -> bool:
         return any(role for role in self.roles if role.role_name == "superuser")

@@ -49,6 +49,7 @@ class UserOutModel(User, BaseOutModel):
     created: datetime
     last_logged_in: datetime | None = Field(None)
     roles: list[UserRoleOutModel]
+    profile_picture_url: str | None
 
     @classmethod
     def from_database_model(
