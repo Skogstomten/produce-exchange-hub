@@ -13,7 +13,7 @@ from app.models.v1.database_models.role_database_model import RoleDatabaseModel
 from app.models.v1.shared import RoleType
 
 
-def test_add_role_to_user_can_add_role(authenticated_user_default, company_id):
+def test_add_role_to_user_can_add_role(authenticated_user_default, company_id, file_manager):
     user_id = str(ObjectId())
     fake_role = RoleDatabaseModel(id=str(ObjectId()), name="company_admin", type=RoleType.company_role)
     fake_user = {
@@ -38,7 +38,7 @@ def test_add_role_to_user_can_add_role(authenticated_user_default, company_id):
     collection.by_id.return_value = MongoDocument(fake_user, collection)
     db.collection.return_value = collection
 
-    target = UserDatastore(db, role_datastore)
+    target = UserDatastore(db, role_datastore, file_manager)
     target.add_role_to_user(authenticated_user_default, user_id, "company_admin", company_id)
 
     collection.update_document.assert_called_once()

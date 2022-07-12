@@ -2,13 +2,13 @@
 from datetime import datetime, tzinfo
 from enum import Enum, unique
 
-from fastapi import Request
+from fastapi import Request, APIRouter
 from pydantic import BaseModel, Field
 
 from app.utils.datetime_utils import to_timezone
 from app.utils.lang_utils import select_localized_text
 from app.utils.request_utils import get_current_request_url_with_additions
-from app.utils.url_util import assemble_url
+from app.utils.url_utils import assemble_profile_picture_url
 from .base_out_model import BaseOutModel
 from .contacts import ContactListModel
 from ..database_models.company_database_model import CompanyDatabaseModel
@@ -23,22 +23,13 @@ class CompanyTypes(Enum):
     buyer = "buyer"
 
 
-def assemble_company_profile_picture_url(request: Request, path_prefix: str, file_path: str, lang: Language) -> str:
-    return assemble_url(
-        request.base_url,
-        path_prefix,
-        file_path,
-        lang=lang,
-    )
-
-
 def _initialize_company_model(
     cls,
     model: CompanyDatabaseModel,
     lang: Language,
     tz: str | tzinfo,
     request: Request,
-    profile_picture_path_prefix: str,
+    router: APIRouter,
     include_extras: bool = False,
 ):
     instance = cls(
@@ -53,9 +44,7 @@ def _initialize_company_model(
         activation_date=to_timezone(model.activation_date, tz),
         description=select_localized_text(model.description, lang, model.content_languages_iso),
         external_website_url=model.external_website_url,
-        profile_picture_url=assemble_company_profile_picture_url(
-            request, profile_picture_path_prefix, model.profile_picture_url, lang
-        ),
+        profile_picture_url=assemble_profile_picture_url(request, router, model.profile_picture_url, lang),
     )
 
     if include_extras:
@@ -85,10 +74,12 @@ class CompanyOutListModel(BaseOutModel):
         lang: Language,
         tz: str | tzinfo,
         request: Request,
-        profile_picture_path_prefix: str,
+        router: APIRouter,
     ):
-        """Creates model from database model with localization."""
-        return _initialize_company_model(cls, model, lang, tz, request, profile_picture_path_prefix)
+        """
+        Creates model from database model with localization.
+        """
+        return _initialize_company_model(cls, model, lang, tz, request, router)
 
 
 class CompanyOutModel(CompanyOutListModel):
@@ -103,10 +94,12 @@ class CompanyOutModel(CompanyOutListModel):
         lang: Language,
         tz: str | tzinfo,
         request: Request,
-        profile_picture_path_prefix: str,
+        router: APIRouter,
     ):
-        """Creates model from database model with localization."""
-        return _initialize_company_model(cls, model, lang, tz, request, profile_picture_path_prefix, True)
+        """
+        Creates model from database model with localization.
+        """
+        return _initialize_company_model(cls, model, lang, tz, request, router, True)
 
 
 class CompanyCreateModel(BaseModel):

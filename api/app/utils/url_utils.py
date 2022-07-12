@@ -1,3 +1,9 @@
+from fastapi import APIRouter
+from starlette.requests import Request
+
+from app.models.v1.shared import Language
+
+
 def assemble_url(*args, **kwargs) -> str:
     """
     *************
@@ -16,3 +22,12 @@ def assemble_url(*args, **kwargs) -> str:
     for key, value in kwargs.items():
         url = url.replace("{" + key + "}", str(value))
     return url
+
+
+def assemble_profile_picture_url(request: Request, router: APIRouter, file_path: str, lang: Language) -> str:
+    return assemble_url(
+        request.base_url,
+        router.prefix,
+        file_path,
+        lang=lang,
+    )

@@ -23,12 +23,12 @@ from app.models.v1.api_models.companies import (
     CompanyCreateModel,
     CompanyUpdateModel,
     CompanyOutListModel,
-    assemble_company_profile_picture_url,
 )
 from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.shared import SortOrder
 from app.utils.request_utils import get_url
+from app.utils.url_utils import assemble_profile_picture_url
 
 logger_injector = AppLoggerInjector("companies_router")
 
@@ -56,11 +56,7 @@ async def get_companies(
     items: list[CompanyOutListModel] = []
     for company in company_datastore:
         item = CompanyOutListModel.from_database_model(
-            company,
-            essentials.language,
-            essentials.timezone,
-            essentials.request,
-            router.prefix,
+            company, essentials.language, essentials.timezone, essentials.request, router
         )
         items.append(item)
     response = PagingResponseModel[CompanyOutListModel].create(
@@ -82,7 +78,7 @@ async def get_company(
     """Get a company by id."""
     company = company_datastore.get_company(company_id, user)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router.prefix
+        company, essentials.language, essentials.timezone, essentials.request, router
     )
 
 
@@ -96,7 +92,7 @@ async def add_company(
     """Add a new company."""
     company = company_datastore.add_company(company, user)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router.prefix
+        company, essentials.language, essentials.timezone, essentials.request, router
     )
 
 
@@ -117,7 +113,7 @@ async def update_company(
     """Update a company."""
     company = company_datastore.update_company(company_id, company, user)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router.prefix
+        company, essentials.language, essentials.timezone, essentials.request, router
     )
 
 
@@ -137,7 +133,7 @@ async def activate_company(
     """Activates new company."""
     company = company_datastore.activate_company(company_id, user)
     return CompanyOutModel.from_database_model(
-        company, essenties.language, essenties.timezone, essenties.request, router.prefix
+        company, essenties.language, essenties.timezone, essenties.request, router
     )
 
 
@@ -204,7 +200,7 @@ async def update_company_names(
 ):
     company = company_datastore.update_company_names(company_id, names, user)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router.prefix
+        company, essentials.language, essentials.timezone, essentials.request, router
     )
 
 
@@ -228,7 +224,7 @@ async def update_company_descriptions(
 ):
     company = company_datastore.update_company_descriptions(company_id, descriptions, user)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router.prefix
+        company, essentials.language, essentials.timezone, essentials.request, router
     )
 
 
@@ -244,7 +240,7 @@ async def upload_profile_picture(
     essentials: Essentials = Depends(get_essentials),
 ):
     file_path = await company_datastore.save_profile_picture(company_id, file, user)
-    return assemble_company_profile_picture_url(essentials.request, router.prefix, file_path, essentials.language)
+    return assemble_profile_picture_url(essentials.request, router, file_path, essentials.language)
 
 
 @router.get("/profile-pictures/{image_file_name}", response_class=FileResponse)

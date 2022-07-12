@@ -41,7 +41,13 @@ class SecurityScopeRestrictions:
         authenticated_user: UserDatabaseModel,
     ):
         """
-        Parses and stores the security scopes
+        Parses and stores the security scopes.
+
+        Supported scopes=
+            roles:role_name:reference[optional]
+            verified:True|False
+            self:{user_id}
+
         :param security_scopes: SecurityScopes object received from fastapi
         :param request: HTTP request object, needed to acquire resource keys
         to check for access to specific resources
