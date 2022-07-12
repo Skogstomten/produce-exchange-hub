@@ -2,7 +2,7 @@
 Routing for users endpoint.
 """
 from fastapi import APIRouter, Depends, Body, Query, Request, Security, Path, UploadFile, File
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, FileResponse
 from starlette import status
 
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
@@ -93,3 +93,11 @@ async def upload_profile_picture(
 ):
     file_path = await user_datastore.save_profile_picture(user_id, file, authenticated_user)
     return assemble_profile_picture_url(essentials.request, router, file_path, essentials.language)
+
+
+@router.get("/profile-pictures/{image_file_name}", response_class=FileResponse)
+async def get_profile_picture(
+    image_file_name: str,
+    user_datastore: UserDatastore = Depends(get_user_datastore),
+):
+    return user_datastore.get_profile_picture_physical_path(image_file_name)

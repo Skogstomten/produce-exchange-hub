@@ -240,6 +240,9 @@ class UserDatastore(BaseDatastore):
         if not self._users.exists({"id": user_id}):
             raise NotFoundError(f"User '{user_id}' not found")
 
+    def get_profile_picture_physical_path(self, image_file_name: str) -> str:
+        return self._file_manager.get_user_profile_picture_physical_path(image_file_name)
+
 
 def get_user_datastore(
     db: DocumentDatabase = Depends(get_document_database),
