@@ -23,3 +23,17 @@ class CompanyDatabaseModel(BaseModel):
     profile_picture_url: str | None
     contacts: list[ContactDatabaseModel] | None = Field([])
     changes: list[ChangeDatabaseModel] = Field([])
+
+    @classmethod
+    def brief(cls):
+        return [
+            "name",
+            "status",
+            "created_date",
+            "company_types",
+            "content_languages_iso",
+            "activation_date",
+            "description",
+            "external_website_url",
+            "profile_picture_url",
+        ]
