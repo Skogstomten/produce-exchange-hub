@@ -93,7 +93,7 @@ class CompanyDatastore(BaseDatastore):
                     )
 
         self._logger.debug(f"Querying companies: filters={filters}")
-        docs = self._companies.get(filters)
+        docs = self._companies.get(filters, CompanyDatabaseModel.brief())
         if skip:
             docs = docs.skip(skip)
         if take:
@@ -105,6 +105,8 @@ class CompanyDatastore(BaseDatastore):
         result = []
         for doc in docs.to_list():
             result.append(CompanyDatabaseModel(**doc))
+
+        self._logger.debug(f"Result from get_companies={result}")
 
         return result
 
@@ -171,7 +173,7 @@ class CompanyDatastore(BaseDatastore):
 
         company = CompanyDatabaseModel(**company_doc)
         for key, value in model.__dict__.items():
-            current_value = company.__dict__.get(key, None)
+            current_value = company.__dict__.get(key)
             if current_value != value:
                 company.__dict__[key] = value
                 company.changes.append(

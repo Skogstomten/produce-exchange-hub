@@ -188,7 +188,7 @@ class MongoDocument(Document):
             self.id,
             data,
         )
-        return self._collection.by_id(self.id)
+        return self._collection.by_id(self.id, None)
 
     def delete(self) -> None:
         """
@@ -284,32 +284,28 @@ class MongoDatabaseCollection(DatabaseCollection):
     def __repr__(self):
         return f"MongoDatabaseCollection({repr(self._mongo_collection)})"
 
-    def by_id(self, doc_id: str) -> Document | None:
+    def by_id(self, doc_id: str, fields: list[str] | None = None) -> Document | None:
         """
         Get a document by id.
-        :param doc_id: id of document.
-        :return: Document with id or None if no document is found.
         """
-        doc = self._mongo_collection.find_one({"_id": ObjectId(doc_id)})
+        doc = self._mongo_collection.find_one(
+            {"_id": ObjectId(doc_id)}, {field: 1 for field in fields} if fields else None
+        )
         if doc is None:
             return None
         return MongoDocument(doc, self)
 
-    def by_key(self, key: str, value: Any) -> Document | None:
+    def by_key(self, key: str, value: Any, fields: list[str] | None = None) -> Document | None:
         """
         Get a document by key other than id.
         If more than one document is found, the first document in unspecified
         order will be returned.
         Should preferably be used with values that are supposed to be unique.
-
-        :param key: Lookup key.
-        :param value: Lookup value.
-        :return: Document or None if no document is found.
         """
-        doc = self._mongo_collection.find_one({key: value})
+        doc = self._mongo_collection.find_one({key: value}, {field: 1 for field in fields} if fields else None)
         if doc is None:
             return None
-        return MongoDocument(self._mongo_collection.find_one({key: value}), self)
+        return MongoDocument(doc, self)
 
     def add(self, data: dict) -> Document:
         """
@@ -322,31 +318,26 @@ class MongoDatabaseCollection(DatabaseCollection):
         result = self._mongo_collection.insert_one(data)
         return self.by_id(result.inserted_id)
 
-    def get_all(self) -> DocumentCollection:
+    def get_all(self, fields: list[str] | None = None) -> DocumentCollection:
         """
         Get a document collection cursor currently containing all documents
         in the database collection.
         Note that no documents are fetched when calling this method.
-        :return: DocumentCollection operating as a cursor.
         """
-        return MongoDocumentCollection(self._mongo_collection.find(), self)
+        return MongoDocumentCollection(
+            self._mongo_collection.find(projection={field: 1 for field in fields} if fields else None), self
+        )
 
-    def get(
-        self,
-        filters: dict[str, Any] = None,
-    ) -> DocumentCollection:
+    def get(self, filters: dict[str, Any] = None, fields: list[str] | None = None) -> DocumentCollection:
         """
-        Get a document collection cursor pointing towards all documents that
-        fit the current filter.
-        :param filters: Filters using mongodb pymongo syntax.
-        :return: DocumentCollection cursor.
+        Get a document collection cursor pointing towards all documents that fit the current filter.
         """
         if filters is None:
             filters = {}
         filters = enums_to_string(filters)
         filters = _convert_str_id_to_object_id(filters)
         self._logger.debug(f"MongoDatabaseCollection.get(filters={filters})")
-        cursor = self._mongo_collection.find(filters)
+        cursor = self._mongo_collection.find(filters, {field: 1 for field in fields} if fields else None)
         return MongoDocumentCollection(cursor, self)
 
     def exists(self, filters: dict[str, Any]) -> bool:

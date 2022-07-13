@@ -170,9 +170,10 @@ class DatabaseCollection(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def get_all(self) -> DocumentCollection:
+    def get_all(self, fields: list[str] | None = None) -> DocumentCollection:
         """
         Get a cursor for all documents in the collection.
+        :param fields: The fields to select from the documents. If None, all fields are returned.
         :return: DocumentCollection cursor wrapper.
         """
 
@@ -180,27 +181,31 @@ class DatabaseCollection(metaclass=ABCMeta):
     def get(
         self,
         filters: dict[str, Any] | None = None,
+        fields: list[str] | None = None,
     ) -> DocumentCollection:
         """
         Get a cursor for all documents fitting the filter from the collection.
         :param filters: Syntax depends on the implementation.
+        :param fields: The fields to select from the documents. If None, all fields are returned.
         :return: DocumentCollection cursor wrapper.
         """
 
     @abstractmethod
-    def by_id(self, doc_id: str) -> Document | None:
+    def by_id(self, doc_id: str, fields: list[str] | None = None) -> Document | None:
         """
         Get a document by its document id.
         :param doc_id: The id of the document.
+        :param fields: The fields to select from the document. If None, all fields are returned.
         :return: The document or None if no document was found.
         """
 
     @abstractmethod
-    def by_key(self, key: str, value: Any) -> Document | None:
+    def by_key(self, key: str, value: Any, fields: list[str] | None = None) -> Document | None:
         """
         Get document by key other than id.
         :param key: Name of the field to use as key.
         :param value: Value of the key field.
+        :param fields: The fields to select from the document. If None, all fields are returned.
         :return: Document or None if no document was found.
         """
 
