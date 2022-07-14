@@ -12,7 +12,7 @@ from app.utils.url_utils import assemble_profile_picture_url
 from .base_out_model import BaseOutModel
 from .contacts import ContactListModel
 from ..database_models.change_database_model import ChangeDatabaseModel
-from ..database_models.company_database_model import CompanyDatabaseModel
+from ..database_models.company import CompanyDatabaseModel
 from ..database_models.user_database_model import UserDatabaseModel
 from ..shared import CompanyStatus, Language
 
