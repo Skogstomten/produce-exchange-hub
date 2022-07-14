@@ -10,15 +10,15 @@ def select_localized_text(data: dict[str, str], lang: Language, company_language
     of company's languages if the requested
     language is not available.
 
-    >>> select_localized_text({"sv": "Some text"}, Language.en, [])
+    >>> select_localized_text({"SV": "Some text"}, Language.EN, [])
     ''
 
-    >>> d: dict[str, str] = {"sv": "This is wrong", "en": "This is right"}
-    >>> select_localized_text(d, Language.en, ["nb"])
+    >>> d: dict[str, str] = {"SV": "This is wrong", "EN": "This is right"}
+    >>> select_localized_text(d, Language.EN, ["NB"])
     'This is right'
 
-    >>> d: dict[str, str] = {"en": "I want this"}
-    >>> select_localized_text(d, Language.sv, ["nb", "sv", "en"])
+    >>> d: dict[str, str] = {"EN": "I want this"}
+    >>> select_localized_text(d, Language.SV, ["NB", "SV", "EN"])
     'I want this'
 
     :param data: dict of str, str with languagecode as key and translated text

@@ -28,8 +28,8 @@ class CompanyStatus(Enum):
 class Language(Enum):
     """Available languages."""
 
-    sv = "sv"
-    en = "en"
+    SV = "SV"
+    EN = "EN"
 
     def __str__(self):
         return self.value
@@ -59,3 +59,16 @@ class FileType(Enum):
 
     def __str__(self):
         return self.value
+
+
+@unique
+class Currency(Enum):
+    SEK = "SEK"
+    EUR = "EUR"
+
+
+@unique
+class IntervalType(Enum):
+    day = "day"
+    week = "week"
+    month = "month"

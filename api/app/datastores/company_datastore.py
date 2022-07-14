@@ -12,7 +12,7 @@ from app.database.document_database import DocumentDatabase, DatabaseCollection,
 from app.dependencies.document_database import get_document_database
 from ..models.v1.api_models.companies import CompanyCreateModel, CompanyUpdateModel
 from ..models.v1.database_models.change_database_model import ChangeDatabaseModel, ChangeType
-from ..models.v1.database_models.company_database_model import CompanyDatabaseModel
+from ..models.v1.database_models.company import CompanyDatabaseModel
 from ..models.v1.database_models.contact_database_model import ContactDatabaseModel
 from app.models.v1.database_models.user_database_model import UserDatabaseModel
 from app.models.v1.shared import SortOrder, CompanyStatus, RoleType
