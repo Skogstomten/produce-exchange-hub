@@ -5,7 +5,7 @@ import pytest
 from bson import ObjectId
 from pytz import utc
 
-from app.models.v1.database_models.user_database_model import UserDatabaseModel, UserRoleDatabaseModel
+from app.models.v1.database_models.user import User, UserRoleDatabaseModel
 from app.models.v1.shared import RoleType
 
 
@@ -28,10 +28,10 @@ def get_user(
     created: datetime = datetime.now(utc),
     last_logged_in: datetime | None = None,
     roles: list[dict] | None = None,
-) -> UserDatabaseModel:
+) -> User:
     if roles is None:
         roles = []
-    return UserDatabaseModel(
+    return User(
         id=user_id,
         email=email,
         firstname=firstname,
@@ -77,7 +77,7 @@ def company_admin_role():
 @pytest.fixture
 def authenticated_user_default(doc_id):
     """Creates a default authenticated user object of UserDatabaseModel."""
-    return UserDatabaseModel(
+    return User(
         id=doc_id,
         email="nisse@perssons.se",
         firstname="Nisse",

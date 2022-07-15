@@ -15,7 +15,7 @@ from app.models.v1.api_models.contacts import (
     ContactOutModel,
     UpdateContactModel,
 )
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.database_models.user import User
 
 router = APIRouter(
     prefix="/v1/{lang}/companies/{company_id}/contacts",
@@ -33,7 +33,7 @@ async def add_contact(
     company_id: str = Path(...),
     model: CreateContactModel = Body(...),
     companies: CompanyDatastore = Depends(get_company_datastore),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
     essentials: Essentials = Depends(get_essentials),
 ) -> ContactOutModel:
     """Add a contact to a company."""
@@ -54,7 +54,7 @@ async def update_contact(
     contact_id: str = Path(...),
     contact: UpdateContactModel = Body(...),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
     essentials: Essentials = Depends(get_essentials),
 ):
     """Update contact on company."""
@@ -69,7 +69,7 @@ async def delete_contact(
     contact_id: str = Path(...),
     company_id: str = Path(...),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
 ) -> None:
     """Delete contact from company."""
     company_datastore.delete_contact(company_id, contact_id, user)

@@ -244,7 +244,7 @@ class DatabaseCollection(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def add_to_sub_collection(self, doc_id: str, sub_collection_path: str, new_sub_collection_value: Any) -> None:
+    def push_to_list(self, doc_id: str, sub_collection_path: str, new_sub_collection_value: Any) -> None:
         """
         Adds sub document to sub collection of document.
 

@@ -6,7 +6,7 @@ from fastapi import Request
 from fastapi.security import SecurityScopes
 
 from app.dependencies.user import SecurityScopeRestrictions
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.database_models.user import User
 from app.models.v1.token import TokenData
 
 
@@ -28,7 +28,7 @@ def empty_http_request(http_request):
 
 @fixture
 def authenticated_user():
-    return Mock(UserDatabaseModel)
+    return Mock(User)
 
 
 def test_works_with_no_scopes(security_scope, empty_http_request, authenticated_user):

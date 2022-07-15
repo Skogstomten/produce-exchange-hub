@@ -8,8 +8,8 @@ from pytz import utc
 
 from app.utils.datetime_utils import to_timezone
 from .base_out_model import BaseOutModel
-from ..database_models.contact_database_model import ContactDatabaseModel
-from ..database_models.user_database_model import UserDatabaseModel
+from ..database_models.contact import ContactDatabaseModel
+from ..database_models.user import User
 from ..shared import ContactType
 from app.utils.request_utils import get_current_request_url_with_additions
 
@@ -25,7 +25,7 @@ class BaseContactModel(BaseModel):
 class CreateContactModel(BaseContactModel):
     """Model used for creating a contact."""
 
-    def to_database_model(self, user: UserDatabaseModel) -> ContactDatabaseModel:
+    def to_database_model(self, user: User) -> ContactDatabaseModel:
         """Converts model to database model."""
         return ContactDatabaseModel(
             id=str(ObjectId()),

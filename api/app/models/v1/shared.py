@@ -72,3 +72,8 @@ class IntervalType(Enum):
     day = "day"
     week = "week"
     month = "month"
+
+
+@unique
+class CountryCode(Enum):
+    SE = "SE"

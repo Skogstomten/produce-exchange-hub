@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordRequestFormStrict
 from jose import jwt
 
 from app.models.v1.token import Token
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.database_models.user import User
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.dependencies.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -44,7 +44,7 @@ async def token(
     return Token(access_token=access_token, token_type="bearer")
 
 
-def get_user_claims(user: UserDatabaseModel, scopes: Scopes) -> list[Claim]:
+def get_user_claims(user: User, scopes: Scopes) -> list[Claim]:
     """
     Get claims for user according to provided scopes.
     :param user: user to get claims for.

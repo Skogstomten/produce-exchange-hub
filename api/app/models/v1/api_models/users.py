@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 from app.utils.request_utils import get_current_request_url_with_additions
 from .base_out_model import BaseOutModel
-from ..database_models.user_database_model import UserDatabaseModel
+from ..database_models.user import User as UserDatabaseModel
 from ..shared import RoleType
 
 

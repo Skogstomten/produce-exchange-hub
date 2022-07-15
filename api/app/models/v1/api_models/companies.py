@@ -11,9 +11,9 @@ from app.utils.request_utils import get_current_request_url_with_additions
 from app.utils.url_utils import assemble_profile_picture_url
 from .base_out_model import BaseOutModel
 from .contacts import ContactListModel
-from ..database_models.change_database_model import ChangeDatabaseModel
+from ..database_models.change import Change
 from ..database_models.company import CompanyDatabaseModel
-from ..database_models.user_database_model import UserDatabaseModel
+from ..database_models.user import User
 from ..shared import CompanyStatus, Language
 
 
@@ -32,7 +32,7 @@ def _initialize_company_model(
     tz: str | tzinfo,
     request: Request,
     router: APIRouter,
-    authenticated_user: UserDatabaseModel,
+    authenticated_user: User,
 ):
     instance = cls(
         url=get_current_request_url_with_additions(request),
@@ -82,7 +82,7 @@ class CompanyOutListModel(BaseOutModel):
         tz: str | tzinfo,
         request: Request,
         router: APIRouter,
-        authenticated_user: UserDatabaseModel,
+        authenticated_user: User,
     ):
         """
         Creates model from database model with localization.
@@ -94,7 +94,7 @@ class CompanyOutModel(CompanyOutListModel):
     """Company model used when getting a single company."""
 
     contacts: list[ContactListModel] | None
-    changes: list[ChangeDatabaseModel] | None
+    changes: list[Change] | None
 
     @classmethod
     def from_database_model(
@@ -104,7 +104,7 @@ class CompanyOutModel(CompanyOutListModel):
         tz: str | tzinfo,
         request: Request,
         router: APIRouter,
-        authenticated_user: UserDatabaseModel,
+        authenticated_user: User,
     ):
         """
         Creates model from database model with localization.

@@ -8,7 +8,7 @@ from app.dependencies.log import AppLogger, AppLoggerInjector
 from app.dependencies.user import get_current_user
 from app.datastores.role_datastore import RoleDatastore, get_role_datastore
 from app.models.v1.api_models.roles import NewRoleModel, RoleOutModel
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.database_models.user import User
 from app.utils.request_utils import get_url
 
 logger_injector = AppLoggerInjector("roles_router")
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/v1/{lang}/roles", tags=["Roles"])
 async def get_roles(
     request: Request,
     role_datastore: RoleDatastore = Depends(get_role_datastore),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
+    user: User = Security(get_current_user, scopes=("roles:superuser",)),
     logger: AppLogger = Depends(logger_injector),
 ) -> list[RoleOutModel]:
     """Gets a list of all roles."""
@@ -36,7 +36,7 @@ async def get_roles(
 async def add_role(
     roles_datastore: RoleDatastore = Depends(get_role_datastore),
     body: NewRoleModel = Body(...),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
+    user: User = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> RoleOutModel:
     """
     Adds new role.

@@ -9,7 +9,7 @@ from app.database.document_database import DocumentDatabase
 from app.database.mongo.mongo_document_database import MongoDocument, MongoDatabaseCollection
 from app.datastores.role_datastore import RoleDatastore
 from app.datastores.user_datastore import UserDatastore
-from app.models.v1.database_models.role_database_model import RoleDatabaseModel
+from app.models.v1.database_models.role import RoleDatabaseModel
 from app.models.v1.shared import RoleType
 
 

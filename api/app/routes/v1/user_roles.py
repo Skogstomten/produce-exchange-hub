@@ -7,7 +7,7 @@ from app.dependencies.log import AppLogger, AppLoggerInjector
 from app.dependencies.user import get_current_user
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.models.v1.api_models.users import UserOutModel, UserRoleOutModel
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.database_models.user import User
 from app.utils.request_utils import get_url
 
 logger_injector = AppLoggerInjector("user_roles_router")
@@ -20,7 +20,7 @@ async def get_user_roles(
     request: Request,
     user_datastore: UserDatastore = Depends(get_user_datastore),
     user_id: str = Path(...),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
+    user: User = Security(get_current_user, scopes=("roles:superuser",)),
     logger: AppLogger = Depends(logger_injector),
 ) -> list[UserRoleOutModel]:
     """Get roles on user."""
@@ -34,7 +34,7 @@ async def add_role_to_user(
     user_datastore: UserDatastore = Depends(get_user_datastore),
     user_id: str = Path(...),
     role_name: str = Path(...),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
+    user: User = Security(get_current_user, scopes=("roles:superuser",)),
 ) -> UserOutModel:
     """Adds a role to a user."""
     updated_user = user_datastore.add_role_to_user(user, user_id, role_name)

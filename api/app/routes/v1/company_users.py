@@ -12,7 +12,7 @@ from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.dependencies.log import AppLogger, AppLoggerInjector
 from app.dependencies.user import get_current_user
 from app.models.v1.api_models.users import UserOutModel
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.database_models.user import User
 from app.utils.request_utils import get_url
 
 logger_injector = AppLoggerInjector("company_users_router")
@@ -24,7 +24,7 @@ router = APIRouter(prefix="/v1/{lang}/companies/{company_id}/users", tags=["Comp
 async def get_company_users(
     request: Request,
     company_id: str = Path(...),
-    user: UserDatabaseModel = Security(
+    user: User = Security(
         get_current_user,
         scopes=("roles:superuser", "roles:company_admin:{company_id}"),
     ),
@@ -43,7 +43,7 @@ async def add_user_to_company_with_role(
     company_id: str = Path(...),
     user_id: str = Path(...),
     role_name: str = Path(...),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
 ) -> list[UserOutModel]:
     """Adds existing user to company."""

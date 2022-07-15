@@ -358,7 +358,7 @@ class MongoDatabaseCollection(DatabaseCollection):
         update_result = self._mongo_collection.update_one({"_id": ObjectId(doc_id)}, {"$set": enums_to_string(updates)})
         _ensure_updated(update_result, doc_id, self._mongo_collection.name)
 
-    def add_to_sub_collection(
+    def push_to_list(
         self, doc_id: str, sub_collection_path: str, new_sub_collection_value: dict | list | str | int | datetime
     ) -> None:
         """See base class."""
