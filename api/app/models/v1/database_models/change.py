@@ -14,7 +14,7 @@ class ChangeType(Enum):
     delete = "delete"
 
 
-class ChangeDatabaseModel(BaseModel):
+class Change(BaseModel):
     """Database model for changes."""
 
     id: str

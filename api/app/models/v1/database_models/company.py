@@ -3,8 +3,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from .change_database_model import ChangeDatabaseModel
-from .contact_database_model import ContactDatabaseModel
+from .address import Address
+from .change import Change
+from .contact import ContactDatabaseModel
 from ..shared import CompanyStatus
 
 
@@ -22,7 +23,8 @@ class CompanyDatabaseModel(BaseModel):
     external_website_url: str | None
     profile_picture_url: str | None
     contacts: list[ContactDatabaseModel] | None = Field([])
-    changes: list[ChangeDatabaseModel] = Field([])
+    changes: list[Change] = Field([])
+    addresses: list[Address] = Field([])
 
     @classmethod
     def brief(cls):

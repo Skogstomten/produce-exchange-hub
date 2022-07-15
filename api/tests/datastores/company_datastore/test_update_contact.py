@@ -7,7 +7,7 @@ from pytz import utc
 from app.database.mongo.mongo_document_database import MongoDocument
 from app.datastores.company_datastore import CompanyDatastore
 from app.errors import NotFoundError
-from app.models.v1.database_models.change_database_model import ChangeType
+from app.models.v1.database_models.change import ChangeType
 from app.models.v1.shared import ContactType
 
 

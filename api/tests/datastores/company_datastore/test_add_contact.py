@@ -14,4 +14,4 @@ def test_add_contact_adds_contact(
     target = CompanyDatastore(db, file_manager, user_datastore, logger)
     target.add_contact(company_id, contact_model)
 
-    collection.add_to_sub_collection.assert_called_with(company_id, "contacts", contact_model)
+    collection.push_to_list.assert_called_with(company_id, "contacts", contact_model)

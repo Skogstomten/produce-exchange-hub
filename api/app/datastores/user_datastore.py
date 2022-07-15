@@ -15,8 +15,8 @@ from app.database.document_database import (
 )
 from app.dependencies.document_database import get_document_database
 from app.models.v1.api_models.users import UserAdd, UserRegister
-from app.models.v1.database_models.user_database_model import (
-    UserDatabaseModel,
+from app.models.v1.database_models.user import (
+    User,
     UserRoleDatabaseModel,
 )
 from .role_datastore import RoleDatastore, get_role_datastore
@@ -26,7 +26,7 @@ from ..errors import (
     InvalidUsernameOrPasswordError,
 )
 from ..io.file_manager import FileManager, get_file_manager
-from ..models.v1.database_models.change_database_model import ChangeDatabaseModel, ChangeType
+from ..models.v1.database_models.change import Change, ChangeType
 
 
 class UserDatastore(BaseDatastore):
@@ -53,7 +53,7 @@ class UserDatastore(BaseDatastore):
         """
         return self.db.collection("users")
 
-    def get_users(self, take: int, skip: int) -> list[UserDatabaseModel]:
+    def get_users(self, take: int, skip: int) -> list[User]:
         """
         Get users.
         :param take: Number of users.
@@ -63,10 +63,10 @@ class UserDatastore(BaseDatastore):
         docs = self._users.get_all().skip(skip).take(take).to_list()
         result = []
         for doc in docs:
-            result.append(UserDatabaseModel(**doc))
+            result.append(User(**doc))
         return result
 
-    def get_users_with_role(self, role_name: str, reference: str | None = None) -> list[UserDatabaseModel]:
+    def get_users_with_role(self, role_name: str, reference: str | None = None) -> list[User]:
         """
         Get users with specific role.
         :param role_name: Role name.
@@ -84,9 +84,9 @@ class UserDatastore(BaseDatastore):
         else:
             filters = {"roles.role_name": role_name}
         docs = self._users.get(filters).to_list()
-        return [UserDatabaseModel(**doc) for doc in docs]
+        return [User(**doc) for doc in docs]
 
-    def get_company_users(self, company_id: str) -> list[UserDatabaseModel]:
+    def get_company_users(self, company_id: str) -> list[User]:
         """
         Get users with access to specified company.
         :param company_id: ID of company.
@@ -94,9 +94,9 @@ class UserDatastore(BaseDatastore):
         """
         filters = {"roles.reference": company_id}
         docs = self._users.get(filters).to_list()
-        return [UserDatabaseModel(**doc) for doc in docs]
+        return [User(**doc) for doc in docs]
 
-    def get_user_by_id(self, user_id: str, current_user: UserDatabaseModel) -> UserDatabaseModel:
+    def get_user_by_id(self, user_id: str, current_user: User) -> User:
         """
         Get user by user id.
         :raise NotFoundError: If no user with id is found
@@ -109,9 +109,9 @@ class UserDatastore(BaseDatastore):
         doc = self._users.by_id(user_id)
         if doc is None:
             raise NotFoundError(f"No user with id '{user_id}' was found.")
-        return UserDatabaseModel(**doc)
+        return User(**doc)
 
-    def get_user_by_email(self, email: str) -> UserDatabaseModel | None:
+    def get_user_by_email(self, email: str) -> User | None:
         """
         Get user by email.
         :param email: EMail/UserName of user.
@@ -120,9 +120,9 @@ class UserDatastore(BaseDatastore):
         doc = self._users.by_key("email", email)
         if doc is None:
             return None
-        return UserDatabaseModel(**doc)
+        return User(**doc)
 
-    def add_user(self, user: UserRegister) -> UserDatabaseModel:
+    def add_user(self, user: UserRegister) -> User:
         """
         Add new user.
         :raise DuplcateError: If e-mail is already registered.
@@ -138,7 +138,7 @@ class UserDatastore(BaseDatastore):
             **user.dict(),
         )
         doc = self._users.add(new_user.dict())
-        return UserDatabaseModel(**doc)
+        return User(**doc)
 
     def delete_user(self, user_id: str) -> None:
         """
@@ -152,7 +152,7 @@ class UserDatastore(BaseDatastore):
             raise NotFoundError(f"No user with id '{user_id}' was found")
         doc.delete()
 
-    def authenticate_user(self, email: str, password: str) -> UserDatabaseModel:
+    def authenticate_user(self, email: str, password: str) -> User:
         """
         Authenticate that provided username and password matches stored.
         :raise InvalidUsernameOrPasswordError: If user can't be found with
@@ -164,7 +164,7 @@ class UserDatastore(BaseDatastore):
         doc = self._users.by_key("email", email)
         if doc is None:
             raise InvalidUsernameOrPasswordError()
-        user = UserDatabaseModel(**doc)
+        user = User(**doc)
         if not hasher.is_correct_password(password, user.password_hash):
             raise InvalidUsernameOrPasswordError()
         return user
@@ -181,16 +181,16 @@ class UserDatastore(BaseDatastore):
         doc = self._users.by_id(user_id)
         if doc is None:
             raise NotFoundError(f"No user with id '{user_id}' was found")
-        user = UserDatabaseModel(**doc)
+        user = User(**doc)
         return user.roles
 
     def add_role_to_user(
         self,
-        authenticated_user: UserDatabaseModel,
+        authenticated_user: User,
         user_id: str,
         role_name: str,
         reference: str | None = None,
-    ) -> UserDatabaseModel:
+    ) -> User:
         """
         Add new role to user.
 
@@ -205,14 +205,14 @@ class UserDatastore(BaseDatastore):
         """
         role = self._roles.get_role(role_name)
         user_role = UserRoleDatabaseModel.create(role, reference).dict()
-        change = ChangeDatabaseModel.create("roles", ChangeType.add, authenticated_user.email, user_role)
+        change = Change.create("roles", ChangeType.add, authenticated_user.email, user_role)
         update_context = self.db.update_context()
         update_context.push_to_list("roles", user_role)
         update_context.push_to_list("changes", change)
         self._users.update_document(user_id, update_context)
         return self.get_user_by_id(user_id, authenticated_user)
 
-    async def save_profile_picture(self, user_id: str, file: UploadFile, authenticated_user: UserDatabaseModel) -> str:
+    async def save_profile_picture(self, user_id: str, file: UploadFile, authenticated_user: User) -> str:
         """Saves user profile picture to file storage and updates profile picture url."""
         self._ensure_user_exists(user_id)
         file_url = await self._file_manager.save_user_profile_picture(user_id, file)
@@ -220,7 +220,7 @@ class UserDatastore(BaseDatastore):
         update_context.set_values({"profile_picture_url": file_url})
         update_context.push_to_list(
             "changes",
-            ChangeDatabaseModel.create(
+            Change.create(
                 "profile_picture_url",
                 ChangeType.update,
                 authenticated_user.email,
@@ -230,11 +230,11 @@ class UserDatastore(BaseDatastore):
         self._users.update_document(user_id, update_context)
         return file_url
 
-    def _get_user(self, user_id: str) -> UserDatabaseModel:
+    def _get_user(self, user_id: str) -> User:
         user_document = self._users.by_id(user_id)
         if user_document is None:
             raise NotFoundError(f"User '{user_id}' not found")
-        return UserDatabaseModel(**user_document)
+        return User(**user_document)
 
     def _ensure_user_exists(self, user_id: str):
         if not self._users.exists({"id": user_id}):

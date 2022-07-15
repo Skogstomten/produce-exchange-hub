@@ -6,7 +6,7 @@ from fastapi.security import SecurityScopes
 from jose import jwt, JWTError
 
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.database_models.user import User
 from app.models.v1.token import TokenData
 from app.utils.request_utils import get_current_request_url_with_additions
 from .auth import OAUTH2_SCHEME_OPTIONAL, SECRET_KEY, ALGORITHM
@@ -38,7 +38,7 @@ class SecurityScopeRestrictions:
         self,
         security_scopes: SecurityScopes,
         request: Request,
-        authenticated_user: UserDatabaseModel,
+        authenticated_user: User,
     ):
         """
         Parses and stores the security scopes.
@@ -113,7 +113,7 @@ def get_current_user_if_any(
     token: str | None = Depends(OAUTH2_SCHEME_OPTIONAL),
     users: UserDatastore = Depends(get_user_datastore),
     logger: AppLogger = Depends(logger_injector),
-) -> UserDatabaseModel | None:
+) -> User | None:
     """
     Gets current user from access token, if there is an access token.
     :raise HTTPException: If Authentication of token or authorization of
@@ -169,8 +169,8 @@ def get_current_user_if_any(
 
 
 def get_current_user(
-    user: UserDatabaseModel | None = Depends(get_current_user_if_any),
-) -> UserDatabaseModel:
+    user: User | None = Depends(get_current_user_if_any),
+) -> User:
     """
     Get current user.
     :raises HTTPException: if user is not authenticated.
@@ -190,7 +190,7 @@ def user_has_access(
     security_scopes: SecurityScopes,
     request: Request,
     token: TokenData,
-    authenticated_user: UserDatabaseModel,
+    authenticated_user: User,
 ) -> bool:
     """
     Checks if user has access according to specifications in security scopes.

@@ -25,7 +25,7 @@ from app.models.v1.api_models.companies import (
     CompanyOutListModel,
 )
 from app.models.v1.api_models.paging_response_model import PagingResponseModel
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.database_models.user import User
 from app.models.v1.shared import SortOrder
 from app.utils.request_utils import get_url
 from app.utils.url_utils import assemble_profile_picture_url
@@ -42,7 +42,7 @@ async def get_companies(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
     paging_information: PagingInformation = Depends(get_paging_information),
-    authenticated_user: UserDatabaseModel = Depends(get_current_user_if_any),
+    authenticated_user: User = Depends(get_current_user_if_any),
     logger: AppLogger = Depends(logger_injector),
 ) -> PagingResponseModel[CompanyOutListModel]:
     """Get list of companies wrapped in a paging response."""
@@ -73,7 +73,7 @@ async def get_company(
     company_id: str,
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
-    authenticated_user: UserDatabaseModel = Depends(get_current_user_if_any),
+    authenticated_user: User = Depends(get_current_user_if_any),
 ) -> CompanyOutModel:
     """Get a company by id."""
     company = company_datastore.get_company(company_id, authenticated_user)
@@ -85,7 +85,7 @@ async def get_company(
 @router.post("/", response_model=CompanyOutModel)
 async def add_company(
     company: CompanyCreateModel = Body(...),
-    authenticated_user: UserDatabaseModel = Security(get_current_user, scopes=("verified:True",)),
+    authenticated_user: User = Security(get_current_user, scopes=("verified:True",)),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
@@ -100,7 +100,7 @@ async def add_company(
 async def update_company(
     company_id: str = Path(...),
     company: CompanyUpdateModel = Body(...),
-    authenticated_user: UserDatabaseModel = Security(
+    authenticated_user: User = Security(
         get_current_user,
         scopes=(
             "roles:company_admin:{company_id}",
@@ -120,7 +120,7 @@ async def update_company(
 @router.post("/{company_id}/activate", response_model=CompanyOutModel)
 async def activate_company(
     company_id: str = Path(...),
-    authenticated_user: UserDatabaseModel = Security(
+    authenticated_user: User = Security(
         get_current_user,
         scopes=(
             "roles:superuser",
@@ -140,7 +140,7 @@ async def activate_company(
 @router.post("/{company_id}/deactivate", response_model=CompanyOutModel)
 async def deactivate_company(
     company_id: str,
-    authenticated_user: UserDatabaseModel = Security(
+    authenticated_user: User = Security(
         get_current_user,
         scopes=(
             "roles:superuser",
@@ -197,7 +197,7 @@ async def deactivate_company(
 async def get_company_names(
     request: Request,
     company_id: str,
-    user: UserDatabaseModel = Security(
+    user: User = Security(
         get_current_user,
         scopes=("roles:superuser", "roles:company_admin:{company_id}"),
     ),
@@ -214,7 +214,7 @@ async def get_company_names(
 async def update_company_names(
     company_id: str,
     names: dict[str, str] = Body(...),
-    authenticated_user: UserDatabaseModel = Security(
+    authenticated_user: User = Security(
         get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
     ),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
@@ -229,7 +229,7 @@ async def update_company_names(
 @router.get("/{company_id}/descriptions", response_model=dict[str, str])
 async def get_company_descriptions(
     company_id: str,
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
 ):
     company = company_datastore.get_company(company_id, user)
@@ -240,7 +240,7 @@ async def get_company_descriptions(
 async def update_company_descriptions(
     company_id: str,
     descriptions: dict[str, str] = Body(...),
-    authenticated_user: UserDatabaseModel = Security(
+    authenticated_user: User = Security(
         get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
     ),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
@@ -257,7 +257,7 @@ async def upload_profile_picture(
     company_id: str,
     file: UploadFile = File(...),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    user: UserDatabaseModel = Security(
+    user: User = Security(
         get_current_user,
         scopes=("roles:superuser", "roles:company_admin:{company_id}"),
     ),

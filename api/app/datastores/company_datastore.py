@@ -11,10 +11,10 @@ from pytz import utc
 from app.database.document_database import DocumentDatabase, DatabaseCollection, transaction, BaseDatastore, Document
 from app.dependencies.document_database import get_document_database
 from ..models.v1.api_models.companies import CompanyCreateModel, CompanyUpdateModel
-from ..models.v1.database_models.change_database_model import ChangeDatabaseModel, ChangeType
+from ..models.v1.database_models.change import Change, ChangeType
 from ..models.v1.database_models.company import CompanyDatabaseModel
-from ..models.v1.database_models.contact_database_model import ContactDatabaseModel
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from ..models.v1.database_models.contact import ContactDatabaseModel
+from app.models.v1.database_models.user import User
 from app.models.v1.shared import SortOrder, CompanyStatus, RoleType
 from .user_datastore import UserDatastore, get_user_datastore
 from ..dependencies.log import AppLoggerInjector, AppLogger
@@ -58,7 +58,7 @@ class CompanyDatastore(BaseDatastore):
         take: int | None = None,
         sort_by: str | None = None,
         sort_order: SortOrder | None = None,
-        authenticated_user: UserDatabaseModel | None = None,
+        authenticated_user: User | None = None,
     ) -> list[CompanyDatabaseModel]:
         """
         Gets a list of companies.
@@ -110,7 +110,7 @@ class CompanyDatastore(BaseDatastore):
 
         return result
 
-    def get_company(self, company_id: str, user: UserDatabaseModel | None) -> CompanyDatabaseModel:
+    def get_company(self, company_id: str, user: User | None) -> CompanyDatabaseModel:
         """
         Get a single company.
         :param company_id: ID of the company to get.
@@ -131,7 +131,7 @@ class CompanyDatastore(BaseDatastore):
     def add_company(
         self,
         company: CompanyCreateModel,
-        user: UserDatabaseModel,
+        user: User,
     ) -> CompanyDatabaseModel:
         """
         Add a new company to collection.
@@ -148,7 +148,7 @@ class CompanyDatastore(BaseDatastore):
                 "activation_date": None,
                 "description": {},
                 "contacts": [],
-                "changes": [ChangeDatabaseModel.create("init", ChangeType.add, user.email, data)],
+                "changes": [Change.create("init", ChangeType.add, user.email, data)],
             }
         )
         doc = self._companies.add(data)
@@ -159,7 +159,7 @@ class CompanyDatastore(BaseDatastore):
         self,
         company_id: str,
         model: CompanyUpdateModel,
-        authenticated_user: UserDatabaseModel,
+        authenticated_user: User,
     ) -> CompanyDatabaseModel:
         """
         Updates a company with given model.
@@ -177,7 +177,7 @@ class CompanyDatastore(BaseDatastore):
             if current_value != value:
                 company.__dict__[key] = value
                 company.changes.append(
-                    ChangeDatabaseModel.create(key, ChangeType.update, authenticated_user.email, value)
+                    Change.create(key, ChangeType.update, authenticated_user.email, value)
                 )
 
         company_doc = company_doc.replace(company.dict())
@@ -185,12 +185,12 @@ class CompanyDatastore(BaseDatastore):
 
     @transaction
     def update_company_names(
-        self, company_id: str, names: dict[str, str], user: UserDatabaseModel
+        self, company_id: str, names: dict[str, str], user: User
     ) -> CompanyDatabaseModel:
         update_context = self.db.update_context()
         update_context.set_values({"name": names})
         update_context.push_to_list(
-            "changes", ChangeDatabaseModel.create("name", ChangeType.update, user.email, names).dict()
+            "changes", Change.create("name", ChangeType.update, user.email, names).dict()
         )
         self._companies.update_document(
             company_id,
@@ -199,12 +199,12 @@ class CompanyDatastore(BaseDatastore):
         return self.get_company(company_id, user)
 
     def update_company_descriptions(
-        self, company_id: str, descriptions: dict[str, str], user: UserDatabaseModel
+        self, company_id: str, descriptions: dict[str, str], user: User
     ) -> CompanyDatabaseModel:
         update_context = self.db.update_context()
         update_context.set_values({"description": descriptions})
         update_context.push_to_list(
-            "changes", ChangeDatabaseModel.create("description", ChangeType.update, user.email, descriptions).dict()
+            "changes", Change.create("description", ChangeType.update, user.email, descriptions).dict()
         )
         self._companies.update_document(company_id, update_context)
         return self.get_company(company_id, user)
@@ -222,7 +222,7 @@ class CompanyDatastore(BaseDatastore):
 
         :return: The added contact. ContactDatabaseModel.
         """
-        self._companies.add_to_sub_collection(company_id, "contacts", model.dict())
+        self._companies.push_to_list(company_id, "contacts", model.dict())
         return model
 
     @transaction
@@ -230,7 +230,7 @@ class CompanyDatastore(BaseDatastore):
         self,
         company_id: str,
         model: ContactDatabaseModel,
-        authenticated_user: UserDatabaseModel,
+        authenticated_user: User,
     ) -> ContactDatabaseModel:
         """
         Updates contact on company.
@@ -251,7 +251,7 @@ class CompanyDatastore(BaseDatastore):
         contact.changed_by = authenticated_user.email
         contact.changed_at = datetime.now(utc)
 
-        change = ChangeDatabaseModel.create(
+        change = Change.create(
             f"contacts.{contact.id}", ChangeType.update, authenticated_user.email, contact.dict()
         )
         company.changes.append(change)
@@ -259,7 +259,7 @@ class CompanyDatastore(BaseDatastore):
         company_doc.replace(company.dict())
         return contact
 
-    def delete_contact(self, company_id: str, contact_id: str, user: UserDatabaseModel) -> None:
+    def delete_contact(self, company_id: str, contact_id: str, user: User) -> None:
         """
         Delete a contact from company.
 
@@ -278,7 +278,7 @@ class CompanyDatastore(BaseDatastore):
             raise NotFoundError(f"No contact with id '{contact_id}' was found.")
 
         company.changes.append(
-            ChangeDatabaseModel.create(
+            Change.create(
                 f"company.contacts.{contact_id}",
                 ChangeType.delete,
                 user.email,
@@ -289,8 +289,8 @@ class CompanyDatastore(BaseDatastore):
         company_doc.replace(company.dict())
 
     def add_user_to_company(
-        self, company_id: str, role_name: str, user_id: str, authenticated_user: UserDatabaseModel
-    ) -> list[UserDatabaseModel]:
+        self, company_id: str, role_name: str, user_id: str, authenticated_user: User
+    ) -> list[User]:
         """
         Adds user to company with role.
 
@@ -312,24 +312,24 @@ class CompanyDatastore(BaseDatastore):
             raise InvalidInputError("Invalid role.")
 
         self._users.add_role_to_user(authenticated_user, user_id, role_name, company_id)
-        self._companies.add_to_sub_collection(
+        self._companies.push_to_list(
             company_id,
             "changes",
-            ChangeDatabaseModel.create(
+            Change.create(
                 f"company.users.{user_id}", ChangeType.add, authenticated_user.email, f"{user_id}:{role_name}"
             ).dict(),
         )
         return self._users.get_company_users(company_id)
 
-    def activate_company(self, company_id: str, authenticated_user: UserDatabaseModel) -> CompanyDatabaseModel:
+    def activate_company(self, company_id: str, authenticated_user: User) -> CompanyDatabaseModel:
         """Updates a companys status to active."""
         return self._change_status(company_id, authenticated_user, CompanyStatus.active)
 
-    def deactivate_company(self, company_id: str, authenticated_user: UserDatabaseModel) -> CompanyDatabaseModel:
+    def deactivate_company(self, company_id: str, authenticated_user: User) -> CompanyDatabaseModel:
         """Updates company status to 'deactivated'."""
         return self._change_status(company_id, authenticated_user, CompanyStatus.deactivated)
 
-    async def save_profile_picture(self, company_id: str, file: UploadFile, user: UserDatabaseModel) -> str:
+    async def save_profile_picture(self, company_id: str, file: UploadFile, user: User) -> str:
         """
         Saves profile picture for company.
         If a profile picture already exists for company, it will be overwritten.
@@ -345,7 +345,7 @@ class CompanyDatastore(BaseDatastore):
         update_context = self.db.update_context()
         update_context.set_values({"profile_picture_url": file_url})
         update_context.push_to_list(
-            "changes", ChangeDatabaseModel.create("profile_picture_url", ChangeType.update, user.email, file_url).dict()
+            "changes", Change.create("profile_picture_url", ChangeType.update, user.email, file_url).dict()
         )
         self._companies.update_document(
             company_id,
@@ -363,12 +363,12 @@ class CompanyDatastore(BaseDatastore):
         return company_doc
 
     def _change_status(
-        self, company_id: str, authenticated_user: UserDatabaseModel, status: CompanyStatus
+        self, company_id: str, authenticated_user: User, status: CompanyStatus
     ) -> CompanyDatabaseModel:
         update_context = self.db.update_context()
         update_context.set_values({"status": status})
         update_context.push_to_list(
-            "changes", ChangeDatabaseModel.create("status", ChangeType.update, authenticated_user.email, status)
+            "changes", Change.create("status", ChangeType.update, authenticated_user.email, status)
         )
         self._companies.update_document(company_id, update_context)
         return self.get_company(company_id, authenticated_user)

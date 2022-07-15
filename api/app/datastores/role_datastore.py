@@ -7,9 +7,9 @@ from app.database.document_database import DocumentDatabase, DatabaseCollection
 from app.dependencies.document_database import get_document_database
 from app.errors import NotFoundError, DuplicateError
 from app.models.v1.api_models.roles import NewRoleModel
-from app.models.v1.database_models.change_database_model import ChangeDatabaseModel, ChangeType
-from app.models.v1.database_models.role_database_model import RoleDatabaseModel
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.database_models.change import Change, ChangeType
+from app.models.v1.database_models.role import RoleDatabaseModel
+from app.models.v1.database_models.user import User
 
 
 class RoleDatastore:
@@ -57,7 +57,7 @@ class RoleDatastore:
             raise NotFoundError(f"Role with name '{role_name}' was not found")
         return RoleDatabaseModel(**doc)
 
-    def add_role(self, model: NewRoleModel, user: UserDatabaseModel) -> RoleDatabaseModel:
+    def add_role(self, model: NewRoleModel, user: User) -> RoleDatabaseModel:
         """
         Add new role.
         :param user:
@@ -69,7 +69,7 @@ class RoleDatastore:
         if collection.exists({"name": model.name}):
             raise DuplicateError(f"Role with name '{model.name}' already exists")
         data = model.dict()
-        data.update({"changes": [ChangeDatabaseModel.create("init", ChangeType.add, user.email, data)]})
+        data.update({"changes": [Change.create("init", ChangeType.add, user.email, data)]})
         doc = collection.add(model.dict())
         return RoleDatabaseModel(id=doc.id, **doc.to_dict())
 

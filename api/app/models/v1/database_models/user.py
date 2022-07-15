@@ -4,7 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 from bson.objectid import ObjectId
 
-from .role_database_model import RoleDatabaseModel
+from .role import RoleDatabaseModel
 from ..shared import RoleType
 
 
@@ -29,7 +29,7 @@ class UserRoleDatabaseModel(BaseModel):
         )
 
 
-class UserDatabaseModel(BaseModel):
+class User(BaseModel):
     """User model"""
 
     id: str

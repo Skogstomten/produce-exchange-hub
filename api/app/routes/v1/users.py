@@ -11,7 +11,7 @@ from app.dependencies.log import AppLogger, AppLoggerInjector
 from app.dependencies.user import get_current_user
 from app.models.v1.api_models.paging_response_model import PagingResponseModel
 from app.models.v1.api_models.users import UserRegister, UserOutModel
-from app.models.v1.database_models.user_database_model import UserDatabaseModel
+from app.models.v1.database_models.user import User
 from app.utils.request_utils import get_url
 from app.utils.url_utils import assemble_profile_picture_url
 
@@ -29,7 +29,7 @@ async def register(
     """
     Register new user.
     """
-    user: UserDatabaseModel = user_datastore.add_user(body)
+    user: User = user_datastore.add_user(body)
     return UserOutModel.from_database_model(user, request)
 
 
@@ -39,7 +39,7 @@ async def get_users(
     user_datastore: UserDatastore = Depends(get_user_datastore),
     take: int = Query(20),
     skip: int = Query(0),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
+    user: User = Security(get_current_user, scopes=("roles:superuser",)),
     logger: AppLogger = Depends(logger_injector),
 ) -> PagingResponseModel[UserOutModel]:
     """Get list of users wrapped in a paging response object."""
@@ -55,7 +55,7 @@ async def get_users(
 async def get_user(
     user_id: str = Path(...),
     user_datastore: UserDatastore = Depends(get_user_datastore),
-    authenticated_user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser", "self:{user_id}")),
+    authenticated_user: User = Security(get_current_user, scopes=("roles:superuser", "self:{user_id}")),
     essentials: Essentials = Depends(get_essentials),
 ) -> UserOutModel:
     """Get user by id."""
@@ -72,7 +72,7 @@ async def delete_user(
     request: Request,
     user_datastore: UserDatastore = Depends(get_user_datastore),
     user_id: str = Path(...),
-    user: UserDatabaseModel = Security(get_current_user, scopes=("roles:superuser",)),
+    user: User = Security(get_current_user, scopes=("roles:superuser",)),
     logger: AppLogger = Depends(logger_injector),
 ) -> None:
     """Delete a user."""
@@ -85,7 +85,7 @@ async def upload_profile_picture(
     user_id: str,
     file: UploadFile = File(...),
     user_datastore: UserDatastore = Depends(get_user_datastore),
-    authenticated_user: UserDatabaseModel = Security(
+    authenticated_user: User = Security(
         get_current_user,
         scopes=("verified:True", "self:{user_id}", "roles:superuser"),
     ),

@@ -8,7 +8,7 @@ from pytz import utc
 from app.datastores.user_datastore import UserDatastore
 from app.dependencies.log import AppLogger
 from app.io.file_manager import FileManager
-from app.models.v1.database_models.contact_database_model import ContactDatabaseModel
+from app.models.v1.database_models.contact import ContactDatabaseModel
 from app.models.v1.shared import ContactType, CompanyStatus
 
 
