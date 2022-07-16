@@ -10,6 +10,11 @@ from app.datastores.company_datastore import (
     CompanyDatastore,
     get_company_datastore,
 )
+from app.datastores.company_profile_picture_datastore import (
+    get_company_profile_picture_datastore,
+    CompanyProfilePictureDatastore,
+)
+from app.datastores.company_user_datastore import CompanyUserDatastore, get_company_user_datastore
 from app.dependencies.essentials import Essentials, get_essentials
 from app.dependencies.log import AppLoggerInjector, AppLogger
 from app.dependencies.paging_information import (
@@ -87,12 +92,16 @@ async def add_company(
     company: CompanyCreateModel = Body(...),
     authenticated_user: User = Security(get_current_user, scopes=("verified:True",)),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    company_user_datastore: CompanyUserDatastore = Depends(get_company_user_datastore),
     essentials: Essentials = Depends(get_essentials),
 ) -> CompanyOutModel:
     """Add a new company."""
-    company = company_datastore.add_company(company, authenticated_user)
+    created_company = company_datastore.add_company(company, authenticated_user)
+    company_user_datastore.add_user_to_company(
+        created_company.id, "company_admin", authenticated_user.id, authenticated_user
+    )
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
+        created_company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
     )
 
 
@@ -256,14 +265,14 @@ async def update_company_descriptions(
 async def upload_profile_picture(
     company_id: str,
     file: UploadFile = File(...),
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    company_profile_picture_datastore: CompanyProfilePictureDatastore = Depends(get_company_profile_picture_datastore),
     user: User = Security(
         get_current_user,
         scopes=("roles:superuser", "roles:company_admin:{company_id}"),
     ),
     essentials: Essentials = Depends(get_essentials),
 ):
-    file_path = await company_datastore.save_profile_picture(company_id, file, user)
+    file_path = await company_profile_picture_datastore.save_profile_picture(company_id, file, user)
     return assemble_profile_picture_url(essentials.request, router, file_path, essentials.language)
 
 
@@ -271,8 +280,8 @@ async def upload_profile_picture(
 async def get_profile_picture(
     request: Request,
     image_file_name: str,
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    company_profile_picture_datastore: CompanyProfilePictureDatastore = Depends(get_company_profile_picture_datastore),
     logger: AppLogger = Depends(logger_injector),
 ):
     logger.debug(f"Incoming={get_url(request)}")
-    return company_datastore.get_company_profile_picture_physical_path(image_file_name)
+    return company_profile_picture_datastore.get_company_profile_picture_physical_path(image_file_name)

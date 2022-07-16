@@ -5,21 +5,19 @@ For accessing and manipulating company related data.
 from datetime import datetime
 
 from bson import ObjectId
-from fastapi import Depends, UploadFile
+from fastapi import Depends
 from pytz import utc
 
 from app.database.document_database import DocumentDatabase, DatabaseCollection, transaction, BaseDatastore, Document
 from app.dependencies.document_database import get_document_database
+from app.models.v1.database_models.user import User
+from app.models.v1.shared import SortOrder, CompanyStatus
+from ..dependencies.log import AppLoggerInjector, AppLogger
+from ..errors import NotFoundError
 from ..models.v1.api_models.companies import CompanyCreateModel, CompanyUpdateModel
 from ..models.v1.database_models.change import Change, ChangeType
 from ..models.v1.database_models.company import CompanyDatabaseModel
 from ..models.v1.database_models.contact import ContactDatabaseModel
-from app.models.v1.database_models.user import User
-from app.models.v1.shared import SortOrder, CompanyStatus, RoleType
-from .user_datastore import UserDatastore, get_user_datastore
-from ..dependencies.log import AppLoggerInjector, AppLogger
-from ..errors import NotFoundError, InvalidInputError
-from ..io.file_manager import FileManager, get_file_manager
 
 logger_injector = AppLoggerInjector("company_datastore")
 
@@ -27,17 +25,15 @@ logger_injector = AppLoggerInjector("company_datastore")
 class CompanyDatastore(BaseDatastore):
     """The datastore class."""
 
-    def __init__(self, db: DocumentDatabase, file_manager: FileManager, users: UserDatastore, logger: AppLogger):
+    def __init__(self, db: DocumentDatabase, logger: AppLogger):
         super().__init__(db)
-        self._file_manager = file_manager
-        self._users = users
         self._logger = logger
 
     def __str__(self):
         return self.__repr__()
 
     def __repr__(self):
-        return f"CompanyDatastore(db={self.db}, users={self._users}, logger={self._logger})"
+        return f"CompanyDatastore(db={self.db}, logger={self._logger})"
 
     @property
     def _companies(self) -> DatabaseCollection:
@@ -152,7 +148,6 @@ class CompanyDatastore(BaseDatastore):
             }
         )
         doc = self._companies.add(data)
-        self.add_user_to_company(doc.id, "company_admin", user.id, user)
         return CompanyDatabaseModel(**doc)
 
     def update_company(
@@ -176,22 +171,16 @@ class CompanyDatastore(BaseDatastore):
             current_value = company.__dict__.get(key)
             if current_value != value:
                 company.__dict__[key] = value
-                company.changes.append(
-                    Change.create(key, ChangeType.update, authenticated_user.email, value)
-                )
+                company.changes.append(Change.create(key, ChangeType.update, authenticated_user.email, value))
 
         company_doc = company_doc.replace(company.dict())
         return CompanyDatabaseModel(**company_doc)
 
     @transaction
-    def update_company_names(
-        self, company_id: str, names: dict[str, str], user: User
-    ) -> CompanyDatabaseModel:
+    def update_company_names(self, company_id: str, names: dict[str, str], user: User) -> CompanyDatabaseModel:
         update_context = self.db.update_context()
         update_context.set_values({"name": names})
-        update_context.push_to_list(
-            "changes", Change.create("name", ChangeType.update, user.email, names).dict()
-        )
+        update_context.push_to_list("changes", Change.create("name", ChangeType.update, user.email, names).dict())
         self._companies.update_document(
             company_id,
             update_context,
@@ -251,9 +240,7 @@ class CompanyDatastore(BaseDatastore):
         contact.changed_by = authenticated_user.email
         contact.changed_at = datetime.now(utc)
 
-        change = Change.create(
-            f"contacts.{contact.id}", ChangeType.update, authenticated_user.email, contact.dict()
-        )
+        change = Change.create(f"contacts.{contact.id}", ChangeType.update, authenticated_user.email, contact.dict())
         company.changes.append(change)
 
         company_doc.replace(company.dict())
@@ -288,39 +275,6 @@ class CompanyDatastore(BaseDatastore):
         company.contacts.remove(contact)
         company_doc.replace(company.dict())
 
-    def add_user_to_company(
-        self, company_id: str, role_name: str, user_id: str, authenticated_user: User
-    ) -> list[User]:
-        """
-        Adds user to company with role.
-
-        :param company_id: ID of company to add user to.
-        :param role_name: Name of role to give the user. Has to be role of type company_role.
-            It is not allowed to give other roles to user through this method.
-        :param user_id: ID of user to receive the role.
-        :param authenticated_user: User performing operation.
-
-        :return: List of users connected to company.
-
-        :raise app.errors.NotFoundError: If company or user is not found.
-        :raise app.errors.InvalidInputError: If provided role is not of type company_role.
-        """
-        if not self._companies.exists({"id": company_id}):
-            raise NotFoundError(f"No company with id '{company_id}' was found.")
-
-        if not self._roles.exists({"name": role_name, "type": RoleType.company_role}):
-            raise InvalidInputError("Invalid role.")
-
-        self._users.add_role_to_user(authenticated_user, user_id, role_name, company_id)
-        self._companies.push_to_list(
-            company_id,
-            "changes",
-            Change.create(
-                f"company.users.{user_id}", ChangeType.add, authenticated_user.email, f"{user_id}:{role_name}"
-            ).dict(),
-        )
-        return self._users.get_company_users(company_id)
-
     def activate_company(self, company_id: str, authenticated_user: User) -> CompanyDatabaseModel:
         """Updates a companys status to active."""
         return self._change_status(company_id, authenticated_user, CompanyStatus.active)
@@ -329,42 +283,13 @@ class CompanyDatastore(BaseDatastore):
         """Updates company status to 'deactivated'."""
         return self._change_status(company_id, authenticated_user, CompanyStatus.deactivated)
 
-    async def save_profile_picture(self, company_id: str, file: UploadFile, user: User) -> str:
-        """
-        Saves profile picture for company.
-        If a profile picture already exists for company, it will be overwritten.
-        URL of file will be stored on company in DB.
-        :param company_id: ID of company to save picture for.
-        :param file: Image bytes.
-        :param user: Authenticated user.
-        :return: URL for new file.
-        :raise NotFoundError: If company was not found.
-        """
-        company = CompanyDatabaseModel(**self._get_company_doc(company_id))
-        file_url = await self._file_manager.save_company_profile_picture(company.id, file)
-        update_context = self.db.update_context()
-        update_context.set_values({"profile_picture_url": file_url})
-        update_context.push_to_list(
-            "changes", Change.create("profile_picture_url", ChangeType.update, user.email, file_url).dict()
-        )
-        self._companies.update_document(
-            company_id,
-            update_context,
-        )
-        return file_url
-
-    def get_company_profile_picture_physical_path(self, image_file_name: str) -> str:
-        return self._file_manager.get_company_profile_picture_physical_path(image_file_name)
-
     def _get_company_doc(self, company_id: str) -> Document:
         company_doc = self._companies.by_id(company_id)
         if company_doc is None:
             raise NotFoundError(f"Company with id '{company_id}' not found")
         return company_doc
 
-    def _change_status(
-        self, company_id: str, authenticated_user: User, status: CompanyStatus
-    ) -> CompanyDatabaseModel:
+    def _change_status(self, company_id: str, authenticated_user: User, status: CompanyStatus) -> CompanyDatabaseModel:
         update_context = self.db.update_context()
         update_context.set_values({"status": status})
         update_context.push_to_list(
@@ -376,16 +301,12 @@ class CompanyDatastore(BaseDatastore):
 
 def get_company_datastore(
     db: DocumentDatabase = Depends(get_document_database),
-    file_manager: FileManager = Depends(get_file_manager),
-    user_datastore: UserDatastore = Depends(get_user_datastore),
     logger: AppLogger = Depends(logger_injector),
 ) -> CompanyDatastore:
     """
     Dependency injection function to inject CompanyDatastore.
     :param db: Reference to document db.
-    :param file_manager: app.io.file_manager.FileManager.
-    :param user_datastore: Reference to user datastore.
     :param logger: Class logger.
     :return: New instance of CompanyDatastore.
     """
-    return CompanyDatastore(db, file_manager, user_datastore, logger)
+    return CompanyDatastore(db, logger)

@@ -16,7 +16,7 @@ async def add_address(
     address_datastore: AddressDatastore = Depends(get_address_datastore),
     authenticated_user: User = Security(
         get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
-    )
+    ),
 ):
     new_address = address_datastore.add_address(company_id, address.to_database_model(), authenticated_user)
     return new_address

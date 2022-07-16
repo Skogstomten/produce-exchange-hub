@@ -11,7 +11,7 @@ def test_add_contact_adds_contact(
 ):
     db, collection = doc_database_collection_mocks
 
-    target = CompanyDatastore(db, file_manager, user_datastore, logger)
+    target = CompanyDatastore(db, logger)
     target.add_contact(company_id, contact_model)
 
     collection.push_to_list.assert_called_with(company_id, "contacts", contact_model)

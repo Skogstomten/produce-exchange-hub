@@ -20,7 +20,7 @@ def test_activate_company(
     update_context_mock = Mock(DocumentDatabaseUpdateContext)
     db.update_context.return_value = update_context_mock
 
-    target = CompanyDatastore(db, file_manager, user_datastore, logger)
+    target = CompanyDatastore(db, logger)
     result = target.activate_company(company_id, authenticated_user_default)
 
     db.collection.assert_called_with("companies")
