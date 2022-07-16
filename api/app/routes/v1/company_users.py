@@ -4,10 +4,7 @@ Routing module for company users endpoint.
 from fastapi import APIRouter, Depends, Security, Path, Request
 from starlette import status
 
-from app.datastores.company_datastore import (
-    CompanyDatastore,
-    get_company_datastore,
-)
+from app.datastores.company_user_datastore import get_company_user_datastore, CompanyUserDatastore
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.dependencies.log import AppLogger, AppLoggerInjector
 from app.dependencies.user import get_current_user
@@ -44,8 +41,8 @@ async def add_user_to_company_with_role(
     user_id: str = Path(...),
     role_name: str = Path(...),
     user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
+    company_user_datastore: CompanyUserDatastore = Depends(get_company_user_datastore),
 ) -> list[UserOutModel]:
     """Adds existing user to company."""
-    users = company_datastore.add_user_to_company(company_id, role_name, user_id, user)
+    users = company_user_datastore.add_user_to_company(company_id, role_name, user_id, user)
     return [UserOutModel.from_database_model(u, request) for u in users]

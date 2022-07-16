@@ -15,7 +15,8 @@ from .routes.v1 import (
     company_contacts,
     roles,
     user_roles,
-    company_users, company_addresses,
+    company_users,
+    company_addresses,
 )
 from .utils.request_utils import get_url
 
