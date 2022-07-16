@@ -17,6 +17,7 @@ from .routes.v1 import (
     user_roles,
     company_users,
     company_addresses,
+    products,
 )
 from .utils.request_utils import get_url
 
@@ -38,6 +39,7 @@ app.include_router(roles.router)
 app.include_router(user_roles.router)
 app.include_router(company_users.router)
 app.include_router(company_addresses.router)
+app.include_router(products.router)
 
 origins = [
     "*",
