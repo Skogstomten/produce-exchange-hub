@@ -111,8 +111,14 @@ def test_update_contact_changes_contact(
         assert contact["changed_at"].month == datetime.now(utc).month
         assert contact["changed_at"].day == datetime.now(utc).day
 
-    perform_operation(doc_database_collection_mocks, logger, fake_company_data, authenticated_user_default,
-                      contact_model, _verify_contact_changed)
+    perform_operation(
+        doc_database_collection_mocks,
+        logger,
+        fake_company_data,
+        authenticated_user_default,
+        contact_model,
+        _verify_contact_changed,
+    )
 
 
 def test_update_contact_changes_added(
@@ -129,5 +135,11 @@ def test_update_contact_changes_added(
         assert change["change_type"] == ChangeType.update
         assert change["actor_username"] == authenticated_user_default.email
 
-    perform_operation(doc_database_collection_mocks, logger, fake_company_data, authenticated_user_default,
-                      contact_model, _verify_change_added)
+    perform_operation(
+        doc_database_collection_mocks,
+        logger,
+        fake_company_data,
+        authenticated_user_default,
+        contact_model,
+        _verify_change_added,
+    )

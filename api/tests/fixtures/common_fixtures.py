@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest.mock import Mock, PropertyMock
+from unittest.mock import Mock
 
 import pytest
 from bson import ObjectId
