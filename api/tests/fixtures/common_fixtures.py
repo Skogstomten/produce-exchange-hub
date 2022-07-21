@@ -1,9 +1,11 @@
 from datetime import datetime
-from unittest.mock import Mock
+from unittest.mock import Mock, PropertyMock
 
 import pytest
 from bson import ObjectId
 from pytz import utc
+from starlette.datastructures import URL
+from starlette.requests import Request
 
 from app.datastores.user_datastore import UserDatastore
 from app.dependencies.log import AppLogger
@@ -126,3 +128,17 @@ def contact_model(contact_id):
 @pytest.fixture
 def file_manager():
     return Mock(FileManager)
+
+
+@pytest.fixture
+def http_request():
+    request_mock = Mock(Request)
+
+    url_mock = Mock(URL)
+    url_mock.scheme = "http"
+    url_mock.hostname = "localhost"
+    url_mock.port = 8000
+    url_mock.path = "/v1"
+
+    type(request_mock).url = url_mock
+    return request_mock

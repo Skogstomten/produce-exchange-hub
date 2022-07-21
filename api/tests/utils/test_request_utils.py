@@ -7,11 +7,6 @@ from fastapi.datastructures import QueryParams, URL
 from app.utils.request_utils import get_query_string, get_url
 
 
-@fixture
-def http_request():
-    return Mock(Request)
-
-
 @mark.parametrize(
     ("query_params", "expected"),
     [

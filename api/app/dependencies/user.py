@@ -7,25 +7,154 @@ from jose import jwt, JWTError
 
 from app.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.models.v1.database_models.user import User
-from app.models.v1.token import TokenData
-from app.utils.request_utils import get_current_request_url_with_additions
+from app.models.v1.token import TokenData, TokenRoleMap
+from app.utils.request_utils import get_current_request_url_with_additions, get_url
 from .auth import OAUTH2_SCHEME_OPTIONAL, SECRET_KEY, ALGORITHM
 from .log import AppLogger, AppLoggerInjector
+from ..errors import InvalidOperationError, ClaimTypeNotSupportedError
 from ..utils.str_utils import remove_brackets
+
+CLAIM_TYPE_VERIFIED = "verified"
+CLAIM_TYPE_ROLES = "roles"
+CLAIM_TYPE_SELF = "self"
 
 logger_injector = AppLoggerInjector("dependencies.user")
 
 
-def _append_ref_if_any(current_val: str, parts: list[str], i: int, request: Request) -> str:
-    """Appends the ref from selected index to value if there is a ref."""
-    ref = None
+def _get_ref_part(parts: list[str], i: int) -> str | None:
+    ref_part = None
     try:
-        ref_name = remove_brackets(parts[i])
+        ref_part = parts[i]
     except IndexError:
-        print(f"parts contains no index {i}: {repr(parts)}")
-    else:
-        ref = request.path_params.get(ref_name, None)
-    return current_val + f":{ref}" if ref else current_val
+        pass
+    return ref_part
+
+
+def _get_ref(parts: list[str], i: int, request: Request) -> str | None:
+    ref_part = _get_ref_part(parts, i)
+    if ref_part == "*":
+        return ref_part
+    if ref_part:
+        ref_part = remove_brackets(ref_part)
+        return request.path_params.get(ref_part, None)
+    return None
+
+
+class Scope:
+    def __init__(self, scope_str: str, request: Request):
+        self._scope_str = scope_str
+        self._request = request
+        self._parts = scope_str.split(":")
+        _ensure_correct_scopes_format(scope_str, self._parts, request)
+        self._claim_type = self._parts[0]
+
+    @property
+    def claim_type(self) -> str:
+        return self._claim_type
+
+    def get_verified_value(self) -> bool:
+        return self._get_part(CLAIM_TYPE_VERIFIED, 1).lower() == "true"
+
+    def get_self_ref(self) -> str:
+        return self._get_ref(CLAIM_TYPE_SELF, 1, allow_wildcard=False)
+
+    def get_role_name(self) -> str:
+        return self._get_part(CLAIM_TYPE_ROLES, 1)
+
+    def get_role_ref(self) -> str | None:
+        return self._get_ref(CLAIM_TYPE_ROLES, 2, required=False)
+
+    def _get_ref(self, claim_type: str, index: int, required: bool = True, allow_wildcard: bool = True) -> str | None:
+        ref_name = self._get_part(claim_type, index)
+        if ref_name is None:
+            if required:
+                raise InvalidOperationError(
+                    f"Required ref not found for claim type '{claim_type}'. URL={get_url(self._request)}"
+                )
+            return None
+        if ref_name == "*":
+            if allow_wildcard:
+                return ref_name
+            else:
+                raise InvalidOperationError(
+                    f"Can't have a wildcard on claim type {claim_type}. URL={get_url(self._request)}"
+                )
+        ref = self._request.path_params.get(remove_brackets(ref_name), None)
+        if required:
+            if ref is None:
+                raise InvalidOperationError(f"Can't find ref for '{ref_name}'. URL={get_url(self._request)}")
+        return ref
+
+    def _get_part(self, claim_type: str, index: int) -> str | None:
+        self._ensure_valid_claim_type(claim_type)
+        try:
+            return self._parts[index]
+        except IndexError:
+            return None
+
+    def _ensure_valid_claim_type(self, claim_type: str):
+        if not self._claim_type == claim_type:
+            raise InvalidOperationError(
+                f"Can't call method for claim_type other than {claim_type}: scope_str={self._scope_str}"
+            )
+
+
+class Role:
+    def __init__(self, role_name: str, ref: str | None):
+        self._role_name = role_name
+        self._ref = ref
+
+    def matches(self, token_role_map: TokenRoleMap, authenticated_user: User) -> bool:
+        if self._role_name == CLAIM_TYPE_SELF:
+            return self._ref == authenticated_user.id
+
+        token_roles = token_role_map[self._role_name]
+        if token_roles:
+            if self._ref == "*":
+                return True
+            if self._ref in token_roles:
+                return True
+
+        return False
+
+
+class Roles:
+    """Collection class holding a collection of roles."""
+
+    def __init__(self):
+        self._roles: list[Role] = []
+
+    def __len__(self):
+        return self._roles.__len__()
+
+    def __iter__(self):
+        return self._roles.__iter__()
+
+    def append_role(self, scope: Scope) -> None:
+        if scope.claim_type not in (CLAIM_TYPE_SELF, CLAIM_TYPE_ROLES):
+            return
+        if scope.claim_type == CLAIM_TYPE_SELF:
+            self._append_self(scope)
+        elif scope.claim_type == CLAIM_TYPE_ROLES:
+            self._append_roles(scope)
+        else:
+            raise ValueError("Shit")
+
+    def _append_self(self, scope: Scope):
+        role = CLAIM_TYPE_SELF
+        ref = scope.get_self_ref()
+        self._roles.append(Role(role, ref))
+
+    def _append_roles(self, scope: Scope):
+        role = scope.get_role_name()
+        ref = scope.get_role_ref()
+        self._roles.append(Role(role, ref))
+
+    def match_with_user(self, token_role_map: TokenRoleMap, authenticated_user: User) -> True:
+        for role in self._roles:
+            if role.matches(token_role_map, authenticated_user):
+                return True
+        return False
 
 
 class SecurityScopeRestrictions:
@@ -52,23 +181,19 @@ class SecurityScopeRestrictions:
         :param request: HTTP request object, needed to acquire resource keys
         to check for access to specific resources
         """
-        self._roles: list[str] = []
+        self._security_scopes = security_scopes
+        self._request = request
+        self._authenticated_user = authenticated_user
+        self._roles = Roles()
         self._verified: bool | None = None
-        self.authenticated_user = authenticated_user
 
-        for scope in security_scopes.scopes:
-            parts: list[str] = scope.split(":")
-            _ensure_correct_scopes_format(scope, parts, request)
-            claim_type: str = parts[0]
-            if claim_type == "roles":
-                role_name: str = parts[1]
-                role: str = role_name
-                role = _append_ref_if_any(role, parts, 2, request)
-                self._roles.append(role)
-            if claim_type == "verified":
-                self._verified = parts[1].lower() == "true"
-            if claim_type == "self":
-                self._roles.append(_append_ref_if_any(claim_type, parts, 1, request))
+        for scope in [Scope(s, request) for s in security_scopes.scopes]:
+            if scope.claim_type == CLAIM_TYPE_ROLES or scope.claim_type == CLAIM_TYPE_SELF:
+                self._roles.append_role(scope)
+            elif scope.claim_type == CLAIM_TYPE_VERIFIED:
+                self._verified = scope.get_verified_value()
+            else:
+                raise ClaimTypeNotSupportedError(scope.claim_type)
 
     def user_has_required_roles(self, token: TokenData) -> bool:
         """
@@ -82,16 +207,10 @@ class SecurityScopeRestrictions:
         :return: True if user has any of the required roles or if no roles are
                  required.
         """
-        if len(self._roles) == 0:
+        if token.has_superuser_role():
             return True
 
-        for role in self._roles:
-            if role.startswith("self:"):
-                if role.split(":")[1] == self.authenticated_user.id:
-                    return True
-            if role in token.roles:
-                return True
-        return False
+        return self._roles.match_with_user(token.get_token_role_map(), self._authenticated_user)
 
     def check_verified(self, token: TokenData) -> bool:
         """

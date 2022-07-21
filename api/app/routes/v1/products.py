@@ -16,7 +16,7 @@ _logger_injector = AppLoggerInjector("products_router")
 async def add_product(
     product: AddProductModel = Body(...),
     product_datastore: ProductDatastore = Depends(get_product_datastore),
-    authenticated_user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin")),
+    authenticated_user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:*")),
     logger: AppLogger = Depends(_logger_injector),
     essentials: Essentials = Depends(get_essentials),
 ):
