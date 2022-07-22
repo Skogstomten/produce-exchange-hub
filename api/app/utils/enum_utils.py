@@ -14,7 +14,13 @@ def enums_to_string(data: Any) -> Any:
     :return: mapping with all enum values converted to string values.
     """
     if isinstance(data, dict):
-        for key, value in data.items():
+        data_clone = data.copy()
+        for key, value in data_clone.items():
+            if isinstance(key, Enum):
+                new_key = key.value
+                del data[key]
+                data[new_key] = value
+                key = new_key
             data[key] = enums_to_string(value)
     elif isinstance(data, list):
         for index, value in enumerate(data):

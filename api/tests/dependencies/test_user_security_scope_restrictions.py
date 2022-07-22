@@ -1,18 +1,11 @@
 from unittest.mock import Mock, PropertyMock
 
 from bson import ObjectId
-from pytest import fixture, mark
-from fastapi import Request
 from fastapi.security import SecurityScopes
+from pytest import fixture, mark
 
 from app.dependencies.user import SecurityScopeRestrictions
-from app.models.v1.database_models.user import User
 from app.models.v1.token import TokenData
-
-
-@fixture
-def http_request():
-    return Mock(Request)
 
 
 @fixture
@@ -26,15 +19,10 @@ def empty_http_request(http_request):
     return http_request
 
 
-@fixture
-def authenticated_user():
-    return Mock(User)
-
-
-def test_works_with_no_scopes(security_scope, empty_http_request, authenticated_user):
+def test_works_with_no_scopes(security_scope, empty_http_request, authenticated_user_default):
     type(security_scope).scopes = PropertyMock(return_value=[])
     type(empty_http_request).path_params = PropertyMock(return_value={})
-    target = SecurityScopeRestrictions(security_scope, empty_http_request, authenticated_user)
+    target = SecurityScopeRestrictions(security_scope, empty_http_request, authenticated_user_default)
     assert len(target._roles) == 0
 
 
@@ -46,15 +34,16 @@ def test_works_with_no_scopes(security_scope, empty_http_request, authenticated_
         (["verified:False"], False),
     ],
 )
-def test_scope_restriction_verified(security_scope, empty_http_request, authenticated_user, scopes, expected):
+def test_scope_restriction_verified(security_scope, empty_http_request, authenticated_user_default, scopes, expected):
     type(security_scope).scopes = PropertyMock(return_value=scopes)
-    target = SecurityScopeRestrictions(security_scope, empty_http_request, authenticated_user)
+    target = SecurityScopeRestrictions(security_scope, empty_http_request, authenticated_user_default)
     assert target._verified == expected
 
 
 @mark.parametrize(
     ("scopes", "path_params", "token_data_roles", "expected"),
     [
+        (["roles:role_name:{resource_id}"], {"resource_id": "12345"}, ["superuser"], True),
         (
             ["roles:role_name"],
             {},
@@ -79,16 +68,11 @@ def test_scope_restriction_verified(security_scope, empty_http_request, authenti
             ["role_name:1111"],
             False,
         ),
+        (["roles:role_name:*"], {}, ["role_name:12345"], True),
     ],
 )
 def test_scope_restrictions_user_has_required_roles(
-    scopes,
-    path_params,
-    token_data_roles,
-    expected,
-    security_scope,
-    http_request,
-    authenticated_user,
+    scopes, path_params, token_data_roles, expected, security_scope, http_request, authenticated_user_default
 ):
     type(security_scope).scopes = PropertyMock(return_value=scopes)
     type(http_request).path_params = PropertyMock(return_value=path_params)
@@ -100,7 +84,7 @@ def test_scope_restrictions_user_has_required_roles(
             "roles": token_data_roles,
         }
     )
-    target = SecurityScopeRestrictions(security_scope, http_request, authenticated_user)
+    target = SecurityScopeRestrictions(security_scope, http_request, authenticated_user_default)
     assert target.user_has_required_roles(token_data) == expected
 
 
@@ -114,7 +98,7 @@ def test_scope_restrictions_user_has_required_roles(
 def test_self_restriction_works(
     security_scope,
     http_request,
-    authenticated_user,
+    authenticated_user_default,
     req_user_id,
     user_id,
     expected,
@@ -129,6 +113,6 @@ def test_self_restriction_works(
             "roles": [],
         }
     )
-    type(authenticated_user).id = PropertyMock(return_value=user_id)
-    target = SecurityScopeRestrictions(security_scope, http_request, authenticated_user)
+    authenticated_user_default.id = user_id
+    target = SecurityScopeRestrictions(security_scope, http_request, authenticated_user_default)
     assert target.user_has_required_roles(token_data) is expected

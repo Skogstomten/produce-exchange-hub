@@ -107,3 +107,13 @@ class InvalidInputError(HTTPException):
 
     def __init__(self, message: str):
         super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=message)
+
+
+class ClaimTypeNotSupportedError(HTTPException):
+    """Raises internally when claim type is wrong."""
+
+    def __init__(self, claim_type: str):
+        super().__init__(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Claim type '{claim_type}' is not supported",
+        )

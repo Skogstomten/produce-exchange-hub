@@ -1,18 +1,12 @@
-from pytest import mark, fixture
 from unittest.mock import Mock, PropertyMock
 
-from fastapi import Request
+import pytest
 from fastapi.datastructures import QueryParams, URL
 
 from app.utils.request_utils import get_query_string, get_url
 
 
-@fixture
-def http_request():
-    return Mock(Request)
-
-
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("query_params", "expected"),
     [
         ({}, ""),
@@ -26,7 +20,7 @@ def test_get_query_string(http_request, query_params, expected):
     assert get_query_string(http_request) == expected
 
 
-@mark.parametrize(
+@pytest.mark.parametrize(
     ("port", "expected"),
     [(80, "https://localhost/api"), (8000, "https://localhost:8000/api")],
 )

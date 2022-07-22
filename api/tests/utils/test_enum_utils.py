@@ -1,6 +1,7 @@
 """Tests for enum_utils."""
 from enum import Enum
 
+from app.models.v1.shared import Language
 from app.utils.enum_utils import enums_to_string
 
 
@@ -26,4 +27,10 @@ def test_enums_to_string_with_list_of_dicts():
     input_dict = {"things": [{"val": TestEnum.value1}]}
     expected_dict = {"things": [{"val": TestEnum.value1.value}]}
 
+    assert enums_to_string(input_dict) == expected_dict
+
+
+def test_enums_to_strings_converts_enum_keys():
+    input_dict = {Language.SV: "Detta är text"}
+    expected_dict = {"SV": "Detta är text"}
     assert enums_to_string(input_dict) == expected_dict
