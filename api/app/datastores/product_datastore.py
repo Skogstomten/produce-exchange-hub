@@ -33,8 +33,24 @@ class ProductDatastore(BaseDatastore):
             yield Product(**doc)
 
     def add_product(self, product_name: str, language: Language) -> Product:
+        """
+        Add new product.
+        :param product_name: The product in the given localization.
+        :param language: The language of the product name.
+        :return: The newly added product.
+        """
         product_doc = self._products.add({"name": {language.value: product_name.title()}})
         return Product(**product_doc)
+
+    def update_product(self, product_id: str, product: Product) -> Product:
+        """
+        Update product.
+        :param product_id: ID of product.
+        :param product: The updated product model.
+        :return: The updated product.
+        """
+        doc = self._products.by_id(product_id).replace(product.dict())
+        return Product(**doc)
 
 
 def get_product_datastore(db: DocumentDatabase = Depends(get_document_database)) -> ProductDatastore:

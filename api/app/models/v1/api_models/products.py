@@ -16,3 +16,10 @@ class ProductOutModel(BaseModel):
     @classmethod
     def from_db_model(cls, product: Product, language: Language) -> "ProductOutModel":
         return cls(id=product.id, name=select_localized_text(product.name, language, []))
+
+
+class ProductUpdateModel(BaseModel):
+    name: dict[Language, str]
+
+    def to_db_model(self, product_id: str) -> Product:
+        return Product(id=product_id, name={language: value.title() for language, value in self.name.items()})
