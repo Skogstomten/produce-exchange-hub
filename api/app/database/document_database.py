@@ -260,6 +260,18 @@ class DatabaseCollection(metaclass=ABCMeta):
     def update_document(self, doc_id: str, updates: DocumentDatabaseUpdateContext) -> None:
         """Updates individual document."""
 
+    @abstractmethod
+    def like(self, field: str, value: str) -> DocumentCollection:
+        """
+        Gets DocumentCollection with documents matching where any part of given field matches value.
+
+        :param field: Name of field. Nested fields are accessed by the dot '.' operator. value.subvalue
+        :param value: The value to match with. Whole field will be searched for value.
+            Equivilent to sql LIKE '%myValue%'.
+
+        :return: DocumentCollection with documents matching search.
+        """
+
 
 class DocumentDatabase(metaclass=ABCMeta):
     """
