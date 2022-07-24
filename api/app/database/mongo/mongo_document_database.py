@@ -383,6 +383,10 @@ class MongoDatabaseCollection(DatabaseCollection):
         """Deletes a document."""
         self._mongo_collection.delete_one({"_id": ObjectId(doc_id)})
 
+    def like(self, field: str, value: str) -> DocumentCollection:
+        cursor = self._mongo_collection.find({field: {"$regex": value}})
+        return MongoDocumentCollection(cursor, self)
+
 
 class MongoDocumentDatabase(DocumentDatabase):
     """
