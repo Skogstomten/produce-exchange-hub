@@ -12,16 +12,16 @@ from pymongo.collection import Collection as MongoCollection
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
 
-from ..document_database import (
+from app.database.abstract.document_database import (
     Document,
     DocumentDatabase,
     DocumentCollection,
     DatabaseCollection,
     DocumentDatabaseUpdateContext,
 )
-from ...dependencies.log import AppLogger
-from ...errors import InvalidOperationError, NotFoundError
-from ...utils.enum_utils import enums_to_string
+from app.shared.dependencies.log import AppLogger
+from app.shared.errors import InvalidOperationError, NotFoundError
+from app.database.mongo.enum_utils import enums_to_string
 
 
 def _convert_str_id_to_object_id(data: dict) -> dict:

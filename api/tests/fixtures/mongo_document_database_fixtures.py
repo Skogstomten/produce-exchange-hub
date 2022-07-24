@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 from bson import ObjectId
 
-from app.database.document_database import DocumentDatabase, DocumentCollection
+from app.database.abstract.document_database import DocumentDatabase, DocumentCollection
 from app.database.mongo.mongo_document_database import MongoDatabaseCollection
 
 

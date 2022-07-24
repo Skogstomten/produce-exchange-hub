@@ -5,8 +5,8 @@ import pytest
 from bson import ObjectId
 from pytz import utc
 
-from app.models.v1.database_models.user import User, UserRoleDatabaseModel
-from app.models.v1.shared import RoleType
+from app.user.models.db.user import User, UserRoleDatabaseModel
+from app.shared.models.v1.shared import RoleType
 
 
 def get_user(

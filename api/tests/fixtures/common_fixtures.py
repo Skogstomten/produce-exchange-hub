@@ -7,11 +7,11 @@ from pytz import utc
 from starlette.datastructures import URL
 from starlette.requests import Request
 
-from app.datastores.user_datastore import UserDatastore
-from app.dependencies.log import AppLogger
-from app.io.file_manager import FileManager
-from app.models.v1.database_models.contact import ContactDatabaseModel
-from app.models.v1.shared import ContactType, CompanyStatus
+from app.user.datastores.user_datastore import UserDatastore
+from app.shared.dependencies.log import AppLogger
+from app.shared.io.file_manager import FileManager
+from app.company.models.db.contact import ContactDatabaseModel
+from app.shared.models.v1.shared import ContactType, CompanyStatus
 
 
 def _get_id() -> str:

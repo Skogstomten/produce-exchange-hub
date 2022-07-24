@@ -5,21 +5,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
 
-from .dependencies.log import AppLogger
-from .errors import ErrorModel
-from .routes.v1 import (
-    companies,
-    token,
-    users,
-    timezones,
-    company_contacts,
-    roles,
-    user_roles,
-    company_users,
-    company_addresses,
-    products,
-)
-from .utils.request_utils import get_url
+from app.shared.dependencies.log import AppLogger
+from app.shared.errors import ErrorModel
+from .authentication.routes.v1 import token
+from .user.routes.v1 import users, user_roles, roles
+from .shared.routes.v1 import products, timezones
+from .company.routes.v1 import companies, company_addresses, company_users, company_contacts
+from app.shared.utils.request_utils import get_url
 
 logger = AppLogger("main")
 logger.info("Application Starting...")
