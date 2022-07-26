@@ -5,8 +5,8 @@ from fastapi import Request
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
 
-from app.shared.utils.query.query_parameter import QueryParameter
-from app.shared.utils.query.query_string_parser import QueryStringParser
+from app.shared.utils.query_parameter import QueryParameter
+from app.shared.utils.query_string_parser import QueryStringParser
 from app.shared.utils.request_utils import get_current_request_url_with_additions
 
 T = TypeVar("T", bound=BaseModel)

@@ -2,7 +2,7 @@ from fastapi import Depends
 
 from app.database.abstract.document_database import BaseDatastore, DocumentDatabase, DatabaseCollection
 from app.database.dependencies.document_database import get_document_database
-from app.shared.models.db.product import Product
+from app.knowlege.models.db.product import Product
 from app.shared.models.v1.shared import Language
 
 

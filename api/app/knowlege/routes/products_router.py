@@ -1,12 +1,17 @@
+"""
+Products router.
+
+Intended to help with auto-completion in UI.
+"""
 from fastapi import APIRouter, Body, Depends, Security, Path
 
 from app.shared.config.routing_config import BASE_PATH
-from app.shared.datastores.product_datastore import ProductDatastore, get_product_datastore
+from app.knowlege.datastores.product_datastore import ProductDatastore, get_product_datastore
 from app.shared.dependencies.essentials import Essentials, get_essentials
-from app.shared.dependencies.log import AppLoggerInjector, AppLogger
+from app.logging.log import AppLoggerInjector, AppLogger
 from app.authentication.dependencies.user import get_current_user
-from app.shared.models.v1.products import ProductOutModel, AddProductModel, ProductUpdateModel
-from app.user.models.db.user import User
+from app.knowlege.models.v1.api_models import ProductOutModel, AddProductModel, ProductUpdateModel
+from app.authentication.models.db.user import User
 from app.shared.utils.request_utils import get_url
 
 router = APIRouter(prefix=BASE_PATH + "/products", tags=["Products"])

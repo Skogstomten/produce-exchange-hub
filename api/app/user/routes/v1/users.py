@@ -1,13 +1,12 @@
 """
 Routing for users endpoint.
 """
-from fastapi import APIRouter, Depends, Body, Query, Request, Security, Path, UploadFile, File
+from fastapi import APIRouter, Depends, Body, Query, Request, Security, Path, UploadFile, File, status
 from fastapi.responses import PlainTextResponse, FileResponse
-from starlette import status
 
 from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.shared.dependencies.essentials import Essentials, get_essentials
-from app.shared.dependencies.log import AppLogger, AppLoggerInjector
+from app.logging.log import AppLogger, AppLoggerInjector
 from app.authentication.dependencies.user import get_current_user
 from app.shared.models.v1.paging_response_model import PagingResponseModel
 from app.user.models.v1.users import UserRegister, UserOutModel

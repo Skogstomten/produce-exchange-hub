@@ -4,11 +4,11 @@ from datetime import datetime
 import pytest
 from pytz import utc
 
+from app.company.models.shared.enums import ContactType
 from app.database.mongo.mongo_document_database import MongoDocument
 from app.company.datastores.company_datastore import CompanyDatastore
-from app.shared.errors import NotFoundError
+from app.shared.errors.errors import NotFoundError
 from app.shared.models.db.change import ChangeType
-from app.shared.models.v1.shared import ContactType
 
 
 def add_contact_to_company_doc_dict(company_doc_dict, contact_model):
@@ -40,7 +40,7 @@ def perform_operation(
     collection.replace = verification_function
 
     target = CompanyDatastore(db, logger)
-    target.update_contact(company_id, contact_model, authenticated_user)
+    target.update_contact(company_id, contact_model.id, contact_model, authenticated_user)
 
 
 def test_update_contact_raises_not_found_error_if_company_not_found(
@@ -55,7 +55,7 @@ def test_update_contact_raises_not_found_error_if_company_not_found(
 
     target = CompanyDatastore(db, logger)
     with pytest.raises(NotFoundError, match=f"Company with id '{company_id}' not found"):
-        target.update_contact(company_id, contact_model, authenticated_user_default)
+        target.update_contact(company_id, contact_model.id, contact_model, authenticated_user_default)
 
 
 def test_update_contact_raises_not_found_error_if_contact_not_found(
@@ -73,7 +73,7 @@ def test_update_contact_raises_not_found_error_if_contact_not_found(
     with pytest.raises(
         NotFoundError, match=f"Contact with id '{contact_model.id}' not found on company '{company_id}'."
     ):
-        target.update_contact(company_id, contact_model, authenticated_user_default)
+        target.update_contact(company_id, contact_model.id, contact_model, authenticated_user_default)
 
 
 def test_update_contact_calls_replace(
@@ -89,7 +89,7 @@ def test_update_contact_calls_replace(
     collection.by_id.return_value = MongoDocument(company_doc_dict, collection)
 
     target = CompanyDatastore(db, logger)
-    target.update_contact(company_id, contact_model, authenticated_user_default)
+    target.update_contact(company_id, contact_model.id, contact_model, authenticated_user_default)
 
     collection.replace.assert_called_once()
 

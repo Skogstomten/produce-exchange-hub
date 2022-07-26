@@ -1,6 +1,7 @@
+"""Api models for products routing."""
 from pydantic import BaseModel
 
-from app.shared.models.db.product import Product
+from app.knowlege.models.db.product import Product
 from app.shared.models.v1.shared import Language
 from app.shared.utils.lang_utils import select_localized_text
 

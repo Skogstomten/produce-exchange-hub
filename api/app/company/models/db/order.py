@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
-from app.shared.models.v1.shared import Language, Currency, IntervalType
+from app.company.models.shared.enums import Currency, IntervalType
+from app.shared.models.v1.shared import Language
 
 
 class Order(BaseModel):

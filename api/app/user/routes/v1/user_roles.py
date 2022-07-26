@@ -3,7 +3,7 @@ Routing module for users/roles endpoint.
 """
 from fastapi import APIRouter, Depends, Path, Request, Security
 
-from app.shared.dependencies.log import AppLogger, AppLoggerInjector
+from app.logging.log import AppLogger, AppLoggerInjector
 from app.authentication.dependencies.user import get_current_user
 from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.user.models.v1.users import UserOutModel, UserRoleOutModel

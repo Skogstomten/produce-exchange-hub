@@ -1,5 +1,5 @@
 """
-Basic auth dependency variables and constants.
+Basic db dependency variables and constants.
 """
 from fastapi.security import OAuth2PasswordBearer
 

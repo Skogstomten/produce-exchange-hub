@@ -5,10 +5,9 @@ from collections.abc import MutableMapping, Iterable
 from datetime import datetime
 from typing import Any
 
-from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
 from pymongo.client_session import ClientSession
-from pymongo.collection import Collection as MongoCollection
+from pymongo.collection import Collection as MongoCollection, ObjectId
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
 
@@ -19,8 +18,8 @@ from app.database.abstract.document_database import (
     DatabaseCollection,
     DocumentDatabaseUpdateContext,
 )
-from app.shared.dependencies.log import AppLogger
-from app.shared.errors import InvalidOperationError, NotFoundError
+from app.logging.log import AppLogger
+from app.shared.errors.errors import InvalidOperationError, NotFoundError
 from app.database.mongo.enum_utils import enums_to_string
 
 
@@ -428,3 +427,6 @@ class MongoDocumentDatabase(DocumentDatabase):
 
     def update_context(self) -> DocumentDatabaseUpdateContext:
         return MongoDBUpdateContext()
+
+    def new_id(self) -> str:
+        return str(ObjectId())

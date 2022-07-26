@@ -1,12 +1,11 @@
 """
 Document database dependenciy.
 """
-from bson import ObjectId
 from fastapi import Depends
 from pymongo.database import Database as MongoDatabase
 
-from app.shared.dependencies.log import AppLoggerInjector, AppLogger
-from .mongo import get_mongo_db
+from app.logging.log import AppLoggerInjector, AppLogger
+from app.database.dependencies.mongo import get_mongo_db
 from app.database.abstract.document_database import DocumentDatabase
 from app.database.mongo.mongo_document_database import MongoDocumentDatabase
 
@@ -26,7 +25,3 @@ def get_document_database(
     interface.
     """
     return MongoDocumentDatabase(db, logger)
-
-
-def get_new_document_id() -> str:
-    return str(ObjectId())

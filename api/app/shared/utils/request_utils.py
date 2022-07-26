@@ -5,7 +5,7 @@ from collections.abc import Sequence
 
 from fastapi import Request
 
-from .query.query_parameter import QueryParameter
+from app.shared.utils.query_parameter import QueryParameter
 
 
 def get_current_request_url_with_additions(

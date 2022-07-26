@@ -5,7 +5,7 @@ import pytest
 from bson import ObjectId
 from pytz import utc
 
-from app.user.models.db.user import User, UserRoleDatabaseModel
+from app.user.models.db.user import User, UserRole
 from app.shared.models.v1.shared import RoleType
 
 
@@ -54,8 +54,8 @@ def get_role(
     role_name: str = "company_admin",
     role_type: RoleType = RoleType.company_role,
     reference: str | None = None,
-) -> UserRoleDatabaseModel:
-    return UserRoleDatabaseModel(
+) -> UserRole:
+    return UserRole(
         id=user_role_id,
         role_id=role_id,
         role_name=role_name,

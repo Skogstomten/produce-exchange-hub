@@ -1,4 +1,4 @@
-from app.shared.utils.query.query_string_parser import QueryStringParser
+from app.shared.utils.query_string_parser import QueryStringParser
 
 
 def test_init_with_empty_string():

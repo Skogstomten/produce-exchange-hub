@@ -4,14 +4,15 @@ from unittest.mock import Mock
 import pytest
 from bson import ObjectId
 from pytz import utc
-from starlette.datastructures import URL
-from starlette.requests import Request
+from fastapi import Request
+from fastapi.datastructures import URL
 
+from app.company.models.v1.contacts import AddContactModel
 from app.user.datastores.user_datastore import UserDatastore
-from app.shared.dependencies.log import AppLogger
+from app.logging.log import AppLogger
 from app.shared.io.file_manager import FileManager
-from app.company.models.db.contact import ContactDatabaseModel
-from app.shared.models.v1.shared import ContactType, CompanyStatus
+from app.company.models.db.contact import Contact
+from app.company.models.shared.enums import ContactType, CompanyStatus
 
 
 def _get_id() -> str:
@@ -24,8 +25,8 @@ def _get_contact_model(
     value: str = "nisse@perssons.se",
     created_by: str = "user@email.com",
     created_at: datetime = datetime.now(utc),
-) -> ContactDatabaseModel:
-    return ContactDatabaseModel(
+) -> Contact:
+    return Contact(
         id=contact_id,
         type=contact_type,
         value=value,
@@ -73,6 +74,10 @@ def get_company_database_dict(
         "contacts": contacts,
         "changes": changes,
     }
+
+
+def get_add_contact_model(contact_type=ContactType.email, value="nisse@perssons.se", description="Ägare"):
+    return AddContactModel(type=contact_type, value=value, description=description)
 
 
 @pytest.fixture

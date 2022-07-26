@@ -1,12 +1,11 @@
 """
 Routing module for company users endpoint.
 """
-from fastapi import APIRouter, Depends, Security, Path, Request
-from starlette import status
+from fastapi import APIRouter, Depends, Security, Path, Request, status
 
 from app.company.datastores.company_user_datastore import get_company_user_datastore, CompanyUserDatastore
 from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
-from app.shared.dependencies.log import AppLogger, AppLoggerInjector
+from app.logging.log import AppLogger, AppLoggerInjector
 from app.authentication.dependencies.user import get_current_user
 from app.user.models.v1.users import UserOutModel
 from app.user.models.db.user import User
@@ -17,6 +16,7 @@ logger_injector = AppLoggerInjector("company_users_router")
 router = APIRouter(prefix="/v1/{lang}/companies/{company_id}/users", tags=["CompanyUsers"])
 
 
+# TODO: Consider if this should be in the user domain.
 @router.get("/", response_model=list[UserOutModel])
 async def get_company_users(
     request: Request,

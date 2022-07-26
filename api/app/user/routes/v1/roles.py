@@ -1,10 +1,9 @@
 """
 Route module for roles endpoint.
 """
-from fastapi import APIRouter, Depends, Body, Security
-from starlette.requests import Request
+from fastapi import APIRouter, Depends, Body, Security, Request
 
-from app.shared.dependencies.log import AppLogger, AppLoggerInjector
+from app.logging.log import AppLogger, AppLoggerInjector
 from app.authentication.dependencies.user import get_current_user
 from app.user.datastores.role_datastore import RoleDatastore, get_role_datastore
 from app.user.models.v1.roles import NewRoleModel, RoleOutModel

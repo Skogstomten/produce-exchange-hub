@@ -6,7 +6,6 @@ from datetime import datetime
 import pytz
 from fastapi import Depends, UploadFile
 
-from app.user.cryptography import password_hasher as hasher
 from app.database.abstract.document_database import (
     DocumentDatabase,
     DatabaseCollection,
@@ -14,19 +13,19 @@ from app.database.abstract.document_database import (
     BaseDatastore,
 )
 from app.database.dependencies.document_database import get_document_database
-from app.user.models.v1.users import UserAdd, UserRegister
-from app.user.models.db.user import (
-    User,
-    UserRoleDatabaseModel,
-)
-from .role_datastore import RoleDatastore, get_role_datastore
-from app.shared.errors import (
-    DuplicateError,
+from app.shared.errors.errors import (
     NotFoundError,
-    InvalidUsernameOrPasswordError,
 )
 from app.shared.io.file_manager import FileManager, get_file_manager
 from app.shared.models.db.change import Change, ChangeType
+from app.user.errors.duplicate_error import DuplicateError
+from app.user.models.db.user import (
+    User,
+    UserRole,
+)
+from app.user.models.v1.users import UserAdd, UserRegister
+from app.user.datastores.role_datastore import RoleDatastore, get_role_datastore
+from app.shared.cryptography import password_hasher as hasher
 
 
 class UserDatastore(BaseDatastore):
@@ -111,17 +110,6 @@ class UserDatastore(BaseDatastore):
             raise NotFoundError(f"No user with id '{user_id}' was found.")
         return User(**doc)
 
-    def get_user_by_email(self, email: str) -> User | None:
-        """
-        Get user by email.
-        :param email: EMail/UserName of user.
-        :return: UserDatabaseModel or None if user was not found.
-        """
-        doc = self._users.by_key("email", email)
-        if doc is None:
-            return None
-        return User(**doc)
-
     def add_user(self, user: UserRegister) -> User:
         """
         Add new user.
@@ -129,6 +117,7 @@ class UserDatastore(BaseDatastore):
         :param user: New user model
         :return: UserDatabaseModel for new user.
         """
+        user.email = user.email.lower()
         if self._users.exists({"email": user.email}):
             raise DuplicateError("There's already a user registered with this e-mail address")
 
@@ -152,27 +141,10 @@ class UserDatastore(BaseDatastore):
             raise NotFoundError(f"No user with id '{user_id}' was found")
         doc.delete()
 
-    def authenticate_user(self, email: str, password: str) -> User:
-        """
-        Authenticate that provided username and password matches stored.
-        :raise InvalidUsernameOrPasswordError: If user can't be found with
-        email or if password is not correct.
-        :param email: UserName.
-        :param password: Password in clear text.
-        :return: UserDatabaseModel for user, if credentials are correct.
-        """
-        doc = self._users.by_key("email", email)
-        if doc is None:
-            raise InvalidUsernameOrPasswordError()
-        user = User(**doc)
-        if not hasher.is_correct_password(password, user.password_hash):
-            raise InvalidUsernameOrPasswordError()
-        return user
-
     def get_user_roles(
         self,
         user_id: str,
-    ) -> list[UserRoleDatabaseModel]:
+    ) -> list[UserRole]:
         """
         Get roles for user.
         :param user_id: ID of user.
@@ -204,8 +176,8 @@ class UserDatastore(BaseDatastore):
         :return: Updated UserDatabaseModel.
         """
         role = self._roles.get_role(role_name)
-        user_role = UserRoleDatabaseModel.create(role, reference).dict()
-        change = Change.create("roles", ChangeType.add, authenticated_user.email, user_role)
+        user_role = UserRole.create(self.db.new_id(), role, reference).dict()
+        change = Change.create(self.db.new_id(), "roles", ChangeType.add, authenticated_user.email, user_role)
         update_context = self.db.update_context()
         update_context.push_to_list("roles", user_role)
         update_context.push_to_list("changes", change)
@@ -221,10 +193,7 @@ class UserDatastore(BaseDatastore):
         update_context.push_to_list(
             "changes",
             Change.create(
-                "profile_picture_url",
-                ChangeType.update,
-                authenticated_user.email,
-                file_url,
+                self.db.new_id(), "profile_picture_url", ChangeType.update, authenticated_user.email, file_url
             ).dict(),
         )
         self._users.update_document(user_id, update_context)

@@ -1,16 +1,13 @@
 """Api models for contacts."""
 from datetime import datetime, tzinfo
 
-from pydantic import BaseModel, Field
-from bson.objectid import ObjectId
 from fastapi import Request
-from pytz import utc
+from pydantic import BaseModel, Field
 
-from app.shared.utils.datetime_utils import to_timezone
+from app.company.models.db.contact import Contact
+from app.company.models.shared.enums import ContactType
+from app.company.utils.datetime_utils import to_timezone
 from app.shared.models.v1.base_out_model import BaseOutModel
-from app.company.models.db.contact import ContactDatabaseModel
-from app.user.models.db.user import User
-from app.shared.models.v1.shared import ContactType
 from app.shared.utils.request_utils import get_current_request_url_with_additions
 
 
@@ -22,31 +19,12 @@ class BaseContactModel(BaseModel):
     description: str | None = Field(None)
 
 
-class CreateContactModel(BaseContactModel):
+class AddContactModel(BaseContactModel):
     """Model used for creating a contact."""
-
-    def to_database_model(self, user: User) -> ContactDatabaseModel:
-        """Converts model to database model."""
-        return ContactDatabaseModel(
-            id=str(ObjectId()),
-            type=self.type,
-            value=self.value,
-            description=self.description,
-            created_by=user.email,
-            created_at=datetime.now(utc),
-            changed_by=None,
-            changed_at=None,
-        )
 
 
 class UpdateContactModel(BaseContactModel):
-    def to_database_model(self, contact_id: str) -> ContactDatabaseModel:
-        return ContactDatabaseModel(
-            id=contact_id,
-            type=self.type,
-            value=self.value,
-            description=self.description,
-        )
+    pass
 
 
 class ContactListModel(BaseContactModel, BaseOutModel):
@@ -59,7 +37,7 @@ class ContactListModel(BaseContactModel, BaseOutModel):
     changed_at: datetime | None
 
     @classmethod
-    def from_database_model(cls, model: ContactDatabaseModel, request: Request, tz: str | tzinfo):
+    def from_database_model(cls, model: Contact, request: Request, tz: str | tzinfo):
         """Creates model instance from database model."""
         return cls(
             id=model.id,

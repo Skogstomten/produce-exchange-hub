@@ -27,7 +27,7 @@ def doc_id(obj_id):
 
 
 @pytest.fixture
-def doc_database_collection_mocks():
+def doc_database_collection_mocks(doc_id):
     """
     Fixture setting up mock of app.database.document_database.DocumentDatabase.
     Is also setup for using the transaction decorator.
@@ -44,6 +44,7 @@ def doc_database_collection_mocks():
 
     db_mock.transaction = fake_decorator_function
     db_mock.collection.return_value = collection_mock
+    db_mock.new_id.return_value = doc_id
     return db_mock, collection_mock
 
 
