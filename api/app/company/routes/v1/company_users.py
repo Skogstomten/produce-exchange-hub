@@ -7,7 +7,7 @@ from app.company.datastores.company_user_datastore import get_company_user_datas
 from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.logging.log import AppLogger, AppLoggerInjector
 from app.authentication.dependencies.user import get_current_user
-from app.user.models.v1.users import UserOutModel
+from app.user.models.v1.user_api_models import UserOutModel
 from app.user.models.db.user import User
 from app.shared.utils.request_utils import get_url
 

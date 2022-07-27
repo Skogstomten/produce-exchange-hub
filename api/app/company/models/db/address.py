@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
-from app.company.models.shared.enums import CountryCode
 from app.company.models.v1.addresses import AddAddressModel
+from app.shared.models.v1.shared import CountryCode
 
 
 class Address(BaseModel):

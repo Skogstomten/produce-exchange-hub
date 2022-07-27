@@ -2,11 +2,6 @@ from enum import Enum, unique
 
 
 @unique
-class CountryCode(Enum):
-    SE = "SE"
-
-
-@unique
 class CompanyStatus(Enum):
     """Available statuses for companies."""
 
@@ -42,3 +37,11 @@ class SortOrder(Enum):
 
     asc = "asc"
     desc = "desc"
+
+
+@unique
+class CompanyTypes(Enum):
+    """Enum with the available company types."""
+
+    producer = "producer"
+    buyer = "buyer"

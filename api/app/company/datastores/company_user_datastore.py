@@ -7,7 +7,7 @@ from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.database.dependencies.document_database import get_document_database
 from app.logging.log import AppLogger, AppLoggerInjector
 from app.shared.errors.errors import NotFoundError
-from app.user.models.v1.users import User
+from app.user.models.v1.user_api_models import User
 from app.shared.models.db.change import Change, ChangeType
 from app.shared.models.v1.shared import RoleType
 
@@ -49,7 +49,7 @@ class CompanyUserDatastore(CompanyDatastore):
                 f"company.users.{user_id}",
                 ChangeType.add,
                 authenticated_user.email,
-                f"{user_id}:{role_name}",
+                f"{role_name}:{user_id}",
             ).dict(),
         )
         return self._user_datastore.get_company_users(company_id)

@@ -23,7 +23,7 @@ from app.user.models.db.user import (
     User,
     UserRole,
 )
-from app.user.models.v1.users import UserAdd, UserRegister
+from app.user.models.v1.user_api_models import UserAdd, UserRegister
 from app.user.datastores.role_datastore import RoleDatastore, get_role_datastore
 from app.shared.cryptography import password_hasher as hasher
 
@@ -180,7 +180,7 @@ class UserDatastore(BaseDatastore):
         change = Change.create(self.db.new_id(), "roles", ChangeType.add, authenticated_user.email, user_role)
         update_context = self.db.update_context()
         update_context.push_to_list("roles", user_role)
-        update_context.push_to_list("changes", change)
+        update_context.push_to_list("changes", change.dict())
         self._users.update_document(user_id, update_context)
         return self.get_user_by_id(user_id, authenticated_user)
 

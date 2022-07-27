@@ -27,6 +27,7 @@ class AuthenticationDatastore(BaseDatastore):
         :param email: EMail/UserName of user.
         :return: UserDatabaseModel or None if user was not found.
         """
+        self._logger.debug(f"get_user(email={email})")
         doc = self._users.by_key("email", email)
         if doc is None:
             self._logger.debug(f"get_user(email={email}): doc is None")

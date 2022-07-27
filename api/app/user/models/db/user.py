@@ -4,7 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from app.user.models.db.role import RoleDatabaseModel
-from app.shared.models.v1.shared import RoleType
+from app.shared.models.v1.shared import RoleType, CountryCode, Language
 
 
 class UserRole(BaseModel):
@@ -38,9 +38,9 @@ class User(BaseModel):
     firstname: str
     lastname: str
     city: str
-    country_iso: str
+    country_iso: CountryCode
     timezone: str = Field("Europe/Stockholm")
-    language_iso: str = Field("SV")
+    language_iso: Language = Field(Language.SV)
     verified: bool = Field(True)
     password_hash: str
     created: datetime

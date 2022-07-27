@@ -4,9 +4,10 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from app.shared.models.db.change import Change
+from app.shared.models.v1.shared import Language
 from .address import Address
 from .contact import Contact
-from ..shared.enums import CompanyStatus
+from ..shared.enums import CompanyStatus, CompanyTypes
 
 
 class CompanyDatabaseModel(BaseModel):
@@ -16,8 +17,8 @@ class CompanyDatabaseModel(BaseModel):
     name: dict[str, str]
     status: CompanyStatus
     created_date: datetime
-    company_types: list[str]
-    content_languages_iso: list[str]
+    company_types: list[CompanyTypes]
+    content_languages_iso: list[Language]
     activation_date: datetime | None
     description: dict[str, str]
     external_website_url: str | None

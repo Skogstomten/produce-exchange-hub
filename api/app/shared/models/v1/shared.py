@@ -24,3 +24,8 @@ class RoleType(Enum):
 
     global_role = "global_role"
     company_role = "company_role"
+
+
+@unique
+class CountryCode(Enum):
+    SE = "SE"

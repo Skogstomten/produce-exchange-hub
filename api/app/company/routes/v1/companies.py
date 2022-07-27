@@ -23,7 +23,7 @@ from app.company.models.v1.paging_information import (
 )
 from app.authentication.dependencies.user import get_current_user, get_current_user_if_any
 from app.shared.errors.errors import ErrorModel
-from app.company.models.v1.companies import (
+from app.company.models.v1.company_api_models import (
     CompanyOutModel,
     CompanyCreateModel,
     CompanyUpdateModel,
@@ -112,7 +112,6 @@ async def update_company(
         get_current_user,
         scopes=(
             "roles:company_admin:{company_id}",
-            "roles:superuser",
         ),
     ),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),

@@ -7,7 +7,11 @@ from datetime import datetime
 from fastapi import Depends
 from pytz import utc
 
+from app.authentication.models.db.user import User, get_ref
+from app.company.models.db.company import CompanyDatabaseModel
+from app.company.models.db.contact import Contact
 from app.company.models.shared.enums import CompanyStatus, SortOrder
+from app.company.models.v1.company_api_models import CompanyCreateModel, CompanyUpdateModel
 from app.company.models.v1.contacts import AddContactModel, UpdateContactModel
 from app.database.abstract.document_database import (
     DocumentDatabase,
@@ -17,13 +21,9 @@ from app.database.abstract.document_database import (
     Document,
 )
 from app.database.dependencies.document_database import get_document_database
-from app.authentication.models.db.user import User, get_ref
 from app.logging.log import AppLoggerInjector, AppLogger
 from app.shared.errors.errors import NotFoundError
 from app.shared.models.db.change import Change, ChangeType
-from app.company.models.v1.companies import CompanyCreateModel, CompanyUpdateModel
-from app.company.models.db.company import CompanyDatabaseModel
-from app.company.models.db.contact import Contact
 
 logger_injector = AppLoggerInjector("company_datastore")
 
@@ -150,7 +150,7 @@ class CompanyDatastore(BaseDatastore):
                 "activation_date": None,
                 "description": {},
                 "contacts": [],
-                "changes": [Change.create(self.db.new_id(), "init", ChangeType.add, user.email, data)],
+                "changes": [Change.create(self.db.new_id(), "init", ChangeType.add, user.email, data).dict()],
             }
         )
         doc = self._companies.add(data)

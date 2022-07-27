@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Path, Request, Security
 from app.logging.log import AppLogger, AppLoggerInjector
 from app.authentication.dependencies.user import get_current_user
 from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
-from app.user.models.v1.users import UserOutModel, UserRoleOutModel
+from app.user.models.v1.user_api_models import UserOutModel, UserRoleOutModel
 from app.user.models.db.user import User
 from app.shared.utils.request_utils import get_url
 

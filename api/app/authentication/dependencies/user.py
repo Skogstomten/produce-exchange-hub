@@ -157,6 +157,11 @@ class Roles:
                 return True
         return False
 
+    def any(self) -> bool:
+        if self._roles:
+            return True
+        return False
+
 
 class SecurityScopeRestrictions:
     """
@@ -209,6 +214,8 @@ class SecurityScopeRestrictions:
                  required.
         """
         if token.has_superuser_role():
+            return True
+        if not self._roles.any():
             return True
 
         return self._roles.match_with_user(token.get_token_role_map(), self._authenticated_user)

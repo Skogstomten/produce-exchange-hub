@@ -9,7 +9,7 @@ from app.shared.dependencies.essentials import Essentials, get_essentials
 from app.logging.log import AppLogger, AppLoggerInjector
 from app.authentication.dependencies.user import get_current_user
 from app.shared.models.v1.paging_response_model import PagingResponseModel
-from app.user.models.v1.users import UserRegister, UserOutModel
+from app.user.models.v1.user_api_models import UserRegister, UserOutModel
 from app.user.models.db.user import User
 from app.shared.utils.request_utils import get_url
 from app.shared.utils.url_utils import assemble_profile_picture_url

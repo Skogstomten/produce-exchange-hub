@@ -43,6 +43,7 @@ def test_scope_restriction_verified(security_scope, empty_http_request, authenti
 @mark.parametrize(
     ("scopes", "path_params", "token_data_roles", "expected"),
     [
+        ([], {}, [], True),
         (["roles:role_name:{resource_id}"], {"resource_id": "12345"}, ["superuser"], True),
         (
             ["roles:role_name"],

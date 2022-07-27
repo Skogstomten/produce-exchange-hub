@@ -31,7 +31,7 @@ class Change(BaseModel):
         change_type: ChangeType,
         username: str,
         new_value: str | int | float | datetime | dict | list | Enum | None,
-    ):
+    ) -> "Change":
         """
         Creates a new instance of ChangeDatabaseModel.
         :param change_id: The id to use for the change. Should be a generated id supported by the underlying database.

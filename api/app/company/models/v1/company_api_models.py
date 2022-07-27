@@ -1,29 +1,20 @@
 """API model classes for companies."""
 from datetime import datetime, tzinfo
-from enum import Enum, unique
 
 from fastapi import Request, APIRouter
 from pydantic import BaseModel, Field
 
-from app.company.models.shared.enums import CompanyStatus
-from app.company.models.v1.contacts import ContactListModel
+from app.authentication.models.db.user import User
 from app.company.models.db.company import CompanyDatabaseModel
+from app.company.models.shared.enums import CompanyStatus, CompanyTypes
+from app.company.models.v1.contacts import ContactListModel
 from app.company.utils.datetime_utils import to_timezone
+from app.shared.models.db.change import Change
+from app.shared.models.v1.base_out_model import BaseOutModel
+from app.shared.models.v1.shared import Language
 from app.shared.utils.lang_utils import select_localized_text
 from app.shared.utils.request_utils import get_current_request_url_with_additions
 from app.shared.utils.url_utils import assemble_profile_picture_url
-from app.shared.models.v1.base_out_model import BaseOutModel
-from app.shared.models.db.change import Change
-from app.authentication.models.db.user import User
-from app.shared.models.v1.shared import Language
-
-
-@unique
-class CompanyTypes(Enum):
-    """Enum with the available company types."""
-
-    producer = "producer"
-    buyer = "buyer"
 
 
 def _initialize_company_model(
@@ -68,8 +59,8 @@ class CompanyOutListModel(BaseOutModel):
     name: str
     status: CompanyStatus
     created_date: datetime
-    company_types: list[str]
-    content_languages_iso: list[str]
+    company_types: list[CompanyTypes]
+    content_languages_iso: list[Language]
     activation_date: datetime | None
     description: str | None = Field(None)
     external_website_url: str | None
@@ -116,9 +107,9 @@ class CompanyOutModel(CompanyOutListModel):
 class CompanyCreateModel(BaseModel):
     """Model used when creating a new company."""
 
-    name: dict[str, str]
+    name: dict[Language, str]
     company_types: list[CompanyTypes] = Field(..., min_items=1)
-    content_languages_iso: list[str] = Field(..., min_length=2, max_length=2, min_items=1)
+    content_languages_iso: list[Language] = Field(..., min_items=1)
     external_website_url: str | None
 
 
@@ -126,5 +117,5 @@ class CompanyUpdateModel(BaseModel):
     """Model used when updating company."""
 
     company_types: list[CompanyTypes] = Field(..., min_items=1)
-    content_languages_iso: list[str] = Field(..., min_length=2, max_length=2, min_items=1)
+    content_languages_iso: list[Language] = Field(..., min_items=1)
     external_website_url: str | None
