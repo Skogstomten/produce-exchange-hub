@@ -110,9 +110,7 @@ async def update_company(
     company: CompanyUpdateModel = Body(...),
     authenticated_user: User = Security(
         get_current_user,
-        scopes=(
-            "roles:company_admin:{company_id}",
-        ),
+        scopes=("roles:company_admin:{company_id}",),
     ),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),

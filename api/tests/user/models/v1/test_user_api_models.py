@@ -16,6 +16,6 @@ def test_user_out_model_from_database_model(http_request):
             language_iso=Language.SV,
             verified=True,
         ),
-        http_request
+        http_request,
     )
     assert result is not None

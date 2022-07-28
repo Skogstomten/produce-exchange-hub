@@ -53,7 +53,6 @@ class AuthenticationDatastore(BaseDatastore):
 
 
 def get_authentication_datastore(
-    db: DocumentDatabase = Depends(get_document_database),
-    logger: AppLogger = Depends(logger_injector)
+    db: DocumentDatabase = Depends(get_document_database), logger: AppLogger = Depends(logger_injector)
 ) -> AuthenticationDatastore:
     return AuthenticationDatastore(db, logger)
