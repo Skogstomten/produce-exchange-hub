@@ -8,9 +8,9 @@ from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.shared.dependencies.essentials import Essentials, get_essentials
 from app.logging.log import AppLogger, AppLoggerInjector
 from app.authentication.dependencies.user import get_current_user
+from app.authentication.models.db.user import User
 from app.shared.models.v1.paging_response_model import PagingResponseModel
 from app.user.models.v1.user_api_models import UserRegister, UserOutModel
-from app.user.models.db.user import User
 from app.shared.utils.request_utils import get_url
 from app.shared.utils.url_utils import assemble_profile_picture_url
 
@@ -28,7 +28,7 @@ async def register(
     """
     Register new user.
     """
-    user: User = user_datastore.add_user(body)
+    user = user_datastore.add_user(body)
     return UserOutModel.from_database_model(user, request)
 
 
@@ -56,9 +56,11 @@ async def get_user(
     user_datastore: UserDatastore = Depends(get_user_datastore),
     authenticated_user: User = Security(get_current_user, scopes=("roles:superuser", "self:{user_id}")),
     essentials: Essentials = Depends(get_essentials),
+    logger: AppLogger = Depends(logger_injector),
 ) -> UserOutModel:
     """Get user by id."""
-    user = user_datastore.get_user_by_id(user_id, authenticated_user)
+    logger.debug(f"Incoming={get_url(essentials.request)}: user_id={user_id}, authenticated_user={authenticated_user}")
+    user = user_datastore.get_user_by_id(user_id)
     return UserOutModel.from_database_model(user, essentials.request)
 
 

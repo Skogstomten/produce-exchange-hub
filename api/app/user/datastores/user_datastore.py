@@ -95,20 +95,14 @@ class UserDatastore(BaseDatastore):
         docs = self._users.get(filters).to_list()
         return [User(**doc) for doc in docs]
 
-    def get_user_by_id(self, user_id: str, current_user: User) -> User:
+    def get_user_by_id(self, user_id: str) -> User:
         """
         Get user by user id.
         :raise NotFoundError: If no user with id is found
         :param user_id: ID of user.
-        :param current_user: The current authenticated user.
         :return: UserDatabaseModel.
         """
-        if current_user.id == user_id:
-            return current_user
-        doc = self._users.by_id(user_id)
-        if doc is None:
-            raise NotFoundError(f"No user with id '{user_id}' was found.")
-        return User(**doc)
+        return self._get_user(user_id)
 
     def add_user(self, user: UserRegister) -> User:
         """
@@ -150,10 +144,7 @@ class UserDatastore(BaseDatastore):
         :param user_id: ID of user.
         :return: List of UserRoleDatabaseModel for user.
         """
-        doc = self._users.by_id(user_id)
-        if doc is None:
-            raise NotFoundError(f"No user with id '{user_id}' was found")
-        user = User(**doc)
+        user = self._get_user(user_id)
         return user.roles
 
     def add_role_to_user(
