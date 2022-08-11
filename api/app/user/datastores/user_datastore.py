@@ -173,7 +173,7 @@ class UserDatastore(BaseDatastore):
         update_context.push_to_list("roles", user_role)
         update_context.push_to_list("changes", change.dict())
         self._users.update_document(user_id, update_context)
-        return self.get_user_by_id(user_id, authenticated_user)
+        return self.get_user_by_id(user_id)
 
     async def save_profile_picture(self, user_id: str, file: UploadFile, authenticated_user: User) -> str:
         """Saves user profile picture to file storage and updates profile picture url."""
