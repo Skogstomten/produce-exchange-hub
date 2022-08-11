@@ -6,7 +6,7 @@ from collections.abc import MutableMapping
 from enum import Enum
 from typing import Any, Callable, TypeVar
 
-from app.shared.dependencies.log import AppLoggerInjector
+from app.logging.log import AppLoggerInjector
 
 logger_injector = AppLoggerInjector("document_database")
 logger = logger_injector()
@@ -293,6 +293,10 @@ class DocumentDatabase(metaclass=ABCMeta):
     @abstractmethod
     def update_context(self) -> DocumentDatabaseUpdateContext:
         """Returns an update context use to build update queries."""
+
+    @abstractmethod
+    def new_id(self) -> str:
+        """Generates a new document id."""
 
 
 def transaction(function):

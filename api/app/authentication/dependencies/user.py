@@ -5,14 +5,15 @@ from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import SecurityScopes
 from jose import jwt, JWTError
 
-from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
-from app.user.models.db.user import User
+from app.authentication.datastores.authentication_datastore import AuthenticationDatastore, get_authentication_datastore
+from app.authentication.models.db.user import User
 from app.authentication.models.v1.token import TokenData, TokenRoleMap
 from app.shared.utils.request_utils import get_current_request_url_with_additions, get_url
 from .auth import OAUTH2_SCHEME_OPTIONAL, SECRET_KEY, ALGORITHM
-from app.shared.dependencies.log import AppLogger, AppLoggerInjector
-from app.shared.errors import InvalidOperationError, ClaimTypeNotSupportedError
-from app.shared.utils.str_utils import remove_brackets
+from app.logging.log import AppLogger, AppLoggerInjector
+from app.shared.errors.errors import InvalidOperationError
+from app.authentication.utils.str_utils import remove_brackets
+from ..errors.claim_type_not_supported_error import ClaimTypeNotSupportedError
 
 CLAIM_TYPE_VERIFIED = "verified"
 CLAIM_TYPE_ROLES = "roles"
@@ -156,6 +157,11 @@ class Roles:
                 return True
         return False
 
+    def any(self) -> bool:
+        if self._roles:
+            return True
+        return False
+
 
 class SecurityScopeRestrictions:
     """
@@ -209,6 +215,8 @@ class SecurityScopeRestrictions:
         """
         if token.has_superuser_role():
             return True
+        if not self._roles.any():
+            return True
 
         return self._roles.match_with_user(token.get_token_role_map(), self._authenticated_user)
 
@@ -230,7 +238,7 @@ def get_current_user_if_any(
     request: Request,
     security_scopes: SecurityScopes,
     token: str | None = Depends(OAUTH2_SCHEME_OPTIONAL),
-    users: UserDatastore = Depends(get_user_datastore),
+    authentication_datastore: AuthenticationDatastore = Depends(get_authentication_datastore),
     logger: AppLogger = Depends(logger_injector),
 ) -> User | None:
     """
@@ -240,12 +248,13 @@ def get_current_user_if_any(
     :param request: HTTP request object.
     :param security_scopes: security scope restrictions for current endpoint.
     :param token: encoded jwt token.
-    :param users: datastore for user database access.
+    :param authentication_datastore: datastore for user database access.
     :param logger: AppLogger
     :return: User model from database.
     """
     logger.debug(
-        f"get_current_user_if_any(request={request}, security_scopes={security_scopes}, token={token}, users={users})"
+        f"get_current_user_if_any(request={request}, security_scopes={security_scopes}, token={token}, "
+        f"users={authentication_datastore})"
     )
     if token is None:
         return None
@@ -270,7 +279,7 @@ def get_current_user_if_any(
             detail="Unable to decode jwt token: " + str(err),
             headers={"WWW-Authenticate": authenticate_value},
         ) from err
-    user = users.get_user_by_email(email)
+    user = authentication_datastore.get_user(email)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

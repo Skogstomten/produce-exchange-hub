@@ -5,10 +5,9 @@ from collections.abc import MutableMapping, Iterable
 from datetime import datetime
 from typing import Any
 
-from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
 from pymongo.client_session import ClientSession
-from pymongo.collection import Collection as MongoCollection
+from pymongo.collection import Collection as MongoCollection, ObjectId
 from pymongo.cursor import Cursor
 from pymongo.database import Database as MongoDatabase
 
@@ -19,27 +18,49 @@ from app.database.abstract.document_database import (
     DatabaseCollection,
     DocumentDatabaseUpdateContext,
 )
-from app.shared.dependencies.log import AppLogger
-from app.shared.errors import InvalidOperationError, NotFoundError
+from app.logging.log import AppLogger
+from app.shared.errors.errors import InvalidOperationError, NotFoundError
 from app.database.mongo.enum_utils import enums_to_string
 
 
 def _convert_str_id_to_object_id(data: dict) -> dict:
-    """Converts data dict id field to mongodb _id field."""
+    """
+    Converts data dict id field to mongodb _id field.
+
+    >>> _convert_str_id_to_object_id({"id": "62e00647e98e01ef28be554b"})
+    {'_id': ObjectId('62e00647e98e01ef28be554b')}
+
+    >>> _convert_str_id_to_object_id({"col": {"id": "62e00647e98e01ef28be554b"}})
+    {'col': {'_id': ObjectId('62e00647e98e01ef28be554b')}}
+    """
     data = data.copy()
-    if "id" in data:
-        temp_id = data["id"]
-        data["_id"] = ObjectId(temp_id)
-        del data["id"]
+    for key, value in data.copy().items():
+        if key == "id":
+            data["_id"] = ObjectId(value)
+            del data["id"]
+        elif isinstance(value, dict):
+            data[key] = _convert_str_id_to_object_id(value)
     return data
 
 
 def _convert_object_id_to_str_id(data: dict) -> dict:
+    """
+    >>> _convert_object_id_to_str_id({"_id": ObjectId("62e00647e98e01ef28be554b")})
+    {'id': '62e00647e98e01ef28be554b'}
+
+    >>> _convert_object_id_to_str_id({"field": {"_id": ObjectId("62e00647e98e01ef28be554b")}})
+    {'field': {'id': '62e00647e98e01ef28be554b'}}
+
+    :param data:
+    :return:
+    """
     data = data.copy()
-    if "_id" in data:
-        temp_obj_id = data["_id"]
-        data["id"] = str(temp_obj_id)
-        del data["_id"]
+    for key, value in data.copy().items():
+        if key == "_id":
+            data["id"] = str(value)
+            del data["_id"]
+        elif isinstance(value, dict):
+            data[key] = _convert_object_id_to_str_id(value)
     return data
 
 
@@ -428,3 +449,6 @@ class MongoDocumentDatabase(DocumentDatabase):
 
     def update_context(self) -> DocumentDatabaseUpdateContext:
         return MongoDBUpdateContext()
+
+    def new_id(self) -> str:
+        return str(ObjectId())

@@ -1,10 +1,8 @@
 """
 Routing module for companies endpoint.
 """
-from fastapi import APIRouter, Depends, Query, Body, Path, Security, File, UploadFile
+from fastapi import APIRouter, Depends, Query, Body, Path, Security, File, UploadFile, status, Request
 from fastapi.responses import PlainTextResponse, FileResponse
-from starlette import status
-from starlette.requests import Request
 
 from app.company.datastores.company_datastore import (
     CompanyDatastore,
@@ -15,29 +13,30 @@ from app.company.datastores.company_profile_picture_datastore import (
     CompanyProfilePictureDatastore,
 )
 from app.company.datastores.company_user_datastore import CompanyUserDatastore, get_company_user_datastore
+from app.company.models.shared.enums import SortOrder
+from app.shared.config.routing_config import BASE_PATH
 from app.shared.dependencies.essentials import Essentials, get_essentials
-from app.shared.dependencies.log import AppLoggerInjector, AppLogger
-from app.shared.dependencies.paging_information import (
+from app.logging.log import AppLoggerInjector, AppLogger
+from app.company.models.v1.paging_information import (
     PagingInformation,
     get_paging_information,
 )
 from app.authentication.dependencies.user import get_current_user, get_current_user_if_any
-from app.shared.errors import ErrorModel
-from app.company.models.v1.companies import (
+from app.shared.errors.errors import ErrorModel
+from app.company.models.v1.company_api_models import (
     CompanyOutModel,
     CompanyCreateModel,
     CompanyUpdateModel,
     CompanyOutListModel,
 )
 from app.shared.models.v1.paging_response_model import PagingResponseModel
-from app.user.models.db.user import User
-from app.shared.models.v1.shared import SortOrder
+from app.authentication.models.db.user import User
 from app.shared.utils.request_utils import get_url
 from app.shared.utils.url_utils import assemble_profile_picture_url
 
 logger_injector = AppLoggerInjector("companies_router")
 
-router = APIRouter(prefix="/v1/{lang}/companies", tags=["Companies"])
+router = APIRouter(prefix=BASE_PATH + "/companies", tags=["Companies"])
 
 
 @router.get("/", response_model=PagingResponseModel[CompanyOutListModel])
@@ -47,7 +46,7 @@ async def get_companies(
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),
     paging_information: PagingInformation = Depends(get_paging_information),
-    authenticated_user: User = Depends(get_current_user_if_any),
+    authenticated_user: User | None = Depends(get_current_user_if_any),
     logger: AppLogger = Depends(logger_injector),
 ) -> PagingResponseModel[CompanyOutListModel]:
     """Get list of companies wrapped in a paging response."""
@@ -111,10 +110,7 @@ async def update_company(
     company: CompanyUpdateModel = Body(...),
     authenticated_user: User = Security(
         get_current_user,
-        scopes=(
-            "roles:company_admin:{company_id}",
-            "roles:superuser",
-        ),
+        scopes=("roles:company_admin:{company_id}",),
     ),
     company_datastore: CompanyDatastore = Depends(get_company_datastore),
     essentials: Essentials = Depends(get_essentials),

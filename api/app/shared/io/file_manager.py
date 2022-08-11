@@ -4,8 +4,8 @@ from pathlib import Path
 
 from fastapi import Depends, UploadFile
 
-from app.shared.dependencies.log import AppLogger, AppLoggerInjector
-from app.shared.errors import NotFoundError
+from app.logging.log import AppLogger, AppLoggerInjector
+from app.shared.errors.errors import NotFoundError
 
 logger_injector = AppLoggerInjector("FileManager")
 

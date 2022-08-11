@@ -8,7 +8,7 @@ from fastapi.security import OAuth2PasswordRequestFormStrict
 from jose import jwt
 
 from app.authentication.models.v1.token import Token
-from app.user.models.db.user import User
+from app.authentication.models.db.user import User
 from app.authentication.dependencies.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     SECRET_KEY,
@@ -16,7 +16,7 @@ from app.authentication.dependencies.auth import (
 )
 from app.authentication.oauth2.scopes import Scopes
 from app.authentication.oauth2.claim import Claim
-from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
+from app.authentication.datastores.authentication_datastore import AuthenticationDatastore, get_authentication_datastore
 from app.shared.utils.string_values import StringValues
 
 router = APIRouter(prefix="/v1/token", tags=["Token"])
@@ -25,10 +25,10 @@ router = APIRouter(prefix="/v1/token", tags=["Token"])
 @router.post("/", response_model=Token)
 async def token(
     form_data: OAuth2PasswordRequestFormStrict = Depends(),
-    user_datastore: UserDatastore = Depends(get_user_datastore),
+    datastore: AuthenticationDatastore = Depends(get_authentication_datastore),
 ) -> Token:
     """Gets oauth2 access token."""
-    user = user_datastore.authenticate_user(form_data.username, form_data.password)
+    user = datastore.authenticate_user(form_data.username, form_data.password)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     scopes = Scopes(form_data.scopes)
     claims = get_user_claims(user, scopes)
@@ -61,13 +61,7 @@ def get_user_claims(user: User, scopes: Scopes) -> list[Claim]:
             ]
         )
     if scopes.has_scope("roles"):
-        roles = []
-        for role in user.roles:
-            value = role.role_name
-            if role.reference is not None:
-                value += f":{role.reference}"
-            roles.append(value)
-        claims.append(Claim("roles", StringValues(*roles)))
+        claims.append(Claim("roles", StringValues(*user.roles)))
     return claims
 
 

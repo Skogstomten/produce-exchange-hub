@@ -1,13 +1,13 @@
 from fastapi import UploadFile, Depends
 
 from app.database.abstract.document_database import DocumentDatabase
-from app.company.datastores.company_datastore import CompanyDatastore
 from app.database.dependencies.document_database import get_document_database
-from app.shared.dependencies.log import AppLogger, AppLoggerInjector
-from app.shared.io.file_manager import FileManager, get_file_manager
-from app.user.models.v1.users import User
-from app.shared.models.db.change import Change, ChangeType
+from app.company.datastores.company_datastore import CompanyDatastore
 from app.company.models.db.company import CompanyDatabaseModel
+from app.logging.log import AppLogger, AppLoggerInjector
+from app.shared.io.file_manager import FileManager, get_file_manager
+from app.shared.models.db.change import Change, ChangeType
+from app.authentication.models.db.user import User
 
 logger_injector = AppLoggerInjector("CompanyProfilePictureDatastore")
 
@@ -33,7 +33,8 @@ class CompanyProfilePictureDatastore(CompanyDatastore):
         update_context = self.db.update_context()
         update_context.set_values({"profile_picture_url": file_url})
         update_context.push_to_list(
-            "changes", Change.create("profile_picture_url", ChangeType.update, user.email, file_url).dict()
+            "changes",
+            Change.create(self.db.new_id(), "profile_picture_url", ChangeType.update, user.email, file_url).dict(),
         )
         self._companies.update_document(
             company_id,

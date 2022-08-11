@@ -1,8 +1,7 @@
 """
 Routing module for company contacts.
 """
-from fastapi import APIRouter, Path, Body, Depends, Security
-from starlette import status
+from fastapi import APIRouter, Path, Body, Depends, Security, status
 
 from app.company.datastores.company_datastore import (
     CompanyDatastore,
@@ -11,11 +10,11 @@ from app.company.datastores.company_datastore import (
 from app.shared.dependencies.essentials import Essentials, get_essentials
 from app.authentication.dependencies.user import get_current_user
 from app.company.models.v1.contacts import (
-    CreateContactModel,
+    AddContactModel,
     ContactOutModel,
     UpdateContactModel,
 )
-from app.user.models.db.user import User
+from app.authentication.models.db.user import User
 
 router = APIRouter(
     prefix="/v1/{lang}/companies/{company_id}/contacts",
@@ -31,13 +30,13 @@ router = APIRouter(
 )
 async def add_contact(
     company_id: str = Path(...),
-    model: CreateContactModel = Body(...),
+    model: AddContactModel = Body(...),
     companies: CompanyDatastore = Depends(get_company_datastore),
-    user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    authenticated_user: User = Security(get_current_user, scopes=("roles:company_admin:{company_id}",)),
     essentials: Essentials = Depends(get_essentials),
 ) -> ContactOutModel:
     """Add a contact to a company."""
-    contact = companies.add_contact(company_id, model.to_database_model(user))
+    contact = companies.add_contact(company_id, model, authenticated_user)
     return ContactOutModel.from_database_model(contact, essentials.request, essentials.timezone)
 
 
@@ -58,7 +57,7 @@ async def update_contact(
     essentials: Essentials = Depends(get_essentials),
 ):
     """Update contact on company."""
-    contact = company_datastore.update_contact(company_id, contact.to_database_model(contact_id), user)
+    contact = company_datastore.update_contact(company_id, contact_id, contact, user)
     return ContactOutModel.from_database_model(contact, essentials.request, essentials.timezone)
 
 

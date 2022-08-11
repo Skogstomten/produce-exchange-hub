@@ -4,7 +4,7 @@ Utility functions related to language handling.
 from app.shared.models.v1.shared import Language
 
 
-def select_localized_text(data: dict[str | Language, str], lang: Language, company_languages: list[str]) -> str:
+def select_localized_text(data: dict[str | Language, str], lang: Language, company_languages: list[Language]) -> str:
     """
     Selects localized text from dict for given language or first available
     of company's languages if the requested
@@ -14,11 +14,11 @@ def select_localized_text(data: dict[str | Language, str], lang: Language, compa
     ''
 
     >>> d: dict[str, str] = {"SV": "This is wrong", "EN": "This is right"}
-    >>> select_localized_text(d, Language.EN, ["NB"])
+    >>> select_localized_text(d, Language.EN, [Language.EN])
     'This is right'
 
     >>> d: dict[str, str] = {"EN": "I want this"}
-    >>> select_localized_text(d, Language.SV, ["NB", "SV", "EN"])
+    >>> select_localized_text(d, Language.SV, [Language.SV, Language.EN])
     'I want this'
 
     >>> d: dict[Language, str] = {Language.EN: "This is it"}
@@ -34,7 +34,7 @@ def select_localized_text(data: dict[str | Language, str], lang: Language, compa
     value = data.get(lang.value, None) or data.get(lang, None)
     if value is None:
         for company_lang in company_languages:
-            value = data.get(company_lang)
+            value = data.get(company_lang.value, None)
             if value is not None:
                 break
     return value or ""

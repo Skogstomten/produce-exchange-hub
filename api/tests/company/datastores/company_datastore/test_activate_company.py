@@ -1,9 +1,9 @@
 from unittest.mock import Mock, ANY
 
+from app.company.datastores.company_datastore import CompanyDatastore
+from app.company.models.shared.enums import CompanyStatus
 from app.database.abstract.document_database import DocumentDatabaseUpdateContext
 from app.database.mongo.mongo_document_database import MongoDocument
-from app.company.datastores.company_datastore import CompanyDatastore
-from app.shared.models.v1.shared import CompanyStatus
 
 
 def test_activate_company(
@@ -13,6 +13,7 @@ def test_activate_company(
     fake_company_data,
     authenticated_user_default,
     file_manager,
+    doc_id,
 ):
     db, collection = doc_database_collection_mocks
     company_id, company_doc = fake_company_data

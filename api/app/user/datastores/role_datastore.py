@@ -5,7 +5,8 @@ from fastapi import Depends
 
 from app.database.abstract.document_database import DocumentDatabase, DatabaseCollection
 from app.database.dependencies.document_database import get_document_database
-from app.shared.errors import NotFoundError, DuplicateError
+from app.shared.errors.errors import NotFoundError
+from app.user.errors.duplicate_error import DuplicateError
 from app.user.models.v1.roles import NewRoleModel
 from app.shared.models.db.change import Change, ChangeType
 from app.user.models.db.role import RoleDatabaseModel
@@ -69,7 +70,7 @@ class RoleDatastore:
         if collection.exists({"name": model.name}):
             raise DuplicateError(f"Role with name '{model.name}' already exists")
         data = model.dict()
-        data.update({"changes": [Change.create("init", ChangeType.add, user.email, data)]})
+        data.update({"changes": [Change.create(self.db.new_id(), "init", ChangeType.add, user.email, data)]})
         doc = collection.add(model.dict())
         return RoleDatabaseModel(id=doc.id, **doc.to_dict())
 

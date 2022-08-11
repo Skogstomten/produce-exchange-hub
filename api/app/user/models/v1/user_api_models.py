@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from app.shared.utils.request_utils import get_current_request_url_with_additions
 from app.shared.models.v1.base_out_model import BaseOutModel
 from app.user.models.db.user import User as UserDatabaseModel
-from app.shared.models.v1.shared import RoleType
+from app.shared.models.v1.shared import RoleType, CountryCode, Language
 
 
 class UserRoleOutModel(BaseModel):
@@ -29,9 +29,9 @@ class User(BaseModel):
     firstname: str
     lastname: str
     city: str
-    country_iso: str
+    country_iso: CountryCode
     timezone: str = Field("Europe/Stockholm")
-    language_iso: str = Field("sv")
+    language_iso: Language = Field(Language.SV)
     verified: bool = Field(True)
 
 
@@ -48,7 +48,7 @@ class UserOutModel(User, BaseOutModel):
     id: str
     created: datetime
     last_logged_in: datetime | None = Field(None)
-    roles: list[UserRoleOutModel]
+    roles: list[UserRoleOutModel] = Field([])
     profile_picture_url: str | None
 
     @classmethod

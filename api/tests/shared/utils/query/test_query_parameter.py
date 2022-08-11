@@ -1,4 +1,4 @@
-from app.shared.utils.query.query_parameter import QueryParameter
+from app.shared.utils.query_parameter import QueryParameter
 from app.shared.utils.string_values import StringValues
 
 

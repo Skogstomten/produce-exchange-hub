@@ -1,12 +1,13 @@
 from fastapi import Depends
 
+from app.company.errors.invalid_input_error import InvalidInputError
 from app.database.abstract.document_database import DocumentDatabase
 from app.company.datastores.company_datastore import CompanyDatastore
 from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.database.dependencies.document_database import get_document_database
-from app.shared.dependencies.log import AppLogger, AppLoggerInjector
-from app.shared.errors import NotFoundError, InvalidInputError
-from app.user.models.v1.users import User
+from app.logging.log import AppLogger, AppLoggerInjector
+from app.shared.errors.errors import NotFoundError
+from app.user.models.v1.user_api_models import User
 from app.shared.models.db.change import Change, ChangeType
 from app.shared.models.v1.shared import RoleType
 
@@ -44,7 +45,11 @@ class CompanyUserDatastore(CompanyDatastore):
             company_id,
             "changes",
             Change.create(
-                f"company.users.{user_id}", ChangeType.add, authenticated_user.email, f"{user_id}:{role_name}"
+                self.db.new_id(),
+                f"company.users.{user_id}",
+                ChangeType.add,
+                authenticated_user.email,
+                f"{role_name}:{user_id}",
             ).dict(),
         )
         return self._user_datastore.get_company_users(company_id)

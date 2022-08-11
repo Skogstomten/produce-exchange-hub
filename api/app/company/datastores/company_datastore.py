@@ -4,10 +4,15 @@ For accessing and manipulating company related data.
 """
 from datetime import datetime
 
-from bson import ObjectId
 from fastapi import Depends
 from pytz import utc
 
+from app.authentication.models.db.user import User, get_ref
+from app.company.models.db.company import CompanyDatabaseModel
+from app.company.models.db.contact import Contact
+from app.company.models.shared.enums import CompanyStatus, SortOrder
+from app.company.models.v1.company_api_models import CompanyCreateModel, CompanyUpdateModel
+from app.company.models.v1.contacts import AddContactModel, UpdateContactModel
 from app.database.abstract.document_database import (
     DocumentDatabase,
     DatabaseCollection,
@@ -16,14 +21,9 @@ from app.database.abstract.document_database import (
     Document,
 )
 from app.database.dependencies.document_database import get_document_database
-from app.user.models.db.user import User
-from app.shared.models.v1.shared import SortOrder, CompanyStatus
-from app.shared.dependencies.log import AppLoggerInjector, AppLogger
-from app.shared.errors import NotFoundError
-from app.company.models.v1.companies import CompanyCreateModel, CompanyUpdateModel
+from app.logging.log import AppLoggerInjector, AppLogger
+from app.shared.errors.errors import NotFoundError
 from app.shared.models.db.change import Change, ChangeType
-from app.company.models.db.company import CompanyDatabaseModel
-from app.company.models.db.contact import ContactDatabaseModel
 
 logger_injector = AppLoggerInjector("company_datastore")
 
@@ -89,7 +89,7 @@ class CompanyDatastore(BaseDatastore):
                         {
                             "$or": [
                                 {"status": CompanyStatus.active},
-                                *[{"_id": ObjectId(role.reference)} for role in company_admins],
+                                *[{"id": get_ref(role)} for role in company_admins],
                             ]
                         }
                     )
@@ -124,7 +124,7 @@ class CompanyDatastore(BaseDatastore):
         if company.status != CompanyStatus.active:
             if user.is_superuser():
                 return company
-            if user.get_role("company_admin").reference == company_id:
+            if user.has_role("company_admin", company_id):
                 return company
         else:
             return company
@@ -150,7 +150,7 @@ class CompanyDatastore(BaseDatastore):
                 "activation_date": None,
                 "description": {},
                 "contacts": [],
-                "changes": [Change.create("init", ChangeType.add, user.email, data)],
+                "changes": [Change.create(self.db.new_id(), "init", ChangeType.add, user.email, data).dict()],
             }
         )
         doc = self._companies.add(data)
@@ -177,7 +177,9 @@ class CompanyDatastore(BaseDatastore):
             current_value = company.__dict__.get(key)
             if current_value != value:
                 company.__dict__[key] = value
-                company.changes.append(Change.create(key, ChangeType.update, authenticated_user.email, value))
+                company.changes.append(
+                    Change.create(self.db.new_id(), key, ChangeType.update, authenticated_user.email, value)
+                )
 
         company_doc = company_doc.replace(company.dict())
         return CompanyDatabaseModel(**company_doc)
@@ -186,7 +188,9 @@ class CompanyDatastore(BaseDatastore):
     def update_company_names(self, company_id: str, names: dict[str, str], user: User) -> CompanyDatabaseModel:
         update_context = self.db.update_context()
         update_context.set_values({"name": names})
-        update_context.push_to_list("changes", Change.create("name", ChangeType.update, user.email, names).dict())
+        update_context.push_to_list(
+            "changes", Change.create(self.db.new_id(), "name", ChangeType.update, user.email, names).dict()
+        )
         self._companies.update_document(
             company_id,
             update_context,
@@ -199,7 +203,7 @@ class CompanyDatastore(BaseDatastore):
         update_context = self.db.update_context()
         update_context.set_values({"description": descriptions})
         update_context.push_to_list(
-            "changes", Change.create("description", ChangeType.update, user.email, descriptions).dict()
+            "changes", Change.create(self.db.new_id(), "description", ChangeType.update, user.email, descriptions).dict()
         )
         self._companies.update_document(company_id, update_context)
         return self.get_company(company_id, user)
@@ -207,28 +211,33 @@ class CompanyDatastore(BaseDatastore):
     def add_contact(
         self,
         company_id: str,
-        model: ContactDatabaseModel,
-    ) -> ContactDatabaseModel:
+        model: AddContactModel,
+        authenticated_user: User,
+    ) -> Contact:
         """
         Add a new contact to the company.
 
+        :param authenticated_user:
         :param company_id: The id of the company to add the contact to.
         :param model: The contact model.
 
         :return: The added contact. ContactDatabaseModel.
         """
-        self._companies.push_to_list(company_id, "contacts", model.dict())
-        return model
+        contact = Contact.from_create_contract_model(self.db.new_id(), model.dict(), authenticated_user)
+        self._companies.push_to_list(company_id, "contacts", contact.dict())
+        return contact
 
     @transaction
     def update_contact(
         self,
         company_id: str,
-        model: ContactDatabaseModel,
+        contact_id: str,
+        model: UpdateContactModel,
         authenticated_user: User,
-    ) -> ContactDatabaseModel:
+    ) -> Contact:
         """
         Updates contact on company.
+        :param contact_id:
         :param company_id: ID of company to update contact on.
         :param model: Database model object with updated contact data.
         :param authenticated_user: User object for authenticated user. For change logging.
@@ -236,9 +245,9 @@ class CompanyDatastore(BaseDatastore):
         """
         company_doc = self._get_company_doc(company_id)
         company = CompanyDatabaseModel(**company_doc)
-        contact = next((c for c in company.contacts if c.id == model.id), None)
+        contact = next((c for c in company.contacts if c.id == contact_id), None)
         if contact is None:
-            raise NotFoundError(f"Contact with id '{model.id}' not found on company '{company_id}'.")
+            raise NotFoundError(f"Contact with id '{contact_id}' not found on company '{company_id}'.")
 
         contact.type = model.type
         contact.value = model.value
@@ -246,7 +255,9 @@ class CompanyDatastore(BaseDatastore):
         contact.changed_by = authenticated_user.email
         contact.changed_at = datetime.now(utc)
 
-        change = Change.create(f"contacts.{contact.id}", ChangeType.update, authenticated_user.email, contact.dict())
+        change = Change.create(
+            self.db.new_id(), f"contacts.{contact.id}", ChangeType.update, authenticated_user.email, contact.dict()
+        )
         company.changes.append(change)
 
         company_doc.replace(company.dict())
@@ -271,12 +282,7 @@ class CompanyDatastore(BaseDatastore):
             raise NotFoundError(f"No contact with id '{contact_id}' was found.")
 
         company.changes.append(
-            Change.create(
-                f"company.contacts.{contact_id}",
-                ChangeType.delete,
-                user.email,
-                None,
-            )
+            Change.create(self.db.new_id(), f"company.contacts.{contact_id}", ChangeType.delete, user.email, None)
         )
         company.contacts.remove(contact)
         company_doc.replace(company.dict())
@@ -299,7 +305,7 @@ class CompanyDatastore(BaseDatastore):
         update_context = self.db.update_context()
         update_context.set_values({"status": status})
         update_context.push_to_list(
-            "changes", Change.create("status", ChangeType.update, authenticated_user.email, status)
+            "changes", Change.create(self.db.new_id(), "status", ChangeType.update, authenticated_user.email, status)
         )
         self._companies.update_document(company_id, update_context)
         return self.get_company(company_id, authenticated_user)

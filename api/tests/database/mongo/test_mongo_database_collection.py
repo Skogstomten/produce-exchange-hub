@@ -5,10 +5,10 @@ from bson import ObjectId
 from pymongo.collection import Collection
 from pymongo.results import UpdateResult
 
+from app.company.models.shared.enums import CompanyStatus
 from app.database.abstract.document_database import DatabaseCollection
 from app.database.mongo.mongo_document_database import MongoDatabaseCollection
-from app.shared.errors import NotFoundError
-from app.shared.models.v1.shared import CompanyStatus
+from app.shared.errors.errors import NotFoundError
 
 
 @pytest.fixture

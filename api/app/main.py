@@ -1,15 +1,15 @@
 """Main file for application."""
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from starlette.requests import Request
 
-from app.shared.dependencies.log import AppLogger
-from app.shared.errors import ErrorModel
+from app.logging.log import AppLogger
+from app.shared.errors.errors import ErrorModel
 from .authentication.routes.v1 import token
 from .user.routes.v1 import users, user_roles, roles
-from .shared.routes.v1 import products, timezones
+from .shared.routes.v1 import timezones
+from .knowlege.routes import products_router
 from .company.routes.v1 import companies, company_addresses, company_users, company_contacts
 from app.shared.utils.request_utils import get_url
 
@@ -31,7 +31,7 @@ app.include_router(roles.router)
 app.include_router(user_roles.router)
 app.include_router(company_users.router)
 app.include_router(company_addresses.router)
-app.include_router(products.router)
+app.include_router(products_router.router)
 
 origins = [
     "*",

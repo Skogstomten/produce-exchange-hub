@@ -5,8 +5,9 @@ import pytest
 from bson import ObjectId
 from pytz import utc
 
-from app.user.models.db.user import User, UserRoleDatabaseModel
-from app.shared.models.v1.shared import RoleType
+from app.user.models.db.user import User, UserRole
+from app.authentication.models.db.user import User as AuthenticatedUser
+from app.shared.models.v1.shared import RoleType, Language, CountryCode
 
 
 def get_user(
@@ -15,9 +16,9 @@ def get_user(
     firstname: str = "Nisse",
     lastname: str = "Persson",
     city: str = "Visby",
-    country_iso: str = "SE",
+    country_iso: CountryCode = CountryCode.SE,
     timezone: str = "Europe/Stockholm",
-    language_iso: str = "sv",
+    language_iso: Language = Language.SV,
     verified: bool = True,
     password_hash: str = "uZEDYB40NDvgMqNF83W-gfxpEmpUWSfVEzhLZErIVsi4pTAJVLArCuvOZ__VLLZNxAl_SApFFjfQ2byTpy9Khkg2NFhYc"
     "UV6eFJ0c1htUHJ0TU9pczRPOGEzZFk3U09nU2tiVENHa2luRTN1cy1BOHQ4SmJxNVNvMGxxbXNmNmpab19LWDVhVUFCU0"
@@ -54,8 +55,8 @@ def get_role(
     role_name: str = "company_admin",
     role_type: RoleType = RoleType.company_role,
     reference: str | None = None,
-) -> UserRoleDatabaseModel:
-    return UserRoleDatabaseModel(
+) -> UserRole:
+    return UserRole(
         id=user_role_id,
         role_id=role_id,
         role_name=role_name,
@@ -77,15 +78,11 @@ def company_admin_role():
 @pytest.fixture
 def authenticated_user_default(doc_id):
     """Creates a default authenticated user object of UserDatabaseModel."""
-    return User(
+    return AuthenticatedUser(
         id=doc_id,
         email="nisse@perssons.se",
         firstname="Nisse",
         lastname="Persson",
-        city="Visby",
-        country_iso="SE",
-        timezone="Europe/Stockholm",
-        language_iso="SV",
         verified=True,
         password_hash="uZEDYB40NDvgMqNF83W-gfxpEmpUWSfVEzhLZErIVsi4pTAJVLArCuvOZ__VLLZNxAl_SApFFjfQ2byTpy9Khkg2NFhYc"
         "UV6eFJ0c1htUHJ0TU9pczRPOGEzZFk3U09nU2tiVENHa2luRTN1cy1BOHQ4SmJxNVNvMGxxbXNmNmpab19LWDVhVUFCU0"
@@ -93,7 +90,5 @@ def authenticated_user_default(doc_id):
         "GWWhHbXpuMVJtZU45ZnZTVnpIQXJkeFJmcWpUZTdsVXRMNTFCUmFpZUc2Z1o5M201UnhOUDJaSmNtSVR3QXJJWHNrT2lx"
         "ZFFyOWdzbWZrbmlNTHVJLWV4Mm9ONlJQTzVVN2twQTh1aE5wNDNwUnQ2MFlUb0tDTkFjdFFMMmhBcGxiZTFpTEVSeFpxa"
         "FhXRWw1eFZaVHd5WFVpWlB2X0RlWUlmSVVhZFRVX2tLV2l5N05HU1UwYm9uRGJDVXVfVXlBV0ZZdz09",
-        created=datetime.now(utc),
-        last_logged_in=datetime.now(utc),
         roles=[],
     )
