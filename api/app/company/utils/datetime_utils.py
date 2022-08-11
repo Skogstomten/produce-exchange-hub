@@ -1,7 +1,7 @@
 """
 Has utility functions for working with datetime objects.
 """
-from pytz import timezone, utc, all_timezones_set
+from pytz import timezone, all_timezones_set
 from datetime import datetime, tzinfo
 
 
@@ -12,10 +12,12 @@ def to_timezone(dt: datetime | None, tz: str | tzinfo) -> datetime | None:
     ****************
     Examples:
 
+    >>> from pytz import utc
     >>> d = to_timezone(datetime.now(), utc)
     >>> d.tzinfo
     <UTC>
 
+    >>> from pytz import utc
     >>> d = to_timezone(datetime.now(utc), "Europe/Stockholm")
     >>> d.tzinfo
     <DstTzInfo 'Europe/Stockholm' CEST+2:00:00 DST>
