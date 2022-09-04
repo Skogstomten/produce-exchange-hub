@@ -3,7 +3,7 @@ from fastapi import UploadFile, Depends
 from app.database.abstract.document_database import DocumentDatabase
 from app.database.dependencies.document_database import get_document_database
 from app.company.datastores.company_datastore import CompanyDatastore
-from app.company.models.db.company import CompanyDatabaseModel
+from app.company.models.db.company import Company
 from app.logging.log import AppLogger, AppLoggerInjector
 from app.shared.io.file_manager import FileManager, get_file_manager
 from app.shared.models.db.change import Change, ChangeType
@@ -28,7 +28,7 @@ class CompanyProfilePictureDatastore(CompanyDatastore):
         :return: URL for new file.
         :raise NotFoundError: If company was not found.
         """
-        company = CompanyDatabaseModel(**self._get_company_doc(company_id))
+        company = Company(**self._get_company_doc(company_id))
         file_url = await self._file_manager.save_company_profile_picture(company.id, file)
         update_context = self.db.update_context()
         update_context.set_values({"profile_picture_url": file_url})

@@ -10,7 +10,7 @@ from .authentication.routes.v1 import token
 from .user.routes.v1 import users, user_roles, roles
 from .shared.routes.v1 import timezones
 from .knowlege.routes import products_router
-from .company.routes.v1 import companies, company_addresses, company_users, company_contacts
+from .company.routes.v1 import companies, company_addresses, company_users, company_contacts, company_orders
 from app.shared.utils.request_utils import get_url
 
 logger = AppLogger("main")
@@ -25,13 +25,14 @@ app = FastAPI(
 app.include_router(users.router)
 app.include_router(token.router)
 app.include_router(companies.router)
-app.include_router(timezones.router)
 app.include_router(company_contacts.router)
-app.include_router(roles.router)
-app.include_router(user_roles.router)
 app.include_router(company_users.router)
 app.include_router(company_addresses.router)
+app.include_router(timezones.router)
+app.include_router(roles.router)
+app.include_router(user_roles.router)
 app.include_router(products_router.router)
+app.include_router(company_orders.router)
 
 origins = [
     "*",

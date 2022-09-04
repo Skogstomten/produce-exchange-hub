@@ -16,6 +16,11 @@ class ProductDatastore(BaseDatastore):
     def _products(self) -> DatabaseCollection:
         return self.db.collection("products")
 
+    def get_product(self, product_id: str) -> Product:
+        """Get product by id"""
+        product_doc = self._products.by_id(product_id)
+        return Product(**product_doc)
+
     def get_products(self, language: Language, name_search: str) -> list[Product]:
         """
         Get products according to filter.
