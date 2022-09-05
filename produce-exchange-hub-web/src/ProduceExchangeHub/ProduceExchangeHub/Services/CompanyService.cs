@@ -22,7 +22,7 @@ public class CompanyService : ICompanyService
     )
     {
         string GetSortOrder() => sortOrder == SortOrder.Ascending ? "asc" : "desc";
-        string url = $"sv/companies/?skip={skip}&take={take}&sort_order={GetSortOrder()}&sort_by={sortBy}";
+        string url = $"SV/companies/?skip={skip}&take={take}&sort_order={GetSortOrder()}&sort_by={sortBy}";
         HttpResponseMessage response = await _httpClient.GetAsync(url);
         if (response.IsSuccessStatusCode)
         {
