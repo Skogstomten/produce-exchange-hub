@@ -34,20 +34,20 @@ async def register(
 
 @router.get("/", response_model=PagingResponseModel[UserOutModel])
 async def get_users(
-    request: Request,
     user_datastore: UserDatastore = Depends(get_user_datastore),
     take: int = Query(20),
     skip: int = Query(0),
-    user: User = Security(get_current_user, scopes=("roles:superuser",)),
+    authenticated_user: User = Security(get_current_user, scopes=("roles:superuser",)),
     logger: AppLogger = Depends(logger_injector),
+    essentials: Essentials = Depends(get_essentials),
 ) -> PagingResponseModel[UserOutModel]:
     """Get list of users wrapped in a paging response object."""
-    logger.debug(f"Incoming={get_url(request)}: take={take}, skip={skip}, user={user}")
+    logger.debug(f"Incoming={get_url(essentials.request)}: take={take}, skip={skip}, user={authenticated_user}")
     all_users = user_datastore.get_users(take, skip)
     items: list[UserOutModel] = []
     for usr in all_users:
-        items.append(UserOutModel.from_database_model(usr, request))
-    return PagingResponseModel[UserOutModel].create(items, skip, take, request)
+        items.append(UserOutModel.from_database_model(usr, essentials.request))
+    return PagingResponseModel[UserOutModel].create(items, skip, take, essentials.request)
 
 
 @router.get("/{user_id}", response_model=UserOutModel)
