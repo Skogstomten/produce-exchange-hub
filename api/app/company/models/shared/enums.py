@@ -25,13 +25,6 @@ class Currency(Enum):
 
 
 @unique
-class IntervalType(Enum):
-    day = "day"
-    week = "week"
-    month = "month"
-
-
-@unique
 class SortOrder(Enum):
     """Sort order."""
 

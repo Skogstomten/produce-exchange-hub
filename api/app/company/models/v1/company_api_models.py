@@ -5,7 +5,7 @@ from fastapi import Request, APIRouter
 from pydantic import BaseModel, Field
 
 from app.authentication.models.db.user import User
-from app.company.models.db.company import CompanyDatabaseModel
+from app.company.models.db.company import Company
 from app.company.models.shared.enums import CompanyStatus, CompanyTypes
 from app.company.models.v1.contacts import ContactListModel
 from app.company.utils.datetime_utils import to_timezone
@@ -19,7 +19,7 @@ from app.shared.utils.url_utils import assemble_profile_picture_url
 
 def _initialize_company_model(
     cls,
-    model: CompanyDatabaseModel,
+    model: Company,
     lang: Language,
     tz: str | tzinfo,
     request: Request,
@@ -69,7 +69,7 @@ class CompanyOutListModel(BaseOutModel):
     @classmethod
     def from_database_model(
         cls,
-        model: CompanyDatabaseModel,
+        model: Company,
         lang: Language,
         tz: str | tzinfo,
         request: Request,
@@ -91,7 +91,7 @@ class CompanyOutModel(CompanyOutListModel):
     @classmethod
     def from_database_model(
         cls,
-        model: CompanyDatabaseModel,
+        model: Company,
         lang: Language,
         tz: str | tzinfo,
         request: Request,

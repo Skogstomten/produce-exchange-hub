@@ -7,10 +7,11 @@ from app.shared.models.db.change import Change
 from app.shared.models.v1.shared import Language
 from .address import Address
 from .contact import Contact
+from .order import Order
 from ..shared.enums import CompanyStatus, CompanyTypes
 
 
-class CompanyDatabaseModel(BaseModel):
+class Company(BaseModel):
     """DB model for companies."""
 
     id: str
@@ -26,6 +27,7 @@ class CompanyDatabaseModel(BaseModel):
     contacts: list[Contact] | None = Field([])
     changes: list[Change] = Field([])
     addresses: list[Address] = Field([])
+    orders: list[Order] = Field([])
 
     @classmethod
     def brief(cls):

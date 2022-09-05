@@ -8,7 +8,7 @@ from fastapi import Depends
 from pytz import utc
 
 from app.authentication.models.db.user import User, get_ref
-from app.company.models.db.company import CompanyDatabaseModel
+from app.company.models.db.company import Company
 from app.company.models.db.contact import Contact
 from app.company.models.shared.enums import CompanyStatus, SortOrder
 from app.company.models.v1.company_api_models import CompanyCreateModel, CompanyUpdateModel
@@ -24,6 +24,7 @@ from app.database.dependencies.document_database import get_document_database
 from app.logging.log import AppLoggerInjector, AppLogger
 from app.shared.errors.errors import NotFoundError
 from app.shared.models.db.change import Change, ChangeType
+from app.shared.models.v1.shared import Language
 
 logger_injector = AppLoggerInjector("company_datastore")
 
@@ -61,7 +62,7 @@ class CompanyDatastore(BaseDatastore):
         sort_by: str | None = None,
         sort_order: SortOrder | None = None,
         authenticated_user: User | None = None,
-    ) -> list[CompanyDatabaseModel]:
+    ) -> list[Company]:
         """
         Gets a list of companies.
         :param skip: number of companies to skip, for paging.
@@ -95,7 +96,7 @@ class CompanyDatastore(BaseDatastore):
                     )
 
         self._logger.debug(f"Querying companies: filters={filters}")
-        docs = self._companies.get(filters, CompanyDatabaseModel.brief())
+        docs = self._companies.get(filters, Company.brief())
         if skip:
             docs = docs.skip(skip)
         if take:
@@ -106,13 +107,13 @@ class CompanyDatastore(BaseDatastore):
 
         result = []
         for doc in docs.to_list():
-            result.append(CompanyDatabaseModel(**doc))
+            result.append(Company(**doc))
 
         self._logger.debug(f"Result from get_companies={result}")
 
         return result
 
-    def get_company(self, company_id: str, user: User | None) -> CompanyDatabaseModel:
+    def get_company(self, company_id: str, user: User | None) -> Company:
         """
         Get a single company.
         :param company_id: ID of the company to get.
@@ -120,7 +121,7 @@ class CompanyDatastore(BaseDatastore):
         :return: Company database model object.
         """
         company_doc = self._get_company_doc(company_id)
-        company = CompanyDatabaseModel(**company_doc)
+        company = Company(**company_doc)
         if company.status != CompanyStatus.active:
             if user.is_superuser():
                 return company
@@ -134,7 +135,7 @@ class CompanyDatastore(BaseDatastore):
         self,
         company: CompanyCreateModel,
         user: User,
-    ) -> CompanyDatabaseModel:
+    ) -> Company:
         """
         Add a new company to collection.
         Also adds the authenticated user as admin for the company.
@@ -154,14 +155,14 @@ class CompanyDatastore(BaseDatastore):
             }
         )
         doc = self._companies.add(data)
-        return CompanyDatabaseModel(**doc)
+        return Company(**doc)
 
     def update_company(
         self,
         company_id: str,
         model: CompanyUpdateModel,
         authenticated_user: User,
-    ) -> CompanyDatabaseModel:
+    ) -> Company:
         """
         Updates a company with given model.
         :raise NotFoundError: If company with id is not found.
@@ -172,7 +173,7 @@ class CompanyDatastore(BaseDatastore):
         """
         company_doc = self._get_company_doc(company_id)
 
-        company = CompanyDatabaseModel(**company_doc)
+        company = Company(**company_doc)
         for key, value in model.__dict__.items():
             current_value = company.__dict__.get(key)
             if current_value != value:
@@ -182,10 +183,10 @@ class CompanyDatastore(BaseDatastore):
                 )
 
         company_doc = company_doc.replace(company.dict())
-        return CompanyDatabaseModel(**company_doc)
+        return Company(**company_doc)
 
     @transaction
-    def update_company_names(self, company_id: str, names: dict[str, str], user: User) -> CompanyDatabaseModel:
+    def update_company_names(self, company_id: str, names: dict[str, str], user: User) -> Company:
         update_context = self.db.update_context()
         update_context.set_values({"name": names})
         update_context.push_to_list(
@@ -197,9 +198,7 @@ class CompanyDatastore(BaseDatastore):
         )
         return self.get_company(company_id, user)
 
-    def update_company_descriptions(
-        self, company_id: str, descriptions: dict[str, str], user: User
-    ) -> CompanyDatabaseModel:
+    def update_company_descriptions(self, company_id: str, descriptions: dict[str, str], user: User) -> Company:
         update_context = self.db.update_context()
         update_context.set_values({"description": descriptions})
         update_context.push_to_list(
@@ -244,7 +243,7 @@ class CompanyDatastore(BaseDatastore):
         :return: Updated contact model.
         """
         company_doc = self._get_company_doc(company_id)
-        company = CompanyDatabaseModel(**company_doc)
+        company = Company(**company_doc)
         contact = next((c for c in company.contacts if c.id == contact_id), None)
         if contact is None:
             raise NotFoundError(f"Contact with id '{contact_id}' not found on company '{company_id}'.")
@@ -276,7 +275,7 @@ class CompanyDatastore(BaseDatastore):
         :raises app.errors.NotFoundError: if company or contact does not exist.
         """
         company_doc = self._get_company_doc(company_id)
-        company = CompanyDatabaseModel(**company_doc)
+        company = Company(**company_doc)
         contact = next((c for c in company.contacts if c.id == contact_id), None)
         if contact is None:
             raise NotFoundError(f"No contact with id '{contact_id}' was found.")
@@ -287,21 +286,34 @@ class CompanyDatastore(BaseDatastore):
         company.contacts.remove(contact)
         company_doc.replace(company.dict())
 
-    def activate_company(self, company_id: str, authenticated_user: User) -> CompanyDatabaseModel:
+    def activate_company(self, company_id: str, authenticated_user: User) -> Company:
         """Updates a companys status to active."""
         return self._change_status(company_id, authenticated_user, CompanyStatus.active)
 
-    def deactivate_company(self, company_id: str, authenticated_user: User) -> CompanyDatabaseModel:
+    def deactivate_company(self, company_id: str, authenticated_user: User) -> Company:
         """Updates company status to 'deactivated'."""
         return self._change_status(company_id, authenticated_user, CompanyStatus.deactivated)
 
-    def _get_company_doc(self, company_id: str) -> Document:
-        company_doc = self._companies.by_id(company_id)
+    def get_company_languages(self, company_id: str) -> list[Language]:
+        """Get the list of languages configured that a company wants to support."""
+        company_doc = self._get_company_doc(company_id)
+        languages = company_doc.to_dict().get("content_languages_iso")
+        return languages
+
+    def _get_company_doc(self, company_id: str, fields: list[str] | None = None) -> Document:
+        """
+        Get the document of the company with given ID.
+        :raise NotFoundError: If there is no company with given ID found.
+        :param company_id: ID of company.
+        :param fields: The fields that are wished to be returned.
+        :return: Document of type 'app.database.abstract.document_database.Document'
+        """
+        company_doc = self._companies.by_id(company_id, fields)
         if company_doc is None:
             raise NotFoundError(f"Company with id '{company_id}' not found")
         return company_doc
 
-    def _change_status(self, company_id: str, authenticated_user: User, status: CompanyStatus) -> CompanyDatabaseModel:
+    def _change_status(self, company_id: str, authenticated_user: User, status: CompanyStatus) -> Company:
         update_context = self.db.update_context()
         update_context.set_values({"status": status})
         update_context.push_to_list(
