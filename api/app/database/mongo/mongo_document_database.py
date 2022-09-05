@@ -23,7 +23,7 @@ from app.shared.errors.errors import InvalidOperationError, NotFoundError
 from app.database.mongo.enum_utils import enums_to_string
 
 
-def _convert_str_id_to_object_id(data: dict) -> dict:
+def _convert_str_id_to_object_id(data: Any) -> dict:
     """
     Converts data dict id field to mongodb _id field.
 
@@ -32,14 +32,21 @@ def _convert_str_id_to_object_id(data: dict) -> dict:
 
     >>> _convert_str_id_to_object_id({"col": {"id": "62e00647e98e01ef28be554b"}})
     {'col': {'_id': ObjectId('62e00647e98e01ef28be554b')}}
+
+    >>> _convert_str_id_to_object_id({"v": [{"id": "62e00647e98e01ef28be554b"}]})
+    {'v': [{'_id': ObjectId('62e00647e98e01ef28be554b')}]}
     """
-    data = data.copy()
-    for key, value in data.copy().items():
-        if key == "id":
-            data["_id"] = ObjectId(value)
-            del data["id"]
-        elif isinstance(value, dict):
-            data[key] = _convert_str_id_to_object_id(value)
+    if isinstance(data, dict):
+        data_copy = data.copy()
+        for key, value in data_copy.items():
+            if key == "id":
+                data["_id"] = ObjectId(value)
+                del data["id"]
+            else:
+                data[key] = _convert_str_id_to_object_id(value)
+    elif isinstance(data, list):
+        for index, value in enumerate(data):
+            data[index] = _convert_str_id_to_object_id(value)
     return data
 
 
