@@ -25,4 +25,10 @@ public record CompanyListModel
 
     [JsonPropertyName("description")]
     public string? Description { get; init; }
+
+    [JsonPropertyName("external_website_url")]
+    public string? ExternalWebsiteUrl { get; init; }
+
+    [JsonPropertyName("profile_picture_url")]
+    public string? ProfilePictureUrl { get; init; }
 }
