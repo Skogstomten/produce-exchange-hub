@@ -26,12 +26,12 @@ class CompanyOrderDatastore(CompanyDatastore):
             order_model.unit_type,
             order_model.currency,
         )
-        update_context.push_to_list("orders", new_order)
+        update_context.push_to_list("orders", new_order.dict())
         update_context.push_to_list(
             "changes",
             Change.create(
                 self.db.new_id(), f"orders/{new_order.id}", ChangeType.add, authenticated_user.email, new_order.dict()
-            ),
+            ).dict(),
         )
         self._companies.update_document(company_id, update_context)
         return new_order

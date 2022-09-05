@@ -2,8 +2,7 @@ from fastapi import APIRouter, Depends, Security, Body
 
 from app.authentication.dependencies.user import get_current_user
 from app.authentication.models.db.user import User
-from app.company.datastores.company_datastore import get_company_datastore
-from app.company.datastores.company_order_datastore import CompanyOrderDatastore
+from app.company.datastores.company_order_datastore import CompanyOrderDatastore, get_company_order_datastore
 from app.company.models.v1.orders import OrderOutModel, AddOrderModel
 from app.knowlege.datastores.product_datastore import ProductDatastore, get_product_datastore
 from app.shared.config.routing_config import BASE_PATH
@@ -19,7 +18,7 @@ def add_order(
     new_order: AddOrderModel = Body(...),
     essentials: Essentials = Depends(get_essentials),
     authenticated_user: User = Security(get_current_user, scopes=("roles:company_admin:{company_id}",)),
-    datastore: CompanyOrderDatastore = Depends(get_company_datastore),
+    datastore: CompanyOrderDatastore = Depends(get_company_order_datastore),
     product_datastore: ProductDatastore = Depends(get_product_datastore),
 ):
     order = datastore.add_order(company_id, new_order, authenticated_user)

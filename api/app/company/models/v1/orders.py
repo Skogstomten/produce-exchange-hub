@@ -10,7 +10,7 @@ class AddOrderModel(BaseModel):
     product_id: str
     description: dict[Language, str]
     price_per_unit: float | None
-    unit_type: str
+    unit_type: str | None
     currency: Currency | None
 
 
@@ -20,7 +20,7 @@ class OrderOutModel(BaseModel):
     product_name: str
     description: str
     price_per_unit: float | None
-    unit_type: str
+    unit_type: str | None
     currency: Currency | None
 
     @classmethod
