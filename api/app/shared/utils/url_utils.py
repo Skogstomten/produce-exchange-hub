@@ -23,7 +23,23 @@ def assemble_url(*args, **kwargs) -> str:
     return url
 
 
-def assemble_profile_picture_url(request: Request, router: APIRouter, file_path: str, lang: Language) -> str:
+def assemble_profile_picture_url(
+    request: Request, router: APIRouter, file_path: str | None, lang: Language
+) -> str | None:
+    """
+    Will assemble absolute url for profile picture.
+
+    If file_path is None, None will be returned.
+
+    :param request: Http request object.
+    :param router: fastapi router.
+    :param file_path: Relative path to file.
+    :param lang:
+    :return: Profile picture url as str or None if there's no file_path.
+    """
+    if not file_path:
+        return None
+
     return assemble_url(
         request.base_url,
         router.prefix,
