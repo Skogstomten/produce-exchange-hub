@@ -6,6 +6,7 @@ global using ProduceExchangeHub.Models;
 global using ProduceExchangeHub.IoC;
 global using ProduceExchangeHub.Common;
 global using ProduceExchangeHub.Services;
+global using ProduceExchangeHub.Security;
 
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -27,12 +28,6 @@ builder.Services.AddHttpClient(
     client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
 );
 
-builder.Services.AddHttpClient<ICompanyService, CompanyService>(
-    "CompanyService",
-    client => client.BaseAddress = new Uri(settings.ApiBaseUrl)
-);
-
-builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("App"));
 builder.Services.AddTransient<ProduceExchangeHubAuthorizationMessageHandler>();
 
 builder.Services.AddOidcAuthentication(options =>
@@ -40,13 +35,6 @@ builder.Services.AddOidcAuthentication(options =>
     builder.Configuration.Bind("OidcConfiguration", options.ProviderOptions);
     builder.Configuration.Bind("UserOptions", options.UserOptions);
 });
-
-//builder.Services.AddAuthorizationCore(authorizationOptions =>
-//{
-//    //authorizationOptions.AddPolicy(
-//    //    BethanysPieShopHRM.Shared.Policies.CanManageEmployees,
-//    //    BethanysPieShopHRM.Shared.Policies.CanManageEmployeesPolicy());
-//});
 
 WebAssemblyHost app = builder.Build();
 
