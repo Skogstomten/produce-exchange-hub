@@ -14,19 +14,33 @@
             </div>
         </NavLink>
     }
-
-    <ul class="nav-right-buttons">
-        <NavLink href="/register" @onclick="CloseNavMeny">
-            <li>
-                Register
-            </li>
-        </NavLink>
-        <NavLink href="/authentication/login" @onclick="CloseNavMeny">
-            <li>
-                Login
-            </li>
-        </NavLink>
-    </ul>
+    
+    @if (IsLoggedIn)
+    {
+        <ul class="nav-right-buttons">
+            @if (UserInformation != null)
+            {
+                <li>@UserInformation.FirstName @UserInformation.LastName</li>
+            } else
+            {
+                <li>Missing Name</li>
+            }
+        </ul>
+    } else
+    {
+        <ul class="nav-right-buttons">
+            <NavLink href="/register" @onclick="CloseNavMeny">
+                <li>
+                    Register
+                </li>
+            </NavLink>
+            <NavLink href="/authentication/login" @onclick="CloseNavMeny">
+                <li>
+                    Login
+                </li>
+            </NavLink>
+        </ul>
+    }
 
     <a href="javascript:void(0);" class="menu-icon @ChangeMenuButtonClass" @onclick=ToggleNavMenu>
         <div class="bar1"></div>
@@ -34,21 +48,3 @@
         <div class="bar3"></div>
     </a>
 </nav>
-
-@code {
-    private bool _menuOpen = false;
-
-    private string? NavMenuCssClass => _menuOpen ? "responsive" : null;
-    private string? ChangeMenuButtonClass => _menuOpen ? "change" : null;
-
-    private void ToggleNavMenu()
-    {
-        _menuOpen = !_menuOpen;
-    }
-
-    private void CloseNavMeny()
-    {
-        if (_menuOpen)
-            ToggleNavMenu();
-    }
-}

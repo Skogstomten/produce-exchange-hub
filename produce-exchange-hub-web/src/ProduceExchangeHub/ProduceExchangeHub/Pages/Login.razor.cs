@@ -51,8 +51,8 @@ public partial class Login
 
         UserInformation userInformation = new(id, firstName, lastName, email, verified, roles);
 
-        await LocalStorage.SaveAsync(StorageKeys.OAuthTokens, oAuthTokens);
-        await LocalStorage.SaveAsync(StorageKeys.UserInformation, userInformation);
+        await LocalStorage.SaveAsync(StorageKey.OAuthTokens, oAuthTokens);
+        await LocalStorage.SaveAsync(StorageKey.UserInformation, userInformation);
 
         _loginModel = new LoginModel();
         NavigationManager.NavigateTo(string.IsNullOrWhiteSpace(ReturnUrl) ? "/" : ReturnUrl);

@@ -2,5 +2,6 @@
 
 public interface ILocalStorage
 {
-    ValueTask SaveAsync<T>(StorageKeys key, T item);
+    ValueTask SaveAsync<T>(StorageKey key, T item);
+    ValueTask<T?> GetAsync<T>(StorageKey key);
 }
