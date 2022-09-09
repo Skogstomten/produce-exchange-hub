@@ -1,4 +1,6 @@
 ﻿@page "/authentication/login"
+@using Microsoft.AspNetCore.Authorization
+@attribute [AllowAnonymous]
 
 <EditForm Model="@_loginModel" OnValidSubmit="@LoginEventHandler">
     <fieldset>

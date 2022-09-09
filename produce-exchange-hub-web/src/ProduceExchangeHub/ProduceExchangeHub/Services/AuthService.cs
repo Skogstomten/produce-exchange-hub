@@ -1,4 +1,5 @@
-﻿using ProduceExchangeHub.Security;
+﻿using System.Net.Http.Headers;
+using ProduceExchangeHub.Security;
 
 namespace ProduceExchangeHub.Services;
 
@@ -11,19 +12,20 @@ public class AuthService : ServiceBase, IAuthService
 
     public Task<OAuthTokens> AuthenticateAsync(string username, string password)
     {
+        FormUrlEncodedContent content = new(
+            new[]
+            {
+                new KeyValuePair<string, string>("grant_type", "password"),
+                new KeyValuePair<string, string>("username", username),
+                new KeyValuePair<string, string>("password", password),
+                new KeyValuePair<string, string>("scope", "profile roles")
+            }
+        );
+
         return PostAsync<OAuthTokens>(
-            "/token",
-            new FormUrlEncodedContent(
-                new[]
-                {
-                    new KeyValuePair<string, string>("grant_type", "password"),
-                    new KeyValuePair<string, string>("username", username),
-                    new KeyValuePair<string, string>("password", password),
-                    new KeyValuePair<string, string>("scope", "profile roles")
-                }
-            ),
-            new KeyValuePair<string, string>("accept", "application/json"),
-            new KeyValuePair<string, string>("Content-Type", "application/x-www-form-urlencoded")
+            "token",
+            content,
+            new KeyValuePair<string, string>("accept", "application/json")
         );
     }
 }

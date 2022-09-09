@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
             throw new ApplicationException("Can't find api base url!");
 
         services.AddHttpClients(settings.ApiBaseUrl);
+        services.AddBlazoredLocalStorage();
 
         return services;
     }
