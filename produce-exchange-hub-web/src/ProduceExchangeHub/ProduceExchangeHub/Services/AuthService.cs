@@ -1,7 +1,4 @@
-﻿using System.Net.Http.Headers;
-using ProduceExchangeHub.Security;
-
-namespace ProduceExchangeHub.Services;
+﻿namespace ProduceExchangeHub.Services;
 
 public class AuthService : ServiceBase, IAuthService
 {

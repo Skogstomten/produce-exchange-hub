@@ -8,12 +8,12 @@
         <DataAnnotationsValidator />
         <div>
             <label for="Username">E-postadress</label>
-            <InputText @bind-Value=_loginModel.Username placeholder="xxxxxxxx@domain.se" />
+            <InputText @bind-Value=_loginModel.Username placeholder="xxxxxxxx@domain.se" id="Username" />
             <ValidationMessage For="() => _loginModel.Username" />
         </div>
         <div>
             <label for="Password">Lösenord</label>
-            <InputText @bind-Value=_loginModel.Password type="password" />
+            <InputText @bind-Value=_loginModel.Password type="password" id="Password" />
             <ValidationMessage For="() => _loginModel.Password" />
         </div>
         <div>

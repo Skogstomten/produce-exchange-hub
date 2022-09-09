@@ -11,7 +11,6 @@ global using ProduceExchangeHub.Security;
 global using Blazored.LocalStorage;
 
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 using ProduceExchangeHub;
@@ -30,11 +29,6 @@ builder.Services.AddHttpClient(
     client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
 );
 
-builder.Services.AddRemoteAuthentication<OAuth2AuthenticationState, RemoteUserAccount, OAuth2ProviderOptions>(
-    configure =>
-    {
-        builder.Configuration.Bind("OAuth2", configure.ProviderOptions);
-    });
 WebAssemblyHost app = builder.Build();
 
 await app.RunAsync();
