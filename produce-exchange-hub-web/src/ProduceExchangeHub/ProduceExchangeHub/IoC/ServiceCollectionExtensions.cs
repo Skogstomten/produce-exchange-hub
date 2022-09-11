@@ -10,28 +10,32 @@ public static class ServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace(settings.ApiBaseUrl))
             throw new ApplicationException("Can't find api base url!");
 
-        services.AddHttpClients(settings.ApiBaseUrl);
-        services.AddLocalStorage();
-
-        return services;
+        return services.AddHttpClients(settings.ApiBaseUrl)
+                       .AddLocalStorage()
+                       .AddAuthentication();
     }
 
-    private static void AddLocalStorage(this IServiceCollection services)
-    {
-        services.AddBlazoredLocalStorage();
-        services.AddScoped<ILocalStorage, BlazoredLocalStorageWrapper>();
-    }
+    private static IServiceCollection AddAuthentication(this IServiceCollection services) =>
+        services.AddScoped<IAuthenticationManager, OAuth2AuthenticationManager>();
 
-    private static void AddHttpClients(this IServiceCollection services, string apiBaseUrl)
-    {
-        services.AddHttpService<ICompanyService, CompanyService>("Company", apiBaseUrl);
-        services.AddHttpService<IAuthService, AuthService>("Auth", apiBaseUrl);
-    }
+    private static IServiceCollection AddLocalStorage(this IServiceCollection services) =>
+        services.AddBlazoredLocalStorage()
+                .AddScoped<ILocalStorage, BlazoredLocalStorageWrapper>();
 
-    private static void AddHttpService<TInterface, TImplementation>(
+    private static IServiceCollection AddHttpClients(this IServiceCollection services, string apiBaseUrl) =>
+        services.AddHttpService<ICompanyService, CompanyService>("Company", apiBaseUrl)
+                .AddHttpService<IAuthenticationService, AuthenticationService>("Auth", apiBaseUrl);
+
+    private static IServiceCollection AddHttpService<TInterface, TImplementation>(
         this IServiceCollection services,
         string name,
         string apiBaseUrl
-    ) where TImplementation : class, TInterface where TInterface : class =>
-        services.AddHttpClient<TInterface, TImplementation>(name, client => client.BaseAddress = new Uri(apiBaseUrl));
+    ) where TImplementation : class, TInterface where TInterface : class
+    {
+        services.AddHttpClient<TInterface, TImplementation>(
+            name,
+            client => client.BaseAddress = new Uri(apiBaseUrl)
+        );
+        return services;
+    }
 }

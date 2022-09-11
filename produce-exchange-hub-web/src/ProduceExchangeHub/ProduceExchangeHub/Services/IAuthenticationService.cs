@@ -2,7 +2,7 @@
 
 namespace ProduceExchangeHub.Services;
 
-public interface IAuthService
+public interface IAuthenticationService
 {
     Task<OAuthTokens> AuthenticateAsync(string username, string password);
 }

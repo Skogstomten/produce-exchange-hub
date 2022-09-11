@@ -1,8 +1,8 @@
 ﻿namespace ProduceExchangeHub.Services;
 
-public class AuthService : ServiceBase, IAuthService
+public class AuthenticationService : ServiceBase, IAuthenticationService
 {
-    public AuthService(HttpClient httpClient)
+    public AuthenticationService(HttpClient httpClient)
         : base(httpClient)
     {
     }

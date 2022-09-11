@@ -17,4 +17,7 @@ public class BlazoredLocalStorageWrapper : ILocalStorage
             return await _localStorage.GetItemAsync<T>(key.ToString());
         return default;
     }
+
+    public ValueTask RemoveValuesAsync(params StorageKey[] keys) =>
+        _localStorage.RemoveItemsAsync(keys.Select(key => key.ToString()));
 }

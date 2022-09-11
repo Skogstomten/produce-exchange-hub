@@ -3,7 +3,7 @@
 public partial class NavMenu
 {
     [Inject]
-    private ILocalStorage LocalStorage { get; set; } = null!;
+    private IAuthenticationManager AuthenticationManager { get; set; } = null!;
 
     private bool _menuOpen = false;
 
@@ -15,13 +15,12 @@ public partial class NavMenu
 
     protected override async Task OnInitializedAsync()
     {
+        AuthenticationManager.Subscribe(OnAuthenticationChangeAsync);
+        bool isAuthenticated = await AuthenticationManager.IsUserAuthenticatedAsync();
+        if (isAuthenticated)
+            await SetAuthenticatedAsync();
+
         await base.OnInitializedAsync();
-        OAuthTokens? oAuthTokens = await LocalStorage.GetAsync<OAuthTokens>(StorageKey.OAuthTokens);
-        if (oAuthTokens is {AccessToken: { }})
-        {
-            IsLoggedIn = true;
-            UserInformation = await LocalStorage.GetAsync<UserInformation>(StorageKey.UserInformation);
-        }
     }
 
     private void ToggleNavMenu()
@@ -33,5 +32,19 @@ public partial class NavMenu
     {
         if (_menuOpen)
             ToggleNavMenu();
+    }
+
+    private async Task OnAuthenticationChangeAsync(AuthenticationEvent e)
+    {
+        if (e.IsLoggedIn)
+            await SetAuthenticatedAsync();
+
+        StateHasChanged();
+    }
+
+    private async ValueTask SetAuthenticatedAsync()
+    {
+        UserInformation = await AuthenticationManager.GetAuthenticatedUserAsync();
+        IsLoggedIn = true;
     }
 }
