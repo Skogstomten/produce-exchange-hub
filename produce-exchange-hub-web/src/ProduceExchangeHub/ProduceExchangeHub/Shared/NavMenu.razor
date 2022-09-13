@@ -17,7 +17,7 @@
     
     @if (IsLoggedIn)
     {
-        <ul class="nav-right-buttons">
+        <ul class="nav-right-user">
             @if (UserInformation != null)
             {
                 <li>@UserInformation.FirstName @UserInformation.LastName</li>
@@ -41,6 +41,15 @@
             </NavLink>
         </ul>
     }
+    
+    <ul class="language-selector">
+        <li>
+            <img src="images/flags/swe.png"/>
+        </li>
+        <li>
+            <img src="images/flags/eng.png"/>
+        </li>
+    </ul>
 
     <a href="javascript:void(0);" class="menu-icon @ChangeMenuButtonClass" @onclick=ToggleNavMenu>
         <div class="bar1"></div>

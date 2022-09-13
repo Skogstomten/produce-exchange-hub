@@ -3,9 +3,17 @@ nav.nav-top {
     overflow: hidden;
 }
 
+nav.nav-top ul.language-selector li {
+    float: right;
+    padding: 4.0px 6px 1.3px 3px;
+    margin: 0;
+}
+
     nav.nav-top .menu-icon {
         display: none;
     }
+
+
 
         nav.nav-top .menu-icon div {
             width: 35px;
@@ -44,10 +52,10 @@ nav.nav-top {
             font-size: 17px;
         }
 
-        nav.nav-top ul li:hover {
-            background-color: #ddd;
-            color: black;
-        }
+            nav.nav-top ul.nav-right-buttons li:hover {
+                background-color: #ddd;
+                color: black;
+            }
 
             nav.nav-top ul li a:active {
                 background-color: #68b0abff;
@@ -61,12 +69,16 @@ nav.nav-top {
             float: right;
         }
 
-.nav-brand {
-    font-family: Arial, Helvetica, sans-serif;
-    display: inline;
-    float: left;
-    margin-right: auto;
-}
+        nav.nav-top ul.nav-right-user {
+            float: right;
+        }
+
+        .nav-brand {
+            font-family: Arial, Helvetica, sans-serif;
+            display: inline;
+            float: left;
+            margin-right: auto;
+        }
 
     .nav-brand a {
         color: #696d7dff;
