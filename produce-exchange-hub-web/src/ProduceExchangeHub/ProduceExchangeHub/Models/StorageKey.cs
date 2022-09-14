@@ -3,5 +3,6 @@
 public enum StorageKey
 {
     OAuthTokens,
-    UserInformation
+    UserInformation,
+    PreferredLanguage
 }
