@@ -2,10 +2,24 @@
 
 public partial class Login
 {
+    [Inject]
+    private IAuthenticationManager AuthenticationManager { get; set; } = null!;
+    
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
+
+    [Parameter, SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+
     private LoginModel _loginModel = new();
 
     public async Task LoginEventHandler()
     {
-        Console.WriteLine("Test");
+        LoginResult result = await AuthenticationManager.LoginAsync(_loginModel.Username, _loginModel.Password);
+        if (result == LoginResult.Success)
+        {
+            _loginModel = new LoginModel();
+            NavigationManager.NavigateTo(string.IsNullOrWhiteSpace(ReturnUrl) ? "/" : ReturnUrl);
+        }
     }
 }
