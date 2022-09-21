@@ -1,21 +1,28 @@
 ﻿@page "/authentication/login"
 
-<EditForm Model="@_loginModel" OnValidSubmit="@LoginEventHandler">
-    <fieldset>
-        <legend>Logga in</legend>
-        <DataAnnotationsValidator />
-        <div>
-            <label for="Username">E-postadress</label>
-            <InputText @bind-Value=_loginModel.Username placeholder="xxxxxxxx@domain.se" />
-            <ValidationMessage For="() => _loginModel.Username" />
+<div class="login-layout-div">
+    <div class="login-left-layout">
+        <div class="login-form-div">
+            <EditForm Model="@_loginModel" OnValidSubmit="@LoginEventHandler">
+                <h2>Logga in</h2>
+                    <DataAnnotationsValidator/>
+                    <div>
+                        <InputText @bind-Value=_loginModel.Username placeholder="Username" class="login-user-input"/>
+                        <ValidationMessage For="() => _loginModel.Username"/>
+                    </div>
+                    <div>
+                        <InputText @bind-Value=_loginModel.Password type="password" placeholder="password" class="login-password-input"/>
+                        <ValidationMessage For="() => _loginModel.Password"/>
+                    </div>
+                    <div>
+                        <input type="submit" value="Logga in" class="login-button-input"/>
+                    </div>
+            </EditForm>
         </div>
-        <div>
-            <label for="Password">Lösenord</label>
-            <InputText @bind-Value=_loginModel.Password type="password" />
-            <ValidationMessage For="() => _loginModel.Password" />
-        </div>
-        <div>
-            <input type="submit" value="Logga in" />
-        </div>
-    </fieldset>
-</EditForm>
+    </div>
+    <div class="login-right-layout">
+        <h2>New here?</h2>
+        <p>Sign up for free</p>
+        <button>Register</button>
+    </div>
+</div>

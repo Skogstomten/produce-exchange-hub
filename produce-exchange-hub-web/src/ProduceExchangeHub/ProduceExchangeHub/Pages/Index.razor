@@ -4,8 +4,60 @@
 <PageTitle>Index</PageTitle>
 
 <div class="container">
-    @foreach (CompanyListModel company in Companies)
-    {
-        <CompanyCard Company="company" />
-    }
+    
+    <h1 class="index-page-title">Företag som använder ProduceExchangeHub</h1>
+
+    <div class="company-card-list-div">
+        @foreach (CompanyListModel company in Companies)
+        {
+            <CompanyCard Company="company"/>
+        }
+
+        <div class="company-card-div">
+            <h3 class="company-title">Title company</h3>
+            <img class="company-img-div" src="https://seeklogo.com/images/B/business-company-logo-C561B48365-seeklogo.com.png"/>
+            <div class="company-description-div">
+                <p class="company-description">
+                    Company Description
+                </p>
+                <button type="submit" class="company-card-button">Go to</button>
+            </div>
+        </div>
+
+        <div class="company-card-div">
+            <h3 class="company-title">Title company</h3>
+            <img class="company-img-div" src="https://seeklogo.com/images/B/business-company-logo-C561B48365-seeklogo.com.png"/>
+            <div class="company-description-div">
+                <p class="company-description">
+                    Company Description
+                </p>
+                <button type="submit" class="company-card-button">Go to</button>
+            </div>
+        </div>
+
+        <div class="company-card-div">
+            <h3 class="company-title">Title company</h3>
+            <img class="company-img-div" src="https://seeklogo.com/images/B/business-company-logo-C561B48365-seeklogo.com.png"/>
+            <div class="company-description-div">
+                <p class="company-description">
+                    Company Description
+                </p>
+                <button type="submit" class="company-card-button">Go to</button>
+            </div>
+        </div>
+
+        <div class="company-card-div">
+            <h3 class="company-title">Title company</h3>
+            <div class="">
+                <img class="company-img-div" src="https://seeklogo.com/images/B/business-company-logo-C561B48365-seeklogo.com.png"/>
+            </div>
+            <div class="company-description-div">
+                <p class="company-description">
+                    Company Description
+                </p>
+                <button type="submit" class="company-card-button">Go to</button>
+            </div>
+        </div>
+    </div>
+
 </div>
