@@ -1,16 +1,20 @@
-﻿namespace ProduceExchangeHub.Shared;
+﻿using Microsoft.AspNetCore.Components;
+using ProduceExchangeHub.Models;
+using ProduceExchangeHub.Services;
+
+namespace ProduceExchangeHub.Shared.Layouts;
 
 public partial class NavMenu
 {
     [Inject]
     private IAuthenticationManager AuthenticationManager { get; set; } = null!;
 
-    private bool _menuOpen = false;
+    private bool _menuOpen;
 
     private string? NavMenuCssClass => _menuOpen ? "responsive" : null;
     private string? ChangeMenuButtonClass => _menuOpen ? "change" : null;
 
-    private bool IsLoggedIn { get; set; } = false;
+    private bool IsLoggedIn { get; set; }
     private UserInformation? UserInformation { get; set; }
 
     protected override async Task OnInitializedAsync()

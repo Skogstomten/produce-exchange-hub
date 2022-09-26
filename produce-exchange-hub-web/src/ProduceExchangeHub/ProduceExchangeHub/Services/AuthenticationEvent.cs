@@ -1,4 +1,6 @@
-﻿namespace ProduceExchangeHub.Services;
+﻿using ProduceExchangeHub.Models;
+
+namespace ProduceExchangeHub.Services;
 
 public class AuthenticationEvent
 {
