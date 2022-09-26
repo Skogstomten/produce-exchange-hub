@@ -1,10 +1,13 @@
 ﻿@page "/authentication/login"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Login> _loc
+
 @attribute [AllowAnonymous]
 
 <EditForm Model="@_loginModel" OnValidSubmit="@LoginEventHandler">
     <fieldset>
-        <legend>Logga in</legend>
+        <legend>@_loc["LoginLegend"]</legend>
         <DataAnnotationsValidator />
         <div>
             <label for="Username">E-postadress</label>
