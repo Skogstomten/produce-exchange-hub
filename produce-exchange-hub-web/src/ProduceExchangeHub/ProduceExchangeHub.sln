@@ -5,7 +5,7 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProduceExchangeHub", "ProduceExchangeHub\ProduceExchangeHub.csproj", "{D7A2E561-252D-44C8-8624-D3F354E3511F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProduceExchangeHub.Test", "ProduceExchangeHub.Test\ProduceExchangeHub.Test.csproj", "{A3A5B9F7-928D-4FAE-AF91-6B474E98BC97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProduceExchangeHub.Test", "ProduceExchangeHub.Test\ProduceExchangeHub.Test.csproj", "{A3A5B9F7-928D-4FAE-AF91-6B474E98BC97}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
