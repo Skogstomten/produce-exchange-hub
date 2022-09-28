@@ -5,7 +5,7 @@ using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
 using ProduceExchangeHub.Models;
-using ProduceExchangeHub.Security;
+using ProduceExchangeHub.Security.OAuth2.Tokens;
 using ProduceExchangeHub.Services;
 
 namespace ProduceExchangeHub.Test.Services;
@@ -26,7 +26,7 @@ public class OAuth2AuthenticationManagerTest
     [Test]
     public async Task GetAuthenticatedUserAsyncReturnsFalseIfNoToken()
     {
-        _localStorage.GetAsync<OAuthTokens>(default).ReturnsNullForAnyArgs();
+        _localStorage.GetAsync<OAuthTokens>(StorageKey.OAuthTokens).ReturnsNullForAnyArgs();
 
         bool result = await _target.IsUserAuthenticatedAsync();
 

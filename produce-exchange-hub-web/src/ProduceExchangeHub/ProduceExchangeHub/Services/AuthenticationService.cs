@@ -1,10 +1,16 @@
-﻿namespace ProduceExchangeHub.Services;
+﻿using ProduceExchangeHub.Security.OAuth2.Configuration;
+using ProduceExchangeHub.Security.OAuth2.Tokens;
+
+namespace ProduceExchangeHub.Services;
 
 public class AuthenticationService : ServiceBase, IAuthenticationService
 {
-    public AuthenticationService(HttpClient httpClient)
+    private readonly OAuth2ProviderOptions _providerOptions;
+
+    public AuthenticationService(HttpClient httpClient, OAuth2ProviderOptions providerOptions)
         : base(httpClient)
     {
+        _providerOptions = providerOptions;
     }
 
     public Task<OAuthTokens> AuthenticateAsync(string username, string password)
@@ -12,15 +18,15 @@ public class AuthenticationService : ServiceBase, IAuthenticationService
         FormUrlEncodedContent content = new(
             new[]
             {
-                new KeyValuePair<string, string>("grant_type", "password"),
+                new KeyValuePair<string, string>("grant_type", _providerOptions.GrantType),
                 new KeyValuePair<string, string>("username", username),
                 new KeyValuePair<string, string>("password", password),
-                new KeyValuePair<string, string>("scope", "profile roles")
+                new KeyValuePair<string, string>("scope", _providerOptions.Scopes)
             }
         );
 
         return PostAsync<OAuthTokens>(
-            "token",
+            _providerOptions.TokenEndpoint,
             content,
             new KeyValuePair<string, string>("accept", "application/json")
         );

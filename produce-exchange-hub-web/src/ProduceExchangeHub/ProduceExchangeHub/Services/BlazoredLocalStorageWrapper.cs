@@ -1,4 +1,7 @@
-﻿namespace ProduceExchangeHub.Services;
+﻿using Blazored.LocalStorage;
+using ProduceExchangeHub.Models;
+
+namespace ProduceExchangeHub.Services;
 
 public class BlazoredLocalStorageWrapper : ILocalStorage
 {
@@ -10,11 +13,12 @@ public class BlazoredLocalStorageWrapper : ILocalStorage
     }
 
     public ValueTask SaveAsync<T>(StorageKey key, T item) => _localStorage.SetItemAsync(key.ToString(), item);
+    public ValueTask<T?> GetAsync<T>(StorageKey key) => GetAsync<T>(key.ToString());
 
-    public async ValueTask<T?> GetAsync<T>(StorageKey key)
+    public async ValueTask<T?> GetAsync<T>(string key)
     {
-        if (await _localStorage.ContainKeyAsync(key.ToString()))
-            return await _localStorage.GetItemAsync<T>(key.ToString());
+        if (await _localStorage.ContainKeyAsync(key))
+            return await _localStorage.GetItemAsync<T>(key);
         return default;
     }
 

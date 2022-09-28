@@ -3,14 +3,14 @@
     {
         <NavLink href="/" @onclick="CloseNavMeny">
             <div class="nav-brand">
-                Home
+                @Loc["HomeLink"]
             </div>
         </NavLink>
     } else
     {
         <NavLink href="/" @onclick="CloseNavMeny">
             <div class="nav-brand">
-                ProduceExchangeHub
+                @Loc["BrandText"]
             </div>
         </NavLink>
     }
@@ -23,7 +23,7 @@
                 <li>@UserInformation.FirstName @UserInformation.LastName</li>
             } else
             {
-                <li>Missing Name</li>
+                <li>@Loc["MissingNameLabel"]</li>
             }
         </ul>
     } else
@@ -31,12 +31,12 @@
         <ul class="nav-right-buttons">
             <NavLink href="/register" @onclick="CloseNavMeny">
                 <li>
-                    Register
+                    @Loc["RegisterLink"]
                 </li>
             </NavLink>
             <NavLink href="/authentication/login" @onclick="CloseNavMeny">
                 <li>
-                    Login
+                    @Loc["LoginLink"]
                 </li>
             </NavLink>
         </ul>
