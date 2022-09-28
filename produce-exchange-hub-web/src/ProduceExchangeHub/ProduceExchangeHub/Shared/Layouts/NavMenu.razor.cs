@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
 using ProduceExchangeHub.Models;
-using ProduceExchangeHub.Services;
+using ProduceExchangeHub.Security.Abstractions;
 
 namespace ProduceExchangeHub.Shared.Layouts;
 

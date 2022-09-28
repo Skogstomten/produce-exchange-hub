@@ -1,7 +1,11 @@
 ﻿using Blazored.LocalStorage;
 using ProduceExchangeHub.Company.Services;
-using ProduceExchangeHub.Services;
+using ProduceExchangeHub.Security.Abstractions;
+using ProduceExchangeHub.Security.OAuth2;
+using ProduceExchangeHub.Security.OAuth2.Services;
+using ProduceExchangeHub.Security.Services;
 using ProduceExchangeHub.Shared.Configuration;
+using ProduceExchangeHub.Shared.Services;
 
 namespace ProduceExchangeHub.IoC;
 

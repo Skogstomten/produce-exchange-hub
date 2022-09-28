@@ -1,7 +1,8 @@
 ﻿using ProduceExchangeHub.Security.OAuth2.Configuration;
 using ProduceExchangeHub.Security.OAuth2.Tokens;
+using ProduceExchangeHub.Shared.Services;
 
-namespace ProduceExchangeHub.Services;
+namespace ProduceExchangeHub.Security.Services;
 
 public class AuthenticationService : ServiceBase, IAuthenticationService
 {

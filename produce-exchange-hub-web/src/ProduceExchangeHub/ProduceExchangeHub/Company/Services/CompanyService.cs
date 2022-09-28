@@ -1,6 +1,6 @@
 ﻿using ProduceExchangeHub.Models;
-using ProduceExchangeHub.Services;
 using ProduceExchangeHub.Shared.Localization.Services;
+using ProduceExchangeHub.Shared.Services;
 
 namespace ProduceExchangeHub.Company.Services;
 

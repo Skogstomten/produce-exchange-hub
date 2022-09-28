@@ -1,7 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using ProduceExchangeHub.Models;
 
-namespace ProduceExchangeHub.Services;
+namespace ProduceExchangeHub.Shared.Services;
 
 public class BlazoredLocalStorageWrapper : ILocalStorage
 {

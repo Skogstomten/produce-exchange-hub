@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using ProduceExchangeHub.Models;
-using ProduceExchangeHub.Services;
+using ProduceExchangeHub.Shared.Services;
 
 namespace ProduceExchangeHub.Shared.Localization.Services;
 

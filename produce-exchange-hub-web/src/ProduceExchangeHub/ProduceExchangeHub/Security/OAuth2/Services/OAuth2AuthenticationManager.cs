@@ -2,9 +2,12 @@
 using System.Security.Claims;
 using ProduceExchangeHub.Common;
 using ProduceExchangeHub.Models;
+using ProduceExchangeHub.Security.Abstractions;
 using ProduceExchangeHub.Security.OAuth2.Tokens;
+using ProduceExchangeHub.Security.Services;
+using ProduceExchangeHub.Shared.Services;
 
-namespace ProduceExchangeHub.Services;
+namespace ProduceExchangeHub.Security.OAuth2.Services;
 
 public class OAuth2AuthenticationManager : IAuthenticationManager
 {

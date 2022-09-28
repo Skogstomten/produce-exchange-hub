@@ -2,7 +2,7 @@
 using ProduceExchangeHub.Errors;
 using ProduceExchangeHub.Models;
 
-namespace ProduceExchangeHub.Services;
+namespace ProduceExchangeHub.Shared.Services;
 
 public class ServiceBase
 {
