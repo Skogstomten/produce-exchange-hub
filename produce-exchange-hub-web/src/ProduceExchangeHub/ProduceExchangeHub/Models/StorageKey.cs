@@ -4,5 +4,5 @@ public enum StorageKey
 {
     OAuthTokens,
     UserInformation,
-    PreferredLanguage
+    BlazorCulture
 }

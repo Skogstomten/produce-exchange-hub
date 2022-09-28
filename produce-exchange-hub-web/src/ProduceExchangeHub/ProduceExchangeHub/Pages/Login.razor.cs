@@ -1,4 +1,9 @@
-﻿namespace ProduceExchangeHub.Pages;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Localization;
+using ProduceExchangeHub.Models;
+using ProduceExchangeHub.Services;
+
+namespace ProduceExchangeHub.Pages;
 
 public partial class Login
 {
@@ -7,6 +12,9 @@ public partial class Login
     
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
+
+    [Inject]
+    private IStringLocalizer<Login> Loc { get; set; } = null!;
 
     [Parameter, SupplyParameterFromQuery(Name = "returnUrl")]
     public string? ReturnUrl { get; set; }

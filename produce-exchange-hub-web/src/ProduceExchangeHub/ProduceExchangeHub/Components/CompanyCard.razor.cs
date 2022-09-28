@@ -1,4 +1,7 @@
-﻿namespace ProduceExchangeHub.Components;
+﻿using Microsoft.AspNetCore.Components;
+using ProduceExchangeHub.Models;
+
+namespace ProduceExchangeHub.Components;
 
 public partial class CompanyCard
 {

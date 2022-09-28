@@ -64,3 +64,22 @@ Open a powershell window and navigate to repository root and run command:
 mongorestore  dump/
 ```
 This will restore a copy of the db dump located in the dump folder of the repository root.
+
+
+# Developer Help
+
+## Web
+### Localization
+To localize texts on pages, inject an instance of `IStringLocalizer<PageClassName>` into the Razor page code behind class.
+```
+[Inject]
+private IStringLocalizer<MyPage> Loc { get; set; } = null!;
+```
+Call the localizer from the Razor page.
+```
+<h1>
+	@Loc["MyHeader"]
+</h1>
+```
+Add resource files in the same directory as the page as `MyPage.razor.sv.resx` for each language. Currently Swedish and English is supported.
+Add the labels to the resource files with translations.

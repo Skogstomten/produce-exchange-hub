@@ -1,4 +1,6 @@
-﻿namespace ProduceExchangeHub.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace ProduceExchangeHub.Models;
 
 public class ListResponseModel<TModel>
 {

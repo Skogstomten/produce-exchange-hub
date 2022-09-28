@@ -1,8 +1,13 @@
-﻿<ul class="language-selector">
+﻿@using System.Globalization
+<ul class="language-selector">
     <li>
-        <img src="images/flags/swe.png"/>
+        <a @onclick="@(() => OnLanguageSelectClick(new CultureInfo("sv-SE")))">
+            <img src="images/flags/swe.png"/>
+        </a>
     </li>
     <li>
-        <img src="images/flags/eng.png"/>
+        <a @onclick="@(() => OnLanguageSelectClick(new CultureInfo("en-GB")))">
+            <img src="images/flags/eng.png"/>
+        </a>
     </li>
 </ul>

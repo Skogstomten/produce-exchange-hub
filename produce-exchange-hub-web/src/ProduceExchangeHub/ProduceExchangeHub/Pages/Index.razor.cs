@@ -1,4 +1,9 @@
-﻿namespace ProduceExchangeHub.Pages;
+﻿using Microsoft.AspNetCore.Components;
+using ProduceExchangeHub.Company.Services;
+using ProduceExchangeHub.Models;
+using ProduceExchangeHub.Services;
+
+namespace ProduceExchangeHub.Pages;
 
 public partial class Index : ComponentBase
 {

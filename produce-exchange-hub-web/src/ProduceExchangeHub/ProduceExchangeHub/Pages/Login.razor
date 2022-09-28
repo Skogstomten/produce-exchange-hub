@@ -1,27 +1,29 @@
 ﻿@page "/authentication/login"
 @using Microsoft.AspNetCore.Authorization
+
 @attribute [AllowAnonymous]
 
 <div class="login-layout-div">
     <div class="login-left-layout">
         <div class="login-form-div">
             <EditForm Model="@_loginModel" OnValidSubmit="@LoginEventHandler">
-                <h2>Logga in</h2>
-                    <DataAnnotationsValidator/>
-                    <div>
-                        <InputText @bind-Value=_loginModel.Username placeholder="Username" class="login-user-input"/>
-                        <ValidationMessage For="() => _loginModel.Username"/>
-                    </div>
-                    <div>
-                        <InputText @bind-Value=_loginModel.Password type="password" placeholder="password" class="login-password-input"/>
-                        <ValidationMessage For="() => _loginModel.Password"/>
-                    </div>
-                    <div>
-                        <input type="submit" value="Logga in" class="login-button-input"/>
-                    </div>
+                <h2>@Loc["LoginLegend"]</h2>
+                <DataAnnotationsValidator/>
+                <div>
+                    <InputText @bind-Value=_loginModel.Username placeholder="@(Loc["UsernamePlaceholder"])" class="login-user-input"/>
+                    <ValidationMessage For="() => _loginModel.Username"/>
+                </div>
+                <div>
+                    <InputText @bind-Value=_loginModel.Password type="password" placeholder="@(Loc["PasswordPlaceholder"])" class="login-password-input"/>
+                    <ValidationMessage For="() => _loginModel.Password"/>
+                </div>
+                <div>
+                    <input type="submit" value="@(Loc["LoginButton"])" class="login-button-input"/>
+                </div>
             </EditForm>
         </div>
     </div>
+    <!--TODO: Needs to have localization added!-->
     <div class="login-right-layout">
         <h2>New here?</h2>
         <p>Sign up for free</p>
