@@ -3,7 +3,7 @@ using Microsoft.Extensions.Localization;
 using ProduceExchangeHub.Models;
 using ProduceExchangeHub.Security.Abstractions;
 
-namespace ProduceExchangeHub.Pages;
+namespace ProduceExchangeHub.User.Pages;
 
 public partial class Login
 {
