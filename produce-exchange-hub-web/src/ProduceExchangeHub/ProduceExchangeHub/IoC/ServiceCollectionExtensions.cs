@@ -1,4 +1,5 @@
 ﻿using Blazored.LocalStorage;
+using ProduceExchangeHub.Company.Services;
 using ProduceExchangeHub.Services;
 using ProduceExchangeHub.Shared.Configuration;
 

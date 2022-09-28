@@ -1,6 +1,6 @@
 ﻿using ProduceExchangeHub.Models;
 
-namespace ProduceExchangeHub.Services;
+namespace ProduceExchangeHub.Company.Services;
 
 public interface ICompanyService
 {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Localization;
 using ProduceExchangeHub.Models;
 using ProduceExchangeHub.Services;
 
@@ -8,6 +9,9 @@ public partial class NavMenu
 {
     [Inject]
     private IAuthenticationManager AuthenticationManager { get; set; } = null!;
+
+    [Inject]
+    private IStringLocalizer<NavMenu> Loc { get; set; } = null!;
 
     private bool _menuOpen;
 

@@ -1,26 +1,24 @@
 ﻿@page "/authentication/login"
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.Extensions.Localization
-@inject IStringLocalizer<Login> _loc
 
 @attribute [AllowAnonymous]
 
 <EditForm Model="@_loginModel" OnValidSubmit="@LoginEventHandler">
     <fieldset>
-        <legend>@_loc["LoginLegend"]</legend>
+        <legend>@Loc["LoginLegend"]</legend>
         <DataAnnotationsValidator />
         <div>
-            <label for="Username">E-postadress</label>
+            <label for="Username">@Loc["EMailLabel"]</label>
             <InputText @bind-Value=_loginModel.Username placeholder="xxxxxxxx@domain.se" id="Username" />
             <ValidationMessage For="() => _loginModel.Username" />
         </div>
         <div>
-            <label for="Password">Lösenord</label>
+            <label for="Password">@Loc["PasswordLabel"]</label>
             <InputText @bind-Value=_loginModel.Password type="password" id="Password" />
             <ValidationMessage For="() => _loginModel.Password" />
         </div>
         <div>
-            <input type="submit" value="Logga in" />
+            <input type="submit" value="@(Loc["LoginButton"])" />
         </div>
     </fieldset>
 </EditForm>

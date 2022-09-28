@@ -45,4 +45,10 @@ public class DefaultCultureService : ICultureService
             _navigationManager.NavigateTo(_navigationManager.Uri, true);
         }
     }
+
+    public ValueTask<string> GetCurrentCultureLanguageCodeISOAsync()
+    {
+        CultureInfo currentCulture = CultureInfo.CurrentCulture;
+        return ValueTask.FromResult(currentCulture.TwoLetterISOLanguageName);
+    }
 }

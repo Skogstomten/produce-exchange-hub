@@ -6,4 +6,5 @@ public interface ICultureService
 {
     ValueTask LoadCultureAsync();
     ValueTask SetCultureAsync(CultureInfo cultureInfo);
+    ValueTask<string> GetCurrentCultureLanguageCodeISOAsync();
 }

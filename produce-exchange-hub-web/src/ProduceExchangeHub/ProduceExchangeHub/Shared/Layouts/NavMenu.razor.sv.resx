@@ -117,16 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EMailLabel" xml:space="preserve">
-    <value>E-Postadress</value>
+  <data name="BrandText" xml:space="preserve">
+    <value>Skördehubben</value>
   </data>
-  <data name="LoginButton" xml:space="preserve">
+  <data name="HomeLink" xml:space="preserve">
+    <value>Hem</value>
+  </data>
+  <data name="LoginLink" xml:space="preserve">
     <value>Logga in</value>
   </data>
-  <data name="LoginLegend" xml:space="preserve">
-    <value>Logga in</value>
+  <data name="MissingNameLabel" xml:space="preserve">
+    <value>Namn saknas</value>
   </data>
-  <data name="PasswordLabel" xml:space="preserve">
-    <value>Lösenord</value>
+  <data name="RegisterLink" xml:space="preserve">
+    <value>Registrera</value>
   </data>
 </root>

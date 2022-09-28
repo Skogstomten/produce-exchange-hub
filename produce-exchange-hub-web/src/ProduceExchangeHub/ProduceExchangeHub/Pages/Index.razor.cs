@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using ProduceExchangeHub.Company.Services;
 using ProduceExchangeHub.Models;
 using ProduceExchangeHub.Services;
 
