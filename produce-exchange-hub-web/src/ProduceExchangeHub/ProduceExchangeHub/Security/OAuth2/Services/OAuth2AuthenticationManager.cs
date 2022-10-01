@@ -1,11 +1,13 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using ProduceExchangeHub.Common;
-using ProduceExchangeHub.Models;
 using ProduceExchangeHub.Security.Abstractions;
+using ProduceExchangeHub.Security.Models;
 using ProduceExchangeHub.Security.OAuth2.Tokens;
 using ProduceExchangeHub.Security.Services;
+using ProduceExchangeHub.Security.Utilities;
+using ProduceExchangeHub.Shared.Models;
 using ProduceExchangeHub.Shared.Services;
+using ProduceExchangeHub.User.Models;
 
 namespace ProduceExchangeHub.Security.OAuth2.Services;
 

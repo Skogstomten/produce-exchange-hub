@@ -1,6 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 
-namespace ProduceExchangeHub.Common;
+namespace ProduceExchangeHub.Security.Utilities;
 
 public class JwtHelper
 {

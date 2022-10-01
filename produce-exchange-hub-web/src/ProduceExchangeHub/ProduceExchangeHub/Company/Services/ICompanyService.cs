@@ -1,4 +1,5 @@
-﻿using ProduceExchangeHub.Models;
+﻿using ProduceExchangeHub.Company.Models;
+using ProduceExchangeHub.Shared.Models;
 
 namespace ProduceExchangeHub.Company.Services;
 

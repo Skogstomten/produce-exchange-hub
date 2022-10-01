@@ -1,4 +1,4 @@
-﻿using ProduceExchangeHub.Models;
+﻿using ProduceExchangeHub.User.Models;
 
 namespace ProduceExchangeHub.Security.Abstractions;
 

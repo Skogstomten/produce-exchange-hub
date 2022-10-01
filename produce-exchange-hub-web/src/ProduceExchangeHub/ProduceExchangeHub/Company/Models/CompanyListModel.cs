@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ProduceExchangeHub.Models;
+namespace ProduceExchangeHub.Company.Models;
 
 public record CompanyListModel
 {

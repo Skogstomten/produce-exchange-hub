@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
+using ProduceExchangeHub.Company.Models;
 using ProduceExchangeHub.Company.Services;
-using ProduceExchangeHub.Models;
+using ProduceExchangeHub.Shared.Models;
 
 namespace ProduceExchangeHub.Pages;
 

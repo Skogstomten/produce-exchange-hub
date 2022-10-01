@@ -1,4 +1,4 @@
-﻿namespace ProduceExchangeHub.Errors;
+﻿namespace ProduceExchangeHub.Shared.Exceptions;
 
 public class HttpResponseMessageNullBodyException : Exception
 {

@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
-using ProduceExchangeHub.Models;
 using ProduceExchangeHub.Security.Abstractions;
 using ProduceExchangeHub.Security.OAuth2;
 using ProduceExchangeHub.Security.OAuth2.Services;
 using ProduceExchangeHub.Security.OAuth2.Tokens;
 using ProduceExchangeHub.Security.Services;
+using ProduceExchangeHub.Shared.Models;
 using ProduceExchangeHub.Shared.Services;
 
 namespace ProduceExchangeHub.Test.Services;

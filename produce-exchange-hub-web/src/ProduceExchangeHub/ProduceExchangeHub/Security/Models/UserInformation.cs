@@ -1,4 +1,4 @@
-﻿namespace ProduceExchangeHub.Models;
+﻿namespace ProduceExchangeHub.Security.Models;
 
 public record UserInformation(
     string? Id,

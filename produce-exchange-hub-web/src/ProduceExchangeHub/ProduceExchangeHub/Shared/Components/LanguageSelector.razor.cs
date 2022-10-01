@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using ProduceExchangeHub.Shared.Localization.Services;
 
-namespace ProduceExchangeHub.Components;
+namespace ProduceExchangeHub.Shared.Components;
 
 public partial class LanguageSelector
 {

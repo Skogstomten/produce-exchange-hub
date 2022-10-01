@@ -1,7 +1,7 @@
 ﻿using System.Net;
-using ProduceExchangeHub.Models;
+using ProduceExchangeHub.Shared.Models;
 
-namespace ProduceExchangeHub.Errors;
+namespace ProduceExchangeHub.Shared.Exceptions;
 
 public class HttpResponseException : Exception
 {

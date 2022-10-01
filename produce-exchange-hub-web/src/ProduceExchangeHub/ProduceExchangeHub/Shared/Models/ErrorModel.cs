@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ProduceExchangeHub.Models;
+namespace ProduceExchangeHub.Shared.Models;
 
 public class ErrorModel
 {

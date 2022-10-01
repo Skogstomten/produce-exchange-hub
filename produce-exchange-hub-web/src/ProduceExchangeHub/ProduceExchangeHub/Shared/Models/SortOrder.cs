@@ -1,4 +1,4 @@
-﻿namespace ProduceExchangeHub.Models;
+﻿namespace ProduceExchangeHub.Shared.Models;
 
 public enum SortOrder
 {

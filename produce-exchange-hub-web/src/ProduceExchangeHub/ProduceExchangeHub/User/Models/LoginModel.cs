@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProduceExchangeHub.Models;
+namespace ProduceExchangeHub.User.Models;
 
 public class LoginModel
 {

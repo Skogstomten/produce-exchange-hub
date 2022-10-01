@@ -13,11 +13,11 @@
         padding: 10px;
     }
 
-ul.language-selector li {
-    float: right;
-    padding: 4.0px 6px 1.3px 3px;
-    margin: 0;
-}
+    ul.language-selector li {
+        float: right;
+        padding: 4.0px 6px 1.3px 3px;
+        margin: 0;
+    }
 
 @media screen and (max-width: 600px) {
     ul li {

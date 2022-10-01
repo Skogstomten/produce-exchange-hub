@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
-using ProduceExchangeHub.Errors;
-using ProduceExchangeHub.Models;
+using ProduceExchangeHub.Shared.Exceptions;
+using ProduceExchangeHub.Shared.Models;
 
 namespace ProduceExchangeHub.Shared.Services;
 

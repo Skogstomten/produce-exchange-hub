@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
-using ProduceExchangeHub.Models;
+using ProduceExchangeHub.Company.Models;
 
-namespace ProduceExchangeHub.Components;
+namespace ProduceExchangeHub.Company.Components;
 
 public partial class CompanyCard
 {

@@ -1,5 +1,6 @@
-﻿using ProduceExchangeHub.Models;
+﻿using ProduceExchangeHub.Company.Models;
 using ProduceExchangeHub.Shared.Localization.Services;
+using ProduceExchangeHub.Shared.Models;
 using ProduceExchangeHub.Shared.Services;
 
 namespace ProduceExchangeHub.Company.Services;

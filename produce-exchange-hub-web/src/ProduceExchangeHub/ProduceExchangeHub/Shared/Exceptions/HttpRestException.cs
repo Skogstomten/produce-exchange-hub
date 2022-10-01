@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace ProduceExchangeHub.Common;
+namespace ProduceExchangeHub.Shared.Exceptions;
 
 public class HttpRestException : Exception
 {
