@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http.Json;
+using System.Text.Json;
 using ProduceExchangeHub.Shared.Exceptions;
 using ProduceExchangeHub.Shared.Models;
 
@@ -18,6 +19,14 @@ public class ServiceBase
 
     protected Task<TResponse> GetAsync<TResponse>(string uri, params KeyValuePair<string, string>[] headers) =>
         SendAsync<TResponse>(HttpMethod.Get, uri, null, headers);
+
+    protected Task<TResponse> PostAsync<TRequestBody, TResponse>(
+        string url,
+        TRequestBody requestBody,
+        params KeyValuePair<string, string>[] headers
+    )
+        where TRequestBody : class where TResponse : class
+        => PostAsync<TResponse>(url, JsonContent.Create(requestBody), headers);
 
     protected Task<TResponse> PostAsync<TResponse>(
         string uri,
