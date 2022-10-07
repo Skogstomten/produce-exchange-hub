@@ -7,6 +7,44 @@
     <h1>@Loc["MainHeader"]</h1>
     
     <EditForm Model="Model">
+        <fieldset>
+            <DataAnnotationsValidator />
+            
+            <div>
+                <label for="firstName">@Loc["FirstNameLabel"]</label>
+                <InputText @bind-Value="Model.FirstName" id="firstName"></InputText>
+            </div>
+            
+            <div>
+                <label for="lastName">@Loc["LastNameLabel"]</label>
+                <InputText @bind-Value="Model.LastName" id="lastName"></InputText>
+            </div>
 
+            <div>
+                <label for="email">@Loc["EMailLabel"]</label>
+                <InputText @bind-Value="Model.EMail" id="email"></InputText>
+            </div>
+            
+            <div>
+                <!-- Password -->
+            </div>
+            
+            <div>
+                <label for="city">@Loc["CityLabel"]</label>
+                <InputText @bind-Value="Model.City" id="city"></InputText>
+            </div>
+            
+            <div>
+                <!-- Country -->
+            </div>
+            
+            <div>
+                <!-- Timezone -->
+            </div>
+            
+            <div>
+                <!-- Language -->
+            </div>
+        </fieldset>
     </EditForm>
 </div>
