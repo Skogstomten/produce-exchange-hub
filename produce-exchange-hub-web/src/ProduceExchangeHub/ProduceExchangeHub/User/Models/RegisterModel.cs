@@ -39,4 +39,8 @@ public class RegisterModel
     [JsonPropertyName("password")]
     [Required]
     public string? Password { get; set; }
+
+    [JsonIgnore]
+    [Required]
+    public string? ConfirmPassword { get; set; }
 }

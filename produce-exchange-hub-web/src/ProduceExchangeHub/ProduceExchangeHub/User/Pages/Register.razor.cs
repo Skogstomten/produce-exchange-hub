@@ -16,10 +16,19 @@ public partial class Register
     [Inject]
     private NavigationManager NavManager { get; set; } = null!;
 
-    private RegisterModel Model { get; set; } = new();
+    private RegisterModel Model { get; set; } = new() {Country = "SE"};
+
+    private string? Message { get; set; }
 
     private async Task OnRegisterUserSubmit()
     {
+        Message = null;
+        if (Model.Password != Model.ConfirmPassword)
+        {
+            Message = Loc["PasswordsNotMatchingMessage"];
+            return;
+        }
+
         await UserService.RegisterUserAsync(Model);
         Model = new RegisterModel();
 
