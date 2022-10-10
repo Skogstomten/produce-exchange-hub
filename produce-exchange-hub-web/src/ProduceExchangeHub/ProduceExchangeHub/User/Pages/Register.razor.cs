@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
+using ProduceExchangeHub.Shared.Services;
 using ProduceExchangeHub.User.Models;
 using ProduceExchangeHub.User.Services;
 
@@ -14,11 +15,20 @@ public partial class Register
     private IUserService UserService { get; set; } = null!;
 
     [Inject]
+    private IDataService DataService { get; set; } = null!;
+
+    [Inject]
     private NavigationManager NavManager { get; set; } = null!;
 
     private RegisterModel Model { get; set; } = new() {Country = "SE"};
-
+    private string[] TimezoneNames { get; set; } = Array.Empty<string>();
     private string? Message { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        TimezoneNames = (await DataService.GetTimezoneNamesAsync()).ToArray();
+        await base.OnInitializedAsync();
+    }
 
     private async Task OnRegisterUserSubmit()
     {

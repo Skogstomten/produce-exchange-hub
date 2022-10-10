@@ -7,12 +7,9 @@ namespace ProduceExchangeHub.Company.Services;
 
 public class CompanyService : ServiceBase, ICompanyService
 {
-    private readonly ICultureService _cultureService;
-
     public CompanyService(HttpClient httpClient, ICultureService cultureService)
-        : base(httpClient)
+        : base(httpClient, cultureService)
     {
-        _cultureService = cultureService;
     }
 
     public async Task<IEnumerable<CompanyListModel>> GetCompaniesAsync(
@@ -22,9 +19,8 @@ public class CompanyService : ServiceBase, ICompanyService
         string sortBy
     )
     {
-        string language = await _cultureService.GetCurrentCultureLanguageCodeISOAsync();
         string GetSortOrder() => sortOrder == SortOrder.Ascending ? "asc" : "desc";
-        string uri = $"{language.ToUpper()}/companies/?skip={skip}&take={take}&sort_order={GetSortOrder()}&sort_by={sortBy}";
+        string uri = $"companies/?skip={skip}&take={take}&sort_order={GetSortOrder()}&sort_by={sortBy}";
         ListResponseModel<CompanyListModel> response = await GetAsync<ListResponseModel<CompanyListModel>>(uri);
         return response.Items ?? new List<CompanyListModel>();
     }

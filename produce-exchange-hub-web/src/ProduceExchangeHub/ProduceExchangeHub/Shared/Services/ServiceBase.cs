@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using ProduceExchangeHub.Shared.Exceptions;
+using ProduceExchangeHub.Shared.Localization.Services;
 using ProduceExchangeHub.Shared.Models;
 
 namespace ProduceExchangeHub.Shared.Services;
@@ -8,25 +9,29 @@ namespace ProduceExchangeHub.Shared.Services;
 public class ServiceBase
 {
     protected readonly HttpClient HttpClient;
+    private readonly ICultureService _cultureService;
 
     protected static readonly JsonSerializerOptions SerializerOptions = new()
         {AllowTrailingCommas = true, PropertyNameCaseInsensitive = true};
 
-    public ServiceBase(HttpClient httpClient)
+    public ServiceBase(HttpClient httpClient, ICultureService cultureService)
     {
         HttpClient = httpClient;
+        _cultureService = cultureService;
     }
+
+    protected bool InsertLanguageCodeInURI { get; set; } = true;
 
     protected Task<TResponse> GetAsync<TResponse>(string uri, params KeyValuePair<string, string>[] headers) =>
         SendAsync<TResponse>(HttpMethod.Get, uri, null, headers);
 
     protected Task<TResponse> PostAsync<TRequestBody, TResponse>(
-        string url,
+        string uri,
         TRequestBody requestBody,
         params KeyValuePair<string, string>[] headers
     )
         where TRequestBody : class where TResponse : class
-        => PostAsync<TResponse>(url, JsonContent.Create(requestBody), headers);
+        => PostAsync<TResponse>(uri, JsonContent.Create(requestBody), headers);
 
     protected Task<TResponse> PostAsync<TResponse>(
         string uri,
@@ -42,6 +47,12 @@ public class ServiceBase
         params KeyValuePair<string, string>[] headers
     )
     {
+        if (InsertLanguageCodeInURI)
+        {
+            string language = await _cultureService.GetCurrentCultureLanguageCodeISOAsync();
+            uri = $"{language}/{uri}";
+        }
+            
         HttpRequestMessage httpRequestMessage = new(httpMethod, uri);
         foreach (KeyValuePair<string, string> header in headers)
             httpRequestMessage.Headers.Add(header.Key, header.Value);

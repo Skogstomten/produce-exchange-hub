@@ -11,7 +11,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton(_ => configuration.GetSection("Shared").Get<SharedSettings>())
                 .AddScoped<ICultureService, DefaultCultureService>()
-                .AddScoped<ILocalStorage, BlazoredLocalStorageWrapper>();
+                .AddScoped<ILocalStorage, BlazoredLocalStorageWrapper>()
+                .AddStandardHttpClient<IDataService, DataService>("Data");
 
         // Third Party
         services.AddBlazoredLocalStorage();
