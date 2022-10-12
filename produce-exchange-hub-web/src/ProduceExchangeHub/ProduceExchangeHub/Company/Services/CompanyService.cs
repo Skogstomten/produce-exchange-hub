@@ -7,8 +7,8 @@ namespace ProduceExchangeHub.Company.Services;
 
 public class CompanyService : ServiceBase, ICompanyService
 {
-    public CompanyService(HttpClient httpClient, ICultureService cultureService)
-        : base(httpClient, cultureService)
+    public CompanyService(HttpClient httpClient, ICultureService cultureService, ILogger<CompanyService> logger)
+        : base(httpClient, cultureService, logger)
     {
     }
 

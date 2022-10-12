@@ -6,8 +6,8 @@ namespace ProduceExchangeHub.User.Services;
 
 public class UserService : ServiceBase, IUserService
 {
-    public UserService(HttpClient httpClient, ICultureService cultureService)
-        : base(httpClient, cultureService)
+    public UserService(HttpClient httpClient, ICultureService cultureService, ILogger<UserService> logger)
+        : base(httpClient, cultureService, logger)
     {
     }
 

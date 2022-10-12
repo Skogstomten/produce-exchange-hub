@@ -49,12 +49,20 @@
                 <InputText @bind-Value="Model.City" id="city"></InputText>
             </div>
             
-            @*<div>
+            <div>
                 <!-- Country -->
-            </div>*@
+            </div>
             
             <div>
-                <!-- Timezone -->
+                <label for="timezone">
+                    @Loc["TimezoneLabel"]
+                </label>
+                <InputSelect @bind-Value="Model.Timezone" id="timezone">
+                    @foreach (string timezoneName in TimezoneNames)
+                    {
+                        <option value="@timezoneName">@timezoneName</option>
+                    }
+                </InputSelect>
             </div>
             
             <div>

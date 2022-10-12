@@ -12,9 +12,10 @@ public class AuthenticationService : ServiceBase, IAuthenticationService
     public AuthenticationService(
         HttpClient httpClient,
         OAuth2ProviderOptions providerOptions,
-        ICultureService cultureService
+        ICultureService cultureService,
+        ILogger<AuthenticationService> logger
     )
-        : base(httpClient, cultureService)
+        : base(httpClient, cultureService, logger)
     {
         _providerOptions = providerOptions;
         InsertLanguageCodeInURI = false;

@@ -6,6 +6,7 @@ using ProduceExchangeHub.Company.Extensions;
 using ProduceExchangeHub.Security.Extensions;
 using ProduceExchangeHub.Shared.Extensions;
 using ProduceExchangeHub.Shared.Localization.Services;
+using ProduceExchangeHub.User.Extensions;
 
 WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -15,6 +16,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services
        .AddSharedServices(builder.Configuration)
        .AddSecurityServices(builder.Configuration)
+       .AddUserServices()
        .AddCompanyServices();
 
 builder.Services.AddHttpClient(

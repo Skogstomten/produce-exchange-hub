@@ -27,6 +27,11 @@ public partial class Register
     protected override async Task OnInitializedAsync()
     {
         TimezoneNames = (await DataService.GetTimezoneNamesAsync()).ToArray();
+        Model.Timezone =
+            TimezoneNames.FirstOrDefault(
+                tzName => "Europe/Stockholm".Equals(tzName, StringComparison.InvariantCultureIgnoreCase)
+            ) ??
+            TimezoneNames.FirstOrDefault();
         await base.OnInitializedAsync();
     }
 

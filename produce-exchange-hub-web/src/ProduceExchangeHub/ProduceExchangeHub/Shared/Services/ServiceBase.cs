@@ -10,14 +10,16 @@ public class ServiceBase
 {
     protected readonly HttpClient HttpClient;
     private readonly ICultureService _cultureService;
+    private readonly ILogger _logger;
 
     protected static readonly JsonSerializerOptions SerializerOptions = new()
         {AllowTrailingCommas = true, PropertyNameCaseInsensitive = true};
 
-    public ServiceBase(HttpClient httpClient, ICultureService cultureService)
+    public ServiceBase(HttpClient httpClient, ICultureService cultureService, ILogger logger)
     {
         HttpClient = httpClient;
         _cultureService = cultureService;
+        _logger = logger;
     }
 
     protected bool InsertLanguageCodeInURI { get; set; } = true;
@@ -50,7 +52,7 @@ public class ServiceBase
         if (InsertLanguageCodeInURI)
         {
             string language = await _cultureService.GetCurrentCultureLanguageCodeISOAsync();
-            uri = $"{language}/{uri}";
+            uri = $"{language.ToUpper()}/{uri}";
         }
             
         HttpRequestMessage httpRequestMessage = new(httpMethod, uri);
@@ -59,20 +61,25 @@ public class ServiceBase
         httpRequestMessage.Content = content;
 
         HttpResponseMessage httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage);
+        string responseBody = await httpResponseMessage.Content.ReadAsStringAsync();
         if (httpResponseMessage.IsSuccessStatusCode)
         {
-            await using Stream stream = await httpResponseMessage.Content.ReadAsStreamAsync();
-            TResponse? response = await JsonSerializer.DeserializeAsync<TResponse>(stream, SerializerOptions);
+            TResponse? response = JsonSerializer.Deserialize<TResponse>(responseBody, SerializerOptions);
             if (response == null)
-                throw new HttpResponseMessageNullBodyException(uri, httpResponseMessage);
+                throw new HttpResponseMessageNullBodyException(uri, httpResponseMessage, responseBody);
 
             return response;
         }
 
-        await using Stream errorStream = await httpResponseMessage.Content.ReadAsStreamAsync();
-        ErrorModel? error = await JsonSerializer.DeserializeAsync<ErrorModel>(errorStream, SerializerOptions);
-        if (error == null)
-            throw new HttpResponseMessageNullBodyException(uri, httpResponseMessage);
-        throw new HttpResponseException(uri, error, httpResponseMessage.StatusCode);
+        try
+        {
+            ErrorModel? error = JsonSerializer.Deserialize<ErrorModel>(responseBody, SerializerOptions);
+            if (error != null)
+                throw new HttpResponseException(uri, error, httpResponseMessage.StatusCode);
+        } catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+        }
+        throw new HttpResponseMessageNullBodyException(uri, httpResponseMessage, responseBody);
     }
 }

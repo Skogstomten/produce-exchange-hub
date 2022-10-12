@@ -4,8 +4,8 @@ namespace ProduceExchangeHub.Shared.Services;
 
 public class DataService : ServiceBase, IDataService
 {
-    public DataService(HttpClient httpClient, ICultureService cultureService)
-        : base(httpClient, cultureService)
+    public DataService(HttpClient httpClient, ICultureService cultureService, ILogger<DataService> logger)
+        : base(httpClient, cultureService, logger)
     {
     }
 
