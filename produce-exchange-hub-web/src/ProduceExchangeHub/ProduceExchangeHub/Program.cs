@@ -2,18 +2,22 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 using ProduceExchangeHub;
-using ProduceExchangeHub.IoC;
+using ProduceExchangeHub.Company.Extensions;
 using ProduceExchangeHub.Security.Extensions;
 using ProduceExchangeHub.Shared.Extensions;
 using ProduceExchangeHub.Shared.Localization.Services;
+using ProduceExchangeHub.User.Extensions;
 
 WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSharedServices(builder.Configuration)
-       .AddSecurity(builder.Configuration)
-       .AddApplicationServices();
+// Application domain services
+builder.Services
+       .AddSharedServices(builder.Configuration)
+       .AddSecurityServices(builder.Configuration)
+       .AddUserServices()
+       .AddCompanyServices();
 
 builder.Services.AddHttpClient(
     "App",
@@ -24,6 +28,7 @@ builder.Services.AddLocalization();
 
 WebAssemblyHost host = builder.Build();
 
+// Load user culture settings on startup
 await host.Services.GetRequiredService<ICultureService>().LoadCultureAsync();
 
 await host.RunAsync();

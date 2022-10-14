@@ -1,0 +1,97 @@
+﻿@page "/authentication/register"
+@using Microsoft.AspNetCore.Authorization
+@using ProduceExchangeHub.Shared.Models
+
+@attribute [AllowAnonymous]
+
+<div class="page">
+    <h1>@Loc["MainHeader"]</h1>
+    
+    @if (Message != null)
+    {
+        <div>
+            <p>
+                @Message
+            </p>
+        </div>
+    }
+    
+    <EditForm Model="Model" OnValidSubmit="OnRegisterUserSubmit">
+        <fieldset>
+            <DataAnnotationsValidator />
+            
+            <div class="fluid-half">
+                <label for="firstName">
+                    @Loc["FirstNameLabel"]
+                    <InputText @bind-Value="Model.FirstName" id="firstName" class="width-input-100"></InputText>
+                </label>
+            </div>
+            
+            <div class="spacer">&nbsp;</div>
+            
+            <div class="fluid-half">
+                <label for="lastName">
+                    @Loc["LastNameLabel"]
+                    <InputText @bind-Value="Model.LastName" id="lastName" class="width-input-100"></InputText>
+                </label>
+            </div>
+
+            <div class="fluid-full">
+                <label for="email">@Loc["EMailLabel"]</label>
+                <InputText @bind-Value="Model.EMail" id="email" class="width-input-100"></InputText>
+            </div>
+            
+            <div class="fluid-half">
+                <label for="password">@Loc["PasswordLabel"]</label>
+                <InputText @bind-Value="Model.Password" type="password" id="password" class="width-input-100"></InputText>
+            </div>
+            
+            <div class="spacer">&nbsp;</div>
+
+            <div class="fluid-half">
+                <label for="confirm-password">@Loc["ConfirmPasswordLabel"]</label>
+                <InputText @bind-Value="Model.ConfirmPassword" type="password" id="confirm-password" class="width-input-100"></InputText>
+            </div>
+            
+            <div class="fluid-half">
+                <label for="city">@Loc["CityLabel"]</label>
+                <InputText @bind-Value="Model.City" id="city" class="width-input-100"></InputText>
+            </div>
+            
+            <div class="spacer">&nbsp;</div>
+            
+            <div class="fluid-half">
+                <label for="country">@Loc["CountryLabel"]</label>
+                <InputSelect @bind-Value="Model.Country" id="country" class="width-100">
+                    @foreach (CountryModel country in Countries)
+                    {
+                        <option value="@country.ISOCode">@country.Name</option>
+                    }
+                </InputSelect>
+            </div>
+            
+            <div class="fluid-half">
+                <label for="timezone">@Loc["TimezoneLabel"]</label>
+                <InputSelect @bind-Value="Model.Timezone" id="timezone" class="width-100">
+                    @foreach (string timezoneName in TimezoneNames)
+                    {
+                        <option value="@timezoneName">@timezoneName</option>
+                    }
+                </InputSelect>
+            </div>
+            
+            <div class="spacer">&nbsp;</div>
+            
+            <div class="fluid-half">
+                <label for="language">@Loc["LanguageLabel"]</label>
+                <InputSelect @bind-Value="Model.Language" id="language" class="width-100">
+                    @foreach (LanguageModel language in Languages)
+                    {
+                        <option value="@language.ISOCode">@language.Name</option>
+                    }
+                </InputSelect>
+            </div>
+        </fieldset>
+        <button type="submit">@Loc["SubmitButton"]</button>
+    </EditForm>
+</div>
