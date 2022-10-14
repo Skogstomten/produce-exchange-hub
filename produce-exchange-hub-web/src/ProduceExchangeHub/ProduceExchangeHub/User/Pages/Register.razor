@@ -71,7 +71,13 @@
             </div>
             
             <div>
-                <!-- Language -->
+                <label for="language">@Loc["LanguageLabel"]</label>
+                <InputSelect @bind-Value="Model.Language" id="language">
+                    @foreach (LanguageModel language in Languages)
+                    {
+                        <option value="@language.ISOCode">@language.Name</option>
+                    }
+                </InputSelect>
             </div>
         </fieldset>
     </EditForm>

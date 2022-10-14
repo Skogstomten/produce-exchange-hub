@@ -24,6 +24,7 @@ public partial class Register
     private RegisterModel Model { get; set; } = new() {Country = "SE"};
     private string[] TimezoneNames { get; set; } = Array.Empty<string>();
     private CountryModel[] Countries { get; set; } = Array.Empty<CountryModel>();
+    private LanguageModel[] Languages { get; set; } = Array.Empty<LanguageModel>();
     private string? Message { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -37,6 +38,9 @@ public partial class Register
 
         Countries = (await DataService.GetCountriesAsync()).ToArray();
         Model.Country = Countries.First().ISOCode;
+
+        Languages = (await DataService.GetLanguagesAsync()).ToArray();
+        Model.Language = Languages.First().ISOCode;
 
         await base.OnInitializedAsync();
     }

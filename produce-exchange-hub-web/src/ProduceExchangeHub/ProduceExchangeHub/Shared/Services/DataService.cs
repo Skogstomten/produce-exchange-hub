@@ -21,4 +21,10 @@ public class DataService : ServiceBase, IDataService
         CountryModel[] countries = await GetAsync<CountryModel[]>("countries/");
         return countries;
     }
+
+    public async Task<IEnumerable<LanguageModel>> GetLanguagesAsync()
+    {
+        LanguageModel[] languages = await GetAsync<LanguageModel[]>("languages/");
+        return languages;
+    }
 }
