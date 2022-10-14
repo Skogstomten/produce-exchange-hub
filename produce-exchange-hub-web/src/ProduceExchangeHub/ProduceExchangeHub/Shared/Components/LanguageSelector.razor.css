@@ -1,0 +1,28 @@
+﻿ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: inline;
+}
+
+    ul li {
+        display: block;
+        text-align: center;
+        font-size: 17px;
+        padding: 10px;
+    }
+
+    ul.language-selector li {
+        float: right;
+        padding: 4.0px 6px 1.3px 3px;
+        margin: 0;
+    }
+
+@media screen and (max-width: 600px) {
+    ul li {
+        float: none;
+        display: block;
+        text-align: left;
+    }
+}

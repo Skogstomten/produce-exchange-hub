@@ -76,3 +76,69 @@ h1:focus {
 --green-sheen: #68b0abff;
 --black-coral: #696d7dff;
 */
+
+.width-100 {
+    width: 100%;
+}
+
+.width-input-100 {
+    width: 96%;
+}
+
+.fluid-half {
+    padding-top: 10px;
+    width: 49%;
+    display: inline-block;
+    float: left;
+}
+
+.fluid-full {
+    padding-top: 10px;
+    width: 100%;
+    float: left;
+}
+
+.fluid-full input {
+    width: 98%
+}
+
+.spacer {
+    display: inline-block;
+    float: left;
+    width: 2%;
+    height: 100%;
+}
+
+select {
+    margin: 0;
+    padding: 1px 2px;
+    border-width: 2px;
+    border-style: inset;
+}
+
+@media screen and (max-width: 600px) {
+    .fluid-half {
+        padding-top: 10px;
+        width: 100%;
+        display: block;
+        float: none;
+    }
+
+    .fluid-full {
+        padding-top: 10px;
+        width: auto;
+        float: none;
+    }
+
+    .fluid-full input {
+        width: 98%;
+    }
+
+    .width-input-100 {
+        width: 98%;
+    }
+
+    .spacer {
+        display: none;
+    }
+}
