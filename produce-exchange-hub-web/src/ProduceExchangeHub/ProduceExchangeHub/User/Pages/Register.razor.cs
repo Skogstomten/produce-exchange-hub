@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
+using ProduceExchangeHub.Shared.Models;
 using ProduceExchangeHub.Shared.Services;
 using ProduceExchangeHub.User.Models;
 using ProduceExchangeHub.User.Services;
@@ -22,6 +23,7 @@ public partial class Register
 
     private RegisterModel Model { get; set; } = new() {Country = "SE"};
     private string[] TimezoneNames { get; set; } = Array.Empty<string>();
+    private CountryModel[] Countries { get; set; } = Array.Empty<CountryModel>();
     private string? Message { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -32,6 +34,10 @@ public partial class Register
                 tzName => "Europe/Stockholm".Equals(tzName, StringComparison.InvariantCultureIgnoreCase)
             ) ??
             TimezoneNames.FirstOrDefault();
+
+        Countries = (await DataService.GetCountriesAsync()).ToArray();
+        Model.Country = Countries.First().ISOCode;
+
         await base.OnInitializedAsync();
     }
 

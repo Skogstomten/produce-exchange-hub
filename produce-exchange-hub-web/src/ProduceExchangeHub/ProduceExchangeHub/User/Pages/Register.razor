@@ -1,5 +1,6 @@
 ﻿@page "/authentication/register"
 @using Microsoft.AspNetCore.Authorization
+@using ProduceExchangeHub.Shared.Models
 
 @attribute [AllowAnonymous]
 
@@ -50,13 +51,17 @@
             </div>
             
             <div>
-                <!-- Country -->
+                <label for="country">@Loc["CountryLabel"]</label>
+                <InputSelect @bind-Value="Model.Country" id="country">
+                    @foreach (CountryModel country in Countries)
+                    {
+                        <option value="@country.ISOCode">@country.Name</option>
+                    }
+                </InputSelect>
             </div>
             
             <div>
-                <label for="timezone">
-                    @Loc["TimezoneLabel"]
-                </label>
+                <label for="timezone">@Loc["TimezoneLabel"]</label>
                 <InputSelect @bind-Value="Model.Timezone" id="timezone">
                     @foreach (string timezoneName in TimezoneNames)
                     {
