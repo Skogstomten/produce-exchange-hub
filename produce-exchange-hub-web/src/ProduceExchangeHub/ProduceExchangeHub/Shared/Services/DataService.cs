@@ -1,4 +1,5 @@
 ﻿using ProduceExchangeHub.Shared.Localization.Services;
+using ProduceExchangeHub.Shared.Models;
 
 namespace ProduceExchangeHub.Shared.Services;
 
@@ -13,5 +14,11 @@ public class DataService : ServiceBase, IDataService
     {
         string[] timezoneNames = await GetAsync<string[]>("timezones/");
         return timezoneNames;
+    }
+
+    public async Task<IEnumerable<CountryModel>> GetCountriesAsync()
+    {
+        CountryModel[] countries = await GetAsync<CountryModel[]>("countries/");
+        return countries;
     }
 }
