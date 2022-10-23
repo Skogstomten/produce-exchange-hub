@@ -2,7 +2,7 @@
 
 namespace ProduceExchangeHub.Company.Models;
 
-public record CompanyListModel
+public class CompanyListModel
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = null!;

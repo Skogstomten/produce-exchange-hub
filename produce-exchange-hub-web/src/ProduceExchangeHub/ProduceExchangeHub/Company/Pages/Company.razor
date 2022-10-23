@@ -1,0 +1,16 @@
+﻿@page "/company/{id}"
+
+<h1>
+    @Model.Name
+</h1>
+
+@if (Model.ProfilePictureUrl != null)
+{
+    <img src="@Model.ProfilePictureUrl"/>
+}
+
+<div>
+    <p>
+        @Model.Description
+    </p>
+</div>
