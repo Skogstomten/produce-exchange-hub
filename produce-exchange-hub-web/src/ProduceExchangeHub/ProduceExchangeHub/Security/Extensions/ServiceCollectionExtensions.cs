@@ -2,6 +2,7 @@
 using ProduceExchangeHub.Security.OAuth2.Configuration;
 using ProduceExchangeHub.Security.OAuth2.Services;
 using ProduceExchangeHub.Security.Services;
+using ProduceExchangeHub.Shared.Extensions;
 
 namespace ProduceExchangeHub.Security.Extensions;
 
@@ -12,7 +13,7 @@ public static class ServiceCollectionExtensions
         OAuth2ProviderOptions options = configuration.GetSection("OAuth2").Get<OAuth2ProviderOptions>();
 
         services.AddSingleton(_ => options)
-                .AddScoped<IAuthenticationService, AuthenticationService>()
+                .AddStandardHttpClient<IAuthenticationService, AuthenticationService>("auth")
                 .AddScoped<IAuthenticationManager, OAuth2AuthenticationManager>();
 
         return services;
