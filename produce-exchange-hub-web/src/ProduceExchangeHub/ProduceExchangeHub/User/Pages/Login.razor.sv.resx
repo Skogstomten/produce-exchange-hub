@@ -129,4 +129,10 @@
   <data name="PasswordLabel" xml:space="preserve">
     <value>Lösenord</value>
   </data>
+  <data name="PasswordPlaceholder" xml:space="preserve">
+    <value>Lösenord</value>
+  </data>
+  <data name="UsernamePlaceholder" xml:space="preserve">
+    <value>Användarnamn</value>
+  </data>
 </root>

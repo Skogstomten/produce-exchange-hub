@@ -3,22 +3,30 @@
 
 @attribute [AllowAnonymous]
 
-<EditForm Model="@_loginModel" OnValidSubmit="@LoginEventHandler">
-    <fieldset>
-        <legend>@Loc["LoginLegend"]</legend>
-        <DataAnnotationsValidator />
-        <div>
-            <label for="Username">@Loc["EMailLabel"]</label>
-            <InputText @bind-Value=_loginModel.Username placeholder="xxxxxxxx@domain.se" id="Username" />
-            <ValidationMessage For="() => _loginModel.Username" />
+<div class="login-layout-div">
+    <div class="login-left-layout">
+        <div class="login-form-div">
+            <EditForm Model="@_loginModel" OnValidSubmit="@LoginEventHandler">
+                <h2>@Loc["LoginLegend"]</h2>
+                <DataAnnotationsValidator/>
+                <div>
+                    <InputText @bind-Value=_loginModel.Username placeholder="@(Loc["UsernamePlaceholder"])" class="login-user-input"/>
+                    <ValidationMessage For="() => _loginModel.Username"/>
+                </div>
+                <div>
+                    <InputText @bind-Value=_loginModel.Password type="password" placeholder="@(Loc["PasswordPlaceholder"])" class="login-password-input"/>
+                    <ValidationMessage For="() => _loginModel.Password"/>
+                </div>
+                <div>
+                    <input type="submit" value="@(Loc["LoginButton"])" class="login-button-input"/>
+                </div>
+            </EditForm>
         </div>
-        <div>
-            <label for="Password">@Loc["PasswordLabel"]</label>
-            <InputText @bind-Value=_loginModel.Password type="password" id="Password" />
-            <ValidationMessage For="() => _loginModel.Password" />
-        </div>
-        <div>
-            <input type="submit" value="@(Loc["LoginButton"])" />
-        </div>
-    </fieldset>
-</EditForm>
+    </div>
+    <!--TODO: Needs to have localization added!-->
+    <div class="login-right-layout">
+        <h2>New here?</h2>
+        <p>Sign up for free</p>
+        <button>Register</button>
+    </div>
+</div>

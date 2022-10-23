@@ -1,1 +1,28 @@
-﻿
+﻿.company-card-div {
+    border-radius: 5px;
+    border: black solid 1px;
+    width: 20%;
+    padding: 10px 10px 10px 10px;
+    float: left;
+    text-align: center;
+}
+
+.company-title {
+
+}
+
+.company-img-div {
+
+}
+
+.company-img {
+
+}
+
+.company-description-div {
+
+}
+
+.company-description {
+
+}
