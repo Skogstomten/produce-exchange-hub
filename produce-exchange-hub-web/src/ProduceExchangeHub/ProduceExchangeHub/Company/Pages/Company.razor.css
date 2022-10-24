@@ -3,9 +3,23 @@
     margin: 0 auto;
 }
 
-.page-header {
+h1 {
     margin: 0;
     padding: 0;
+}
+
+h2 {
+    font-size: 14px;
+    margin: 12px 0 0 0;
+}
+
+.company-title {
+    border-bottom: solid thin black;
+}
+
+.website-url {
+    margin: 0 0 12px 0;
+    font-size: 12px;
 }
 
 .metadata {
@@ -17,4 +31,8 @@
 
 .profile-picture {
     float: right;
+}
+
+.contacts {
+    font-size: 13px;
 }
