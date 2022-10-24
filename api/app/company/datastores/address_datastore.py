@@ -16,6 +16,11 @@ class AddressDatastore(CompanyDatastore):
     def __init__(self, db: DocumentDatabase, logger: AppLogger):
         super().__init__(db, logger)
 
+    def get_addresses(self, company_id: str) -> list[Address]:
+        return [
+            Address(**address) for address in self._companies.by_id(company_id, fields=["addresses"]).get("addresses")
+        ]
+
     def add_address(self, company_id: str, model: AddAddressModel, authenticated_user: User) -> Address:
         address = Address.from_add_model(self.db.new_id(), model)
         address_dict = address.dict()

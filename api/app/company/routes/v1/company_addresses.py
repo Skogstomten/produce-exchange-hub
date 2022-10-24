@@ -10,6 +10,14 @@ from app.shared.config.routing_config import BASE_PATH
 router = APIRouter(prefix=BASE_PATH + "/companies/{company_id}/addresses", tags=["CompanyAddresses"])
 
 
+@router.get("/", response_model=list[Address])
+async def get_addreses(
+    company_id: str,
+    ds: AddressDatastore = Depends(get_address_datastore),
+):
+    return ds.get_addresses(company_id)
+
+
 @router.post("/", response_model=Address)
 async def add_address(
     company_id: str,
