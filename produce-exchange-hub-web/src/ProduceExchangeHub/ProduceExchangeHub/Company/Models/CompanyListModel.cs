@@ -2,13 +2,13 @@
 
 namespace ProduceExchangeHub.Company.Models;
 
-public record CompanyListModel
+public class CompanyListModel
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = null!;
 
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public string Name { get; set; } = null!;
 
     [JsonPropertyName("status")]
     public string Status { get; init; } = null!;

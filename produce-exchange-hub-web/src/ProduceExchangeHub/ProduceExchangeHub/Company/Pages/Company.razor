@@ -1,0 +1,59 @@
+﻿@page "/company/{id}"
+@using ProduceExchangeHub.Company.Models
+
+<div class="page">
+    <div class="company-title">
+        <h1 class="">
+            @Model.Name
+        </h1>
+        <p class="metadata">
+            @Loc["CreatedDateLabel"]:
+            @Model.CreatedDate
+        </p>
+    </div>
+
+    @if (Model.ProfilePictureUrl != null)
+    {
+        <img src="@Model.ProfilePictureUrl" class="profile-picture">
+    }
+
+    <div>
+        <p>
+            @Model.Description
+        </p>
+    </div>
+    <div>
+        <h2>
+            @Loc["ExternalHomepageLinkHeader"]
+        </h2>
+        <p class="website-url">
+            <a href="@Model.ExternalWebsiteUrl">@Model.ExternalWebsiteUrl</a>
+        </p>
+    </div>
+
+    <div class="contacts">
+        @foreach (ContactModel contact in Model.Contacts)
+        {
+            <div class="">
+                <div>
+                    <strong>
+                        @Loc[contact.Type]
+                    </strong>
+                    @contact.Description
+                </div>
+                <div>
+                    @if (contact.Type == "email")
+                    {
+                        <a href="mailto:@contact.Value">@contact.Value</a>
+                    } else if (contact.Type == "phone")
+                    {
+                        <a href="tel:@contact.Value">@contact.Value</a>
+                    } else
+                    {
+                        @contact.Value
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

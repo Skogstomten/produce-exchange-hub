@@ -6,8 +6,14 @@
 <PageTitle>Index</PageTitle>
 
 <div class="container">
-    @foreach (CompanyListModel company in Companies)
-    {
-        <CompanyCard Company="company" />
-    }
+    
+    <h1 class="index-page-title">Företag som använder ProduceExchangeHub</h1>
+
+    <div class="company-card-list-div">
+        @foreach (CompanyListModel company in Companies)
+        {
+            <CompanyCard Company="company"/>
+        }
+    </div>
+
 </div>

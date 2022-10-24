@@ -24,4 +24,6 @@ public class CompanyService : ServiceBase, ICompanyService
         ListResponseModel<CompanyListModel> response = await GetAsync<ListResponseModel<CompanyListModel>>(uri);
         return response.Items ?? new List<CompanyListModel>();
     }
+
+    public Task<CompanyModel> GetCompanyAsync(string id) => GetAsync<CompanyModel>($"companies/{id}/");
 }
