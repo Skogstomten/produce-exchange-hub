@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Localization;
 using ProduceExchangeHub.Company.Models;
 using ProduceExchangeHub.Company.Services;
 
@@ -11,6 +12,9 @@ public partial class Company
 
     [Inject]
     private ICompanyService CompanyService { get; set; } = null!;
+
+    [Inject]
+    private IStringLocalizer<Company> Loc { get; set; } = null!;
 
     private CompanyModel Model { get; set; } = new();
 

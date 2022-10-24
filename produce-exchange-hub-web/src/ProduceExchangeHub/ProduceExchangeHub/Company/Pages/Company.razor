@@ -1,18 +1,45 @@
 ﻿@page "/company/{id}"
+@using ProduceExchangeHub.Company.Models
 
 <div class="page">
-    <h1>
+    <h1 class="page-header">
         @Model.Name
     </h1>
+    <p class="metadata">
+        @Loc["CreatedDateLabel"]: 
+        @Model.CreatedDate
+    </p>
 
     @if (Model.ProfilePictureUrl != null)
     {
-        <img src="@Model.ProfilePictureUrl"/ class="profile-picture">
+        <img src="@Model.ProfilePictureUrl" class="profile-picture">
     }
 
     <div>
         <p>
             @Model.Description
         </p>
+    </div>
+    <div>
+        <h2>
+            @Loc["ExternalHomepageLinkHeader"]
+        </h2>
+        <p>
+            @Model.ExternalWebsiteUrl
+        </p>
+    </div>
+    
+    <div class="contacts">
+        @foreach (ContactModel contact in Model.Contacts)
+        {
+            <div class="contact">
+                <div>
+                    @Loc[contact.Type] @contact.Description
+                </div>
+                <div>
+                    @contact.Value
+                </div>
+            </div>
+        }
     </div>
 </div>
