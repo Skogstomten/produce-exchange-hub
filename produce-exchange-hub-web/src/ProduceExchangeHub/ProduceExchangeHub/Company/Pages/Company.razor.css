@@ -36,3 +36,16 @@ h2 {
 .contacts {
     font-size: 13px;
 }
+
+.addresses {
+    margin: 0 0 12px 2em;
+    font-size: 12px;
+}
+
+.left-column {
+    float: left;
+}
+
+.right-column {
+    float: left;
+}
