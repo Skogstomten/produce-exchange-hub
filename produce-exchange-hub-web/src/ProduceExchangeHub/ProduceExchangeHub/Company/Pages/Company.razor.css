@@ -49,3 +49,33 @@ h2 {
 .right-column {
     float: left;
 }
+
+@media screen and (max-width: 1120px) {
+    .page {
+        width: 70%;
+    }
+}
+
+@media screen and (max-width: 820px) {
+    .page {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .page {
+        width: 98%;
+    }
+
+    .left-column {
+        float: none;
+    }
+
+    .right-column {
+        float: none;
+    }
+
+    .addresses {
+        margin: 0 0 12px 0;
+    }
+}
