@@ -10,7 +10,7 @@
                 <h2>@Loc["LoginLegend"]</h2>
                 <DataAnnotationsValidator/>
                 <div>
-                    <InputText @bind-Value=_loginModel.Username placeholder="@(Loc["UsernamePlaceholder"])" class="login-user-input"/>
+                    <InputText @bind-Value=_loginModel.Username placeholder="@(Loc["UsernamePlaceholder"])" class="login-user-input" focus="true" id="username"/>
                     <ValidationMessage For="() => _loginModel.Username"/>
                 </div>
                 <div>

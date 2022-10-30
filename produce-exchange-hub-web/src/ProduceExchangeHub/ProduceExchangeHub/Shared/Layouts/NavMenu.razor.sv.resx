@@ -126,6 +126,9 @@
   <data name="LoginLink" xml:space="preserve">
     <value>Logga in</value>
   </data>
+  <data name="LogoutLink" xml:space="preserve">
+    <value>Logga ut</value>
+  </data>
   <data name="MissingNameLabel" xml:space="preserve">
     <value>Namn saknas</value>
   </data>

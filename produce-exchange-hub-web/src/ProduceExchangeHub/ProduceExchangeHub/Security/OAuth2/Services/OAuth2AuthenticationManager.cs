@@ -69,6 +69,11 @@ public class OAuth2AuthenticationManager : IAuthenticationManager
         return result;
     }
 
+    public async ValueTask LogoutAsync()
+    {
+        await _localStorage.RemoveValuesAsync(StorageKey.OAuthTokens, StorageKey.UserInformation);
+    }
+
     public void Subscribe(Func<AuthenticationEvent, Task> callback) => _subscribers.Add(callback);
 
     public ValueTask<UserInformation?> GetAuthenticatedUserAsync() =>

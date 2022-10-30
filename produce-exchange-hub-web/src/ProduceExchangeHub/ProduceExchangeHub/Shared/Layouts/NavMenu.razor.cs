@@ -55,4 +55,12 @@ public partial class NavMenu
         UserInformation = await AuthenticationManager.GetAuthenticatedUserAsync();
         IsLoggedIn = true;
     }
+
+    private async Task OnLogoutClicked()
+    {
+        await AuthenticationManager.LogoutAsync();
+        UserInformation = null;
+        IsLoggedIn = false;
+        StateHasChanged();
+    }
 }

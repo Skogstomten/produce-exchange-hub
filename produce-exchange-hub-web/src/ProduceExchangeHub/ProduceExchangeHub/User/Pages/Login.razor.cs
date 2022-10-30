@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Localization;
 using ProduceExchangeHub.Security.Abstractions;
 using ProduceExchangeHub.User.Models;
@@ -20,6 +21,11 @@ public partial class Login
     public string? ReturnUrl { get; set; }
 
     private LoginModel _loginModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
 
     public async Task LoginEventHandler()
     {

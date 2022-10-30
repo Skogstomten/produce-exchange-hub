@@ -18,6 +18,13 @@
     @if (IsLoggedIn)
     {
         <ul class="nav-right-user">
+
+            <a @onclick="OnLogoutClicked">
+                <li class="clickable">
+                    @Loc["LogoutLink"]
+                </li>
+            </a>
+
             @if (UserInformation != null)
             {
                 <li>@UserInformation.FirstName @UserInformation.LastName</li>

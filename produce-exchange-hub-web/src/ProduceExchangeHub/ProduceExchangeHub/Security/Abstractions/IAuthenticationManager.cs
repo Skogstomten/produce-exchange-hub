@@ -6,6 +6,7 @@ namespace ProduceExchangeHub.Security.Abstractions;
 public interface IAuthenticationManager
 {
     ValueTask<LoginResult> LoginAsync(string username, string password);
+    ValueTask LogoutAsync();
     void Subscribe(Func<AuthenticationEvent, Task> callback);
     ValueTask<UserInformation?> GetAuthenticatedUserAsync();
     ValueTask<bool> IsUserAuthenticatedAsync();

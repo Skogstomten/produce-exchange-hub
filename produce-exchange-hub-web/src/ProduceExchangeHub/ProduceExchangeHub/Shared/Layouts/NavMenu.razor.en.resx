@@ -126,6 +126,9 @@
   <data name="LoginLink" xml:space="preserve">
     <value>Login</value>
   </data>
+  <data name="LogoutLink" xml:space="preserve">
+    <value>Log out</value>
+  </data>
   <data name="MissingNameLabel" xml:space="preserve">
     <value>Missing Name</value>
   </data>
