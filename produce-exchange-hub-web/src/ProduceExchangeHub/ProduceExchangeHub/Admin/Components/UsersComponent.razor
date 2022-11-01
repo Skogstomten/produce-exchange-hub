@@ -1,0 +1,18 @@
+﻿@using ProduceExchangeHub.Admin.Models
+<div class="tab">
+    <table>
+        <thead>
+        <tr>
+            <th>@Loc["EMailHeader"]</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (UserModel user in Users)
+        {
+            <tr>
+                <td>@user.Email</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

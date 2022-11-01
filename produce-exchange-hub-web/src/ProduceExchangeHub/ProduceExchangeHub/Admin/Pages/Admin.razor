@@ -1,5 +1,7 @@
 ﻿@page "/admin"
 
+@using ProduceExchangeHub.Admin.Components;
+
 <h1>Admin</h1>
 
 <ul>
@@ -14,3 +16,10 @@
         </li>
     </a>
 </ul>
+
+<div id="tabs">
+    @if (CurrentTab == Tab.UsersTab)
+    {
+        <UsersComponent></UsersComponent>
+    }
+</div>

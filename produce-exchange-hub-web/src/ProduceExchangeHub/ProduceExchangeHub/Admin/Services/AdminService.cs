@@ -7,7 +7,7 @@ namespace ProduceExchangeHub.Admin.Services;
 
 public class AdminService : ServiceBase, IAdminService
 {
-    public AdminService(HttpClient httpClient, ICultureService cultureService, ILogger logger)
+    public AdminService(HttpClient httpClient, ICultureService cultureService, ILogger<AdminService> logger)
         : base(httpClient, cultureService, logger)
     {
     }

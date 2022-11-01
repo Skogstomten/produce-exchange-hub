@@ -22,7 +22,7 @@ public class CompanyService : ServiceBase, ICompanyService
         string GetSortOrder() => sortOrder == SortOrder.Ascending ? "asc" : "desc";
         string uri = $"companies/?skip={skip}&take={take}&sort_order={GetSortOrder()}&sort_by={sortBy}";
         ListResponseModel<CompanyListModel> response = await GetAsync<ListResponseModel<CompanyListModel>>(uri);
-        return response.Items ?? new List<CompanyListModel>();
+        return response.Items ?? Array.Empty<CompanyListModel>();
     }
 
     public Task<CompanyModel> GetCompanyAsync(string id) => GetAsync<CompanyModel>($"companies/{id}/");

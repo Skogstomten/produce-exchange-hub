@@ -5,5 +5,5 @@ namespace ProduceExchangeHub.Shared.Models;
 public class ListResponseModel<TModel>
 {
     [JsonPropertyName("items")]
-    public List<TModel>? Items { get; init; }
+    public TModel[]? Items { get; init; }
 }
