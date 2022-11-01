@@ -5,21 +5,20 @@
 <h1>Admin</h1>
 
 <ul>
-    <a>
-        <li>
-            @Loc["UsersTabHeader"]
-        </li>
-    </a>
-    <a>
-        <li>
-            Other tab
-        </li>
-    </a>
+    <li @ref="UsersTabRef" @onclick="() => SetActiveTab(UsersTabRef, Tab.UsersTab)">
+        @Loc["UsersTabHeader"]
+    </li>
+    <li @ref="DummyTabRef" @onclick="() => SetActiveTab(DummyTabRef, Tab.DummyTab)">
+        Other tab
+    </li>
 </ul>
 
 <div id="tabs">
     @if (CurrentTab == Tab.UsersTab)
     {
         <UsersComponent></UsersComponent>
+    } else if (CurrentTab == Tab.DummyTab)
+    {
+        <p>This is dummy</p>
     }
 </div>
