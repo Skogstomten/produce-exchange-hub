@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 using ProduceExchangeHub;
+using ProduceExchangeHub.Admin.IoC;
 using ProduceExchangeHub.Company.Extensions;
 using ProduceExchangeHub.Security.Extensions;
 using ProduceExchangeHub.Shared.Extensions;
@@ -17,7 +18,8 @@ builder.Services
        .AddSharedServices(builder.Configuration)
        .AddSecurityServices(builder.Configuration)
        .AddUserServices()
-       .AddCompanyServices();
+       .AddCompanyServices()
+       .AddAdmin();
 
 builder.Services.AddHttpClient(
     "App",
