@@ -18,6 +18,15 @@
     @if (IsLoggedIn)
     {
         <ul class="nav-right-user">
+            
+            @if (UserInformation?.Roles.Any(r => r == "superuser") ?? false)
+            {
+                <NavLink href="/admin" @onclick="CloseNavMeny">
+                    <li class="clickable">
+                        @Loc["AdminLink"]
+                    </li>
+                </NavLink>
+            }
 
             <a @onclick="OnLogoutClicked">
                 <li class="clickable">
