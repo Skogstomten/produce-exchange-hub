@@ -3,10 +3,9 @@ using System.Security.Claims;
 using ProduceExchangeHub.Security.Abstractions;
 using ProduceExchangeHub.Security.Models;
 using ProduceExchangeHub.Security.Services;
-using ProduceExchangeHub.Security.Utilities;
 using ProduceExchangeHub.Shared.Models;
-using ProduceExchangeHub.Shared.Providers;
 using ProduceExchangeHub.Shared.Services;
+using ProduceExchangeHub.Shared.Utilities;
 using ProduceExchangeHub.User.Models;
 
 namespace ProduceExchangeHub.Security.OAuth2.Services;

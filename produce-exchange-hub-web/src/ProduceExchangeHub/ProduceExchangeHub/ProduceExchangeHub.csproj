@@ -32,7 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Security\OAuth2\Tokens\" />
+	  <Folder Include="Security\Utilities\" />
 	</ItemGroup>
 
 </Project>

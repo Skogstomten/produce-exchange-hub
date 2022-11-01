@@ -4,6 +4,12 @@
         <thead>
         <tr>
             <th>@Loc["EMailHeader"]</th>
+            <th>@Loc["FirstNameHeader"]</th>
+            <th>@Loc["LastNameHeader"]</th>
+            <th>@Loc["CityHeader"]</th>
+            <th>@Loc["CountryISOHeader"]</th>
+            <th>@Loc["VerifiedHeader"]</th>
+            <th>@Loc["CreatedHeader"]</th>
         </tr>
         </thead>
         <tbody>
@@ -11,6 +17,12 @@
         {
             <tr>
                 <td>@user.Email</td>
+                <td>@user.FirstName</td>
+                <td>@user.LastName</td>
+                <td>@user.City</td>
+                <td>@user.CountryISO</td>
+                <td>@(user.Verified ? Loc["YesLabel"] : Loc["NoLabel"])</td>
+                <td>@user.Created</td>
             </tr>
         }
         </tbody>
