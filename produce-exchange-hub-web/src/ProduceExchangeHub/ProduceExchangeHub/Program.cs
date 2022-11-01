@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 using ProduceExchangeHub;
-using ProduceExchangeHub.Admin.IoC;
+using ProduceExchangeHub.Admin.Extensions;
 using ProduceExchangeHub.Company.Extensions;
 using ProduceExchangeHub.Security.Extensions;
 using ProduceExchangeHub.Shared.Extensions;

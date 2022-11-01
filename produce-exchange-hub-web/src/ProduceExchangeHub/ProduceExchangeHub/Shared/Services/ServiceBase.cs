@@ -1,8 +1,10 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 using ProduceExchangeHub.Shared.Exceptions;
 using ProduceExchangeHub.Shared.Localization.Services;
 using ProduceExchangeHub.Shared.Models;
+using ProduceExchangeHub.Shared.Providers;
 
 namespace ProduceExchangeHub.Shared.Services;
 
@@ -11,15 +13,22 @@ public class ServiceBase
     protected readonly HttpClient HttpClient;
     private readonly ICultureService _cultureService;
     private readonly ILogger _logger;
+    private readonly IAccessTokenProvider _accessTokenProvider;
 
     protected static readonly JsonSerializerOptions SerializerOptions = new()
         {AllowTrailingCommas = true, PropertyNameCaseInsensitive = true};
 
-    public ServiceBase(HttpClient httpClient, ICultureService cultureService, ILogger logger)
+    public ServiceBase(
+        HttpClient httpClient,
+        ICultureService cultureService,
+        ILogger logger,
+        IAccessTokenProvider accessTokenProvider
+    )
     {
         HttpClient = httpClient;
         _cultureService = cultureService;
         _logger = logger;
+        _accessTokenProvider = accessTokenProvider;
     }
 
     protected bool InsertLanguageCodeInURI { get; set; } = true;
@@ -58,6 +67,10 @@ public class ServiceBase
         HttpRequestMessage httpRequestMessage = new(httpMethod, uri);
         foreach (KeyValuePair<string, string> header in headers)
             httpRequestMessage.Headers.Add(header.Key, header.Value);
+        string? accessToken = await _accessTokenProvider.GetAccessTokenAsync();
+        if (accessToken != null)
+            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
         httpRequestMessage.Content = content;
 
         HttpResponseMessage httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage);

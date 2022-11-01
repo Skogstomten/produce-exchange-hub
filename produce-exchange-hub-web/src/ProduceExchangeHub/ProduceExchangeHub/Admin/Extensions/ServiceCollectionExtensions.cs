@@ -1,9 +1,9 @@
 ﻿using ProduceExchangeHub.Admin.Services;
 using ProduceExchangeHub.Shared.Extensions;
 
-namespace ProduceExchangeHub.Admin.IoC;
+namespace ProduceExchangeHub.Admin.Extensions;
 
-public static class ServiceSetup
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddAdmin(this IServiceCollection services)
     {

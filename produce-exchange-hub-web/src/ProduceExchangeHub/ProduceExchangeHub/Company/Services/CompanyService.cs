@@ -1,14 +1,20 @@
 ﻿using ProduceExchangeHub.Company.Models;
 using ProduceExchangeHub.Shared.Localization.Services;
 using ProduceExchangeHub.Shared.Models;
+using ProduceExchangeHub.Shared.Providers;
 using ProduceExchangeHub.Shared.Services;
 
 namespace ProduceExchangeHub.Company.Services;
 
 public class CompanyService : ServiceBase, ICompanyService
 {
-    public CompanyService(HttpClient httpClient, ICultureService cultureService, ILogger<CompanyService> logger)
-        : base(httpClient, cultureService, logger)
+    public CompanyService(
+        HttpClient httpClient,
+        ICultureService cultureService,
+        ILogger<CompanyService> logger,
+        IAccessTokenProvider accessTokenProvider
+    )
+        : base(httpClient, cultureService, logger, accessTokenProvider)
     {
     }
 

@@ -35,7 +35,7 @@ public class UserModel
     public DateTime Created { get; set; }
 
     [JsonPropertyName("last_logged_in")]
-    public DateTime LastLoggedIn { get; set; }
+    public DateTime? LastLoggedIn { get; set; }
 
     [JsonPropertyName("roles")]
     public UserRoleModel[] Roles { get; set; } = null!;
