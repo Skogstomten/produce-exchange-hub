@@ -117,31 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CityHeader" xml:space="preserve">
-    <value>Stad</value>
-  </data>
-  <data name="CountryISOHeader" xml:space="preserve">
-    <value>Landskod</value>
-  </data>
-  <data name="CreatedHeader" xml:space="preserve">
-    <value>Skapad</value>
-  </data>
-  <data name="EMailHeader" xml:space="preserve">
-    <value>E-Postadress</value>
-  </data>
-  <data name="FirstNameHeader" xml:space="preserve">
-    <value>Förnamn</value>
-  </data>
-  <data name="LastNameHeader" xml:space="preserve">
-    <value>Efternamn</value>
-  </data>
-  <data name="NoLabel" xml:space="preserve">
-    <value>Nej</value>
-  </data>
-  <data name="VerifiedHeader" xml:space="preserve">
-    <value>Verifierad</value>
-  </data>
-  <data name="YesLabel" xml:space="preserve">
-    <value>Ja</value>
+  <data name="UsersTabHeader" xml:space="preserve">
+    <value>Användare</value>
   </data>
 </root>

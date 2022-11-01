@@ -118,30 +118,30 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CityHeader" xml:space="preserve">
-    <value>Stad</value>
+    <value>City</value>
   </data>
   <data name="CountryISOHeader" xml:space="preserve">
-    <value>Landskod</value>
+    <value>Country code</value>
   </data>
   <data name="CreatedHeader" xml:space="preserve">
-    <value>Skapad</value>
+    <value>Created</value>
   </data>
   <data name="EMailHeader" xml:space="preserve">
-    <value>E-Postadress</value>
+    <value>E-mail</value>
   </data>
   <data name="FirstNameHeader" xml:space="preserve">
-    <value>Förnamn</value>
+    <value>Firstname</value>
   </data>
   <data name="LastNameHeader" xml:space="preserve">
-    <value>Efternamn</value>
+    <value>Lastname</value>
   </data>
   <data name="NoLabel" xml:space="preserve">
-    <value>Nej</value>
+    <value>No</value>
   </data>
   <data name="VerifiedHeader" xml:space="preserve">
-    <value>Verifierad</value>
+    <value>Verified</value>
   </data>
   <data name="YesLabel" xml:space="preserve">
-    <value>Ja</value>
+    <value>Yes</value>
   </data>
 </root>

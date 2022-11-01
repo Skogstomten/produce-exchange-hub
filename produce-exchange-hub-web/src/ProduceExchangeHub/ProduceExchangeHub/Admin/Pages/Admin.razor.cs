@@ -19,10 +19,11 @@ public partial class Admin
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        TabRefs = new[] {UsersTabRef, DummyTabRef};
-
         if (firstRender)
+        {
+            TabRefs = new[] {UsersTabRef, DummyTabRef};
             await SetActiveTab(UsersTabRef, Tab.UsersTab);
+        }
 
         await base.OnAfterRenderAsync(firstRender);
     }
