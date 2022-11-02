@@ -38,7 +38,7 @@ public class UserModel
     public DateTime? LastLoggedIn { get; set; }
 
     [JsonPropertyName("roles")]
-    public UserRoleModel[] Roles { get; set; } = null!;
+    public UserRoleModel[] Roles { get; set; } = Array.Empty<UserRoleModel>();
 
     [JsonPropertyName("profile_picture_url")]
     public string ProfilePictureUrl { get; set; } = null!;

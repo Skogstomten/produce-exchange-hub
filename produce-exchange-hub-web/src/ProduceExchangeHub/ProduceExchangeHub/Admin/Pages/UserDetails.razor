@@ -1,1 +1,40 @@
-﻿
+﻿@page "/user/{userId}"
+@using ProduceExchangeHub.Admin.Models
+
+<h3>@User.FirstName @User.LastName</h3>
+
+@if (!string.IsNullOrWhiteSpace(User.ProfilePictureUrl))
+{
+    <div>
+        <img src="@User.ProfilePictureUrl" width="200"/>
+    </div>
+}
+
+@User.Email<br/>
+@User.City<br/>
+@User.CountryISO<br/>
+@User.Timezone<br/>
+@User.LanguageISO<br/>
+@User.Verified<br/>
+@User.Created<br/>
+@User.LastLoggedIn<br/>
+
+<table>
+    <thead>
+    <tr>
+        <th>@Loc["RoleNameTableHeader"]</th>
+        <th>@Loc["RoleTypeTableHeader"]</th>
+        <th>@Loc["ReferenceTableHeader"]</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (UserRoleModel role in User.Roles)
+    {
+        <tr>
+            <td>@role.RoleName</td>
+            <td>@role.RoleType</td>
+            <td>@role.Reference</td>
+        </tr>
+    }
+    </tbody>
+</table>

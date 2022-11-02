@@ -6,4 +6,5 @@ namespace ProduceExchangeHub.Admin.Services;
 public interface IAdminService
 {
     Task<ListResponseModel<UserModel>> GetUsersAsync();
+    Task<UserModel> GetUserAsync(string id);
 }

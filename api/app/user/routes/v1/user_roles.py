@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Path, Request, Security
 
 from app.logging.log import AppLogger, AppLoggerInjector
 from app.authentication.dependencies.user import get_current_user
+from app.shared.dependencies.essentials import Essentials, get_essentials
 from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.user.models.v1.user_api_models import UserOutModel, UserRoleOutModel
 from app.user.models.db.user import User
@@ -30,12 +31,12 @@ async def get_user_roles(
 
 @router.post("/{role_name}", response_model=UserOutModel)
 async def add_role_to_user(
-    request: Request,
     user_datastore: UserDatastore = Depends(get_user_datastore),
     user_id: str = Path(...),
     role_name: str = Path(...),
     user: User = Security(get_current_user, scopes=("roles:superuser",)),
+    essentials: Essentials = Depends(get_essentials),
 ) -> UserOutModel:
     """Adds a role to a user."""
     updated_user = user_datastore.add_role_to_user(user, user_id, role_name)
-    return UserOutModel.from_database_model(updated_user, request)
+    return UserOutModel.from_database_model(updated_user, essentials.request, router, essentials.language)

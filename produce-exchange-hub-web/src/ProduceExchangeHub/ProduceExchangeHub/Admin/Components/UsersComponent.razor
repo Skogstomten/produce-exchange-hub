@@ -15,7 +15,7 @@
         <tbody>
         @foreach (UserModel user in Users)
         {
-            <tr>
+            <tr @onclick="() => GoToUser(user.Id)">
                 <td>@user.Email</td>
                 <td>@user.FirstName</td>
                 <td>@user.LastName</td>

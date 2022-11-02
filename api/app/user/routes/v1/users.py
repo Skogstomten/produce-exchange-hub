@@ -24,12 +24,13 @@ async def register(
     request: Request,
     user_datastore: UserDatastore = Depends(get_user_datastore),
     body: UserRegister = Body(...),
+    essentials: Essentials = Depends(get_essentials),
 ) -> UserOutModel:
     """
     Register new user.
     """
     user = user_datastore.add_user(body)
-    return UserOutModel.from_database_model(user, request)
+    return UserOutModel.from_database_model(user, request, router, essentials.language)
 
 
 @router.get("/", response_model=PagingResponseModel[UserOutModel])
@@ -46,7 +47,7 @@ async def get_users(
     all_users = user_datastore.get_users(take, skip)
     items: list[UserOutModel] = []
     for usr in all_users:
-        items.append(UserOutModel.from_database_model(usr, essentials.request))
+        items.append(UserOutModel.from_database_model(usr, essentials.request, router, essentials.language))
     return PagingResponseModel[UserOutModel].create(items, skip, take, essentials.request)
 
 
@@ -61,7 +62,7 @@ async def get_user(
     """Get user by id."""
     logger.debug(f"Incoming={get_url(essentials.request)}: user_id={user_id}, authenticated_user={authenticated_user}")
     user = user_datastore.get_user_by_id(user_id)
-    return UserOutModel.from_database_model(user, essentials.request)
+    return UserOutModel.from_database_model(user, essentials.request, router, essentials.language)
 
 
 @router.delete(

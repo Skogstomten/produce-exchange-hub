@@ -4,6 +4,7 @@ Routing module for company users endpoint.
 from fastapi import APIRouter, Depends, Security, Path, Request, status
 
 from app.company.datastores.company_user_datastore import get_company_user_datastore, CompanyUserDatastore
+from app.shared.dependencies.essentials import Essentials, get_essentials
 from app.user.datastores.user_datastore import UserDatastore, get_user_datastore
 from app.logging.log import AppLogger, AppLoggerInjector
 from app.authentication.dependencies.user import get_current_user
@@ -27,11 +28,12 @@ async def get_company_users(
     ),
     user_datastore: UserDatastore = Depends(get_user_datastore),
     logger: AppLogger = Depends(logger_injector),
+    essentials: Essentials = Depends(get_essentials),
 ) -> list[UserOutModel]:
     """Gets list of users with access to company."""
     logger.debug(f"Incoming={get_url(request)}: company_id={company_id}, user={user}")
     users = user_datastore.get_company_users(company_id)
-    return [UserOutModel.from_database_model(u, request) for u in users]
+    return [UserOutModel.from_database_model(u, request, router, essentials.language) for u in users]
 
 
 @router.post("/{user_id}/{role_name}", response_model=list[UserOutModel], status_code=status.HTTP_201_CREATED)
@@ -42,7 +44,8 @@ async def add_user_to_company_with_role(
     role_name: str = Path(...),
     user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
     company_user_datastore: CompanyUserDatastore = Depends(get_company_user_datastore),
+    essentials: Essentials = Depends(get_essentials),
 ) -> list[UserOutModel]:
     """Adds existing user to company."""
     users = company_user_datastore.add_user_to_company(company_id, role_name, user_id, user)
-    return [UserOutModel.from_database_model(u, request) for u in users]
+    return [UserOutModel.from_database_model(u, request, router, essentials.language) for u in users]

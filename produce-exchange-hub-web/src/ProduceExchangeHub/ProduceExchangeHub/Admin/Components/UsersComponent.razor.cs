@@ -14,6 +14,9 @@ public partial class UsersComponent
     [Inject]
     private IAdminService AdminService { get; set; } = null!;
 
+    [Inject]
+    private NavigationManager NavManager { get; set; } = null!;
+
     private UserModel[] Users { get; set; } = Array.Empty<UserModel>();
 
     protected override async Task OnInitializedAsync()
@@ -24,4 +27,6 @@ public partial class UsersComponent
 
         await base.OnInitializedAsync();
     }
+
+    private void GoToUser(string userId) => NavManager.NavigateTo($"/user/{userId}");
 }
