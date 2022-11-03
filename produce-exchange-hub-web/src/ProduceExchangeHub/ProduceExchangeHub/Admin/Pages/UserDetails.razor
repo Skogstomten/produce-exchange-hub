@@ -1,40 +1,69 @@
 ﻿@page "/user/{userId}"
 @using ProduceExchangeHub.Admin.Models
 
-<h3>@User.FirstName @User.LastName</h3>
+<div class="page">
+    <h3>@User.FirstName @User.LastName</h3>
 
-@if (!string.IsNullOrWhiteSpace(User.ProfilePictureUrl))
-{
-    <div>
-        <img src="@User.ProfilePictureUrl" width="200"/>
-    </div>
-}
-
-@User.Email<br/>
-@User.City<br/>
-@User.CountryISO<br/>
-@User.Timezone<br/>
-@User.LanguageISO<br/>
-@User.Verified<br/>
-@User.Created<br/>
-@User.LastLoggedIn<br/>
-
-<table>
-    <thead>
-    <tr>
-        <th>@Loc["RoleNameTableHeader"]</th>
-        <th>@Loc["RoleTypeTableHeader"]</th>
-        <th>@Loc["ReferenceTableHeader"]</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (UserRoleModel role in User.Roles)
+    @if (!string.IsNullOrWhiteSpace(User.ProfilePictureUrl))
     {
-        <tr>
-            <td>@role.RoleName</td>
-            <td>@role.RoleType</td>
-            <td>@role.Reference</td>
-        </tr>
+        <div class="profile-picture">
+            <img src="@User.ProfilePictureUrl"/>
+        </div>
     }
-    </tbody>
-</table>
+
+    <div class="properties">
+        <div class="property-field">
+            <label>@Loc["EMailLabel"]</label>
+            <div>@User.Email</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["CityLabel"]</label>
+            <div>@User.City</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["CountryISOLabel"]</label>
+            <div>@User.CountryISO</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["TimezoneLabel"]</label>
+            <div>@User.Timezone</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["LanguageISOLabel"]</label>
+            <div>@User.LanguageISO</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["VerifiedLabel"]</label>
+            <div>@(User.Verified ? Loc["YesLabel"] : Loc["NoLabel"])</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["CreatedLabel"]</label>
+            <div>@User.Created</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["LastLoggedInLabel"]</label>
+            <div>@User.LastLoggedIn</div>
+        </div>
+    </div>
+    
+    <h3>@Loc["RolesHeader"]</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>@Loc["RoleNameTableHeader"]</th>
+            <th>@Loc["RoleTypeTableHeader"]</th>
+            <th>@Loc["ReferenceTableHeader"]</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (UserRoleModel role in User.Roles)
+        {
+            <tr>
+                <td>@role.RoleName</td>
+                <td>@role.RoleType</td>
+                <td>@role.Reference</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

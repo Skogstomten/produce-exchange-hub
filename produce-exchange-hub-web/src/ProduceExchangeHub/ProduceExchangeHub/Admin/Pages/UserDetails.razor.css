@@ -1,1 +1,73 @@
-﻿
+﻿.page {
+    margin: 0 20%;
+}
+
+.property-field {
+    margin: 10px 0;
+}
+
+.property-field label {
+    font-weight: bold;
+    width: 150px;
+    display: inline-block;
+}
+
+.property-field div {
+    display: inline;
+}
+
+.profile-picture img {
+    float: right;
+    width: 30%;
+}
+
+td, th {
+    text-align: left;
+    padding: 12px;
+}
+
+tbody tr {
+    border-bottom: 1px solid #ddd;
+}
+
+thead tr, tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+table {
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+    font-size: 18px;
+}
+
+@media screen and (max-width: 1120px) {
+    .page {
+        width: 70%;
+    }
+}
+
+@media screen and (max-width: 820px) {
+    .page {
+        width: 90%;
+        margin: 0 5%;
+    }
+
+    .property-field label {
+        display: block;
+    }
+
+    .property-field div {
+        display: block;
+    }
+
+    .properties {
+        width: 30%;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .page {
+        width: 98%;
+        margin: 0 5px;
+    }
+}
