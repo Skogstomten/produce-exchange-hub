@@ -126,6 +126,12 @@
   <data name="LoginLegend" xml:space="preserve">
     <value>Logga in</value>
   </data>
+  <data name="MissingPasswordErrorMessage" xml:space="preserve">
+    <value>Lösenord saknas</value>
+  </data>
+  <data name="MissingUserNameErrorMessage" xml:space="preserve">
+    <value>Användarnamn saknas</value>
+  </data>
   <data name="PasswordLabel" xml:space="preserve">
     <value>Lösenord</value>
   </data>

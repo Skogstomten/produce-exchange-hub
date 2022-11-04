@@ -38,4 +38,13 @@
 		</Content>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <EmbeddedResource Update="User\Pages\Login.razor.en.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="User\Pages\Login.razor.sv.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	  </EmbeddedResource>
+	</ItemGroup>
+
 </Project>
