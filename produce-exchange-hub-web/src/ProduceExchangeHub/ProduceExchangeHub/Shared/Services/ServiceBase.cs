@@ -48,6 +48,9 @@ public class ServiceBase
         params KeyValuePair<string, string>[] headers
     ) => SendAsync<TResponse>(HttpMethod.Post, uri, content, headers);
 
+    protected Task<TResponse> DeleteAsync<TResponse>(string uri, params KeyValuePair<string, string>[] headers) =>
+        SendAsync<TResponse>(HttpMethod.Delete, uri, null, headers);
+
     private async Task<TResponse> SendAsync<TResponse>(
         HttpMethod httpMethod,
         string uri,
@@ -97,7 +100,7 @@ public class ServiceBase
         throw new HttpResponseMessageNullBodyException(uri, httpResponseMessage, responseBody);
     }
 
-    private struct NoResult
+    protected struct NoResult
     {
         public static readonly NoResult Value = new();
     }

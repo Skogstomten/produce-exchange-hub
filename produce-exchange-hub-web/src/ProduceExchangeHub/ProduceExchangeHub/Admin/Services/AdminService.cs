@@ -18,10 +18,7 @@ public class AdminService : ServiceBase, IAdminService
     {
     }
 
-    public Task<ListResponseModel<UserModel>> GetUsersAsync()
-    {
-        return GetAsync<ListResponseModel<UserModel>>("users/");
-    }
-
+    public Task<ListResponseModel<UserModel>> GetUsersAsync() => GetAsync<ListResponseModel<UserModel>>("users/");
     public Task<UserModel> GetUserAsync(string id) => GetAsync<UserModel>($"users/{id}");
+    public Task DeleteUserAsync(string id) => DeleteAsync<NoResult>($"users/{id}");
 }
