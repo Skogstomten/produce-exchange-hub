@@ -40,16 +40,13 @@ public class ServiceBase
         string uri,
         TRequestBody requestBody,
         params KeyValuePair<string, string>[] headers
-    )
-        where TRequestBody : class where TResponse : class
-        => PostAsync<TResponse>(uri, JsonContent.Create(requestBody), headers);
+    ) => PostAsync<TResponse>(uri, JsonContent.Create(requestBody), headers);
 
     protected Task<TResponse> PostAsync<TResponse>(
         string uri,
         HttpContent content,
         params KeyValuePair<string, string>[] headers
-    ) =>
-        SendAsync<TResponse>(HttpMethod.Post, uri, content, headers);
+    ) => SendAsync<TResponse>(HttpMethod.Post, uri, content, headers);
 
     private async Task<TResponse> SendAsync<TResponse>(
         HttpMethod httpMethod,
@@ -63,7 +60,7 @@ public class ServiceBase
             string language = await _cultureService.GetCurrentCultureLanguageCodeISOAsync();
             uri = $"{language.ToUpper()}/{uri}";
         }
-            
+
         HttpRequestMessage httpRequestMessage = new(httpMethod, uri);
         foreach (KeyValuePair<string, string> header in headers)
             httpRequestMessage.Headers.Add(header.Key, header.Value);
@@ -77,6 +74,9 @@ public class ServiceBase
         string responseBody = await httpResponseMessage.Content.ReadAsStringAsync();
         if (httpResponseMessage.IsSuccessStatusCode)
         {
+            if (typeof(TResponse) == NoResult.Value.GetType())
+                return (TResponse) Convert.ChangeType(NoResult.Value, typeof(TResponse));
+
             TResponse? response = JsonSerializer.Deserialize<TResponse>(responseBody, SerializerOptions);
             if (response == null)
                 throw new HttpResponseMessageNullBodyException(uri, httpResponseMessage, responseBody);
@@ -93,6 +93,12 @@ public class ServiceBase
         {
             _logger.LogError(ex, ex.Message);
         }
+
         throw new HttpResponseMessageNullBodyException(uri, httpResponseMessage, responseBody);
+    }
+
+    private struct NoResult
+    {
+        public static readonly NoResult Value = new();
     }
 }
