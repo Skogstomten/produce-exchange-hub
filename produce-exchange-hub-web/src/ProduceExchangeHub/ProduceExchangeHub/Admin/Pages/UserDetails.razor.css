@@ -55,13 +55,23 @@ table {
     z-index: 9;
 }
 
+.centered {
+    -o-justify-content: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    display: flex;
+    -ms-align-items: center;
+    -o-align-items: center;
+    -webkit-align-items: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+}
+
 .popup {
-    position: center;
     margin: auto;
     padding: 10px;
     display: inline-block;
-    top: 25%;
-    
     background-color: white;
 }
 
