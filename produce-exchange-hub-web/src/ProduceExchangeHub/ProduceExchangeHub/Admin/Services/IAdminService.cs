@@ -7,4 +7,5 @@ public interface IAdminService
 {
     Task<ListResponseModel<UserModel>> GetUsersAsync();
     Task<UserModel> GetUserAsync(string id);
+    Task DeleteUserAsync(string id);
 }

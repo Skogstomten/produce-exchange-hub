@@ -117,13 +117,46 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CityLabel" xml:space="preserve">
+    <value>Stad</value>
+  </data>
+  <data name="CountryISOLabel" xml:space="preserve">
+    <value>Landskod</value>
+  </data>
+  <data name="CreatedLabel" xml:space="preserve">
+    <value>Skapad</value>
+  </data>
+  <data name="EMailLabel" xml:space="preserve">
+    <value>E-postadress</value>
+  </data>
+  <data name="LanguageISOLabel" xml:space="preserve">
+    <value>Språkkod</value>
+  </data>
+  <data name="LastLoggedInLabel" xml:space="preserve">
+    <value>Senast inloggad</value>
+  </data>
+  <data name="NoLabel" xml:space="preserve">
+    <value>Nej</value>
+  </data>
   <data name="ReferenceTableHeader" xml:space="preserve">
     <value>Referens</value>
   </data>
   <data name="RoleNameTableHeader" xml:space="preserve">
     <value>Rollnamn</value>
   </data>
+  <data name="RolesHeader" xml:space="preserve">
+    <value>Roller</value>
+  </data>
   <data name="RoleTypeTableHeader" xml:space="preserve">
     <value>Rolltyp</value>
+  </data>
+  <data name="TimezoneLabel" xml:space="preserve">
+    <value>Tidszon</value>
+  </data>
+  <data name="VerifiedLabel" xml:space="preserve">
+    <value>Verifierad</value>
+  </data>
+  <data name="YesLabel" xml:space="preserve">
+    <value>Ja</value>
   </data>
 </root>

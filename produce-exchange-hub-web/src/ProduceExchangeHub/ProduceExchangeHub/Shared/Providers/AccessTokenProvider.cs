@@ -1,6 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
 using ProduceExchangeHub.Shared.Models;
 using ProduceExchangeHub.Shared.Services;
 using ProduceExchangeHub.Shared.Utilities;

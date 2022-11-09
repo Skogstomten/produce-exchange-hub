@@ -5,7 +5,6 @@ using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
 using ProduceExchangeHub.Security.Abstractions;
-using ProduceExchangeHub.Security.OAuth2;
 using ProduceExchangeHub.Security.OAuth2.Services;
 using ProduceExchangeHub.Security.Services;
 using ProduceExchangeHub.Shared.Models;

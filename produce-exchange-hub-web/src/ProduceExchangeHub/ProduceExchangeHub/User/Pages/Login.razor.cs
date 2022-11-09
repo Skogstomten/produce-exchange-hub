@@ -16,7 +16,7 @@ public partial class Login
 
     [Inject]
     private IStringLocalizer<Login> Loc { get; set; } = null!;
-
+    
     [Inject]
     private IJSRuntime JS { get; set; } = null!;
 

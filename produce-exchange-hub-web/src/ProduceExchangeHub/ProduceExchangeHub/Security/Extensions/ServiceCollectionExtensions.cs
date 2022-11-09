@@ -3,7 +3,6 @@ using ProduceExchangeHub.Security.OAuth2.Configuration;
 using ProduceExchangeHub.Security.OAuth2.Services;
 using ProduceExchangeHub.Security.Services;
 using ProduceExchangeHub.Shared.Extensions;
-using ProduceExchangeHub.Shared.Providers;
 
 namespace ProduceExchangeHub.Security.Extensions;
 
