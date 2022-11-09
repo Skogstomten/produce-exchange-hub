@@ -28,5 +28,5 @@ public partial class UsersComponent
         await base.OnInitializedAsync();
     }
 
-    private void GoToUser(string userId) => NavManager.NavigateTo($"/user/{userId}");
+    private void GoToUser(string userId) => NavManager.NavigateTo($"/admin/user/{userId}");
 }

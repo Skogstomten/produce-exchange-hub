@@ -40,6 +40,31 @@ table {
     font-size: 18px;
 }
 
+.container-hidden {
+    display: none;
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    display: block;
+    background-color: rgba(22,22,22,0.5); /* complimenting your modal colors */
+    z-index: 9;
+}
+
+.popup {
+    position: center;
+    margin: auto;
+    padding: 10px;
+    display: inline-block;
+    top: 25%;
+    
+    background-color: white;
+}
+
 @media screen and (max-width: 1120px) {
     .page {
         width: 70%;
