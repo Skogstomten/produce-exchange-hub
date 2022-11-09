@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ProduceExchangeHub.Security.OAuth2.Tokens;
+namespace ProduceExchangeHub.Shared.Models;
 
 public class OAuthTokens
 {

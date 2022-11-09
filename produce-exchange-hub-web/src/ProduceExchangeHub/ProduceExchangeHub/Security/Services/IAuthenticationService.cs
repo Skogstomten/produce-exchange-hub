@@ -1,4 +1,4 @@
-﻿using ProduceExchangeHub.Security.OAuth2.Tokens;
+﻿using ProduceExchangeHub.Shared.Models;
 
 namespace ProduceExchangeHub.Security.Services;
 

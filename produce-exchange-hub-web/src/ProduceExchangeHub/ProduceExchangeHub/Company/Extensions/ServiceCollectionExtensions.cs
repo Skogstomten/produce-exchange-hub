@@ -7,7 +7,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCompanyServices(this IServiceCollection services)
     {
-        services.AddStandardHttpClient<ICompanyService, CompanyService>("Company");
+        services.AddStandardHttpClient<ICompanyService, CompanyService>("Company")
+                .AddStandardHttpClient<IAddressService, AddressService>("CompanyAddress");
 
         return services;
     }

@@ -1,6 +1,7 @@
 ﻿using ProduceExchangeHub.Security.OAuth2.Configuration;
-using ProduceExchangeHub.Security.OAuth2.Tokens;
 using ProduceExchangeHub.Shared.Localization.Services;
+using ProduceExchangeHub.Shared.Models;
+using ProduceExchangeHub.Shared.Providers;
 using ProduceExchangeHub.Shared.Services;
 
 namespace ProduceExchangeHub.Security.Services;
@@ -13,9 +14,10 @@ public class AuthenticationService : ServiceBase, IAuthenticationService
         HttpClient httpClient,
         OAuth2ProviderOptions providerOptions,
         ICultureService cultureService,
-        ILogger<AuthenticationService> logger
+        ILogger<AuthenticationService> logger,
+        IAccessTokenProvider accessTokenProvider
     )
-        : base(httpClient, cultureService, logger)
+        : base(httpClient, cultureService, logger, accessTokenProvider)
     {
         _providerOptions = providerOptions;
         InsertLanguageCodeInURI = false;

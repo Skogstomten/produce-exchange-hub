@@ -1,11 +1,16 @@
-﻿<div>
-    <h3>@Company.Name</h3>
-    <div>
-        <p>
+﻿<div class="company-card-div">
+    <h3 class="company-title">@Company.Name</h3>
+    @if (Company.ProfilePictureUrl != null)
+    {
+        <img class="company-img-div" src="@Company.ProfilePictureUrl"/>
+    }
+    <div class="company-description-div">
+        <p class="company-description">
             @if (Company.Description != null)
             {
                 @Company.Description
-            }   
+            }
         </p>
+        <a class="company-card-button" href="/company/@Company.Id">Go to</a>
     </div>
 </div>

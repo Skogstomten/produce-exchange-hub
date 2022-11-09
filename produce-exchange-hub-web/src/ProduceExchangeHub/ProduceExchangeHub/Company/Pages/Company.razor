@@ -1,0 +1,96 @@
+﻿@page "/company/{id}"
+@using ProduceExchangeHub.Company.Models
+
+<div class="page">
+    <div class="company-title">
+        <h1 class="">
+            @CompanyModel.Name
+        </h1>
+        <p class="metadata">
+            @Loc["CreatedDateLabel"]:
+            @CompanyModel.CreatedDate
+        </p>
+    </div>
+
+    @if (CompanyModel.ProfilePictureUrl != null)
+    {
+        <img src="@CompanyModel.ProfilePictureUrl" class="profile-picture">
+    }
+
+    <div>
+        <p>
+            @CompanyModel.Description
+        </p>
+    </div>
+
+    <div class="left-column">
+        <div>
+            <h2>
+                @Loc["ExternalHomepageLinkHeader"]
+            </h2>
+            <p class="website-url">
+                <a href="@CompanyModel.ExternalWebsiteUrl">@CompanyModel.ExternalWebsiteUrl</a>
+            </p>
+        </div>
+
+        <div class="contacts">
+            @foreach (ContactModel contact in CompanyModel.Contacts)
+            {
+                <div class="">
+                    <div>
+                        <strong>
+                            @Loc[contact.Type]
+                        </strong>
+                        @contact.Description
+                    </div>
+                    <div>
+                        @if (contact.Type == "email")
+                        {
+                            <a href="mailto:@contact.Value">@contact.Value</a>
+                        } else if (contact.Type == "phone")
+                        {
+                            <a href="tel:@contact.Value">@contact.Value</a>
+                        } else
+                        {
+                            @contact.Value
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    
+    @if (AddressModels.Any())
+    {
+        <div class="right-column">
+            <div class="addresses">
+                <h2>@Loc["AddressesHeader"]</h2>
+                @foreach (AddressModel address in AddressModels)
+                {
+                    <div>
+                        @if (address.Addressee != null)
+                        {
+                            @address.Addressee<br/>
+                        }
+                        @if (address.COAddress != null)
+                        {
+                            @address.COAddress<br/>
+                        }
+                        @if (address.StreetAddress != null)
+                        {
+                            @address.StreetAddress<br/>
+                        }
+                        @if (address.ZipCode != null)
+                        {
+                            @address.ZipCode
+                        }
+                        @if (address.City != null)
+                        {
+                            @address.ZipCode
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

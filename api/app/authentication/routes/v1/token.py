@@ -2,6 +2,7 @@
 Routing module for oauth2 token endpoint.
 """
 from datetime import timedelta, datetime
+from pytz import UTC
 
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestFormStrict
@@ -74,9 +75,9 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     """
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.now(UTC) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

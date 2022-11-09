@@ -1,1 +1,53 @@
-﻿
+﻿.login-layout-div {
+    width: 100%;
+}
+
+.login-left-layout {
+    width: 60%;
+    float: left;
+}
+
+.login-right-layout {
+    width: 30%;
+    background-color: green;
+    color: #fff;
+    float: right;
+}
+
+.login-right-layout button {
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+}
+
+.login-form-div {
+    max-width: 70%;
+    margin: 0 auto;
+    color: #000;
+    text-align: center;
+}
+
+.login-form-div form {
+    border: 1px solid #000;
+}
+
+    .login-form-div form .login-user-input {
+        border-radius: 5px;
+        width: 25%;
+        margin-top: 2%;
+        padding: 1%;
+    }
+
+.login-form-div form .login-password-input {
+    border-radius: 5px;
+    width: 25%;
+    margin-top: 2%;
+    padding: 1%;
+}
+
+.login-form-div form .login-button-input {
+        width: 25%;
+        margin-top: 2%;
+        padding: 1%;
+    }

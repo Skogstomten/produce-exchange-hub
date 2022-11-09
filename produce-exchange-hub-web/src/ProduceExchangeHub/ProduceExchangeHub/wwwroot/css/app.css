@@ -4,7 +4,7 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     padding: 0;
     min-height: 100%;
-    background-color: #faf3ddff;
+    background-color: #fff;
     margin: 0;
 }
 
@@ -24,7 +24,8 @@ h1:focus {
 }
 
 .content {
-    margin: 0px 6px;
+    margin: 0 6px;
+    padding-top: 2%;
 }
 
 .valid.modified:not([type=checkbox]) {
@@ -67,6 +68,75 @@ h1:focus {
 .blazor-error-boundary::after {
     content: "An error has occurred."
 }
+
+.index-page-title {
+    text-align: center;
+    margin: 0;
+    padding-bottom: 4%;
+    font-size: 1.8rem;
+}
+/** Company card css */
+.company-card-list-div {
+    width: 90%;
+    margin: 0 auto;
+}
+
+.company-card-div {
+    border-radius: 5px;
+    border: black solid 1px;
+    width: 20%;
+    padding: 10px 10px 10px 10px;
+    float: left;
+    text-align: center;
+    margin-right: 3%;
+    padding-bottom: 2%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    transition: all 0.3s ease-in-out;
+}
+
+.company-card-div:hover {
+    transform: scale(1.1, 1.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: opacity 0.3s ease-in-out;
+}
+
+.company-title {
+}
+
+.company-img-div {
+    width: 50%;
+}
+
+.company-img {
+}
+
+.company-description-div {
+}
+
+.company-description {
+}
+
+.company-card-button {
+    width: 60%;
+    padding: 5px;
+    background-color: #000;
+    border: 1px solid #000;
+    color: #fff;
+    -webkit-transition: opacity 6s ease-in-out;
+    -moz-transition: opacity 6s ease-in-out;
+    -ms-transition: opacity 6s ease-in-out;
+    -o-transition: opacity 6s ease-in-out;
+}
+
+    .company-card-button:hover {
+        background-color: #fff;
+        color: #000;
+        cursor: pointer;
+        -webkit-transition: opacity 3s ease-in-out;
+        -moz-transition: opacity 3s ease-in-out;
+        -ms-transition: opacity 3s ease-in-out;
+        -o-transition: opacity 3s ease-in-out;
+    }
 
 /* CSS HEX */
 /*

@@ -2,11 +2,10 @@
 using System.Security.Claims;
 using ProduceExchangeHub.Security.Abstractions;
 using ProduceExchangeHub.Security.Models;
-using ProduceExchangeHub.Security.OAuth2.Tokens;
 using ProduceExchangeHub.Security.Services;
-using ProduceExchangeHub.Security.Utilities;
 using ProduceExchangeHub.Shared.Models;
 using ProduceExchangeHub.Shared.Services;
+using ProduceExchangeHub.Shared.Utilities;
 using ProduceExchangeHub.User.Models;
 
 namespace ProduceExchangeHub.Security.OAuth2.Services;
@@ -67,6 +66,11 @@ public class OAuth2AuthenticationManager : IAuthenticationManager
         await NotifySubscribers(result);
 
         return result;
+    }
+
+    public async ValueTask LogoutAsync()
+    {
+        await _localStorage.RemoveValuesAsync(StorageKey.OAuthTokens, StorageKey.UserInformation);
     }
 
     public void Subscribe(Func<AuthenticationEvent, Task> callback) => _subscribers.Add(callback);

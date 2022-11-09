@@ -20,7 +20,7 @@ def to_timezone(dt: datetime | None, tz: str | tzinfo) -> datetime | None:
     >>> from pytz import utc
     >>> d = to_timezone(datetime.now(utc), "Europe/Stockholm")
     >>> d.tzinfo
-    <DstTzInfo 'Europe/Stockholm' CEST+2:00:00 DST>
+    <DstTzInfo 'Europe/Stockholm' ...>
 
     >>> d = to_timezone(None, "utc")
     >>> d is None

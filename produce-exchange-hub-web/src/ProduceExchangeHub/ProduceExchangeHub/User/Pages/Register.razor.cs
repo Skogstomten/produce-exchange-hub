@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
+using Microsoft.JSInterop;
 using ProduceExchangeHub.Shared.Models;
 using ProduceExchangeHub.Shared.Services;
 using ProduceExchangeHub.User.Models;
@@ -20,6 +21,9 @@ public partial class Register
 
     [Inject]
     private NavigationManager NavManager { get; set; } = null!;
+
+    [Inject]
+    private IJSRuntime JS { get; set; } = null!;
 
     private RegisterModel Model { get; set; } = new() {Country = "SE"};
     private string[] TimezoneNames { get; set; } = Array.Empty<string>();
@@ -43,6 +47,12 @@ public partial class Register
         Model.Language = Languages.First().ISOCode;
 
         await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("setFocus", "firstName");
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task OnRegisterUserSubmit()

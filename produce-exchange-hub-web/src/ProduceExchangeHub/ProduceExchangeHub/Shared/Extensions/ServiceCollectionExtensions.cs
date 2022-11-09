@@ -1,6 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using ProduceExchangeHub.Shared.Configuration;
 using ProduceExchangeHub.Shared.Localization.Services;
+using ProduceExchangeHub.Shared.Providers;
 using ProduceExchangeHub.Shared.Services;
 
 namespace ProduceExchangeHub.Shared.Extensions;
@@ -12,6 +13,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(_ => configuration.GetSection("Shared").Get<SharedSettings>())
                 .AddScoped<ICultureService, DefaultCultureService>()
                 .AddScoped<ILocalStorage, BlazoredLocalStorageWrapper>()
+                .AddScoped<IAccessTokenProvider, AccessTokenProvider>()
                 .AddStandardHttpClient<IDataService, DataService>("Data");
 
         // Third Party

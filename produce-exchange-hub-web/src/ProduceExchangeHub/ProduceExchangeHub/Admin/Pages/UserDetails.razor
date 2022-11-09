@@ -1,0 +1,86 @@
+﻿@page "/admin/user/{userId}"
+@using ProduceExchangeHub.Admin.Models
+
+<div class="page">
+    <h3>@User.FirstName @User.LastName</h3>
+
+    @if (!string.IsNullOrWhiteSpace(User.ProfilePictureUrl))
+    {
+        <div class="profile-picture">
+            <img src="@User.ProfilePictureUrl"/>
+        </div>
+    }
+
+    <div class="properties">
+        <div class="property-field">
+            <label>@Loc["EMailLabel"]</label>
+            <div>@User.Email</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["CityLabel"]</label>
+            <div>@User.City</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["CountryISOLabel"]</label>
+            <div>@User.CountryISO</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["TimezoneLabel"]</label>
+            <div>@User.Timezone</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["LanguageISOLabel"]</label>
+            <div>@User.LanguageISO</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["VerifiedLabel"]</label>
+            <div>@(User.Verified ? Loc["YesLabel"] : Loc["NoLabel"])</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["CreatedLabel"]</label>
+            <div>@User.Created</div>
+        </div>
+        <div class="property-field">
+            <label>@Loc["LastLoggedInLabel"]</label>
+            <div>@User.LastLoggedIn</div>
+        </div>
+    </div>
+    
+    <h3>@Loc["RolesHeader"]</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>@Loc["RoleNameTableHeader"]</th>
+            <th>@Loc["RoleTypeTableHeader"]</th>
+            <th>@Loc["ReferenceTableHeader"]</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (UserRoleModel role in User.Roles)
+        {
+            <tr>
+                <td>@role.RoleName</td>
+                <td>@role.RoleType</td>
+                <td>@role.Reference</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    
+    <div>
+        <button @onclick="OnDeleteUserClicked">@Loc["DeleteUserButton"]</button>
+    </div>
+    
+    
+    <div class="@(ShowConfirmDeleteUser ? "container" : "container-hidden")">
+        <div class="popup">
+            <p>
+                @Loc["DeleteUserWarningMessage"]
+            </p>
+            <div>
+                <button @onclick="OnDeleteUserConfirm">@Loc["ConfirmDeleteUserButton"]</button>
+                <button @onclick="OnDeleteUserCancel">@Loc["CancelDeleteUserButton"]</button>
+            </div>
+        </div>
+    </div>
+</div>

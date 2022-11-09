@@ -3,11 +3,12 @@ Api model classes for user.
 """
 from datetime import datetime
 
-from fastapi import Request
+from fastapi import Request, APIRouter
 from pydantic import BaseModel, Field
 
 from app.shared.utils.request_utils import get_current_request_url_with_additions
 from app.shared.models.v1.base_out_model import BaseOutModel
+from app.shared.utils.url_utils import assemble_profile_picture_url
 from app.user.models.db.user import User as UserDatabaseModel
 from app.shared.models.v1.shared import RoleType, CountryCode, Language
 
@@ -56,17 +57,29 @@ class UserOutModel(User, BaseOutModel):
         cls,
         model: UserDatabaseModel,
         request: Request,
+        router: APIRouter,
+        language: Language,
     ) -> "UserOutModel":
         """
         Creates model from database model.
+        :param language:
+        :param router:
         :param model: UserDatabaseModel.
         :param request: HTTP request. fastapi.Request.
         :return: New instance of UserOutModel.
         """
-        return cls(
+        instance = cls(
             url=get_current_request_url_with_additions(request, (str(model.id),), include_query=False),
             **model.dict(),
         )
+
+        if instance.profile_picture_url:
+            instance.profile_picture_url = assemble_profile_picture_url(
+                request, router, instance.profile_picture_url, language
+            )
+        else:
+            instance.profile_picture_url = None
+        return instance
 
 
 class UserRegister(User):
