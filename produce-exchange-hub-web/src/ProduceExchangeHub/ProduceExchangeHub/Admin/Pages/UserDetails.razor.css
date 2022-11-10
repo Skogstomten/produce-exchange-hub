@@ -56,10 +56,10 @@ table {
 }
 
 .centered {
+    display: flex;
     -o-justify-content: center;
     -webkit-justify-content: center;
     justify-content: center;
-    display: flex;
     -ms-align-items: center;
     -o-align-items: center;
     -webkit-align-items: center;
@@ -73,6 +73,13 @@ table {
     padding: 10px;
     display: inline-block;
     background-color: white;
+    -ms-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.popup .dialog-button {
+    border-radius: 50px;
+    border: none;
 }
 
 @media screen and (max-width: 1120px) {

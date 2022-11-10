@@ -79,8 +79,8 @@
                     @Loc["DeleteUserWarningMessage"]
                 </p>
                 <div>
-                    <button @onclick="OnDeleteUserConfirm">@Loc["ConfirmDeleteUserButton"]</button>
-                    <button @onclick="OnDeleteUserCancel">@Loc["CancelDeleteUserButton"]</button>
+                    <button @onclick="OnDeleteUserConfirm" class="dialog-button confirm-button">@Loc["ConfirmDeleteUserButton"]</button>
+                    <button @onclick="OnDeleteUserCancel" class="dialog-button cancel-button">@Loc["CancelDeleteUserButton"]</button>
                 </div>
             </div>
         </div>
