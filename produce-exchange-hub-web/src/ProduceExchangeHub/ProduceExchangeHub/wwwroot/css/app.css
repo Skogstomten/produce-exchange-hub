@@ -1,10 +1,18 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+/*
+    #BCC7B7=background
+    #B7C4C7=nav
+    #C2B7C7=effects
+    #C7BAB7=borders
+*/
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     padding: 0;
     min-height: 100%;
     background-color: #bcc7b7;
+    color: #494E4F;
     margin: 0;
 }
 

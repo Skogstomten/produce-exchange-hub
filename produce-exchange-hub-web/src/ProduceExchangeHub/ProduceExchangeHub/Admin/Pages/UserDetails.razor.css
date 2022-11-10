@@ -72,14 +72,24 @@ table {
     margin: auto;
     padding: 10px;
     display: inline-block;
-    background-color: white;
+    background-color: #B7C4C7;
     -ms-border-radius: 10px;
     border-radius: 10px;
+    box-shadow: #C2B7C7 1px 1px 4px;
+    border: solid 1px #C7BAB7;
 }
 
 .popup .dialog-button {
     border-radius: 50px;
     border: none;
+}
+
+.popup .dialog-button.confirm-button {
+    background-color: #32d6db;
+}
+
+.popup .dialog-button.cancel-button {
+    background-color: red;
 }
 
 @media screen and (max-width: 1120px) {
