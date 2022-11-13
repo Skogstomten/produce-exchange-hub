@@ -132,6 +132,9 @@
   <data name="CreatedLabel" xml:space="preserve">
     <value>Skapad</value>
   </data>
+  <data name="DeleteUserButton" xml:space="preserve">
+    <value>Ta bort användare</value>
+  </data>
   <data name="DeleteUserWarningMessage" xml:space="preserve">
     <value>Är du säker på att du vill ta bort användaren? Detta går inte att ångra.</value>
   </data>
