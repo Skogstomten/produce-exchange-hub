@@ -38,6 +38,7 @@ table {
     border-collapse: collapse;
     border: 1px solid #ddd;
     font-size: 18px;
+    margin-bottom: 1em;
 }
 
 .container-hidden {
@@ -75,7 +76,6 @@ table {
     background-color: #B7C4C7;
     -ms-border-radius: 10px;
     border-radius: 10px;
-    box-shadow: #C2B7C7 1px 1px 4px;
     border: solid 1px #C7BAB7;
 }
 
@@ -90,6 +90,10 @@ table {
 
 .popup .dialog-button.cancel-button {
     background-color: red;
+}
+
+.button-danger {
+    background-color: #dc3545;
 }
 
 @media screen and (max-width: 1120px) {

@@ -124,6 +124,18 @@ h1:focus {
 .company-description {
 }
 
+.button {
+    cursor: pointer;
+    border-radius: 40px;
+    border: solid 1px #C7BAB7;
+    padding: 1em;
+    box-shadow: 2px 2px;
+}
+
+.button:hover {
+    box-shadow: none;
+}
+
 .company-card-button {
     width: 60%;
     padding: 5px;
