@@ -45,6 +45,10 @@ pip install -r requirements.dev.txt
 ```
 uvicorn app.main:app --reload
 ```
+Or Powershell script file
+```
+.\start.ps1
+```
 - Open web project in Visual Studio
 - Start debugger with F5
 
@@ -54,17 +58,23 @@ Black is being used for formatting with a line lenght of 121. While in active vi
 black app --line-length=121
 black tests --line-length=121
 ```
+API folder contains a Powershell script file `format.ps1` with this script and hence, it's also possible to run:
+```
+.\format.ps1
+```
 
 ## Local DB
-It is possible to run the application towards the cloud db or local db. Local DB is recommended during development.
-To setup local db, install MongoDB server Community edition and create a local connection with local account login.
-Remove any existing ProduceExchangeHub database in local db cluster.
-Open a powershell window and navigate to repository root and run command:
+To setup local db:
+- Install [MongoDB server Community edition](https://www.mongodb.com/try/download/community).
+- Download [MongoDB database command line tools](https://www.mongodb.com/try/download/database-tools).
+- Setup environment variable for command line tools bin folder.
+- Open MongoDB compass and connect to localhost:27017 (Default).
+- If there already is a local instance of the produce exchange hub DB, remove it.
+- Open a powershell window, navigate to repository root, and run command:
 ```
 mongorestore  dump/
 ```
 This will restore a copy of the db dump located in the dump folder of the repository root.
-
 
 # Developer Help
 
