@@ -68,18 +68,20 @@
     </table>
     
     <div>
-        <button @onclick="OnDeleteUserClicked">@Loc["DeleteUserButton"]</button>
+        <button @onclick="OnDeleteUserClicked" class="button button-danger">@Loc["DeleteUserButton"]</button>
     </div>
     
     
     <div class="@(ShowConfirmDeleteUser ? "container" : "container-hidden")">
-        <div class="popup">
-            <p>
-                @Loc["DeleteUserWarningMessage"]
-            </p>
-            <div>
-                <button @onclick="OnDeleteUserConfirm">@Loc["ConfirmDeleteUserButton"]</button>
-                <button @onclick="OnDeleteUserCancel">@Loc["CancelDeleteUserButton"]</button>
+        <div class="centered">
+            <div class="popup">
+                <p>
+                    @Loc["DeleteUserWarningMessage"]
+                </p>
+                <div>
+                    <button @onclick="OnDeleteUserConfirm" class="button dialog-button confirm-button">@Loc["ConfirmDeleteUserButton"]</button>
+                    <button @onclick="OnDeleteUserCancel" class="button dialog-button cancel-button">@Loc["CancelDeleteUserButton"]</button>
+                </div>
             </div>
         </div>
     </div>

@@ -1,7 +1,8 @@
 nav.nav-top {
-    background-color: #c8d5b9ff;
+    background-color: #B7C4C7;
     overflow: hidden;
     padding: 5px;
+    box-shadow: #C2B7C7 1px 0 25px;
 }
 
 nav.nav-top .menu-icon { display: none; }
@@ -48,13 +49,11 @@ nav.nav-top ul li {
 }
 
 nav.nav-top ul.nav-right-buttons li:hover {
-    background-color: #ddd;
-    color: black;
+    background-color: #C2B7C7;
 }
 
 .nav-right-user li.clickable:hover {
-    background-color: #ddd;
-    color: black;
+    background-color: #C2B7C7;
 }
 
 nav.nav-top ul li a:active { background-color: #68b0abff; }
@@ -72,10 +71,9 @@ nav.nav-top ul.nav-right-user li { float: right; }
     margin-right: auto;
 }
 
-.nav-brand a {
-    color: #696d7dff;
-    font-weight: bold;
-}
+    .nav-brand a {
+        font-weight: bold;
+    }
 
 nav.nav-top ul li, nav.nav-top .nav-brand { padding: 10px; }
 

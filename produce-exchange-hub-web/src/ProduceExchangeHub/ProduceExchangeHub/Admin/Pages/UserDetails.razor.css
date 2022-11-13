@@ -38,6 +38,7 @@ table {
     border-collapse: collapse;
     border: 1px solid #ddd;
     font-size: 18px;
+    margin-bottom: 1em;
 }
 
 .container-hidden {
@@ -55,14 +56,44 @@ table {
     z-index: 9;
 }
 
+.centered {
+    display: flex;
+    -o-justify-content: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -ms-align-items: center;
+    -o-align-items: center;
+    -webkit-align-items: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+}
+
 .popup {
-    position: center;
     margin: auto;
     padding: 10px;
     display: inline-block;
-    top: 25%;
-    
-    background-color: white;
+    background-color: #B7C4C7;
+    -ms-border-radius: 10px;
+    border-radius: 10px;
+    border: solid 1px #C7BAB7;
+}
+
+.popup .dialog-button {
+    border-radius: 50px;
+    border: none;
+}
+
+.popup .dialog-button.confirm-button {
+    background-color: #32d6db;
+}
+
+.popup .dialog-button.cancel-button {
+    background-color: red;
+}
+
+.button-danger {
+    background-color: #dc3545;
 }
 
 @media screen and (max-width: 1120px) {
