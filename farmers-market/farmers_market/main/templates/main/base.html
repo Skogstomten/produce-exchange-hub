@@ -17,18 +17,57 @@
 
         {% block top-nav %}
         
-        <nav class="nav-top">
-            <a href="{% url 'main:index' %}" id="home-link">
-                <div class="nav-brand">
-                    Home
-                </div>
-            </a>
-            <a href="{% url 'main:index' %}" id="brand">
-                <div class="nav-brand">
-                    Produce Exchange Hub
-                </div>
-            <a>
-        </nav>
+            <nav class="nav-top">
+                <a href="{% url 'main:index' %}" id="home-link">
+                    <div class="nav-brand">
+                        Home
+                    </div>
+                </a>
+                <a href="{% url 'main:index' %}" id="brand">
+                    <div class="nav-brand">
+                        Produce Exchange Hub
+                    </div>
+                <a>
+                
+                {% if is_logged_in %}
+                    <ul class="nav-right-user">
+                        {% if is_superuser %}
+                            <a>
+                                <li>Admin</li>
+                            </a>
+                        {% endif %}
+
+                        <a id="logout-link">
+                            <li class="clickable">
+                                Logout
+                            </li>
+                        </a>
+
+                        <li>{{ first_name }} {{ last_name }}</li>
+                    </ul>
+
+                {% else %}
+                    <ul class="nav-right-buttons">
+                        <a href="{% url 'main:register' %}">
+                            <li>Register</li>
+                        </a>
+                        <a href="{% url 'main:login' %}">
+                            <li>Login</li>
+                        </a>
+                    </ul>
+                {% endif %}
+
+                <a href="javascript:void(0);" class="menu-icon">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </a>
+
+                <ul class="language-selector">
+                    <li><a><img src="{% static 'main/images/flags/swe.png' %}" /></a></li>
+                    <li><a><img src="{% static 'main/images/flags/eng.png' %}" /></a></li>
+                </ul>
+            </nav>
 
         {% endblock top-nav %}
 
