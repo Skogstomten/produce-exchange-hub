@@ -10,14 +10,36 @@
         </title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{% static 'main/base.css' %}">
+        <link rel="stylesheet" href="{% static 'main/styles/base.css' %}">
+        <link rel="stylesheet" href="{% static 'main/styles/nav.css' %}">
     </head>
     <body>
+
+        {% block top-nav %}
+        
+        <nav class="nav-top">
+            <a href="{% url 'main:index' %}" id="home-link">
+                <div class="nav-brand">
+                    Home
+                </div>
+            </a>
+            <a href="{% url 'main:index' %}" id="brand">
+                <div class="nav-brand">
+                    Produce Exchange Hub
+                </div>
+            <a>
+        </nav>
+
+        {% endblock top-nav %}
 
         <div class="content">
             {% block content %}{% endblock content %}
         </div>
         
-        <script src="{% static 'main/base.js' %}" async defer></script>
+        <script src="{% static 'main/scripts/thirdparty/jquery-3.6.1.min.js' %}" async defer></script>
+        <script src="{% static 'main/scripts/base.js' %}" async defer></script>
+        <script src="{% static 'main/scripts/nav.js' %}" async defer></script>
+
+        {% block scripts %}{% endblock scripts %}
     </body>
 </html>

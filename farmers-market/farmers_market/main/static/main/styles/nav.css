@@ -1,0 +1,24 @@
+nav.nav-top {
+    background-color: #B7C4C7;
+    overflow: hidden;
+    padding: 5px;
+    box-shadow: #C2B7C7 1px 0 25px;
+}
+
+#home-link {
+    display: none;
+}
+
+#brand {
+    display: inline;
+}
+
+@media screen and (max-width: 600px) {
+    #home-link {
+        display: inline;
+    }
+    
+    #brand {
+        display: none;
+    }
+}
