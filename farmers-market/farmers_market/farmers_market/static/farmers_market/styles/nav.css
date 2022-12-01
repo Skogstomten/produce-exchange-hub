@@ -75,6 +75,27 @@ nav.nav-top ul.nav-right-user li { float: right; }
 
 nav.nav-top ul li, nav.nav-top .nav-brand { padding: 10px; }
 
+ul.language-selector {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: inline;
+}
+
+ul.language-selector li {
+    display: block;
+    text-align: center;
+    font-size: 17px;
+    padding: 10px;
+}
+
+ul.language-selector li {
+    float: right;
+    padding: 4.0px 6px 1.3px 3px;
+    margin: 0;
+}
+
 #home-link {
     display: none;
 }
