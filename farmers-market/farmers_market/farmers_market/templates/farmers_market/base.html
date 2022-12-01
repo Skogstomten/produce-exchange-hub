@@ -10,8 +10,8 @@
         </title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{% static 'main/styles/base.css' %}">
-        <link rel="stylesheet" href="{% static 'main/styles/nav.css' %}">
+        <link rel="stylesheet" href="{% static 'farmers_market/styles/base.css' %}">
+        <link rel="stylesheet" href="{% static 'farmers_market/styles/nav.css' %}">
     </head>
     <body>
 
@@ -48,10 +48,10 @@
 
                 {% else %}
                     <ul class="nav-right-buttons">
-                        <a href="{% url 'main:register' %}">
+                        <a href="{% url 'authentication:register' %}">
                             <li>Register</li>
                         </a>
-                        <a href="{% url 'main:login' %}">
+                        <a href="{% url 'authentication:login' %}">
                             <li>Login</li>
                         </a>
                     </ul>
@@ -64,8 +64,8 @@
                 </a>
 
                 <ul class="language-selector">
-                    <li><a><img src="{% static 'main/images/flags/swe.png' %}" /></a></li>
-                    <li><a><img src="{% static 'main/images/flags/eng.png' %}" /></a></li>
+                    <li><a><img src="{% static 'farmers_market/images/flags/swe.png' %}" /></a></li>
+                    <li><a><img src="{% static 'farmers_market/images/flags/eng.png' %}" /></a></li>
                 </ul>
             </nav>
 
@@ -75,9 +75,9 @@
             {% block content %}{% endblock content %}
         </div>
         
-        <script src="{% static 'main/scripts/thirdparty/jquery-3.6.1.min.js' %}" async defer></script>
-        <script src="{% static 'main/scripts/base.js' %}" async defer></script>
-        <script src="{% static 'main/scripts/nav.js' %}" async defer></script>
+        <script src="{% static 'farmers_market/scripts/thirdparty/jquery-3.6.1.min.js' %}" async defer></script>
+        <script src="{% static 'farmers_market/scripts/base.js' %}" async defer></script>
+        <script src="{% static 'farmers_market/scripts/nav.js' %}" async defer></script>
 
         {% block scripts %}{% endblock scripts %}
     </body>
