@@ -14,14 +14,23 @@ class CompanyType(models.Model):
     type_name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.type_name
+
 
 class CompanyStatus(models.Model):
     status_name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.status_name
+
 
 class ChangeType(models.Model):
     change_type = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.change_type
 
 
 class Company(models.Model):
@@ -29,13 +38,19 @@ class Company(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     company_types = models.ManyToManyField(CompanyType, related_name="companies")
     content_languages = models.ManyToManyField(Language, related_name="companies")
-    activation_date = models.DateTimeField(null=True, default=None)
-    external_website_url = models.CharField(null=True, max_length=1000)
-    profile_picture_url = models.CharField(null=True, max_length=1000)
+    activation_date = models.DateTimeField(null=True, blank=True, default=None)
+    external_website_url = models.CharField(null=True, blank=True, max_length=1000)
+    profile_picture_url = models.CharField(null=True, blank=True, max_length=1000)
+
+    def __str__(self):
+        return "company"
 
 
 class CompanyRole(models.Model):
     role_name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.role_name
 
 
 class CompanyUser(models.Model):
@@ -48,7 +63,7 @@ class CompanyChange(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     change_type = models.ForeignKey(ChangeType, on_delete=models.PROTECT)
     field = models.CharField(max_length=50)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     changed = models.DateTimeField(auto_now_add=True)
     new_value = models.TextField()
 

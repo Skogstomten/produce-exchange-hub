@@ -1,14 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpRequest
 
+from .models import Company
+
 
 def index(request: HttpRequest):
-    return render(request, "main/index.html", {})
-
-
-def register(request: HttpRequest):
-    return render(request, "main/register.html", {})
-
-
-def login(request: HttpRequest):
-    return render(request, "main/login.html", {})
+    companies = Company.objects.filter(status__status_name="active").order_by("-activation_date")[:10]
+    return render(request, "main/index.html", {"companies": companies})
