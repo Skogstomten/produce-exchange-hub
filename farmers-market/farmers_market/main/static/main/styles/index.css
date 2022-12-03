@@ -1,0 +1,8 @@
+div.company {
+    border: thin black solid;
+    margin: 2em 20%;
+}
+
+div.company div.title {
+    text-align: center;
+}

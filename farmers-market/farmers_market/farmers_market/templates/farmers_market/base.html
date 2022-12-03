@@ -12,6 +12,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{% static 'farmers_market/styles/base.css' %}">
         <link rel="stylesheet" href="{% static 'farmers_market/styles/nav.css' %}">
+        {% block styles %}{% endblock styles %}
     </head>
     <body>
 
@@ -75,9 +76,9 @@
             {% block content %}{% endblock content %}
         </div>
         
-        <script src="{% static 'farmers_market/scripts/thirdparty/jquery-3.6.1.min.js' %}" async defer></script>
-        <script src="{% static 'farmers_market/scripts/base.js' %}" async defer></script>
-        <script src="{% static 'farmers_market/scripts/nav.js' %}" async defer></script>
+        <script src="{% static 'farmers_market/scripts/thirdparty/jquery-3.6.1.min.js' %}"></script>
+        <script src="{% static 'farmers_market/scripts/base.js' %}"></script>
+        <script src="{% static 'farmers_market/scripts/nav.js' %}"></script>
 
         {% block scripts %}{% endblock scripts %}
     </body>

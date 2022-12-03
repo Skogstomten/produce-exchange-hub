@@ -1,14 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpRequest
+from django.views.generic import TemplateView
 
 
-def register(request: HttpRequest):
-    return render(request, "authentication/register")
+class RegisterView(TemplateView):
+    template_name = "authentication/register.html"
 
 
-def login(request: HttpRequest):
-    return render(request, "athentication/login")
+class LoginView(TemplateView):
+    template_name = "authentication/login.html"
 
 
 def logout(request: HttpRequest):
-    return render(request, "authentication/logout")
+    pass
