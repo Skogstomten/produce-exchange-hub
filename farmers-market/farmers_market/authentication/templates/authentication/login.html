@@ -5,9 +5,10 @@
 
 <div>
     <form method="POST" action="{% url 'authentication:login' %}">
+        {% csrf_token %}
         <fieldset>
             <label for="username">Username:</label>
-            <input id="username" name="username" type="text" placeholder="xxxx@example.com">
+            <input id="username" name="username" type="text" placeholder="xxxx@example.com" autofocus>
         </fieldset>
         <fieldset>
             <label for="password">Password:</label>
