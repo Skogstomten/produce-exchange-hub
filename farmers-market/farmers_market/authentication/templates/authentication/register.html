@@ -1,5 +1,8 @@
 {% extends 'farmers_market/base.html' %}
 {% load static %}
+{% load i18n %}
+
+{% block title %}{% translate "register_title" %}{% endblock title %}
 
 {% block scripts %}
 <link rel="stylesheet" href="{% static 'authentication/register.css' %}">
@@ -11,27 +14,27 @@
     {% csrf_token %}
     <div class="fields">
         <fieldset>
-            <label for="email">E-Mail</label>
-            <input id="email" name="email" type="text" placeholder="xxxxxx@example.com" autofocus value="{{ email }}">
+            <label for="email">{% translate "email_label" %}</label>
+            <input id="email" name="email" type="text" placeholder="{% translate "email_placeholder" %}" autofocus value="{{ email }}">
         </fieldset>
         <fieldset>
-            <label for="first_name">Firstname</label>
+            <label for="first_name">{% translate "first_name_label" %}</label>
             <input id="first_name" name="first_name" type="text" value="{{ first_name }}">
         </fieldset>
         <fieldset>
-            <label for="last_name">Lastname</label>
+            <label for="last_name">{% translate "last_name_label" %}</label>
             <input id="last_name" name="last_name" type="text" value="{{ last_name }}">
         </fieldset>
         <fieldset>
-            <label for="password">Password</label>
+            <label for="password">{% translate "password_label" %}</label>
             <input id="password" name="password" type="password" value="{{ password }}">
         </fieldset>
         <fieldset>
-            <label for="confirm_password">Confirm password</label>
+            <label for="confirm_password">{% translate "confirm_password_label" %}</label>
             <input id="confirm_password" name="confirm_password" type="password">
         </fieldset>
     </div>
-    <input type="submit" value="Register">
+    <input type="submit" value="{% translate "register_submit_button" %}">
 </div>
 
 {% endblock content %}
