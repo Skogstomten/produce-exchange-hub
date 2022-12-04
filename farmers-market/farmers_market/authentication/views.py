@@ -10,12 +10,8 @@ class RegisterView(TemplateView):
     template_name = "authentication/register.html"
 
     def post(self, request):
-        User.objects.create(**request.POST)
-        return_url = request.POST["return_url"]
-        if return_url:
-            return redirect(return_url)
-        else:
-            return redirect(reverse("main:index"))
+        User.objects.create_user(request.POST.get("email"), request.POST.get("email"), request.POST.get("password"), first_name=request.POST.get("first_name"), last_name=request.POST.get("last_name"))
+        return redirect(reverse("authentication:login"))
 
 
 class LoginView(TemplateView):
