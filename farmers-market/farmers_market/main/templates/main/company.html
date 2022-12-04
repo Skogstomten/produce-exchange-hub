@@ -6,5 +6,82 @@
 {% endblock styles %}
 
 {% block content %}
+
+<div class="company-view">
+    <div class="company-title">
+        <h1 class="">
+            {{ company.name }}
+        </h1>
+        <p class="metadata">
+            Created: {{ company.created_date }}
+        </p>
+    </div>
+
+    {% if company.profile_picture_url %}
+    <img src="@CompanyModel.ProfilePictureUrl" class="profile-picture">
+    {% endif %}
+
+    <div>
+        <p>
+            {{ company.company_description }}
+        </p>
+    </div>
+
+    <div class="left-column">
+        <div>
+            <h2>Homepage</h2>
+            <p class="website-url">
+                <a href="{{ company.external_website_url }}">{{ company.external_website_url }}</a>
+            </p>
+        </div>
+
+        <div class="contacts">
+            {% for contact in company.contacts %}
+            <div class="contact">
+                <div>
+                    <strong>{{ contact.contact_type.contact_type }}</strong>
+                    {{ contact.description }}
+                </div>
+                <div>
+                    {% if contact.contact_type.contact_type == "email" %}
+                    <a href="mailto:{{ contact.value }}">{{ contact.value }}</a>
+                    {% elif contact.contact_type.contact_type == "phone" %}
+                    <a href="tel:{{ contact.value }}">{{ contact.value }}</a>
+                    {% else %}
+                    {{ contact.value }}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
     
+    {% if company.address %}
+    <div class="right-column">
+        <div class="addresses">
+            <h2>{{ Address }}</h2>
+            {% for address in company.addresses %}
+            <div>
+                {% if address.Addressee %}
+                {{ address.addressee }}<br/>
+                {% endif %}
+                {% if address.co_address %}
+                {{ address.co_address }}<br/>
+                {% endif %}
+                {% if address.street_address %}
+                {{ address.street_address }}<br/>
+                {% endif %}
+                {% if address.zip_code %}
+                {{ address.zip_code }}<br/>
+                {% endif %}
+                {% if address.city %}
+                {{ address.city }}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
 {% endblock content %}

@@ -82,7 +82,7 @@ class Country(models.Model):
 
 
 class Address(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="addresses")
     addressee = models.CharField(max_length=100, null=True)
     co_address = models.CharField(max_length=100, null=True)
     street_address = models.CharField(max_length=100, null=True)
