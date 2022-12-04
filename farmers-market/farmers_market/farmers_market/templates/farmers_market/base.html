@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 
 <!DOCTYPE html>
 <html>
@@ -63,8 +64,8 @@
                 </a>
 
                 <ul class="language-selector">
-                    <li><a><img src="{% static 'farmers_market/images/flags/swe.png' %}" /></a></li>
-                    <li><a><img src="{% static 'farmers_market/images/flags/eng.png' %}" /></a></li>
+                    <li><a id="set_lang_sv"><img src="{% static 'farmers_market/images/flags/swe.png' %}" /></a></li>
+                    <li><a id="set_lang_en"><img src="{% static 'farmers_market/images/flags/eng.png' %}" /></a></li>
                 </ul>
             </nav>
 
@@ -73,6 +74,11 @@
         <div class="content">
             {% block content %}{% endblock content %}
         </div>
+
+        <form id="set_lang_form" method="POST" action="{% url 'set_language' %}">
+            {% csrf_token %}
+            <input type="hidden" id="lang_code" name="language">
+        </form>
         
         <script src="{% static 'farmers_market/scripts/thirdparty/jquery-3.6.1.min.js' %}"></script>
         <script src="{% static 'farmers_market/scripts/base.js' %}"></script>
