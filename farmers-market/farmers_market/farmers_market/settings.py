@@ -25,6 +25,7 @@ BASE_DIR = CURRENT_DIR.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-hk0uh4h0atqyzdc8+y!&hfhud&eua-*60i&i#7-kfn**s&rgmz'
+LOGIN_URL = "/auth/login"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

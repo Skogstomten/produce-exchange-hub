@@ -57,6 +57,12 @@
             </div>
             {% endfor %}
         </div>
+
+        {% if user_is_company_admin %}
+            <div class="company-controlls">
+                <a href="{% url 'main:edit_company' company.id %}">{% translate "edit_link" %}</a>
+            </div>
+        {% endif %}
     </div>
     
     {% if company.addresses %}
@@ -75,10 +81,6 @@
             {% endfor %}
         </div>
     </div>
-    {% endif %}
-
-    {% if user_is_company_admin %}
-        <h3>User is admin</h3>
     {% endif %}
 </div>
 
