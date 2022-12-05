@@ -19,5 +19,10 @@ class CompanyView(View):
         company = get_object_or_404(Company, pk=pk)
         company.description = company.get_description(request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, settings.LANGUAGE_CODE))
         return render(
-            request, self.template_name, {"company": company}
+            request,
+            self.template_name,
+            {
+                "company": company,
+                "user_is_company_admin": company.is_company_admin(request.user),
+            }
         )

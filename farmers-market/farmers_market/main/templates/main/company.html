@@ -1,5 +1,6 @@
 {% extends 'farmers_market/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'main/styles/company.css' %}">
@@ -13,7 +14,7 @@
             {{ company.name }}
         </h1>
         <p class="metadata">
-            Created: {{ company.created_date }}
+            {% translate "Created" %}: {{ company.created_date }}
         </p>
     </div>
 
@@ -28,18 +29,20 @@
     </div>
 
     <div class="left-column">
+        {% if company.external_website_url %}
         <div>
-            <h2>Homepage</h2>
+            <h2>{% translate "Homepage" %}</h2>
             <p class="website-url">
                 <a href="{{ company.external_website_url }}">{{ company.external_website_url }}</a>
             </p>
         </div>
+        {% endif %}
 
         <div class="contacts">
-            {% for contact in company.contacts %}
+            {% for contact in company.contacts.all %}
             <div class="contact">
                 <div>
-                    <strong>{{ contact.contact_type.contact_type }}</strong>
+                    <strong>{% translate contact.contact_type.contact_type %}</strong>
                     {{ contact.description }}
                 </div>
                 <div>
@@ -56,35 +59,26 @@
         </div>
     </div>
     
-    {% if company.address %}
+    {% if company.addresses %}
     <div class="right-column">
         <div class="addresses">
-            <h2>{{ Address }}</h2>
-            {% for address in company.addresses %}
+            <h2>{% translate "Addresses" %}</h2>
+            {% for address in company.addresses.all %}
             <div>
-                {% if address.Addressee %}
-                {{ address.addressee }}<br/>
-                {% endif %}
-                {% if address.co_address %}
-                {{ address.co_address }}<br/>
-                {% endif %}
-                {% if address.street_address %}
-                {{ address.street_address }}<br/>
-                {% endif %}
-                {% if address.zip_code %}
-                {{ address.zip_code }}<br/>
-                {% endif %}
-                {% if address.city %}
-                {{ address.city }}
-                {% endif %}
+                {% if address.address_type %}{{ address.address_type }}<br/>{% endif %}
+                {% if address.Addressee %}{{ address.addressee }}<br/>{% endif %}
+                {% if address.co_address %}{{ address.co_address }}<br/>{% endif %}
+                {% if address.street_address %}{{ address.street_address }}<br/>{% endif %}
+                {% if address.zip_code %}{{ address.zip_code }}<br/>{% endif %}
+                {% if address.city %}{{ address.city }}{% endif %}
             </div>
             {% endfor %}
         </div>
     </div>
     {% endif %}
 
-    {% if company.company_user.user == user %}
-    
+    {% if user_is_company_admin %}
+        <h3>User is admin</h3>
     {% endif %}
 </div>
 

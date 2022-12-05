@@ -62,7 +62,11 @@ class Company(models.Model):
     def is_company_admin(self, user: User | None) -> bool:
         if not user:
             return False
-        
+        try:
+            self.users.get(pk=user.id)
+        except CompanyUser.DoesNotExist:
+            return False
+        return True
     
     def _get_description(self, language: str, descriptions) -> str:
         description = next(iter(d for d in descriptions if d.language.iso_639_1.upper() == language), None)
@@ -79,7 +83,7 @@ class CompanyRole(models.Model):
 
 
 class CompanyUser(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="users")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     role = models.ForeignKey(CompanyRole, on_delete=models.PROTECT)
 
@@ -137,7 +141,7 @@ class ContactType(models.Model):
 
 
 class Contact(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="contacts")
     contact_type = models.ForeignKey(ContactType, on_delete=models.PROTECT)
     value = models.CharField(max_length=500)
     description = models.CharField(max_length=1000, null=True)
