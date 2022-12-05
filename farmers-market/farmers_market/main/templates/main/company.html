@@ -23,7 +23,7 @@
 
     <div>
         <p>
-            {{ company.company_description }}
+            {{ company.description }}
         </p>
     </div>
 
@@ -81,6 +81,10 @@
             {% endfor %}
         </div>
     </div>
+    {% endif %}
+
+    {% if company.company_user.user == user %}
+    
     {% endif %}
 </div>
 
