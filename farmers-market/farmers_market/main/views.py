@@ -4,17 +4,17 @@ from django.views.generic import View
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Company, CompanyType
+from . import models
 
 
 def index(request: HttpRequest):
-    companies = Company.objects.filter(status__status_name="active").order_by("-activation_date")[:10]
+    companies = models.Company.objects.filter(status__status_name="active").order_by("-activation_date")[:10]
     return render(request, "main/index.html", {"companies": companies})
 
 
 class CompanyView(View):
     def get(self, request: HttpRequest, pk: int):
-        company = get_object_or_404(Company, pk=pk)
+        company = get_object_or_404(models.Company, pk=pk)
         company.description = company.get_description(request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, settings.LANGUAGE_CODE))
         return render(
             request,
@@ -28,9 +28,9 @@ class CompanyView(View):
 
 class EditCompanyView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, pk: int):
-        company = get_object_or_404(Company, pk=pk)
+        company = get_object_or_404(models.Company, pk=pk)
         if company.is_company_admin(request.user):
-            return render(request, "main/edit_company.html", {"company": company, "company_types": CompanyType.objects.all()})
+            return render(request, "main/edit_company.html", {"company": company, "company_types": models.CompanyType.objects.all(), "languages": models.Language.objects.all()})
         
         # TODO: Make a better forbidden page
         return HttpResponseForbidden()
