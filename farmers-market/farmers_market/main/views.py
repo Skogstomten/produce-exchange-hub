@@ -4,7 +4,7 @@ from django.views.generic import View
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Company
+from .models import Company, CompanyType
 
 
 def index(request: HttpRequest):
@@ -30,5 +30,7 @@ class EditCompanyView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, pk: int):
         company = get_object_or_404(Company, pk=pk)
         if company.is_company_admin(request.user):
-            return render(request, "main/edit_company.html", {"company": company})
+            return render(request, "main/edit_company.html", {"company": company, "company_types": CompanyType.objects.all()})
+        
+        # TODO: Make a better forbidden page
         return HttpResponseForbidden()
