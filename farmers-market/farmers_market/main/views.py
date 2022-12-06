@@ -1,3 +1,4 @@
+"""Views for main module"""
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpRequest, HttpResponseForbidden
 from django.views.generic import View
@@ -31,6 +32,7 @@ class CompanyView(View):
 class EditCompanyView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, pk: int):
         company = get_object_or_404(models.Company, pk=pk)
+        content_languages = [language.iso_639_1 for language in company.content_languages.all()]
         if company.is_company_admin(request.user):
             return render(
                 request,
@@ -38,7 +40,10 @@ class EditCompanyView(LoginRequiredMixin, View):
                 {
                     "company": company,
                     "company_types": models.CompanyType.objects.all(),
-                    "languages": models.Language.objects.all(),
+                    "languages": [
+                        {"id": language.id, "name": language.name, "checked": language.iso_639_1 in content_languages}
+                        for language in models.Language.objects.all()
+                    ],
                 },
             )
 
