@@ -19,7 +19,7 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("", include("main.urls")),
     path("auth/", include("authentication.urls")),
     path("set_lang/", views.set_lang, name="set_lang")

@@ -46,7 +46,7 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def get_description(self, language: str) -> str:
         if len(language) > 2:
             language = language[:2].upper()
@@ -58,7 +58,7 @@ class Company(models.Model):
                 if description:
                     break
         return description or next(iter(d.description for d in descriptions), "")
-    
+
     def is_company_admin(self, user: User | None) -> bool:
         if not user:
             return False
@@ -67,7 +67,7 @@ class Company(models.Model):
         except CompanyUser.DoesNotExist:
             return False
         return True
-    
+
     def _get_description(self, language: str, descriptions) -> str:
         description = next(iter(d for d in descriptions if d.language.iso_639_1.upper() == language), None)
         if description:
@@ -101,6 +101,7 @@ class CompanyChange(models.Model):
 
     def __str__(self):
         return f"{self.change_type.change_type} - {self.field} - {self.new_value}"
+
 
 class CompanyDescription(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="descriptions")

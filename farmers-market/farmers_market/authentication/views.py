@@ -10,7 +10,13 @@ class RegisterView(TemplateView):
     template_name = "authentication/register.html"
 
     def post(self, request):
-        User.objects.create_user(request.POST.get("email"), request.POST.get("email"), request.POST.get("password"), first_name=request.POST.get("first_name"), last_name=request.POST.get("last_name"))
+        User.objects.create_user(
+            request.POST.get("email"),
+            request.POST.get("email"),
+            request.POST.get("password"),
+            first_name=request.POST.get("first_name"),
+            last_name=request.POST.get("last_name"),
+        )
         return redirect(reverse("authentication:login"))
 
 
@@ -26,7 +32,9 @@ class LoginView(TemplateView):
                 return redirect(return_url)
             return redirect(reverse("main:index"))
         else:
-            return render(request, self.template_name, {"message": "Unable to authenticate user. Please check your information."})
+            return render(
+                request, self.template_name, {"message": "Unable to authenticate user. Please check your information."}
+            )
 
 
 def logout(request: HttpRequest):

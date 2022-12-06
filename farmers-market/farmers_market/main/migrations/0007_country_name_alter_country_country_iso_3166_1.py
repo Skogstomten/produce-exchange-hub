@@ -6,20 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0006_alter_address_addressee_alter_address_city_and_more'),
+        ("main", "0006_alter_address_addressee_alter_address_city_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='country',
-            name='name',
-            field=models.CharField(default='Sweden', max_length=50),
+            model_name="country",
+            name="name",
+            field=models.CharField(default="Sweden", max_length=50),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='country',
-            name='country_iso_3166_1',
-            field=models.CharField(default='SE', max_length=2),
+            model_name="country",
+            name="country_iso_3166_1",
+            field=models.CharField(default="SE", max_length=2),
             preserve_default=False,
         ),
     ]

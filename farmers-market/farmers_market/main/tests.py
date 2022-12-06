@@ -21,6 +21,6 @@ class CompanyModelTest(TestCase):
 
         company = models.Company.objects.get(pk=company.id)
         self.assertTrue(company.is_company_admin(user))
-    
+
     def test_is_company_admin_user_is_not_admin(self):
         self.assertFalse(_create_company().is_company_admin(_create_user()))
