@@ -5,6 +5,14 @@
 {% block content %}
 <div class="edit-company">
     <div class="edit-fields">
-    <h1>{{ company.name }}</h1>
+        <fieldset>
+            <label for="company_name">{% translate "company_name_label" %}</label>
+            <input type="text" id="company_name" name="company_name" value="{{ company.name }}" />
+        </fieldset>
+        <fieldset>
+            <label for="company_types">{% translate "company_types_label" %}</label>
+            
+        </fieldset>
+    </div>
 </div>
 {% endblock content %}
