@@ -4,24 +4,34 @@
 
 {% block content %}
 <div class="edit-company">
-    <h1>{% translate "edit_company_header" %}</h1>
-    <div class="edit-fields">
-        <fieldset>
-            <label for="company_name">{% translate "company_name_label" %}</label>
-            <input type="text" id="company_name" name="company_name" value="{{ company.name }}" />
-        </fieldset>
-        <fieldset>
-            <label for="company_types">{% translate "company_types_label" %}</label>
-            {% for company_type in company_types %}
-                <input type="checkbox" id="company_types" name="company_types" value="{{ company_type.id }}" />{% translate company_type.type_name %}
-            {% endfor %}
-        </fieldset>
-        <fieldset>
-            <label for="content_languages">{% translate "content_languages_label" %}</label>
-            {% for language in languages %}            
-                <input id="content_languages" name="content_languages" type="checkbox" value="language.id">{{ language.name }}
-            {% endfor %}
-        </fieldset>
-    </div>
+    <form method="POST" action="{% url 'main:edit_company' company.id %}">
+        {% csrf_token %}
+        <h1>{% translate "edit_company_header" %}</h1>
+        <div class="edit-fields">
+            <fieldset>
+                <label for="company_name">{% translate "company_name_label" %}</label>
+                <input type="text" id="company_name" name="company_name" value="{{ company.name }}" />
+            </fieldset>
+            <fieldset>
+                <label for="company_types">{% translate "company_types_label" %}</label>
+                {% for company_type in company_types %}
+                    <input type="checkbox" id="company_types" name="company_types" value="{{ company_type.id }}" {{ company_type.checked }}>
+                    {% translate company_type.type_name %}
+                {% endfor %}
+            </fieldset>
+            <fieldset>
+                <label for="content_languages">{% translate "content_languages_label" %}</label>
+                {% for language in languages %}            
+                    <input id="content_languages" name="content_languages" type="checkbox" value="language.id" {{ language.checked }}>
+                    {{ language.name }}
+                {% endfor %}
+            </fieldset>
+            <fieldset>
+                <label for="external_website_url">{% translate "external_website_url_label" %}</label>
+                <input type="text" id="external_website_url" name="external_website_url" value="{{ company.external_website_url|default_if_none:"" }}" />
+            </fieldset>
+        </div>
+        <input type="submit" value="{% translate "update_company_submit_button" %}" />
+    </form>
 </div>
 {% endblock content %}
