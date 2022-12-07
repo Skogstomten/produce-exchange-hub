@@ -9,6 +9,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from . import models
 
 
+def _get_language(request: HttpRequest) -> str:
+    return request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, settings.LANGUAGE_CODE)
+
+
 def _get_edit_company_template_context(company: models.Company) -> dict:
     content_languages = [language.iso_639_1 for language in company.content_languages.all()]
     company_types = [company_type.type_name for company_type in company.company_types.all()]
@@ -40,10 +44,7 @@ def index(request: HttpRequest):
 
 class CompanyView(View):
     def get(self, request: HttpRequest, pk: int):
-        company = get_object_or_404(models.Company, pk=pk)
-        company.description = company.get_description(
-            request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, settings.LANGUAGE_CODE)
-        )
+        company = models.Company.get(pk, _get_language(request))
         return render(
             request,
             "main/company.html",

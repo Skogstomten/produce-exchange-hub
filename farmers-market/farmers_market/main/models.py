@@ -46,6 +46,17 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @classmethod
+    def get(cls, pk: int, language: str) -> 'Company':
+        """Get a company by primary key with company description localized."""
+        item = cls.objects.get(pk=pk)
+        item.description = item.get_description(language)
+        return item
+    
+    @classmethod
+    def get_newest(language: str) -> list['Company']:
+        pass
 
     def get_description(self, language: str) -> str:
         if len(language) > 2:
