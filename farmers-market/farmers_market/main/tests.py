@@ -51,16 +51,21 @@ class EditCompanyViewTest(TestCase):
 
         if not self.client.login(username=username, password=password):
             self.fail("Login failed")
+        
+        url = reverse("main:edit_company", args=(company.id,))
+        # response = self.client.get(url)
 
         response = self.client.post(
-            reverse("main:edit_company", kwargs={"pk": company.id}),
+            url,
             {
                 "company_name": "Test Company",
                 "company_types": _get_company_type("buyer").id,
                 "content_languages": _get_language("sv").id,
                 "external_website_url": "",
             },
+            follow=True
         )
+
         self.assertEquals(response.status_code, 202)
 
 
