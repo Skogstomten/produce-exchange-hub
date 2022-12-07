@@ -4,6 +4,15 @@ from django.urls import reverse
 from . import models
 
 
+def _get_default_post_object():
+    return {
+        "company_name": "Test Company",
+        "company_types": _get_company_type("buyer").id,
+        "content_languages": _get_language("sv").id,
+        "external_website_url": "",
+    }
+
+
 def _create_user() -> tuple[models.User, str, str]:
     username = "nisse"
     password = "test123"
@@ -16,6 +25,12 @@ def _create_company_with_admin() -> tuple[models.Company, models.User, str, str]
     user, username, password = _create_user()
     models.CompanyUser.objects.create(company=company, role=role, user=user)
     return company, user, username, password
+
+
+def _create_company_with_logged_in_admin(client: Client) -> tuple[models.Company, models.User]:
+    company, user, username, password = _create_company_with_admin()
+    client.login(username=username, password=password)
+    return company, user
 
 
 def _create_company_admin_role() -> models.CompanyRole:
@@ -46,29 +61,33 @@ def _create_company() -> models.Company:
 
 
 class EditCompanyViewTest(TestCase):
-    def test_post_returns_200(self):
-        company, _, username, password = _create_company_with_admin()
-        self.client.login(username=username, password=password)
+    def test_get_returns_200(self):
+        company, _ = _create_company_with_logged_in_admin(self.client)
         url = reverse("main:edit_company", args=(company.id,))
         response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
 
     def test_post_returns_202(self):
-        company, _, username, password = _create_company_with_admin()
+        company, _ = _create_company_with_logged_in_admin(self.client)
+        url = reverse("main:edit_company", args=(company.id,))
+        response = self.client.post(
+            url,
+            _get_default_post_object(),
+        )
 
-        if not self.client.login(username=username, password=password):
-            self.fail("Login failed")
+        self.assertEquals(response.status_code, 202)
+
+    def test_post_can_remove_language(self):
+        company, _ = _create_company_with_logged_in_admin(self.client)
+        swe = _get_language("SV")
+        eng = _get_language("EN")
+        company.content_languages.add(swe, eng)
+        company.save()
 
         url = reverse("main:edit_company", args=(company.id,))
         response = self.client.post(
             url,
-            {
-                "company_name": "Test Company",
-                "company_types": _get_company_type("buyer").id,
-                "content_languages": _get_language("sv").id,
-                "external_website_url": "",
-            },
-            follow=True,
+            _get_default_post_object(),
         )
 
         self.assertEquals(response.status_code, 202)

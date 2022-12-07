@@ -22,7 +22,7 @@
             <fieldset>
                 <label for="content_languages">{% translate "content_languages_label" %}</label>
                 {% for language in languages %}            
-                    <input id="content_languages" name="content_languages" type="checkbox" value="language.id" {{ language.checked }}>
+                    <input id="content_languages" name="content_languages" type="checkbox" value="{{ language.id }}" {{ language.checked }}>
                     {{ language.name }}
                 {% endfor %}
             </fieldset>

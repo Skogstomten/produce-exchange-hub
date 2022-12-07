@@ -93,7 +93,7 @@ class EditCompanyView(LoginRequiredMixin, View):
 
         for current_language_id in current_language_ids:
             if not current_language_id in selected_language_ids:
-                company.content_languages.remove(models.Language.objects.get(current_language_id))
+                company.content_languages.remove(models.Language.objects.get(pk=current_language_id))
 
         for selected_language_id in selected_language_ids:
             if not selected_language_id in current_language_ids:
