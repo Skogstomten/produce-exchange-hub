@@ -13,24 +13,24 @@ def _get_edit_company_template_context(company: models.Company) -> dict:
     content_languages = [language.iso_639_1 for language in company.content_languages.all()]
     company_types = [company_type.type_name for company_type in company.company_types.all()]
     return {
-                "company": company,
-                "company_types": [
-                    {
-                        "id": company_type.id,
-                        "type_name": company_type.type_name,
-                        "checked": "checked" if company_type.type_name in company_types else "",
-                    }
-                    for company_type in models.CompanyType.objects.all()
-                ],
-                "languages": [
-                    {
-                        "id": language.id,
-                        "name": language.name,
-                        "checked": "checked" if language.iso_639_1 in content_languages else "",
-                    }
-                    for language in models.Language.objects.all()
-                ],
+        "company": company,
+        "company_types": [
+            {
+                "id": company_type.id,
+                "type_name": company_type.type_name,
+                "checked": "checked" if company_type.type_name in company_types else "",
             }
+            for company_type in models.CompanyType.objects.all()
+        ],
+        "languages": [
+            {
+                "id": language.id,
+                "name": language.name,
+                "checked": "checked" if language.iso_639_1 in content_languages else "",
+            }
+            for language in models.Language.objects.all()
+        ],
+    }
 
 
 def index(request: HttpRequest):
@@ -59,7 +59,7 @@ class EditCompanyView(LoginRequiredMixin, View):
 
     def get(self, request: HttpRequest, pk: int):
         company = get_object_or_404(models.Company, pk=pk)
-        
+
         if not company.is_company_admin(request.user):
             return HttpResponseForbidden()  # TODO: Make better
 

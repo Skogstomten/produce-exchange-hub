@@ -46,15 +46,20 @@ def _create_company() -> models.Company:
 
 
 class EditCompanyViewTest(TestCase):
+    def test_post_returns_200(self):
+        company, _, username, password = _create_company_with_admin()
+        self.client.login(username=username, password=password)
+        url = reverse("main:edit_company", args=(company.id,))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
     def test_post_returns_202(self):
         company, _, username, password = _create_company_with_admin()
 
         if not self.client.login(username=username, password=password):
             self.fail("Login failed")
-        
-        url = reverse("main:edit_company", args=(company.id,))
-        # response = self.client.get(url)
 
+        url = reverse("main:edit_company", args=(company.id,))
         response = self.client.post(
             url,
             {
@@ -63,7 +68,7 @@ class EditCompanyViewTest(TestCase):
                 "content_languages": _get_language("sv").id,
                 "external_website_url": "",
             },
-            follow=True
+            follow=True,
         )
 
         self.assertEquals(response.status_code, 202)
