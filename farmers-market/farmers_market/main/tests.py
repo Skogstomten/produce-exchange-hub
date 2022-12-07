@@ -49,18 +49,17 @@ class EditCompanyViewTest(TestCase):
     def test_post_returns_202(self):
         company, _, username, password = _create_company_with_admin()
 
-        client = Client()
-        if not client.login(username=username, password=password):
+        if not self.client.login(username=username, password=password):
             self.fail("Login failed")
 
-        response = client.post(
+        response = self.client.post(
             reverse("main:edit_company", kwargs={"pk": company.id}),
             {
                 "company_name": "Test Company",
                 "company_types": _get_company_type("buyer").id,
                 "content_languages": _get_language("sv").id,
                 "external_website_url": "",
-            }
+            },
         )
         self.assertEquals(response.status_code, 202)
 
