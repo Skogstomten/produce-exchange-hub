@@ -4,9 +4,16 @@
 
 {% block content %}
 <div class="edit-company">
+    <h1>{% translate "edit_company_header" %}</h1>
+    <div class="edit-company-profile-picture">
+        {% if company.has_profile_picture %}
+            <img src="{{ profile_picture_absolute_url }}" />
+        {% else %}
+            <img src="{% static 'main/images/no_profile_picture_image.jpg' %}" />
+        {% endif %}
+    </div>
     <form method="POST" action="{% url 'main:edit_company' company.id %}">
         {% csrf_token %}
-        <h1>{% translate "edit_company_header" %}</h1>
         <div class="edit-fields">
             <fieldset>
                 <label for="company_name">{% translate "company_name_label" %}</label>
