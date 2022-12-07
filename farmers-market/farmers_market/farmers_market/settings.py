@@ -18,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 CURRENT_DIR = Path(__file__).resolve().parent
 BASE_DIR = CURRENT_DIR.parent
+COMPANY_PROFILE_PICTURE_DIR = join(BASE_DIR, "company_profile_pictures")
 
 
 # Quick-start development settings - unsuitable for production
