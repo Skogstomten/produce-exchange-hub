@@ -7,4 +7,5 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("company/<int:pk>", views.CompanyView.as_view(), name="company"),
     path("company/<int:pk>/edit", views.EditCompanyView.as_view(), name="edit_company"),
+    path("company/<int:company_id>/edit/upload-profile-picture", views.upload_company_profile_picture, name="upload_company_profile_picture"),
 ]

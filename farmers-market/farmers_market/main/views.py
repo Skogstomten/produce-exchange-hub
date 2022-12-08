@@ -4,9 +4,16 @@ from django.urls import reverse
 from django.http import HttpRequest, HttpResponseForbidden
 from django.views.generic import View
 from django.conf import settings
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Company, CompanyType, Language
+from .forms import UpdateCompanyForm
+
+
+@login_required()
+def upload_company_profile_picture(request: HttpRequest, company_id: int):
+    pass
 
 
 def index(request: HttpRequest):
@@ -35,11 +42,13 @@ class EditCompanyView(LoginRequiredMixin, View):
 
         if not company.is_company_admin(request.user):
             return HttpResponseForbidden()  # TODO: Make better
+        
+        update_company_form = UpdateCompanyForm(instance=company)
 
         return render(
             request,
             self.template_name,
-            _get_edit_company_template_context(company),
+            {"update_company_form": update_company_form, **_get_edit_company_template_context(company)},
         )
 
     def post(self, request: HttpRequest, pk: int):

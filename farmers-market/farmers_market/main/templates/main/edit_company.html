@@ -11,10 +11,24 @@
         {% else %}
             <img src="{% static 'main/images/no_profile_picture_image.jpg' %}" />
         {% endif %}
+        <div>
+            <form method="POST" action="{% url 'main:upload_company_profile_picture' company.id %}">
+                {% csrf_token %}
+                
+            </form>
+        </div>
     </div>
     <form method="POST" action="{% url 'main:edit_company' company.id %}">
         {% csrf_token %}
-        <div class="edit-fields">
+
+        {% for field in update_company_form %}
+            <fieldset>
+                {{ field.label_tag }}
+                {{ field }}
+            </fieldset>
+        {% endfor %}
+
+        {% comment %} <div class="edit-fields">
             <fieldset>
                 <label for="company_name">{% translate "company_name_label" %}</label>
                 <input type="text" id="company_name" name="company_name" value="{{ company.name }}" />
@@ -37,7 +51,7 @@
                 <label for="external_website_url">{% translate "external_website_url_label" %}</label>
                 <input type="text" id="external_website_url" name="external_website_url" value="{{ company.external_website_url|default_if_none:"" }}" />
             </fieldset>
-        </div>
+        </div> {% endcomment %}
         <input type="submit" value="{% translate "update_company_submit_button" %}" />
     </form>
 </div>
