@@ -23,7 +23,7 @@
                 <label for="company_types">{% translate "company_types_label" %}</label>
                 {% for company_type in company_types %}
                     <input type="checkbox" id="company_types" name="company_types" value="{{ company_type.id }}" {{ company_type.checked }}>
-                    {% translate company_type.type_name %}
+                    {{ company_type.type_name }}
                 {% endfor %}
             </fieldset>
             <fieldset>

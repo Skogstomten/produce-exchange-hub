@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-04 19:15+0100\n"
+"POT-Creation-Date: 2022-12-08 06:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,47 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\templates\main\company.html:17
+msgid "Created"
+msgstr "Created"
+
+#: .\templates\main\company.html:34
+msgid "Homepage"
+msgstr "Homepage"
+
+#: .\templates\main\company.html:63
+msgid "edit_link"
+msgstr "Edit"
+
+#: .\templates\main\company.html:71
+msgid "Addresses"
+msgstr "Addresses"
+
+#: .\templates\main\edit_company.html:7
+msgid "edit_company_header"
+msgstr "Edit"
+
+#: .\templates\main\edit_company.html:19
+msgid "company_name_label"
+msgstr "Company name"
+
+#: .\templates\main\edit_company.html:23
+msgid "company_types_label"
+msgstr "Company types"
+
+#: .\templates\main\edit_company.html:30
+msgid "content_languages_label"
+msgstr "Content languages"
+
+#: .\templates\main\edit_company.html:37
+msgid "external_website_url_label"
+msgstr "Web site url"
+
+#: .\templates\main\edit_company.html:41
+msgid "update_company_submit_button"
+msgstr "Save"
+
 #: .\templates\main\index.html:5
 msgid "main_title"
 msgstr "Produce Exchange Hub"

@@ -16,7 +16,7 @@ class CompanyType(models.Model):
     description = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.type_name
+        return f"Name: {self.type_name}"
 
 
 class CompanyStatus(models.Model):
