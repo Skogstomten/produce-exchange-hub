@@ -6,7 +6,7 @@ from .models import User, Company, Language, CompanyType, CompanyUser, CompanyRo
 
 def _get_default_post_object():
     return {
-        "company_name": "Test Company",
+        "name": "Test Company",
         "company_types": _get_company_type("buyer").id,
         "content_languages": _get_language("sv").id,
         "external_website_url": "",
