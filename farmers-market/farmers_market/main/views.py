@@ -6,17 +6,17 @@ from django.views.generic import View
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from . import models
+from .models import Company, CompanyType, Language
 
 
 def index(request: HttpRequest):
-    companies = models.Company.objects.filter(status__status_name="active").order_by("-activation_date")[:10]
+    companies = Company.objects.filter(status__status_name="active").order_by("-activation_date")[:10]
     return render(request, "main/index.html", {"companies": companies})
 
 
 class CompanyView(View):
     def get(self, request: HttpRequest, pk: int):
-        company = models.Company.get(pk, _get_language(request))
+        company = Company.get(pk, _get_language(request))
         return render(
             request,
             "main/company.html",
@@ -31,7 +31,7 @@ class EditCompanyView(LoginRequiredMixin, View):
     template_name = "main/edit_company.html"
 
     def get(self, request: HttpRequest, pk: int):
-        company = get_object_or_404(models.Company, pk=pk)
+        company = get_object_or_404(Company, pk=pk)
 
         if not company.is_company_admin(request.user):
             return HttpResponseForbidden()  # TODO: Make better
@@ -43,14 +43,12 @@ class EditCompanyView(LoginRequiredMixin, View):
         )
 
     def post(self, request: HttpRequest, pk: int):
-        company = get_object_or_404(models.Company, pk=pk)
+        company = get_object_or_404(Company, pk=pk)
         company.name = request.POST.get("company_name").strip()
         company.external_website_url = request.POST.get("external_website_url").strip()
 
-        _sync_checked_with_related_table(company.company_types, request, "company_types", models.CompanyType.objects)
-        _sync_checked_with_related_table(
-            company.content_languages, request, "content_languages", models.Language.objects
-        )
+        _sync_checked_with_related_table(company.company_types, request, "company_types", CompanyType.objects)
+        _sync_checked_with_related_table(company.content_languages, request, "content_languages", Language.objects)
 
         company.save()
 
@@ -74,7 +72,7 @@ def _get_language(request: HttpRequest) -> str:
     return request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, settings.LANGUAGE_CODE)
 
 
-def _get_edit_company_template_context(company: models.Company) -> dict:
+def _get_edit_company_template_context(company: Company) -> dict:
     content_languages = [language.iso_639_1 for language in company.content_languages.all()]
     company_types = [company_type.type_name for company_type in company.company_types.all()]
     return {
@@ -85,7 +83,7 @@ def _get_edit_company_template_context(company: models.Company) -> dict:
                 "type_name": company_type.type_name,
                 "checked": "checked" if company_type.type_name in company_types else "",
             }
-            for company_type in models.CompanyType.objects.all()
+            for company_type in CompanyType.objects.all()
         ],
         "languages": [
             {
@@ -93,6 +91,6 @@ def _get_edit_company_template_context(company: models.Company) -> dict:
                 "name": language.name,
                 "checked": "checked" if language.iso_639_1 in content_languages else "",
             }
-            for language in models.Language.objects.all()
+            for language in Language.objects.all()
         ],
     }

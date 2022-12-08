@@ -1,48 +1,59 @@
-from django.db import models
+from django.db.models import (
+    Model,
+    CharField,
+    DateTimeField,
+    TextField,
+    DecimalField,
+    ManyToManyField,
+    ForeignKey,
+    PROTECT,
+    CASCADE,
+    SET_NULL,
+)
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
 
-class Language(models.Model):
-    iso_639_1 = models.CharField(max_length=2)
-    name = models.CharField(max_length=50)
+class Language(Model):
+    iso_639_1 = CharField(max_length=2)
+    name = CharField(max_length=50)
 
     def __str__(self):
         return f"{self.iso_639_1}: {self.name}"
 
 
-class CompanyType(models.Model):
-    type_name = models.CharField(max_length=50)
-    description = models.CharField(max_length=200)
+class CompanyType(Model):
+    type_name = CharField(max_length=50)
+    description = CharField(max_length=200)
 
     def __str__(self):
         return f"Name: {self.type_name}"
 
 
-class CompanyStatus(models.Model):
-    status_name = models.CharField(max_length=50)
-    description = models.CharField(max_length=200)
+class CompanyStatus(Model):
+    status_name = CharField(max_length=50)
+    description = CharField(max_length=200)
 
     def __str__(self):
         return self.status_name
 
 
-class ChangeType(models.Model):
-    change_type = models.CharField(max_length=20)
+class ChangeType(Model):
+    change_type = CharField(max_length=20)
 
     def __str__(self):
         return self.change_type
 
 
-class Company(models.Model):
-    name = models.CharField(max_length=100)
-    status = models.ForeignKey(CompanyStatus, on_delete=models.PROTECT)
-    created_date = models.DateTimeField(auto_now_add=True)
-    company_types = models.ManyToManyField(CompanyType, related_name="companies")
-    content_languages = models.ManyToManyField(Language, related_name="companies")
-    activation_date = models.DateTimeField(null=True, blank=True, default=None)
-    external_website_url = models.CharField(null=True, blank=True, max_length=1000)
-    profile_picture_url = models.CharField(null=True, blank=True, max_length=1000)
+class Company(Model):
+    name = CharField(max_length=100)
+    status = ForeignKey(CompanyStatus, on_delete=PROTECT)
+    created_date = DateTimeField(auto_now_add=True)
+    company_types = ManyToManyField(CompanyType, related_name="companies")
+    content_languages = ManyToManyField(Language, related_name="companies")
+    activation_date = DateTimeField(null=True, blank=True, default=None)
+    external_website_url = CharField(null=True, blank=True, max_length=1000)
+    profile_picture_url = CharField(null=True, blank=True, max_length=1000)
 
     def __str__(self):
         return self.name
@@ -91,111 +102,111 @@ class Company(models.Model):
         return None
 
 
-class CompanyRole(models.Model):
-    role_name = models.CharField(max_length=50)
+class CompanyRole(Model):
+    role_name = CharField(max_length=50)
 
     def __str__(self):
         return self.role_name
 
 
-class CompanyUser(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="users")
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    role = models.ForeignKey(CompanyRole, on_delete=models.PROTECT)
+class CompanyUser(Model):
+    company = ForeignKey(Company, on_delete=CASCADE, related_name="users")
+    user = ForeignKey(User, on_delete=CASCADE)
+    role = ForeignKey(CompanyRole, on_delete=PROTECT)
 
     def __str__(self) -> str:
         return f"{self.company.name} - {self.user.email} - {self.role.role_name}"
 
 
-class CompanyChange(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    change_type = models.ForeignKey(ChangeType, on_delete=models.PROTECT)
-    field = models.CharField(max_length=50)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    changed = models.DateTimeField(auto_now_add=True)
-    new_value = models.TextField()
+class CompanyChange(Model):
+    company = ForeignKey(Company, on_delete=CASCADE)
+    change_type = ForeignKey(ChangeType, on_delete=PROTECT)
+    field = CharField(max_length=50)
+    user = ForeignKey(User, on_delete=SET_NULL, null=True, blank=True)
+    changed = DateTimeField(auto_now_add=True)
+    new_value = TextField()
 
     def __str__(self):
         return f"{self.change_type.change_type} - {self.field} - {self.new_value}"
 
 
-class CompanyDescription(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="descriptions")
-    language = models.ForeignKey(Language, on_delete=models.PROTECT, related_name="company_descriptions")
-    description = models.CharField(max_length=2000)
+class CompanyDescription(Model):
+    company = ForeignKey(Company, on_delete=CASCADE, related_name="descriptions")
+    language = ForeignKey(Language, on_delete=PROTECT, related_name="company_descriptions")
+    description = CharField(max_length=2000)
 
     def __str__(self):
         return f"{self.company.name} - {_(self.language.name)}"
 
 
-class Country(models.Model):
-    country_iso_3166_1 = models.CharField(max_length=2)
-    name = models.CharField(max_length=50)
+class Country(Model):
+    country_iso_3166_1 = CharField(max_length=2)
+    name = CharField(max_length=50)
 
     def __str__(self):
         return f"{self.country_iso_3166_1} - {_(self.name)}"
 
 
-class Address(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="addresses")
-    address_type = models.CharField(max_length=50, null=True, blank=True)
-    addressee = models.CharField(max_length=100, null=True, blank=True)
-    co_address = models.CharField(max_length=100, null=True, blank=True)
-    street_address = models.CharField(max_length=100, null=True, blank=True)
-    city = models.CharField(max_length=20, null=True, blank=True)
-    zip_code = models.CharField(max_length=10, null=True, blank=True)
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True)
+class Address(Model):
+    company = ForeignKey(Company, on_delete=CASCADE, related_name="addresses")
+    address_type = CharField(max_length=50, null=True, blank=True)
+    addressee = CharField(max_length=100, null=True, blank=True)
+    co_address = CharField(max_length=100, null=True, blank=True)
+    street_address = CharField(max_length=100, null=True, blank=True)
+    city = CharField(max_length=20, null=True, blank=True)
+    zip_code = CharField(max_length=10, null=True, blank=True)
+    country = ForeignKey(Country, on_delete=PROTECT, null=True, blank=True)
 
     def __str__(self):
         return f"{self.company.name} - {self.address_type} - {self.street_address}"
 
 
-class ContactType(models.Model):
-    contact_type = models.CharField(max_length=100)
+class ContactType(Model):
+    contact_type = CharField(max_length=100)
 
     def __str__(self):
         return self.contact_type
 
 
-class Contact(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="contacts")
-    contact_type = models.ForeignKey(ContactType, on_delete=models.PROTECT)
-    value = models.CharField(max_length=500)
-    description = models.CharField(max_length=1000, null=True)
+class Contact(Model):
+    company = ForeignKey(Company, on_delete=CASCADE, related_name="contacts")
+    contact_type = ForeignKey(ContactType, on_delete=PROTECT)
+    value = CharField(max_length=500)
+    description = CharField(max_length=1000, null=True)
 
     def __str__(self):
         return f"{self.description} - {self.value} - {self.contact_type.contact_type}"
 
 
-class Product(models.Model):
-    product_code = models.CharField(max_length=50)
+class Product(Model):
+    product_code = CharField(max_length=50)
 
     def __str__(self):
         return self.product_code
 
 
-class ProductName(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    language = models.ForeignKey(Language, on_delete=models.PROTECT)
-    name = models.CharField(max_length=200)
+class ProductName(Model):
+    product = ForeignKey(Product, on_delete=PROTECT)
+    language = ForeignKey(Language, on_delete=PROTECT)
+    name = CharField(max_length=200)
 
     def __str__(self):
         return f"{self.product.product_code} - {self.language.name} - {self.name}"
 
 
-class Currency(models.Model):
-    currency_code = models.CharField(max_length=3)
+class Currency(Model):
+    currency_code = CharField(max_length=3)
 
     def __str__(self):
         return self.currency_code
 
 
-class Order(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    price_per_unit = models.DecimalField(max_digits=20, decimal_places=2, null=True)
-    unit_type = models.CharField(max_length=20, null=True)
-    currency = models.ForeignKey(Currency, on_delete=models.PROTECT)
+class Order(Model):
+    company = ForeignKey(Company, on_delete=CASCADE)
+    product = ForeignKey(Product, on_delete=PROTECT)
+    price_per_unit = DecimalField(max_digits=20, decimal_places=2, null=True)
+    unit_type = CharField(max_length=20, null=True)
+    currency = ForeignKey(Currency, on_delete=PROTECT)
 
     def __str__(self):
         return f"{self.company.name} - {self.product.product_code}"

@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 
-from . import models
+from .models import User, Company, Language, CompanyType, CompanyUser, CompanyRole, CompanyStatus
 
 
 def _get_default_post_object():
@@ -13,28 +13,28 @@ def _get_default_post_object():
     }
 
 
-def _create_user() -> tuple[models.User, str, str]:
+def _create_user() -> tuple[User, str, str]:
     username = "nisse"
     password = "test123"
-    return models.User.objects.create_user(username, "nisse@persson.se", password), username, password
+    return User.objects.create_user(username, "nisse@persson.se", password), username, password
 
 
-def _create_company_with_admin() -> tuple[models.Company, models.User, str, str]:
+def _create_company_with_admin() -> tuple[Company, User, str, str]:
     company = _create_company()
     role = _create_company_admin_role()
     user, username, password = _create_user()
-    models.CompanyUser.objects.create(company=company, role=role, user=user)
+    CompanyUser.objects.create(company=company, role=role, user=user)
     return company, user, username, password
 
 
-def _create_company_with_logged_in_admin(client: Client) -> tuple[models.Company, models.User]:
+def _create_company_with_logged_in_admin(client: Client) -> tuple[Company, User]:
     company, user, username, password = _create_company_with_admin()
     client.login(username=username, password=password)
     return company, user
 
 
-def _create_company_admin_role() -> models.CompanyRole:
-    return models.CompanyRole.objects.create(role_name="company_admin")
+def _create_company_admin_role() -> CompanyRole:
+    return CompanyRole.objects.create(role_name="company_admin")
 
 
 def _get_or_create(model, selectors, create_fields=None):
@@ -47,17 +47,17 @@ def _get_or_create(model, selectors, create_fields=None):
     return result
 
 
-def _get_company_type(name: str) -> models.CompanyType:
-    return _get_or_create(models.CompanyType, {"type_name": name})
+def _get_company_type(name: str) -> CompanyType:
+    return _get_or_create(CompanyType, {"type_name": name})
 
 
 def _get_language(iso_639_1):
-    return _get_or_create(models.Language, {"iso_639_1": iso_639_1}, {"iso_639_1": iso_639_1, "name": "Whatever"})
+    return _get_or_create(Language, {"iso_639_1": iso_639_1}, {"iso_639_1": iso_639_1, "name": "Whatever"})
 
 
-def _create_company() -> models.Company:
-    status = models.CompanyStatus.objects.create(status_name="active", description="active")
-    return models.Company.objects.create(name="Nisses firma", status=status)
+def _create_company() -> Company:
+    status = CompanyStatus.objects.create(status_name="active", description="active")
+    return Company.objects.create(name="Nisses firma", status=status)
 
 
 class EditCompanyViewTest(TestCase):
@@ -97,7 +97,7 @@ class CompanyModelTest(TestCase):
     def test_is_company_admin_user_is_admin(self):
         company, user, _, _ = _create_company_with_admin()
 
-        company = models.Company.objects.get(pk=company.id)
+        company = Company.objects.get(pk=company.id)
         self.assertTrue(company.is_company_admin(user))
 
     def test_is_company_admin_user_is_not_admin(self):
