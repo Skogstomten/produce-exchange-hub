@@ -69,11 +69,6 @@ class Company(Model):
     def get_newest(language: str) -> list["Company"]:
         pass
 
-    def has_profile_pictue(self):
-        if self.profile_picture_url:
-            return True
-        return False
-
     def get_description(self, language: str) -> str:
         if len(language) > 2:
             language = language[:2].upper()

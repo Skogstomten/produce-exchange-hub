@@ -132,14 +132,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
-STATICFILES_DIRS = [join(CURRENT_DIR, "static")]
+COMPANY_PROFILE_PICTURE_DIR = join("/", STATIC_URL, "company_profile_pictures")
+STATICFILES_DIRS = [join(CURRENT_DIR, "static"), COMPANY_PROFILE_PICTURE_DIR]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# File system paths
-
-COMPANY_PROFILE_PICTURE_DIR = join(BASE_DIR, "company_profile_pictures")
-USER_PROFILE_PICTURE_DIR = join(BASE_DIR, "user_profile_pictures")

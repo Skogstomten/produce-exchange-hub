@@ -29,9 +29,9 @@ def upload_company_profile_picture(request: HttpRequest, company_id: int):
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES["file"]
-            path = Path(file.name)
-            path.parent.mkdir()
-            file_path = path.join(settings.COMPANY_PROFILE_PICTURE_DIR, company.id, path.suffix)
+            Path(settings.COMPANY_PROFILE_PICTURE_DIR).mkdir(parents=True, exist_ok=True)
+            file_name = str(company.id) + Path(file.name).suffix
+            file_path = path.join(settings.COMPANY_PROFILE_PICTURE_DIR, file_name)
             print(f"Saving file to {file_path}")
             with open(file_path, "wb+") as destination:
                 for chunk in file.chunks():
