@@ -80,7 +80,7 @@ class Company(Model):
         descriptions = self.descriptions.all()
         description = self._get_description(language, descriptions)
         if not description:
-            for content_language in self.content_languages:
+            for content_language in self.content_languages.all():
                 description = self._get_description(content_language.iso_639_1.upper(), descriptions)
                 if description:
                     break

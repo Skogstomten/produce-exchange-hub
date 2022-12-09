@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-08 06:50+0100\n"
+"POT-Creation-Date: 2022-12-08 19:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\forms.py:25
+msgid "upload_profile_picture_label"
+msgstr ""
 
 #: .\templates\main\company.html:17
 msgid "Created"
@@ -38,26 +42,22 @@ msgstr "Adresser"
 msgid "edit_company_header"
 msgstr "Editera"
 
-#: .\templates\main\edit_company.html:19
-msgid "company_name_label"
-msgstr "Företagsnamn"
-
-#: .\templates\main\edit_company.html:23
-msgid "company_types_label"
-msgstr "Företagstyper"
-
-#: .\templates\main\edit_company.html:30
-msgid "content_languages_label"
-msgstr "Språk"
-
-#: .\templates\main\edit_company.html:37
-msgid "external_website_url_label"
-msgstr "Extern hemsida"
-
-#: .\templates\main\edit_company.html:41
+#: .\templates\main\edit_company.html:29
 msgid "update_company_submit_button"
 msgstr "Spara"
 
 #: .\templates\main\index.html:5
 msgid "main_title"
 msgstr "Lokalproducerat"
+
+#~ msgid "company_name_label"
+#~ msgstr "Företagsnamn"
+
+#~ msgid "company_types_label"
+#~ msgstr "Företagstyper"
+
+#~ msgid "content_languages_label"
+#~ msgstr "Språk"
+
+#~ msgid "external_website_url_label"
+#~ msgstr "Extern hemsida"

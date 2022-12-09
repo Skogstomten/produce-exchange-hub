@@ -14,7 +14,7 @@
         <div>
             <form method="POST" action="{% url 'main:upload_company_profile_picture' company.id %}">
                 {% csrf_token %}
-                
+                {{ upload_profile_picture_form }}
             </form>
         </div>
     </div>

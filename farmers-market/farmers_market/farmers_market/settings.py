@@ -18,7 +18,6 @@ from django.utils.translation import gettext_lazy as _
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 CURRENT_DIR = Path(__file__).resolve().parent
 BASE_DIR = CURRENT_DIR.parent
-COMPANY_PROFILE_PICTURE_DIR = join(BASE_DIR, "company_profile_pictures")
 
 
 # Quick-start development settings - unsuitable for production
@@ -139,3 +138,8 @@ STATICFILES_DIRS = [join(CURRENT_DIR, "static")]
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# File system paths
+
+COMPANY_PROFILE_PICTURE_DIR = join(BASE_DIR, "company_profile_pictures")
+USER_PROFILE_PICTURE_DIR = join(BASE_DIR, "user_profile_pictures")
