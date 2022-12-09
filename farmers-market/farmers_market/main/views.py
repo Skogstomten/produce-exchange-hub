@@ -25,15 +25,22 @@ def upload_company_profile_picture(request: HttpRequest, company_id: int):
     """
     if request.method == "POST":
         company = Company.get(company_id, get_language(request))
+        print(request.FILES)
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES["file"]
-            file_name = path.join(settings.COMPANY_PROFILE_PICTURE_DIR, company.id, Path(file.name).suffix)
-            with open(file_name, "wb+") as destination:
+            path = Path(file.name)
+            path.parent.mkdir()
+            file_path = path.join(settings.COMPANY_PROFILE_PICTURE_DIR, company.id, path.suffix)
+            print(f"Saving file to {file_path}")
+            with open(file_path, "wb+") as destination:
                 for chunk in file.chunks():
                     destination.write(chunk)
-            company.profile_picture_url = file_name
+                    destination.flush()
+            company.profile_picture_url = file_path
             company.save()
+        else:
+            print(form.errors)
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
