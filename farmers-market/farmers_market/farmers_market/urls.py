@@ -24,8 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("main.urls")),
     path("auth/", include("authentication.urls")),
-    path("set_lang/", set_lang, name="set_lang")
-    # path('i18n/', include('django.conf.urls.i18n')),
+    path("set_lang/", set_lang, name="set_lang"),
 ]
 
 if settings.DEBUG:

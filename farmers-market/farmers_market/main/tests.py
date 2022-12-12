@@ -15,7 +15,7 @@ class CompanyProfilePictureViewTest(TestCase):
         response = self.client.post(url)
 
         self.assertEquals(response.status_code, 403)
-    
+
     # def test_can_get_profile_picture(self):
     #     company, user = _create_company_with_logged_in_admin(self.client)
     #     company.profile_picture_url = f"{company.id}.jpg"

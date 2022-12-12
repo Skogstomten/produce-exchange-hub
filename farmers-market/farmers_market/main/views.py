@@ -61,6 +61,10 @@ class EditCompanyView(LoginRequiredMixin, CompanyAdminRequiredMixin, View):
         return render(
             request,
             self.template_name,
-            {"company": company, "update_company_form": form, "upload_profile_picture_form": UploadCompanyProfilePictureForm()},
+            {
+                "company": company,
+                "update_company_form": form,
+                "upload_profile_picture_form": UploadCompanyProfilePictureForm(),
+            },
             status=status,
         )
