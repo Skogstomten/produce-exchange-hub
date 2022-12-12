@@ -17,5 +17,9 @@ class UpdateCompanyForm(ModelForm):
         fields = ["name", "company_types", "content_languages", "external_website_url"]
 
 
-class UploadFileForm(Form):
-    file = FileField(required=True, label=_("upload_profile_picture_label"))
+class UploadCompanyProfilePictureForm(ModelForm):
+    profile_picture = FileField(required=True, label=_("upload_profile_picture_label"))
+
+    class Meta:
+        model = Company
+        fields = ["profile_picture"]

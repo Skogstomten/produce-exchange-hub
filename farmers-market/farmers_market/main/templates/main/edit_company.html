@@ -6,13 +6,13 @@
 <div class="edit-company">
     <h1>{% translate "edit_company_header" %}</h1>
     <div class="edit-company-profile-picture">
-        {% if company.profile_picture_url %}
-            <img src="{% static company.profile_picture_url %}" />
+        {% if company.profile_picture %}
+            <img src="{{ company.profile_picture.url }}" />
         {% else %}
             <img src="{% static 'main/images/no_profile_picture_image.jpg' %}" />
         {% endif %}
         <div>
-            <form method="POST" action="{% url 'main:upload_company_profile_picture' company.id %}" enctype="multipart/form-data">
+            <form method="POST" action="{% url 'main:company_profile_picture' company.id %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ upload_profile_picture_form }}
                 <input type="submit" value="{% translate "upload_image_button" %}" />

@@ -4,6 +4,7 @@ from django.db.models import (
     DateTimeField,
     TextField,
     DecimalField,
+    ImageField,
     ManyToManyField,
     ForeignKey,
     PROTECT,
@@ -12,6 +13,7 @@ from django.db.models import (
 )
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class Language(Model):
@@ -53,7 +55,7 @@ class Company(Model):
     content_languages = ManyToManyField(Language, related_name="companies")
     activation_date = DateTimeField(null=True, blank=True, default=None)
     external_website_url = CharField(null=True, blank=True, max_length=1000)
-    profile_picture_url = CharField(null=True, blank=True, max_length=1000)
+    profile_picture = ImageField(upload_to="company_profile_picture", null=True, blank=True)
 
     def __str__(self):
         return self.name

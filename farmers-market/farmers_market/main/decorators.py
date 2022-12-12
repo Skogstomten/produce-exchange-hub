@@ -9,9 +9,7 @@ from .utils import get_language
 def company_admin_required(pk_name: str = "company_id"):
     def decorator(function):
         def wrapper(*args, **kwargs):
-            # print(f"*args={', '.join(str(arg) for arg in args)}, **kwargs={', '.join(f'{str(k)}: {str(v)}' for k, v in kwargs.items())}")
-
-            request: HttpRequest = args[0]
+            request: HttpRequest = next(arg for arg in args if isinstance(arg, HttpRequest))
             pk = kwargs.get(pk_name)
             if not request.user.is_authenticated:
                 return redirect(reverse("authentication:login"))

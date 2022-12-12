@@ -6,15 +6,25 @@ from django.urls import reverse
 from .models import User, Company, Language, CompanyType, CompanyUser, CompanyRole, CompanyStatus
 
 
-class UploadCompanyProfilePictureViewTest(TestCase):
+class CompanyProfilePictureViewTest(TestCase):
     def test_non_company_admin_can_not_post_to_view(self):
         company = _create_company()
         _create_authenticated_user(self.client)
 
-        url = reverse("main:upload_company_profile_picture", args=(company.id,))
+        url = reverse("main:company_profile_picture", args=(company.id,))
         response = self.client.post(url)
 
         self.assertEquals(response.status_code, 403)
+    
+    # def test_can_get_profile_picture(self):
+    #     company, user = _create_company_with_logged_in_admin(self.client)
+    #     company.profile_picture_url = f"{company.id}.jpg"
+    #     company.save()
+
+    #     url = reverse("main:company_profile_picture", args=(company.id,))
+    #     response = self.client.get(url)
+
+    #     self.assertEquals(response.status_code, 200)
 
 
 class EditCompanyViewTest(TestCase):

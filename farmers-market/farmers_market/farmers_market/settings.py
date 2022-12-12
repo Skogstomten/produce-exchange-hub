@@ -132,8 +132,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
-COMPANY_PROFILE_PICTURE_DIR = join("/", STATIC_URL, "company_profile_pictures")
-STATICFILES_DIRS = [join(CURRENT_DIR, "static"), COMPANY_PROFILE_PICTURE_DIR]
+STATICFILES_DIRS = [join(CURRENT_DIR, "static")]
+
+MEDIA_ROOT = join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

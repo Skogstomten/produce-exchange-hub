@@ -4,44 +4,30 @@ from pathlib import Path
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
+from django.http import HttpRequest, HttpResponse, Http404
 from django.views.generic import View
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Company
-from .forms import UpdateCompanyForm, UploadFileForm
+from .forms import UpdateCompanyForm, UploadCompanyProfilePictureForm
 from .decorators import company_admin_required
 from .utils import get_language
 from .mixins import CompanyAdminRequiredMixin
 
 
-@login_required()
-@company_admin_required()
-def upload_company_profile_picture(request: HttpRequest, company_id: int):
-    """
-    Uploads a profile picture for company.
-    """
-    if request.method == "POST":
+class CompanyProfilePictureView(View):
+    @company_admin_required()
+    def post(self, request: HttpRequest, company_id: int):
+        """Upload a profile picture for company."""
         company = Company.get(company_id, get_language(request))
-        print(request.FILES)
-        form = UploadFileForm(request.POST, request.FILES)
+        form = UploadCompanyProfilePictureForm(request.POST, request.FILES, instance=company)
         if form.is_valid():
-            file = request.FILES["file"]
-            Path(settings.COMPANY_PROFILE_PICTURE_DIR).mkdir(parents=True, exist_ok=True)
-            file_name = str(company.id) + Path(file.name).suffix
-            file_path = path.join(settings.COMPANY_PROFILE_PICTURE_DIR, file_name)
-            print(f"Saving file to {file_path}")
-            with open(file_path, "wb+") as destination:
-                for chunk in file.chunks():
-                    destination.write(chunk)
-                    destination.flush()
-            company.profile_picture_url = file_path
-            company.save()
+            form.save()
         else:
             print(form.errors)
-    return redirect(reverse("main:edit_company", args=(company_id,)))
+        return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
 def index(request: HttpRequest):
@@ -80,6 +66,6 @@ class EditCompanyView(LoginRequiredMixin, CompanyAdminRequiredMixin, View):
         return render(
             request,
             self.template_name,
-            {"company": company, "update_company_form": form, "upload_profile_picture_form": UploadFileForm()},
+            {"company": company, "update_company_form": form, "upload_profile_picture_form": UploadCompanyProfilePictureForm()},
             status=status,
         )
