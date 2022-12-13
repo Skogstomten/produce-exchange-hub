@@ -1,8 +1,7 @@
 nav.nav-top {
-    background-color: #B7C4C7;
     overflow: hidden;
     padding: 5px;
-    box-shadow: #C2B7C7 1px 0 25px;
+    box-shadow: grey 1px 0 25px;
 }
 
 nav.nav-top .menu-icon { display: none; }
