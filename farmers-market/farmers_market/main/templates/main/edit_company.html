@@ -12,11 +12,41 @@
             <img src="{% static 'main/images/no_profile_picture_image.jpg' %}" />
         {% endif %}
         <div>
-            <form method="POST" action="{% url 'main:company_profile_picture' company.id %}" enctype="multipart/form-data">
+            <form method="POST" action="{% url 'main:company_profile_picture' company.id %}" enctype="multipart/form-data" id="profile_picture_upload">
                 {% csrf_token %}
                 {{ upload_profile_picture_form.as_div }}
                 <input type="submit" value="{% translate "upload_image_button" %}" />
             </form>
+
+            <div class="modal fade" id="modal_crop">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title">Crop the photo</h4>
+                        </div>
+                        <div class="modal-body">
+                            <img src="" id="image" style="max-width: 100%;">
+                        </div>
+                        <div class="modal-footer">
+                            <div class="btn-group pull-left" role="group">
+                                <button type="button" class="btn btn-default js-zoom-in">
+                                <span class="glyphicon glyphicon-zoom-in"></span>
+                                </button>
+                                <button type="button" class="btn btn-default js-zoom-out">
+                                <span class="glyphicon glyphicon-zoom-out"></span>
+                                </button>
+                            </div>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Nevermind</button>
+                            <button type="button" class="btn btn-primary js-crop-and-upload">Crop and upload</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 20px"></div>
         </div>
     </div>
     <form method="POST" action="{% url 'main:edit_company' company.id %}">
@@ -31,3 +61,7 @@
     </form>
 </div>
 {% endblock content %}
+
+{% block scripts %}
+    <script src="{% static 'main/scripts/edit_company.js' %}"></script>
+{% endblock scripts %}

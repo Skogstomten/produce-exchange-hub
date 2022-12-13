@@ -11,6 +11,8 @@
         </title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'farmers_market/styles/thirdparty/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'farmers_market/styles/thirdparty/cropper.min.css' %}">
         <link rel="stylesheet" href="{% static 'farmers_market/styles/base.css' %}">
         <link rel="stylesheet" href="{% static 'farmers_market/styles/nav.css' %}">
         {% block styles %}{% endblock styles %}
@@ -83,6 +85,8 @@
             {% block content %}{% endblock content %}
         </div>
         
+        <script src="{% static 'farmers_market/scripts/thirdparty/bootstrap.min.js' %}"></script>
+        <script src="{% static 'farmers_market/scripts/thirdparty/cropper.min.js' %}"></script>
         <script src="{% static 'farmers_market/scripts/thirdparty/jquery-3.6.1.min.js' %}"></script>
         <script src="{% static 'farmers_market/scripts/base.js' %}"></script>
         <script src="{% static 'farmers_market/scripts/nav.js' %}"></script>

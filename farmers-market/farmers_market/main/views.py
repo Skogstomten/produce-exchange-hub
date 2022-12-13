@@ -66,7 +66,7 @@ class EditCompanyView(LoginRequiredMixin, CompanyAdminRequiredMixin, View):
             {
                 "company": company,
                 "update_company_form": form,
-                "upload_profile_picture_form": UploadCompanyProfilePictureForm(),
+                "upload_profile_picture_form": UploadCompanyProfilePictureForm(instance=company),
             },
             status=status,
         )

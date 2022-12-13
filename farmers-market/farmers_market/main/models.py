@@ -57,6 +57,10 @@ class Company(Model):
     external_website_url = CharField(null=True, blank=True, max_length=1000)
     profile_picture = ImageField(upload_to="company_profile_picture", null=True, blank=True)
 
+    class Meta:
+        verbose_name = "company"
+        verbose_name = "companies"
+
     def __str__(self):
         return self.name
 
