@@ -12,10 +12,13 @@
         }
     });
 
+    let cropper;
     $("#model_crop_image").on("shown.bs.modal", function() {
-        const cropper = new Cropper(image, {
-            aspectRatio: 16 / 9,
-            crop(event) {
+        cropper = new Cropper(image, {
+            aspectRatio: 16 / 16,
+            viewMode: 2,
+            autoCropArea: 0.9,
+            crop: function(event) {
                 console.log(event);
             },
         });
