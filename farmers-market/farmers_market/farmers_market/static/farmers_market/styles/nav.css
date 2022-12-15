@@ -1,0 +1,149 @@
+nav.nav-top {
+    overflow: hidden;
+    padding: 5px;
+    box-shadow: grey 1px 0 25px;
+}
+
+nav.nav-top .menu-icon { display: none; }
+
+nav.nav-top .menu-icon div {
+    width: 35px;
+    height: 5px;
+    background-color: #333;
+    margin: 6px;
+    transition: 0.4s;
+    border-radius: 25px;
+}
+
+nav.nav-top .change .bar1 {
+    -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+    transform: rotate(-45deg) translate(-9px, 6px);
+}
+
+nav.nav-top .change .bar2 { opacity: 0; }
+
+nav.nav-top .change .bar3 {
+    -webkit-transform: rotate(45deg) translate(-8px, -8px);
+    transform: rotate(45deg) translate(-8px, -8px);
+}
+
+nav.nav-top ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: inline;
+}
+
+nav.nav-top ul li {
+    display: block;
+    text-align: center;
+    font-size: 17px;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+nav.nav-top ul.nav-right-buttons li:hover {
+    background-color: #C2B7C7;
+}
+
+.nav-right-user li.clickable:hover {
+    background-color: #C2B7C7;
+}
+
+nav.nav-top ul li a:active { background-color: #68b0abff; }
+
+nav.nav-top ul.nav-left-buttons li { float: left; }
+
+nav.nav-top ul.nav-right-buttons li { float: right; }
+
+nav.nav-top ul.nav-right-user li { float: right; }
+
+.nav-brand {
+    font-family: Arial, Helvetica, sans-serif;
+    display: inline;
+    float: left;
+    margin-right: auto;
+}
+
+.nav-brand a {
+    font-weight: bold;
+}
+
+nav.nav-top ul.nav-right-user li,
+nav.nav-top .nav-brand,
+nav.nav-top ul.nav-right-buttons li {
+    padding: 10px;
+}
+
+ul.language-selector {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: inline;
+}
+
+ul.language-selector li {
+    display: block;
+    text-align: center;
+    font-size: 17px;
+    padding: 10px;
+}
+
+ul.language-selector li {
+    float: right;
+    padding: 4.0px 6px 1.3px 3px;
+    margin: 0;
+}
+
+#home-link {
+    display: none;
+}
+
+#brand {
+    display: inline;
+}
+
+@media screen and (max-width: 600px) {
+    nav.nav-top ul li { display: none; }
+
+    nav.nav-top .menu-icon {
+        float: right;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .nav-brand {
+        float: none;
+        display: inline-block;
+    }
+
+    .nav-brand a { padding-top: 10px; }
+
+    #home-link {
+        display: inline;
+    }
+    
+    #brand {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    nav.nav-top .responsive { position: relative; }
+
+    nav.nav-top.responsive .menu-icon {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    nav.nav-top.responsive ul li {
+        float: none;
+        display: block;
+        text-align: left;
+    }
+}

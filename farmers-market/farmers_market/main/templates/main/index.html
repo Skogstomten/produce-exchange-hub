@@ -1,0 +1,35 @@
+{% extends 'farmers_market/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% translate "main_title" %}{% endblock title %}
+
+{% block styles %}
+
+<link rel="stylesheet" href="{% static 'main/styles/index.css' %}">
+
+{% endblock styles %}
+
+{% block content %}
+
+<div id="companies">
+    {% for company in companies %}
+    <a href="{% url 'main:company' company.id %}">
+        <div class="company">
+            <div class="title">
+                <h2>{{ company.name }}</h2>
+            </div>
+            <div class="profile-picture">
+                {% if company.profile_picture %}
+                    <img src="{{ company.profile_picture.url }}">
+                {% endif %}
+            </div>
+            <div class="content">
+                {{ company.description }}
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% endblock content %}
