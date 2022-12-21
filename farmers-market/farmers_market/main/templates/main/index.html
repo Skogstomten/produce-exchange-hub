@@ -15,17 +15,19 @@
 <div id="companies">
     {% for company in companies %}
     <a href="{% url 'main:company' company.id %}">
-        <div class="company">
-            <div class="title">
-                <h2>{{ company.name }}</h2>
-            </div>
-            <div class="profile-picture">
-                {% if company.profile_picture %}
-                    <img src="{{ company.profile_picture.url }}">
-                {% endif %}
-            </div>
-            <div class="content">
-                {{ company.description }}
+        <div class="company card">
+            <div class="card-body">
+                <div class="card-title">
+                    <h2>{{ company.name }}</h2>
+                </div>
+                <div class="profile-picture">
+                    {% if company.profile_picture %}
+                        <img src="{{ company.profile_picture.url }}">
+                    {% endif %}
+                </div>
+                <div class="card-text">
+                    {{ company.description }}
+                </div>
             </div>
         </div>
     </a>

@@ -29,62 +29,30 @@
         {% block top-nav %}
             <nav class="navbar navbar-expand-lg bg-light">
                 <div class="container-fluid">
-                    <a class="navbar-brand" href="#">{% translate "brand" %}</a>
-                    <button class="navbar-toggler"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#navbarSupportedContent"
-                            aria-controls="navbarSupportedContent"
-                            aria-expanded="false"
-                            aria-label="Toggle navigation">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#top-nav" aria-controls="top-nav" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <a class="navbar-brand mb-0 h1" href="{% url 'main:index' %}">{% translate "navbar_brand" %}</a>
+                    <div class="collapse navbar-collapse" id="top-nav">
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="#">{% translate "home_link" %}</a>
-                            </li>
-                            {% if  %}{% endif %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Link</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle"
-                                   href="#"
-                                   role="button"
-                                   data-bs-toggle="dropdown"
-                                   aria-expanded="false">Dropdown</a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" href="#">Action</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#">Another action</a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider"/>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#">Something else here</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link disabled">Disabled</a>
-                            </li>
                         </ul>
-                        <form class="d-flex" role="search">
-                            <input class="form-control me-2"
-                                   type="search"
-                                   placeholder="Search"
-                                   aria-label="Search"/>
-                            <button class="btn btn-outline-success" type="submit">Search</button>
-                        </form>
+                        <div class="nav navbar-nav d-flex">
+                            {% if user.is_authenticated %}
+                                <a class="nav-link p-2" href="#">{{ user.first_name }} {{ user.last_name }}</a>
+                                {% if user.is_staff %}
+                                    <a class="nav-link p-2" href="{% url 'admin:index' %}">{% translate "admin_link" %}</a>
+                                {% endif %}
+                                <a class="btn btn-outline-secondary" href="{% url 'authentication:logout' %}">{% translate "logout_link" %}</a>
+                            {% else %}
+                                <a class="nav-link p-2" href="{% url 'authentication:register' %}">{% translate "register_link" %}</a>
+                                <a class="nav-link p-2" href="{% url 'authentication:login' %}">{% translate "login_link" %}</a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </nav>
         {% endblock top-nav %}
-        <div class="content">
+        <div class="content container-sm mt-2">
             {% block content %}
             {% endblock content %}
         </div>
