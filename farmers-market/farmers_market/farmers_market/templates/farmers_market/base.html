@@ -1,97 +1,71 @@
 {% load static %}
 {% load i18n %}
-
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <title>
-            {% block title %}Farmers Market{% endblock title %}
+            {% block title %}
+                Farmers Market
+            {% endblock title %}
         </title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" integrity="sha256-BVucHOVAB74kQI49AuWE6CxgqaUs0ceA5f8IMYodeH8=" crossorigin="anonymous">
-        <link rel="stylesheet" href="{% static 'farmers_market/styles/base.css' %}">
-        <link rel="stylesheet" href="{% static 'farmers_market/styles/nav.css' %}">
-        {% block styles %}{% endblock styles %}
+        <meta name="description" content=""/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+              rel="stylesheet"
+              integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+              crossorigin="anonymous"/>
+        <link rel="stylesheet"
+              href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css"
+              integrity="sha256-BVucHOVAB74kQI49AuWE6CxgqaUs0ceA5f8IMYodeH8="
+              crossorigin="anonymous"/>
+        <link rel="stylesheet" href="{% static 'farmers_market/styles/base.css' %}"/>
+        <link rel="stylesheet" href="{% static 'farmers_market/styles/nav.css' %}"/>
+        {% block styles %}
+        {% endblock styles %}
     </head>
     <body>
-
         {% block top-nav %}
-        
-            <nav class="nav-top">
-                <a href="{% url 'main:index' %}" id="home-link">
-                    <div class="nav-brand">
-                        Home
+            <nav class="navbar navbar-expand-lg bg-light">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#top-nav" aria-controls="top-nav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <a class="navbar-brand mb-0 h1" href="{% url 'main:index' %}">{% translate "navbar_brand" %}</a>
+                    <div class="collapse navbar-collapse" id="top-nav">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        </ul>
+                        <div class="nav navbar-nav d-flex">
+                            {% if user.is_authenticated %}
+                                <a class="nav-link p-2" href="#">{{ user.first_name }} {{ user.last_name }}</a>
+                                {% if user.is_staff %}
+                                    <a class="nav-link p-2" href="{% url 'admin:index' %}">{% translate "admin_link" %}</a>
+                                {% endif %}
+                                <a class="btn btn-outline-secondary" href="{% url 'authentication:logout' %}">{% translate "logout_link" %}</a>
+                            {% else %}
+                                <a class="nav-link p-2" href="{% url 'authentication:register' %}">{% translate "register_link" %}</a>
+                                <a class="nav-link p-2" href="{% url 'authentication:login' %}">{% translate "login_link" %}</a>
+                            {% endif %}
+                        </div>
                     </div>
-                </a>
-                <a href="{% url 'main:index' %}" id="brand">
-                    <div class="nav-brand">
-                        Produce Exchange Hub
-                    </div>
-                <a>
-                
-                {% if user.is_authenticated %}
-                    <ul class="nav-right-user">
-                        {% if user.is_staff %}
-                            <a href="{% url 'admin:index' %}">
-                                <li class="clickable">Admin</li>
-                            </a>
-                        {% endif %}
-
-                        <a id="logout-link" href="{% url 'authentication:logout' %}">
-                            <li class="clickable">Logout</li>
-                        </a>
-
-                        <li>{{ user.first_name }} {{ user.last_name }}</li>
-                    </ul>
-
-                {% else %}
-                    <ul class="nav-right-buttons">
-                        <a href="{% url 'authentication:register' %}">
-                            <li>Register</li>
-                        </a>
-                        <a href="{% url 'authentication:login' %}">
-                            <li>Login</li>
-                        </a>
-                    </ul>
-                {% endif %}
-
-                <a href="javascript:void(0);" class="menu-icon">
-                    <div class="bar1"></div>
-                    <div class="bar2"></div>
-                    <div class="bar3"></div>
-                </a>
-
-                <ul class="language-selector">
-                    <li>
-                        <a id="set_lang_sv" href="{% url 'set_lang' %}?lang=sv&amp;next={{request.path}}">
-                            <img src="{% static 'farmers_market/images/flags/swe.png' %}" />
-                        </a>
-                    </li>
-                    <li>
-                        <a id="set_lang_en" href="{% url 'set_lang' %}?lang=en&amp;next={{request.path}}">
-                            <img src="{% static 'farmers_market/images/flags/eng.png' %}" />
-                        </a>
-                    </li>
-                </ul>
+                </div>
             </nav>
-
         {% endblock top-nav %}
-
-        <div class="content">
-            {% block content %}{% endblock content %}
+        <div class="content container-sm mt-2">
+            {% block content %}
+            {% endblock content %}
         </div>
-        
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js" integrity="sha256-2krYZKh//PcchRtd+H+VyyQoZ/e3EcrkxhM8ycwASPA=" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js" integrity="sha256-YVg1EQ0H2YQtHAqZXp/Hn7TfqNLBuHn/DWSFcHFO4cc=" crossorigin="anonymous"></script>
-        <script src="{% static 'farmers_market/scripts/base.js' %}"></script>
-        <script src="{% static 'farmers_market/scripts/nav.js' %}"></script>
-
-        {% block scripts %}{% endblock scripts %}
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js"
+                integrity="sha256-2krYZKh//PcchRtd+H+VyyQoZ/e3EcrkxhM8ycwASPA="
+                crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+                crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"
+                integrity="sha256-YVg1EQ0H2YQtHAqZXp/Hn7TfqNLBuHn/DWSFcHFO4cc="
+                crossorigin="anonymous"></script>
+        {% block scripts %}
+        {% endblock scripts %}
     </body>
 </html>
