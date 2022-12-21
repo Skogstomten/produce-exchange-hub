@@ -1,3 +1,4 @@
-.company {
-    border: thin black solid;
+div.company:hover {
+    transform: scale(1.04);
+    box-shadow: 5px 5px grey;
 }

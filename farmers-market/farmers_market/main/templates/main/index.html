@@ -14,8 +14,7 @@
 
 <div id="companies">
     {% for company in companies %}
-    <a href="{% url 'main:company' company.id %}">
-        
+    <a href="{% url 'main:company' company.id %}">  
         <div class="company card" style="width: 18rem;">
             {% if company.profile_picture %}
                 <img class="card-img-top" src="{{ company.profile_picture.url }}">
@@ -23,9 +22,6 @@
             <div class="card-body">
                 <div class="card-title">
                     <h2>{{ company.name }}</h2>
-                </div>
-                <div class="profile-picture">
-                    
                 </div>
                 <div class="card-text">
                     {{ company.description }}
