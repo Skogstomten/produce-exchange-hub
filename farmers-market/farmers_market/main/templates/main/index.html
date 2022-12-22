@@ -14,23 +14,24 @@
 
 <div id="companies">
     {% for company in companies %}
-    <a href="{% url 'main:company' company.id %}">
-        <div class="company card">
-            <div class="card-body">
-                <div class="card-title">
-                    <h2>{{ company.name }}</h2>
+        <div class="company card mb-3" style="width: 35rem;">
+            <a href="{% url 'main:company' company.id %}">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        {% if company.profile_picture %}
+                            <img class="img-fluid rounded-start" src="{{ company.profile_picture.url }}">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8 h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ company.name }}</h5>
+                            <div class="card-text">{{ company.description }}</div>
+                            <div class="card-text"><small class="text-muted">{% translate "joined_label" %} {{ company.created_date }}</small></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="profile-picture">
-                    {% if company.profile_picture %}
-                        <img src="{{ company.profile_picture.url }}">
-                    {% endif %}
-                </div>
-                <div class="card-text">
-                    {{ company.description }}
-                </div>
-            </div>
+            </a>
         </div>
-    </a>
     {% endfor %}
 </div>
 
