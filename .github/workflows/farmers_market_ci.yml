@@ -30,7 +30,7 @@ jobs:
     - name: Analysing the code with flake8
       working-directory: ./farmers-market/farmers_market
       run: |
-        flake8 ./ --max-line-length=121 --extend-ignore=F403,W293
+        flake8
     - name: Run tests
       working-directory: ./farmers-market/farmers_market
       run: |
