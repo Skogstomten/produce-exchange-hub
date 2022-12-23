@@ -1,69 +1,64 @@
 {% extends 'farmers_market/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load crispy_forms_tags %}
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'main/styles/edit_company.css' %}">
 {% endblock styles %}
 
 {% block content %}
-<div class="edit-company">
-    <h1>{% translate "edit_company_header" %}</h1>
-    <div class="edit-company-profile-picture">
-        {% if company.profile_picture %}
-            <img src="{{ company.profile_picture.url }}"  />
-        {% else %}
-            <img src="{% static 'main/images/no_profile_picture_image.jpg' %}" />
-        {% endif %}
-        <div>
+
+<div class="edit-company-view">
+    <div class="row">
+        <div class="col-md-3">
+            {% if company.profile_picture %}
+                <img src="{{ company.profile_picture.url }}"  />
+            {% else %}
+                <img src="{% static 'main/images/no_profile_picture_image.jpg' %}" />
+            {% endif %}
             <form method="POST" action="{% url 'main:company_profile_picture' company.id %}" enctype="multipart/form-data" id="profile_picture_upload">
                 {% csrf_token %}
-                {{ upload_profile_picture_form.as_div }}
+                {{ upload_profile_picture_form|crispy }}
                 <input type="submit" value="{% translate "upload_image_button" %}" />
             </form>
-
-            <div class="modal fade" id="model_crop_image">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            {% comment %} <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button> {% endcomment %}
-                            <h4 class="modal-title">Crop the photo</h4>
-                        </div>
-                        <div class="modal-body">
-                            <img src="" id="image" style="max-width: 100%;">
-                        </div>
-                        <div class="modal-footer">
-                            <div class="btn-group pull-left" role="group">
-                                <button type="button" class="btn btn-default js-zoom-in">
-                                <span class="glyphicon glyphicon-zoom-in"></span>
-                                </button>
-                                <button type="button" class="btn btn-default js-zoom-out">
-                                <span class="glyphicon glyphicon-zoom-out"></span>
-                                </button>
-                            </div>
-                            <button type="button" class="btn btn-default" data-bs-dismiss="modal">{% translate "close_image_crop_modal_button" %}</button>
-                            <button type="button" class="btn btn-primary js-crop-and-upload">{% translate "save_image_modal_button" %}</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row" style="margin-top: 20px"></div>
+        </div>
+        <div class="col-md-8">
+            <h1>{% translate "edit_company_header" %}</h1>
+            <form method="POST" action="{% url 'main:edit_company' company.id %}">
+                {% csrf_token %}
+                {{ update_company_form|crispy }}
+                <input type="submit" value="{% translate "update_company_submit_button" %}" />
+            </form>
         </div>
     </div>
-    <form method="POST" action="{% url 'main:edit_company' company.id %}">
-        {% csrf_token %}
-        {% for field in update_company_form %}
-            <fieldset>
-                {{ field.label_tag }}
-                {{ field }}
-            </fieldset>
-        {% endfor %}
-        <input type="submit" value="{% translate "update_company_submit_button" %}" />
-    </form>
 </div>
+
+<div class="modal fade" id="model_crop_image">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% translate "crop_photo_modal_title" %}</h4>
+            </div>
+            <div class="modal-body">
+                <img src="" id="image" style="max-width: 100%;">
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group pull-left" role="group">
+                    <button type="button" class="btn btn-default js-zoom-in">
+                    <span class="glyphicon glyphicon-zoom-in"></span>
+                    </button>
+                    <button type="button" class="btn btn-default js-zoom-out">
+                    <span class="glyphicon glyphicon-zoom-out"></span>
+                    </button>
+                </div>
+                <button type="button" class="btn btn-default" data-bs-dismiss="modal">{% translate "close_image_crop_modal_button" %}</button>
+                <button type="button" class="btn btn-primary js-crop-and-upload">{% translate "save_image_modal_button" %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
 
 {% block scripts %}
