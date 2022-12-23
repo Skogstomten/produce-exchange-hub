@@ -46,7 +46,7 @@ class UploadCompanyProfilePictureForm(ModelForm):
         width = self.cleaned_data.get("width")
         height = self.cleaned_data.get("height")
 
-        Image.open(company.profile_picture).crop((x, y, x + width, y + height)).resize((200, 200), Image.ANTIALIAS).save(
+        Image.open(company.profile_picture).crop((x, y, x + width, y + height)).resize((300, 300), Image.ANTIALIAS).save(
             company.profile_picture.path
         )
 

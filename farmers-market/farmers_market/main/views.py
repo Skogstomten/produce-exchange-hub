@@ -21,7 +21,7 @@ class CompanyProfilePictureView(View):
         if form.is_valid():
             form.save()
         else:
-            print(form.errors)
+            return form.errors
         return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
