@@ -1,0 +1,11 @@
+.profile-picture {
+    border-radius: 25px;
+}
+
+#image {
+    margin: 0;
+}
+
+#model_crop_image div.modal-body {
+    padding: 0.5px;
+}
