@@ -1,4 +1,12 @@
-from django.forms import ModelForm, ModelMultipleChoiceField, CheckboxSelectMultiple, FileField, FloatField, HiddenInput
+from django.forms import (
+    ModelForm,
+    ModelMultipleChoiceField,
+    CheckboxSelectMultiple,
+    FileField,
+    FloatField,
+    HiddenInput,
+    FileInput,
+)
 from django.utils.translation import gettext_lazy as _
 
 from PIL import Image
@@ -24,7 +32,7 @@ class UploadCompanyProfilePictureForm(ModelForm):
     y = FloatField(widget=HiddenInput)
     width = FloatField(widget=HiddenInput)
     height = FloatField(widget=HiddenInput)
-    profile_picture = FileField(required=True, label=_("upload_profile_picture_label"))
+    profile_picture = FileField(required=True, label=_("upload_profile_picture_label"), widget=FileInput)
 
     class Meta:
         model = Company
