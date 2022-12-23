@@ -41,7 +41,7 @@ def company(request: HttpRequest, company_id: int):
     )
 
 
-class EditCompanyView(LoginRequiredMixin, CompanyAdminRequiredMixin, View):
+class EditCompanyView(CompanyAdminRequiredMixin, View):
     template_name = "main/edit_company.html"
 
     def get(self, request: HttpRequest, company_id: int):
@@ -70,3 +70,7 @@ class EditCompanyView(LoginRequiredMixin, CompanyAdminRequiredMixin, View):
             },
             status=status,
         )
+
+
+class NewCompanyView(LoginRequiredMixin, View):
+    template_name = "main/new_company.html"
