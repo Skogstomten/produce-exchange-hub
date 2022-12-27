@@ -14,17 +14,22 @@ class NewCompanyViewTest(TestCase):
         _create_authenticated_user(self.client)
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
-    
+
     def test_valid_post_returns_302(self):
         user = _create_authenticated_user(self.client)
         response = self.client.post(self.url, {"name": "Nisse", "user_id": user.id})
         self.assertEqual(302, response.status_code)
-    
+
     def test_post_redirect(self):
         user = _create_authenticated_user(self.client)
         response = self.client.post(self.url, {"name": "TestCompany", "user_id": user.id}, follow=True)
         company = Company.objects.get(name="TestCompany")
-        self.assertRedirects(response, reverse("main:edit_company", args=(company.id,)), target_status_code=200, fetch_redirect_response=True)
+        self.assertRedirects(
+            response,
+            reverse("main:edit_company", args=(company.id,)),
+            target_status_code=200,
+            fetch_redirect_response=True,
+        )
 
 
 class CompanyProfilePictureViewTest(TestCase):
@@ -81,7 +86,7 @@ class EditCompanyViewTest(TestCase):
         )
 
         self.assertEquals(response.status_code, 202)
-    
+
     def _method_requires_company_admin(self, func):
         company = _create_company()
         _create_authenticated_user(self.client)
@@ -105,7 +110,7 @@ class CompanyModelTest(TestCase):
 
     def test_is_company_admin_user_is_not_admin(self):
         self.assertFalse(self.company1.is_company_admin(self.user1))
-    
+
     def test_creator_becomes_admin(self):
         user, _, _ = _create_user()
         company = Company.create("Norrlands Bastuklubb", user.id)
@@ -167,6 +172,7 @@ def _get_status(status_name):
 
 def _create_company() -> Company:
     return Company.objects.create(name="Nisses firma", status=_get_status("active"))
+
 
 def _setup_defaults():
     CompanyRole.objects.create(role_name="company_admin")

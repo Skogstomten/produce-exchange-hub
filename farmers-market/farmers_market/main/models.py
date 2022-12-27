@@ -39,7 +39,7 @@ class CompanyStatus(Model):
 
     def __str__(self):
         return self.status_name
-    
+
     class Meta:
         verbose_name = "Company Status"
         verbose_name_plural = "Company Statuses"
@@ -68,7 +68,8 @@ class ChangeType(Model):
 class Company(Model):
     name = CharField(max_length=100)
     status = ForeignKey(
-        CompanyStatus, on_delete=PROTECT,
+        CompanyStatus,
+        on_delete=PROTECT,
     )
     created_date = DateTimeField(auto_now_add=True)
     company_types = ManyToManyField(CompanyType, related_name="companies")
@@ -87,10 +88,7 @@ class Company(Model):
     @classmethod
     def create(cls, name: str, user_id: int) -> "Company":
         """Creates a new company and assigns user as admin."""
-        company = cls(
-            name=name,
-            status=CompanyStatus.get(CompanyStatus.StatusName.created)
-        )
+        company = cls(name=name, status=CompanyStatus.get(CompanyStatus.StatusName.created))
         company.save()
         CompanyUser.create_company_admin(company, user_id)
         return company
@@ -142,10 +140,10 @@ class CompanyRole(Model):
 
     def __str__(self):
         return self.role_name
-    
+
     class RoleName(Enum):
         company_admin = "company_admin"
-    
+
     @classmethod
     def get(cls, role_name: RoleName) -> "CompanyRole":
         return cls.objects.get(role_name=role_name.value)
@@ -158,10 +156,12 @@ class CompanyUser(Model):
 
     def __str__(self) -> str:
         return f"{self.company.name} - {self.user.email} - {self.role.role_name}"
-    
+
     @classmethod
     def create_company_admin(cls, company: Company, user_id: int) -> "CompanyUser":
-        user = cls(company=company, user=User.objects.get(pk=user_id), role=CompanyRole.get(CompanyRole.RoleName.company_admin))
+        user = cls(
+            company=company, user=User.objects.get(pk=user_id), role=CompanyRole.get(CompanyRole.RoleName.company_admin)
+        )
         user.save()
         return user
 
@@ -193,7 +193,7 @@ class Country(Model):
 
     def __str__(self):
         return f"{self.country_iso_3166_1} - {_(self.name)}"
-    
+
     class Meta:
         verbose_name_plural = "Countries"
 
@@ -210,7 +210,7 @@ class Address(Model):
 
     def __str__(self):
         return f"{self.company.name} - {self.address_type} - {self.street_address}"
-    
+
     class Meta:
         verbose_name = "Address"
         verbose_name_plural = "Addresses"
@@ -254,7 +254,7 @@ class Currency(Model):
 
     def __str__(self):
         return self.currency_code
-    
+
     class Meta:
         verbose_name_plural = "Currencies"
 

@@ -18,16 +18,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="company",
             name="external_website_url",
-            field=models.CharField(
-                blank=True, default=None, max_length=1000, null=True
-            ),
+            field=models.CharField(blank=True, default=None, max_length=1000, null=True),
         ),
         migrations.AlterField(
             model_name="company",
             name="profile_picture",
-            field=models.ImageField(
-                blank=True, default=None, null=True, upload_to="company_profile_picture"
-            ),
+            field=models.ImageField(blank=True, default=None, null=True, upload_to="company_profile_picture"),
         ),
         migrations.AlterField(
             model_name="company",

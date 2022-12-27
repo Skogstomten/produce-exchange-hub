@@ -27,7 +27,7 @@ class NewCompanyForm(Form):
 
     class Meta:
         fields = ["name"]
-    
+
     def save(self):
         return Company.create(self.cleaned_data.get("name"), self.cleaned_data.get("user_id"))
 
