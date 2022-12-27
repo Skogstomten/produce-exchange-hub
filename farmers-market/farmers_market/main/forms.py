@@ -1,17 +1,35 @@
 from django.forms import (
     ModelForm,
+    Form,
     ModelMultipleChoiceField,
     CheckboxSelectMultiple,
     FileField,
     FloatField,
+    CharField,
     HiddenInput,
     FileInput,
+    TextInput,
 )
 from django.utils.translation import gettext_lazy as _
 
 from PIL import Image
 
 from .models import Company, CompanyType, Language
+
+
+class NewCompanyForm(Form):
+    name = CharField(
+        max_length=255,
+        #  forms ↓
+        widget=TextInput(attrs={"autofocus": True}),
+    )
+    user_id = CharField(widget=HiddenInput)
+
+    class Meta:
+        fields = ["name"]
+    
+    def save(self):
+        return Company.create(self.cleaned_data.get("name"), self.cleaned_data.get("user_id"))
 
 
 class UpdateCompanyForm(ModelForm):

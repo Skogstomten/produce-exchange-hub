@@ -1,3 +1,5 @@
+from enum import Enum
+
 from django.db.models import (
     Model,
     CharField,
@@ -16,7 +18,7 @@ from django.contrib.auth.models import User
 
 
 class Language(Model):
-    iso_639_1 = CharField(max_length=2)
+    iso_639_1 = CharField(max_length=2, unique=True)
     name = CharField(max_length=50)
 
     def __str__(self):
@@ -24,7 +26,7 @@ class Language(Model):
 
 
 class CompanyType(Model):
-    type_name = CharField(max_length=50)
+    type_name = CharField(max_length=50, unique=True)
     description = CharField(max_length=200)
 
     def __str__(self):
@@ -32,11 +34,28 @@ class CompanyType(Model):
 
 
 class CompanyStatus(Model):
-    status_name = CharField(max_length=50)
+    status_name = CharField(max_length=50, unique=True)
     description = CharField(max_length=200)
 
     def __str__(self):
         return self.status_name
+    
+    class Meta:
+        verbose_name = "Company Status"
+        verbose_name_plural = "Company Statuses"
+
+    class StatusName(Enum):
+        created = "created"
+        active = "active"
+        deactivated = "deactivated"
+
+    @classmethod
+    def get(cls, status_name: StatusName) -> "CompanyStatus":
+        try:
+            status = cls.objects.get(status_name=status_name.value)
+        except cls.DoesNotExist:
+            status = cls.objects.create(status_name=status_name.value, description="AutoAdded")
+        return status
 
 
 class ChangeType(Model):
@@ -48,20 +67,33 @@ class ChangeType(Model):
 
 class Company(Model):
     name = CharField(max_length=100)
-    status = ForeignKey(CompanyStatus, on_delete=PROTECT)
+    status = ForeignKey(
+        CompanyStatus, on_delete=PROTECT,
+    )
     created_date = DateTimeField(auto_now_add=True)
     company_types = ManyToManyField(CompanyType, related_name="companies")
     content_languages = ManyToManyField(Language, related_name="companies")
     activation_date = DateTimeField(null=True, blank=True, default=None)
-    external_website_url = CharField(null=True, blank=True, max_length=1000)
-    profile_picture = ImageField(upload_to="company_profile_picture", null=True, blank=True)
+    external_website_url = CharField(null=True, blank=True, max_length=1000, default=None)
+    profile_picture = ImageField(upload_to="company_profile_picture", null=True, blank=True, default=None)
 
     class Meta:
         verbose_name = "company"
-        verbose_name = "companies"
+        verbose_name_plural = "companies"
 
     def __str__(self):
-        return self.name
+        return f"{self.id}: {self.name}"
+
+    @classmethod
+    def create(cls, name: str, user_id: int) -> "Company":
+        """Creates a new company and assigns user as admin."""
+        company = cls(
+            name=name,
+            status=CompanyStatus.get(CompanyStatus.StatusName.created)
+        )
+        company.save()
+        CompanyUser.create_company_admin(company, user_id)
+        return company
 
     @classmethod
     def get(cls, pk: int, language: str) -> "Company":
@@ -103,10 +135,17 @@ class Company(Model):
 
 
 class CompanyRole(Model):
-    role_name = CharField(max_length=50)
+    role_name = CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.role_name
+    
+    class RoleName(Enum):
+        company_admin = "company_admin"
+    
+    @classmethod
+    def get(cls, role_name: RoleName) -> "CompanyRole":
+        return cls.objects.get(role_name=role_name.value)
 
 
 class CompanyUser(Model):
@@ -116,6 +155,12 @@ class CompanyUser(Model):
 
     def __str__(self) -> str:
         return f"{self.company.name} - {self.user.email} - {self.role.role_name}"
+    
+    @classmethod
+    def create_company_admin(cls, company: Company, user_id: int) -> "CompanyUser":
+        user = cls(company=company, user=User.objects.get(pk=user_id), role=CompanyRole.get(CompanyRole.RoleName.company_admin))
+        user.save()
+        return user
 
 
 class CompanyChange(Model):
@@ -140,11 +185,14 @@ class CompanyDescription(Model):
 
 
 class Country(Model):
-    country_iso_3166_1 = CharField(max_length=2)
+    country_iso_3166_1 = CharField(max_length=2, unique=True)
     name = CharField(max_length=50)
 
     def __str__(self):
         return f"{self.country_iso_3166_1} - {_(self.name)}"
+    
+    class Meta:
+        verbose_name_plural = "Countries"
 
 
 class Address(Model):
@@ -159,10 +207,14 @@ class Address(Model):
 
     def __str__(self):
         return f"{self.company.name} - {self.address_type} - {self.street_address}"
+    
+    class Meta:
+        verbose_name = "Address"
+        verbose_name_plural = "Addresses"
 
 
 class ContactType(Model):
-    contact_type = CharField(max_length=100)
+    contact_type = CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.contact_type
@@ -179,7 +231,7 @@ class Contact(Model):
 
 
 class Product(Model):
-    product_code = CharField(max_length=50)
+    product_code = CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.product_code
@@ -195,10 +247,13 @@ class ProductName(Model):
 
 
 class Currency(Model):
-    currency_code = CharField(max_length=3)
+    currency_code = CharField(max_length=3, unique=True)
 
     def __str__(self):
         return self.currency_code
+    
+    class Meta:
+        verbose_name_plural = "Currencies"
 
 
 class Order(Model):
