@@ -98,9 +98,12 @@ class Company(Model):
     @classmethod
     def get(cls, pk: int, language: str) -> "Company":
         """Get a company by primary key with company description localized."""
-        item = cls.objects.get(pk=pk)
-        item.description = item.get_description(language)
-        return item
+        try:
+            item = cls.objects.get(pk=pk)
+            item.description = item.get_description(language)
+            return item
+        except cls.DoesNotExist:
+            raise Exception(f"Company with id {pk} does not exist")
 
     @classmethod
     def get_newest(language: str) -> list["Company"]:
@@ -122,7 +125,7 @@ class Company(Model):
         if not user:
             return False
         try:
-            self.users.get(pk=user.id)
+            self.users.get(user=user)
         except CompanyUser.DoesNotExist:
             return False
         return True

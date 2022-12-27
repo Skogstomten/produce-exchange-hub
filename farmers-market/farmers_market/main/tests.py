@@ -28,6 +28,9 @@ class NewCompanyViewTest(TestCase):
 
 
 class CompanyProfilePictureViewTest(TestCase):
+    def setUp(self):
+        _setup_defaults()
+
     def test_non_company_admin_can_not_post_to_view(self):
         company = _create_company()
         _create_authenticated_user(self.client)
@@ -78,7 +81,7 @@ class EditCompanyViewTest(TestCase):
         )
 
         self.assertEquals(response.status_code, 202)
-
+    
     def _method_requires_company_admin(self, func):
         company = _create_company()
         _create_authenticated_user(self.client)
@@ -90,15 +93,18 @@ class EditCompanyViewTest(TestCase):
 class CompanyModelTest(TestCase):
     def setUp(self):
         _setup_defaults()
+        self.company1 = Company.objects.create(name="test1", status=_get_status("active"))
+        self.company2 = Company.objects.create(name="test2", status=_get_status("active"))
+        self.user1 = User.objects.create_user("nissepisse", "nisse@persson.se", "test123")
+        self.user2 = User.objects.create_user("egon", "egon@ljung.se", "test123")
+        CompanyUser.objects.create(company=self.company1, user=self.user2, role=_get_company_admin_role())
+        CompanyUser.objects.create(company=self.company2, user=self.user1, role=_get_company_admin_role())
 
     def test_is_company_admin_user_is_admin(self):
-        company, user, _, _ = _create_company_with_admin()
-
-        company = Company.objects.get(pk=company.id)
-        self.assertTrue(company.is_company_admin(user))
+        self.assertTrue(self.company1.is_company_admin(self.user2))
 
     def test_is_company_admin_user_is_not_admin(self):
-        self.assertFalse(_create_company().is_company_admin(_create_user()[0]))
+        self.assertFalse(self.company1.is_company_admin(self.user1))
     
     def test_creator_becomes_admin(self):
         user, _, _ = _create_user()
@@ -110,7 +116,7 @@ def _get_default_post_object():
     return {
         "name": "Test Company",
         "company_types": _get_company_type("buyer").id,
-        "content_languages": _get_language("sv").id,
+        "content_languages": _get_language("SV").id,
         "external_website_url": "",
     }
 
@@ -147,27 +153,26 @@ def _get_company_admin_role() -> CompanyRole:
     return CompanyRole.objects.get(role_name="company_admin")
 
 
-def _get_or_create(model, selectors, create_fields=None):
-    if not create_fields:
-        create_fields = selectors
-    try:
-        result = model.objects.get(**selectors)
-    except model.DoesNotExist:
-        result = model.objects.create(**create_fields)
-    return result
-
-
-def _get_company_type(name: str) -> CompanyType:
-    return _get_or_create(CompanyType, {"type_name": name})
+def _get_company_type(type_name: str) -> CompanyType:
+    return CompanyType.objects.get(type_name=type_name)
 
 
 def _get_language(iso_639_1):
-    return _get_or_create(Language, {"iso_639_1": iso_639_1}, {"iso_639_1": iso_639_1, "name": "Whatever"})
+    return Language.objects.get(iso_639_1=iso_639_1)
+
+
+def _get_status(status_name):
+    return CompanyStatus.objects.get(status_name=status_name)
 
 
 def _create_company() -> Company:
-    status = CompanyStatus.objects.create(status_name="active", description="active")
-    return Company.objects.create(name="Nisses firma", status=status)
+    return Company.objects.create(name="Nisses firma", status=_get_status("active"))
 
 def _setup_defaults():
     CompanyRole.objects.create(role_name="company_admin")
+    CompanyStatus.objects.create(status_name="created")
+    CompanyStatus.objects.create(status_name="active")
+    Language.objects.create(iso_639_1="SV")
+    Language.objects.create(iso_639_1="EN")
+    CompanyType.objects.create(type_name="producer")
+    CompanyType.objects.create(type_name="buyer")

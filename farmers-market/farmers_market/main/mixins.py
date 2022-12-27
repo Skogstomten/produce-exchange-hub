@@ -13,7 +13,12 @@ class CompanyAdminRequiredMixin(AccessMixin):
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
-        pk = kwargs.get(self.pk_name)
+        if args:
+            pk = next(args)
+        elif kwargs:
+            pk = kwargs.get(self.pk_name)
+        else:
+            raise KeyError(f"No keyword argument {self.pk_name} was found")
         company = Company.get(pk, get_language(request))
         if not company.is_company_admin(request.user):
             return HttpResponseForbidden()
