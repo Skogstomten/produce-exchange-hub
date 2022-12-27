@@ -6,7 +6,7 @@ from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Company
-from .forms import UpdateCompanyForm, UploadCompanyProfilePictureForm
+from .forms import UpdateCompanyForm, UploadCompanyProfilePictureForm, NewCompanyForm
 from .decorators import company_admin_required
 from .utils import get_language
 from .mixins import CompanyAdminRequiredMixin
@@ -41,7 +41,7 @@ def company(request: HttpRequest, company_id: int):
     )
 
 
-class EditCompanyView(LoginRequiredMixin, CompanyAdminRequiredMixin, View):
+class EditCompanyView(CompanyAdminRequiredMixin, View):
     template_name = "main/edit_company.html"
 
     def get(self, request: HttpRequest, company_id: int):
@@ -70,3 +70,23 @@ class EditCompanyView(LoginRequiredMixin, CompanyAdminRequiredMixin, View):
             },
             status=status,
         )
+
+
+class NewCompanyView(LoginRequiredMixin, View):
+    template_name = "main/new_company.html"
+
+    def get(self, request: HttpRequest):
+        return self._render_get(request)
+
+    def post(self, request: HttpRequest):
+        form = NewCompanyForm(request.POST)
+        if form.is_valid():
+            company = form.save()
+        else:
+            return self._render_get(request)
+        return redirect(reverse("main:edit_company", args=(company.id,)))
+
+    def _render_get(self, request: HttpRequest):
+        form = NewCompanyForm()
+        form.fields.get("user_id").initial = request.user.id
+        return render(request, self.template_name, {"new_company_form": form})

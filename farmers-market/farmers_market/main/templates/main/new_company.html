@@ -1,0 +1,15 @@
+{% extends 'farmers_market/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<h1>{% translate "new_company_header" %}</h1>
+<form method="POST" action="{% url 'main:new_company' %}">
+    {% csrf_token %}
+    {{ new_company_form|crispy }}
+    <input type="submit" class="btn btn-primary" value="{% translate "new_company_button" %}" />
+</form>
+
+{% endblock content %}
