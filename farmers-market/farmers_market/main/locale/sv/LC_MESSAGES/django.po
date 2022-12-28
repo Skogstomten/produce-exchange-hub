@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-08 19:15+0100\n"
+"POT-Creation-Date: 2022-12-28 16:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,31 +18,43 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\forms.py:25
+#: .\forms.py:53
 msgid "upload_profile_picture_label"
-msgstr ""
+msgstr "Ladda upp profilbild"
 
-#: .\templates\main\company.html:17
+#: .\templates\main\company.html:23
 msgid "Created"
 msgstr "Skapad"
 
-#: .\templates\main\company.html:34
+#: .\templates\main\company.html:30
 msgid "Homepage"
 msgstr "Hemsida"
 
-#: .\templates\main\company.html:63
-msgid "edit_link"
-msgstr "Editera"
-
-#: .\templates\main\company.html:71
+#: .\templates\main\company.html:59
 msgid "Addresses"
 msgstr "Adresser"
 
-#: .\templates\main\edit_company.html:7
+#: .\templates\main\company.html:79
+msgid "edit_link"
+msgstr "Editera"
+
+#: .\templates\main\edit_company.html:27
+msgid "crop_photo_modal_title"
+msgstr "Beskär bild"
+
+#: .\templates\main\edit_company.html:41
+msgid "close_image_crop_modal_button"
+msgstr "Avbryt"
+
+#: .\templates\main\edit_company.html:42
+msgid "save_image_modal_button"
+msgstr "Spara"
+
+#: .\templates\main\edit_company.html:50
 msgid "edit_company_header"
 msgstr "Editera"
 
-#: .\templates\main\edit_company.html:29
+#: .\templates\main\edit_company.html:54
 msgid "update_company_submit_button"
 msgstr "Spara"
 
@@ -50,8 +62,17 @@ msgstr "Spara"
 msgid "main_title"
 msgstr "Lokalproducerat"
 
-#~ msgid "company_name_label"
-#~ msgstr "Företagsnamn"
+#: .\templates\main\index.html:29
+msgid "joined_label"
+msgstr "Gick med"
+
+#: .\templates\main\new_company.html:8
+msgid "new_company_header"
+msgstr "Ska nytt företag"
+
+#: .\templates\main\new_company.html:12
+msgid "new_company_button"
+msgstr "Skapa företag"
 
 #~ msgid "company_types_label"
 #~ msgstr "Företagstyper"
