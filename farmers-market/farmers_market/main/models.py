@@ -227,10 +227,21 @@ class Contact(Model):
     company = ForeignKey(Company, on_delete=CASCADE, related_name="contacts")
     contact_type = ForeignKey(ContactType, on_delete=PROTECT)
     value = CharField(max_length=500)
-    description = CharField(max_length=1000, null=True)
+    description = CharField(max_length=1000, null=True, blank=True)
 
     def __str__(self):
         return f"{self.description} - {self.value} - {self.contact_type.contact_type}"
+
+    @classmethod
+    def create_contact(
+        cls, company: Company, contact_type: ContactType, value: str, description: str = None
+    ) -> "Contact":
+        return cls.objects.create(
+            company=company,
+            contact_type=contact_type,
+            value=value,
+            description=description,
+        )
 
 
 class Product(Model):
