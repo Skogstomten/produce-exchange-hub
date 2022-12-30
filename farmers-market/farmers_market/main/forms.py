@@ -9,12 +9,21 @@ from django.forms import (
     HiddenInput,
     FileInput,
     TextInput,
+    
 )
 from django.utils.translation import gettext_lazy as _
 
 from PIL import Image
 
-from .models import Company, CompanyType, Language
+from .models import Company, CompanyType, Language, Contact
+
+
+class AddContactForm(ModelForm):
+    company = 
+
+    class Meta:
+        model = Contact
+        fields = ["company", "contact_type", "value", "description"]
 
 
 class NewCompanyForm(Form):

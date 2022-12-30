@@ -5,7 +5,7 @@ from django.http import HttpRequest, HttpResponse
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Company
+from .models import Company, Contact
 from .forms import UpdateCompanyForm, UploadCompanyProfilePictureForm, NewCompanyForm
 from .decorators import company_admin_required
 from .utils import get_language
@@ -39,6 +39,12 @@ def company(request: HttpRequest, company_id: int):
         "main/company.html",
         {"company": company, "user_is_company_admin": company.is_company_admin(request.user)},
     )
+
+
+@company_admin_required()
+def add_contact(request: HttpRequest, company_id: int):
+    company = get_object_or_404(Company, pk=company_id)
+
 
 
 class EditCompanyView(CompanyAdminRequiredMixin, View):
