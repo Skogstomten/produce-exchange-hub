@@ -5,8 +5,8 @@ from django.http import HttpRequest, HttpResponse
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Company, Contact
-from .forms import UpdateCompanyForm, UploadCompanyProfilePictureForm, NewCompanyForm
+from .models import Company
+from .forms import UpdateCompanyForm, UploadCompanyProfilePictureForm, NewCompanyForm, AddContactForm
 from .decorators import company_admin_required
 from .utils import get_language
 from .mixins import CompanyAdminRequiredMixin
@@ -43,8 +43,9 @@ def company(request: HttpRequest, company_id: int):
 
 @company_admin_required()
 def add_contact(request: HttpRequest, company_id: int):
-    company = get_object_or_404(Company, pk=company_id)
-
+    form = AddContactForm(request.POST)
+    form.save()
+    return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
 class EditCompanyView(CompanyAdminRequiredMixin, View):
@@ -73,6 +74,7 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
                 "company": company,
                 "update_company_form": form,
                 "upload_profile_picture_form": UploadCompanyProfilePictureForm(instance=company),
+                "add_contact_form": AddContactForm(company=company)
             },
             status=status,
         )
