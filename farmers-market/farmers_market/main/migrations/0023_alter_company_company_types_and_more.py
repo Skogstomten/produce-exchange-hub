@@ -13,15 +13,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="company",
             name="company_types",
-            field=models.ManyToManyField(
-                blank=True, related_name="companies", to="main.companytype"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="companies", to="main.companytype"),
         ),
         migrations.AlterField(
             model_name="company",
             name="content_languages",
-            field=models.ManyToManyField(
-                blank=True, related_name="companies", to="main.language"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="companies", to="main.language"),
         ),
     ]

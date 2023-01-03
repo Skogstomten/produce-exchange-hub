@@ -7,7 +7,7 @@ from .models import User, Company, Language, CompanyType, CompanyUser, CompanyRo
 class AddContactViewTest(TestCase):
     def setUp(self):
         _setup_defaults()
-    
+
     def test_can_add_contact(self):
         company, _ = _create_company_with_logged_in_admin(self.client)
         response = self.client.post(
@@ -18,7 +18,7 @@ class AddContactViewTest(TestCase):
                 "value": "nisse@perssons.se",
                 "description": "Boss",
             },
-            follow=True
+            follow=True,
         )
         self.assertEqual(response.status_code, 200)
         contact = Contact.objects.get(value="nisse@perssons.se")
@@ -108,7 +108,7 @@ class EditCompanyViewTest(TestCase):
         )
 
         self.assertEquals(response.status_code, 202)
-    
+
     def _method_requires_company_admin(self, func):
         company = _create_company()
         _create_authenticated_user(self.client)
@@ -194,6 +194,7 @@ def _get_status(status_name):
 
 def _create_company() -> Company:
     return Company.objects.create(name="Nisses firma", status=_get_status("active"))
+
 
 def _get_contact_type(contact_type) -> ContactType:
     return ContactType.objects.get(contact_type=contact_type)

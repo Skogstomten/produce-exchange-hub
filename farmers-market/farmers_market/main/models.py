@@ -243,7 +243,7 @@ class Contact(Model):
             value=value,
             description=description,
         )
-    
+
     @classmethod
     def all_for(cls, company: Company) -> Iterable["Contact"]:
         return cls.objects.filter(company=company)
