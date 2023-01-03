@@ -21,17 +21,12 @@ from .fields import ForeignKeyRefField
 
 
 class AddContactForm(ModelForm):
+    company = ForeignKeyRefField(Company)
     contact_type = ModelChoiceField(ContactType.objects.all(), widget=RadioSelect, required=True)
 
     class Meta:
         model = Contact
         fields = ["company", "contact_type", "value", "description"]
-    
-    def save(self) -> Contact:
-        data = self.clean()
-        return Contact.create_contact(
-            data.get("company"), data.get("contact_type"), data.get("value"), description=data.get("description", None)
-        )
 
 
 class NewCompanyForm(Form):

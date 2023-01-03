@@ -47,14 +47,52 @@
             </form>
         </div>
         <div class="col-md-8">
-            <h1>{% translate "edit_company_header" %}</h1>
-            <form method="POST" action="{% url 'main:edit_company' company.id %}">
-                {% csrf_token %}
-                {{ update_company_form|crispy }}
-                <input type="submit" value="{% translate "update_company_submit_button" %}" />
-            </form>
+            <div class="row">
+                <div class="col-8">
+                    <h1>{% translate "edit_company_header" %}</h1>
+                    <form method="POST" action="{% url 'main:edit_company' company.id %}">
+                        {% csrf_token %}
+                        {{ update_company_form|crispy }}
+                        <input type="submit" value="{% translate "update_company_submit_button" %}" />
+                    </form>
+                </div>
+                <div class="col-4">
+                    <h2>{% translate "contacts_header" %}</h2>
+                    <ul>
+                        {% for contact in contacts %}
+                            <li>
+                                {{ contact.contact_type.contact_type }}
+                                {{ contact.value }}
+                                {{ contact.description }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <button class="btn btn-light" type="button" data-bs-toggle="modal" data-bs-target="#add_contact_modal">
+                        {% translate "add_contact_button" %}
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+<div class="modal" tabindex="-1" id="add_contact_modal" aria-hidden="true">
+    <form method="POST" action="{% url 'main:add_contact' company.id %}">
+        {% csrf_token %}
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1>{% translate "add_contact_header" %}</h1>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">{{ add_contact_form|crispy }}</div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" type="button" data-bs-dismiss="modal">{% translate "cancel_button" %}</button>
+                    <input class="btn-primary" type="submit" value="{% translate "save_button" %}" />
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
 {% endblock content %}

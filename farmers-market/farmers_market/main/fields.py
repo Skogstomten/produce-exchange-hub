@@ -7,8 +7,8 @@ class ForeignKeyRefField(Field):
         self,
         fk_type,
     ):
-        if not isinstance(fk_type, Model):
-            raise ValueError("fk_type has to be an instance of django.db.models.Model")
+        if not issubclass(fk_type, Model):
+            raise ValueError("fk_type has to be a subclass of django.db.models.Model")
 
         super().__init__(
             required=True,

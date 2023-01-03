@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Iterable
 
 from django.db.models import (
     Model,
@@ -72,8 +73,8 @@ class Company(Model):
         on_delete=PROTECT,
     )
     created_date = DateTimeField(auto_now_add=True)
-    company_types = ManyToManyField(CompanyType, related_name="companies")
-    content_languages = ManyToManyField(Language, related_name="companies")
+    company_types = ManyToManyField(CompanyType, related_name="companies", blank=True)
+    content_languages = ManyToManyField(Language, related_name="companies", blank=True)
     activation_date = DateTimeField(null=True, blank=True, default=None)
     external_website_url = CharField(null=True, blank=True, max_length=1000, default=None)
     profile_picture = ImageField(upload_to="company_profile_picture", null=True, blank=True, default=None)
@@ -242,6 +243,10 @@ class Contact(Model):
             value=value,
             description=description,
         )
+    
+    @classmethod
+    def all_for(cls, company: Company) -> Iterable["Contact"]:
+        return cls.objects.filter(company=company)
 
 
 class Product(Model):

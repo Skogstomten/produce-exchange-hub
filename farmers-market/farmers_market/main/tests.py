@@ -1,7 +1,29 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 
-from .models import User, Company, Language, CompanyType, CompanyUser, CompanyRole, CompanyStatus
+from .models import User, Company, Language, CompanyType, CompanyUser, CompanyRole, CompanyStatus, ContactType, Contact
+
+
+class AddContactViewTest(TestCase):
+    def setUp(self):
+        _setup_defaults()
+    
+    def test_can_add_contact(self):
+        company, _ = _create_company_with_logged_in_admin(self.client)
+        response = self.client.post(
+            reverse("main:add_contact", args=(company.id,)),
+            {
+                "company": company.id,
+                "contact_type": _get_contact_type("email").id,
+                "value": "nisse@perssons.se",
+                "description": "Boss",
+            },
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        contact = Contact.objects.get(value="nisse@perssons.se")
+        self.assertEqual(contact.company.name, company.name)
+        self.assertEqual(contact.description, "Boss")
 
 
 class NewCompanyViewTest(TestCase):
@@ -86,7 +108,7 @@ class EditCompanyViewTest(TestCase):
         )
 
         self.assertEquals(response.status_code, 202)
-
+    
     def _method_requires_company_admin(self, func):
         company = _create_company()
         _create_authenticated_user(self.client)
@@ -173,6 +195,9 @@ def _get_status(status_name):
 def _create_company() -> Company:
     return Company.objects.create(name="Nisses firma", status=_get_status("active"))
 
+def _get_contact_type(contact_type) -> ContactType:
+    return ContactType.objects.get(contact_type=contact_type)
+
 
 def _setup_defaults():
     CompanyRole.objects.create(role_name="company_admin")
@@ -182,3 +207,5 @@ def _setup_defaults():
     Language.objects.create(iso_639_1="EN")
     CompanyType.objects.create(type_name="producer")
     CompanyType.objects.create(type_name="buyer")
+    ContactType.objects.create(contact_type="email")
+    ContactType.objects.create(contact_type="phone")
