@@ -4,6 +4,17 @@ from django.urls import reverse
 from .models import User, Company, Language, CompanyType, CompanyUser, CompanyRole, CompanyStatus, ContactType, Contact
 
 
+class DeleteContactViewTest(TestCase):
+    def setUp(self):
+        _setup_defaults()
+    
+    def test_can_delete_contact(self):
+        company, _ = _create_company_with_logged_in_admin(self.client)
+        contact = Contact.create_contact(company, _get_contact_type("email"), "nisse@perssons.se")
+        response = self.client.post(reverse("main:delete_contact", args=(company.id, contact.id)))
+        self.assertEqual(302, response.status_code)
+
+
 class AddContactViewTest(TestCase):
     def setUp(self):
         _setup_defaults()

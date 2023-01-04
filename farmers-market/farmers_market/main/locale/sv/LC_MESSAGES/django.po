@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-03 21:58+0100\n"
+"POT-Creation-Date: 2023-01-04 22:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,19 +62,23 @@ msgstr "Spara"
 msgid "contacts_header"
 msgstr "Kontakter"
 
-#: .\templates\main\edit_company.html:71
+#: .\templates\main\edit_company.html:68
+msgid "delete_contact_message"
+msgstr "Ta bort kontakt?"
+
+#: .\templates\main\edit_company.html:80
 msgid "add_contact_button"
 msgstr "Lägg till"
 
-#: .\templates\main\edit_company.html:85
+#: .\templates\main\edit_company.html:94
 msgid "add_contact_header"
 msgstr "Ny kontakt"
 
-#: .\templates\main\edit_company.html:90
+#: .\templates\main\edit_company.html:99
 msgid "cancel_button"
 msgstr "Avbryt"
 
-#: .\templates\main\edit_company.html:91
+#: .\templates\main\edit_company.html:100
 msgid "save_button"
 msgstr "Spara"
 

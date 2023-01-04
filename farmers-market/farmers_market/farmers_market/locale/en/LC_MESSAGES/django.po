@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-28 16:30+0100\n"
+"POT-Creation-Date: 2023-01-04 22:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,22 +26,22 @@ msgstr "Swedish"
 msgid "English"
 msgstr "English"
 
-#: .\templates\farmers_market\base.html:35
+#: .\templates\farmers_market\base.html:36
 msgid "navbar_brand"
 msgstr "Produce Exchange Hub"
 
-#: .\templates\farmers_market\base.html:43
+#: .\templates\farmers_market\base.html:44
 msgid "admin_link"
 msgstr "Admin"
 
-#: .\templates\farmers_market\base.html:45
+#: .\templates\farmers_market\base.html:46
 msgid "logout_link"
 msgstr "Logout"
 
-#: .\templates\farmers_market\base.html:47
+#: .\templates\farmers_market\base.html:48
 msgid "register_link"
 msgstr "Register"
 
-#: .\templates\farmers_market\base.html:48
+#: .\templates\farmers_market\base.html:49
 msgid "login_link"
 msgstr "Login"
