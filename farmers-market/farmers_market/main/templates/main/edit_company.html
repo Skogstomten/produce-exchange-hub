@@ -58,16 +58,18 @@
                 </div>
                 <div class="col-4">
                     <h2>{% translate "contacts_header" %}</h2>
-                    <ul>
+                    <div>
                         {% for contact in contacts %}
-                            <li>
-                                {{ contact.contact_type.contact_type }}
-                                {{ contact.value }}
-                                {{ contact.description }}
-                            </li>
+                            <div>
+                                <label>{{ contact.description }}</label>
+                                <div>
+                                    {% translate contact.contact_type.contact_type %}
+                                    {{ contact.value }}
+                                </div>
+                            </div>
                         {% endfor %}
-                    </ul>
-                    <button class="btn btn-light" type="button" data-bs-toggle="modal" data-bs-target="#add_contact_modal">
+                    </div>
+                    <button class="btn btn-light mt-2" type="button" data-bs-toggle="modal" data-bs-target="#add_contact_modal">
                         {% translate "add_contact_button" %}
                     </button>
                 </div>
