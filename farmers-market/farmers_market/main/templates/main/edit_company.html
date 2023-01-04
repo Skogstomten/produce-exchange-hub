@@ -62,6 +62,13 @@
                         {% for contact in contacts %}
                             <div class="container">
                                 <label><strong>{{ contact.description }}</strong></label>
+                                <form method="POST"
+                                      action="{% url 'main:delete_contact' company.id contact.id %}"
+                                      class="inline delete_contact_form"
+                                      data-confirmmessage="{% translate "delete_contact_message" %}">
+                                    {% csrf_token %}
+                                    <button class="btn-icon btn-delete" type="submit"><i class="fa fa-close"></i></button>
+                                </form>
                                 <div>
                                     <label>{% translate contact.contact_type.contact_type %}</label>
                                     {{ contact.value }}
