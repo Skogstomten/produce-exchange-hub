@@ -2,7 +2,9 @@ from django.forms import (
     ModelForm,
     Form,
     ModelMultipleChoiceField,
+    ModelChoiceField,
     CheckboxSelectMultiple,
+    RadioSelect,
     FileField,
     FloatField,
     CharField,
@@ -14,7 +16,17 @@ from django.utils.translation import gettext_lazy as _
 
 from PIL import Image
 
-from .models import Company, CompanyType, Language
+from .models import Company, CompanyType, Language, Contact, ContactType
+from .fields import ForeignKeyRefField
+
+
+class AddContactForm(ModelForm):
+    company = ForeignKeyRefField(Company)
+    contact_type = ModelChoiceField(ContactType.objects.all(), widget=RadioSelect, required=True)
+
+    class Meta:
+        model = Contact
+        fields = ["company", "contact_type", "value", "description"]
 
 
 class NewCompanyForm(Form):

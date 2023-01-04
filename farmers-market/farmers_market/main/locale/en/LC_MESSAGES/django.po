@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-28 16:30+0100\n"
+"POT-Creation-Date: 2023-01-03 21:58+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,9 +18,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\forms.py:53
+#: .\forms.py:65
 msgid "upload_profile_picture_label"
-msgstr ""
+msgstr "Upload profile picture"
 
 #: .\templates\main\company.html:23
 msgid "Created"
@@ -50,12 +50,32 @@ msgstr "Cancel"
 msgid "save_image_modal_button"
 msgstr "Save"
 
-#: .\templates\main\edit_company.html:50
+#: .\templates\main\edit_company.html:52
 msgid "edit_company_header"
 msgstr "Edit"
 
-#: .\templates\main\edit_company.html:54
+#: .\templates\main\edit_company.html:56
 msgid "update_company_submit_button"
+msgstr "Save"
+
+#: .\templates\main\edit_company.html:60
+msgid "contacts_header"
+msgstr "Contacts"
+
+#: .\templates\main\edit_company.html:71
+msgid "add_contact_button"
+msgstr "Add contact"
+
+#: .\templates\main\edit_company.html:85
+msgid "add_contact_header"
+msgstr "Add contact"
+
+#: .\templates\main\edit_company.html:90
+msgid "cancel_button"
+msgstr "Cancel"
+
+#: .\templates\main\edit_company.html:91
+msgid "save_button"
 msgstr "Save"
 
 #: .\templates\main\index.html:5
