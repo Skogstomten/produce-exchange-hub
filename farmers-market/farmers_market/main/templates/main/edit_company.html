@@ -60,10 +60,10 @@
                     <h2>{% translate "contacts_header" %}</h2>
                     <div>
                         {% for contact in contacts %}
-                            <div>
-                                <label>{{ contact.description }}</label>
+                            <div class="container">
+                                <label><strong>{{ contact.description }}</strong></label>
                                 <div>
-                                    {% translate contact.contact_type.contact_type %}
+                                    <label>{% translate contact.contact_type.contact_type %}</label>
                                     {{ contact.value }}
                                 </div>
                             </div>
