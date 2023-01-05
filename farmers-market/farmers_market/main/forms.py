@@ -16,11 +16,20 @@ from django.utils.translation import gettext_lazy as _
 
 from PIL import Image
 
-from .models import Company, CompanyType, Language, Contact, ContactType
+from .models import Company, CompanyType, Language, Contact, ContactType, Address, Country
 from .fields import ForeignKeyRefField
 
 
-class AddContactForm(ModelForm):
+class AddressForm(ModelForm):
+    company = ForeignKeyRefField(Company)
+    country = ModelChoiceField(Country.objects.all(), widget=RadioSelect, required=False)
+
+    class Meta:
+        model = Address
+        fields = ["company", "address_type", "addressee", "co_address", "street_address", "city", "zip_code", "country"]
+
+
+class ContactForm(ModelForm):
     company = ForeignKeyRefField(Company)
     contact_type = ModelChoiceField(ContactType.objects.all(), widget=RadioSelect, required=True)
 

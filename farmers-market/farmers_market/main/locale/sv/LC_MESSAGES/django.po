@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-04 22:22+0100\n"
+"POT-Creation-Date: 2023-01-05 12:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\forms.py:65
+#: .\forms.py:74
 msgid "upload_profile_picture_label"
 msgstr "Ladda upp profilbild"
 
@@ -58,29 +58,43 @@ msgstr "Editera"
 msgid "update_company_submit_button"
 msgstr "Spara"
 
-#: .\templates\main\edit_company.html:60
+#: .\templates\main\edit_company.html:61
 msgid "contacts_header"
 msgstr "Kontakter"
 
-#: .\templates\main\edit_company.html:68
+#: .\templates\main\edit_company.html:69
 msgid "delete_contact_message"
 msgstr "Ta bort kontakt?"
 
-#: .\templates\main\edit_company.html:80
+#: .\templates\main\edit_company.html:81
 msgid "add_contact_button"
 msgstr "Lägg till"
 
-#: .\templates\main\edit_company.html:94
-msgid "add_contact_header"
-msgstr "Ny kontakt"
+#: .\templates\main\edit_company.html:85
+msgid "addresses_header"
+msgstr "Adresser"
 
 #: .\templates\main\edit_company.html:99
+msgid "add_address_button"
+msgstr "Lägg till"
+
+#: .\templates\main\edit_company.html:114
+msgid "add_address_header"
+msgstr "Ny address"
+
+#: .\templates\main\edit_company.html:119
+#: .\templates\main\edit_company.html:138
 msgid "cancel_button"
 msgstr "Avbryt"
 
-#: .\templates\main\edit_company.html:100
+#: .\templates\main\edit_company.html:120
+#: .\templates\main\edit_company.html:139
 msgid "save_button"
 msgstr "Spara"
+
+#: .\templates\main\edit_company.html:133
+msgid "add_contact_header"
+msgstr "Ny kontakt"
 
 #: .\templates\main\index.html:5
 msgid "main_title"

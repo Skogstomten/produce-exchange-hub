@@ -5,8 +5,8 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpRes
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Company, Contact
-from .forms import UpdateCompanyForm, UploadCompanyProfilePictureForm, NewCompanyForm, AddContactForm
+from .models import Company, Contact, Address
+from .forms import UpdateCompanyForm, UploadCompanyProfilePictureForm, NewCompanyForm, ContactForm, AddressForm
 from .decorators import company_admin_required
 from .utils import get_language
 from .mixins import CompanyAdminRequiredMixin
@@ -45,7 +45,7 @@ def company(request: HttpRequest, company_id: int):
 def add_contact(request: HttpRequest, company_id: int):
     if request.method != "POST":
         return HttpResponseNotFound()
-    form = AddContactForm(request.POST)
+    form = ContactForm(request.POST)
     if not form.is_valid():
         return HttpResponseBadRequest()
     form.save()
@@ -61,6 +61,17 @@ def delete_contact(request: HttpRequest, company_id: int, contact_id: int):
         contact.delete()
     except Contact.DoesNotExist:
         return HttpResponseNotFound()
+    return redirect(reverse("main:edit_company", args=(company_id,)))
+
+
+@company_admin_required()
+def add_address(request: HttpRequest, company_id: int):
+    if request.method != "POST":
+        return HttpResponseNotFound()
+    form = AddressForm(request.POST)
+    if not form.is_valid():
+        return HttpResponseBadRequest()
+    form.save()
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
@@ -87,9 +98,11 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
             {
                 "company": company,
                 "contacts": Contact.all_for(company),
+                "addresses": Address.all_for(company),
                 "update_company_form": UpdateCompanyForm(instance=company),
                 "upload_profile_picture_form": UploadCompanyProfilePictureForm(instance=company),
-                "add_contact_form": AddContactForm(instance=Contact(company=company)),
+                "add_contact_form": ContactForm(instance=Contact(company=company)),
+                "add_address_form": AddressForm(instance=Address(company=company)),
             },
             status=status,
         )
