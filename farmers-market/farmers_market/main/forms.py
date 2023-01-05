@@ -99,6 +99,8 @@ class UpdateCompanyForm(ModelForm):
                         desc = CompanyDescription(company=company, language=language)
                     desc.description = cleaned_desc
                     desc.save()
+        company.descriptions.exclude(language__in=languages).delete()
+        return company
 
 
 class UploadCompanyProfilePictureForm(ModelForm):
