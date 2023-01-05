@@ -57,32 +57,71 @@
                     </form>
                 </div>
                 <div class="col-4">
-                    <h2>{% translate "contacts_header" %}</h2>
-                    <div>
-                        {% for contact in contacts %}
-                            <div class="container">
-                                <label><strong>{{ contact.description }}</strong></label>
-                                <form method="POST"
-                                      action="{% url 'main:delete_contact' company.id contact.id %}"
-                                      class="inline delete_contact_form"
-                                      data-confirmmessage="{% translate "delete_contact_message" %}">
-                                    {% csrf_token %}
-                                    <button class="btn-icon btn-delete" type="submit"><i class="fa fa-close"></i></button>
-                                </form>
+                    <div class="container">
+                        <h2>{% translate "contacts_header" %}</h2>
+                        <div>
+                            {% for contact in contacts %}
                                 <div>
-                                    <label>{% translate contact.contact_type.contact_type %}</label>
-                                    {{ contact.value }}
+                                    <label><strong>{{ contact.description }}</strong></label>
+                                    <form method="POST"
+                                        action="{% url 'main:delete_contact' company.id contact.id %}"
+                                        class="inline delete_contact_form"
+                                        data-confirmmessage="{% translate "delete_contact_message" %}">
+                                        {% csrf_token %}
+                                        <button class="btn-icon btn-delete" type="submit"><i class="fa fa-close"></i></button>
+                                    </form>
+                                    <div>
+                                        <label>{% translate contact.contact_type.contact_type %}</label>
+                                        {{ contact.value }}
+                                    </div>
                                 </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-light mt-2" type="button" data-bs-toggle="modal" data-bs-target="#add_contact_modal">
+                            {% translate "add_contact_button" %}
+                        </button>
                     </div>
-                    <button class="btn btn-light mt-2" type="button" data-bs-toggle="modal" data-bs-target="#add_contact_modal">
-                        {% translate "add_contact_button" %}
-                    </button>
+                    <div class="container mt-3">
+                        <h2>{% translate "addresses_header" %}</h2>
+                        <div>
+                            {% for address in addresses %}
+                                <div>
+                                    <label><strong>{{ address.address_type }}</strong></label>
+                                    {% if address.addressee %}<div>{{ address.addressee }}</div>{% endif %}
+                                    {% if address.co_address %}<div>{{ address.co_address }}</div>{% endif %}
+                                    {% if address.street_address %}<div>{{ address.street_address }}</div>{% endif %}
+                                    {% if address.zip_code or address.city %}<div>{{ address.zip_code }} {{ address.city }}</div>{% endif %}
+                                    {% if address.country %}<div>{{ address.country.name }}</div>{% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button class="btn btn-light mt-2" type="button" data-bs-toggle="modal" data-bs-target="#add_address_modal">
+                            {% translate "add_address_button" %}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<div class="modal" tabindex="-1" id="add_address_modal" aria-hidden="true">
+    <form method="POST" action="{% url 'main:add_address' company.id %}">
+        {% csrf_token %}
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1>{% translate "add_address_header" %}</h1>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">{{ add_address_form|crispy }}</div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" type="button" data-bs-dismiss="modal">{% translate "cancel_button" %}</button>
+                    <input class="btn-primary" type="submit" value="{% translate "save_button" %}" />
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
 <div class="modal" tabindex="-1" id="add_contact_modal" aria-hidden="true">
