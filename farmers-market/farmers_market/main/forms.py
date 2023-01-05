@@ -20,16 +20,16 @@ from .models import Company, CompanyType, Language, Contact, ContactType, Addres
 from .fields import ForeignKeyRefField
 
 
-class AddAddressForm(ModelForm):
+class AddressForm(ModelForm):
     company = ForeignKeyRefField(Company)
-    country = ModelChoiceField(Country.objects.all())
+    country = ModelChoiceField(Country.objects.all(), widget=RadioSelect, required=False)
 
     class Meta:
         model = Address
         fields = ["company", "address_type", "addressee", "co_address", "street_address", "city", "zip_code", "country"]
 
 
-class AddContactForm(ModelForm):
+class ContactForm(ModelForm):
     company = ForeignKeyRefField(Company)
     contact_type = ModelChoiceField(ContactType.objects.all(), widget=RadioSelect, required=True)
 

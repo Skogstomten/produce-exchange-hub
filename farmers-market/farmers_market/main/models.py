@@ -216,6 +216,10 @@ class Address(Model):
         verbose_name = "Address"
         verbose_name_plural = "Addresses"
 
+    @classmethod
+    def all_for(cls, company: Company) -> Iterable["Address"]:
+        return cls.objects.filter(company=company)
+
 
 class ContactType(Model):
     contact_type = CharField(max_length=100, unique=True)
