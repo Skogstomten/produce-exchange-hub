@@ -1,7 +1,29 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 
-from .models import User, Company, Language, CompanyType, CompanyUser, CompanyRole, CompanyStatus, ContactType, Contact
+from .models import (
+    User,
+    Company,
+    Language,
+    CompanyType,
+    CompanyUser,
+    CompanyRole,
+    CompanyStatus,
+    ContactType,
+    Contact,
+    Address,
+)
+
+
+class DeleteAddressViewTest(TestCase):
+    def setUp(self):
+        _setup_defaults()
+
+    def test_can_delete_address(self):
+        company, _ = _create_company_with_logged_in_admin(self.client)
+        address = Address.objects.create(company=company, address_type="Shit")
+        response = self.client.post(reverse("main:delete_address", args=(company.id, address.id)))
+        self.assertEqual(response.status_code, 302)
 
 
 class DeleteContactViewTest(TestCase):

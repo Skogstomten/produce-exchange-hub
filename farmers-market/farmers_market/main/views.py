@@ -75,6 +75,18 @@ def add_address(request: HttpRequest, company_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
+@company_admin_required()
+def delete_address(request: HttpRequest, company_id: int, address_id: int):
+    if request.method != "POST":
+        return HttpResponseNotFound()
+    try:
+        address = Address.objects.get(pk=address_id, company__id=company_id)
+        address.delete()
+    except Address.DoesNotExist:
+        return HttpResponseNotFound()
+    return redirect(reverse("main:edit_company", args=(company_id,)))
+
+
 class EditCompanyView(CompanyAdminRequiredMixin, View):
     template_name = "main/edit_company.html"
 

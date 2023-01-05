@@ -64,9 +64,9 @@
                                 <div>
                                     <label><strong>{{ contact.description }}</strong></label>
                                     <form method="POST"
-                                        action="{% url 'main:delete_contact' company.id contact.id %}"
-                                        class="inline delete_contact_form"
-                                        data-confirmmessage="{% translate "delete_contact_message" %}">
+                                            action="{% url 'main:delete_contact' company.id contact.id %}"
+                                            class="inline confirm-action"
+                                            data-confirmmessage="{% translate "delete_contact_message" %}">
                                         {% csrf_token %}
                                         <button class="btn-icon btn-delete" type="submit"><i class="fa fa-close"></i></button>
                                     </form>
@@ -87,6 +87,13 @@
                             {% for address in addresses %}
                                 <div>
                                     <label><strong>{{ address.address_type }}</strong></label>
+                                    <form method="POST"
+                                            action="{% url 'main:delete_address' company.id address.id %}"
+                                            class="inline confirm-action"
+                                            data-confirmmessage="{% translate "Delete address?" %}">
+                                        {% csrf_token %}
+                                        <button class="btn-icon btn-delete" type="submit"><i class="fa fa-close"></i></button>
+                                    </form>
                                     {% if address.addressee %}<div>{{ address.addressee }}</div>{% endif %}
                                     {% if address.co_address %}<div>{{ address.co_address }}</div>{% endif %}
                                     {% if address.street_address %}<div>{{ address.street_address }}</div>{% endif %}

@@ -36,7 +36,7 @@
         return true;
     };
 
-    let forms = document.getElementsByClassName("delete_contact_form");
+    let forms = document.getElementsByClassName("confirm-action");
     for (let form of forms) {
         form.onsubmit = (event) => {
             try {
