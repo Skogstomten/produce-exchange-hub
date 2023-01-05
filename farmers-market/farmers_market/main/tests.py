@@ -7,7 +7,7 @@ from .models import User, Company, Language, CompanyType, CompanyUser, CompanyRo
 class DeleteContactViewTest(TestCase):
     def setUp(self):
         _setup_defaults()
-    
+
     def test_can_delete_contact(self):
         company, _ = _create_company_with_logged_in_admin(self.client)
         contact = Contact.create_contact(company, _get_contact_type("email"), "nisse@perssons.se")
