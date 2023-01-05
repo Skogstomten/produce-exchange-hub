@@ -1,3 +1,5 @@
+from typing import Mapping, Any
+
 from django.forms import (
     ModelForm,
     Form,
@@ -11,12 +13,13 @@ from django.forms import (
     HiddenInput,
     FileInput,
     TextInput,
+    Textarea,
 )
 from django.utils.translation import gettext_lazy as _
 
 from PIL import Image
 
-from .models import Company, CompanyType, Language, Contact, ContactType, Address, Country
+from .models import Company, CompanyType, Language, Contact, ContactType, Address, Country, CompanyDescription
 from .fields import ForeignKeyRefField
 
 
@@ -61,9 +64,41 @@ class UpdateCompanyForm(ModelForm):
         queryset=Language.objects.all(), widget=CheckboxSelectMultiple, required=True
     )
 
+    def __init__(self, *args, instance: Company, data: Mapping[str, Any] = None, **kwargs):
+        super().__init__(data, *args, instance=instance, **kwargs)
+        languages = instance.content_languages.all()
+        for language in languages:
+            try:
+                desc = instance.descriptions.get(language=language)
+            except CompanyDescription.DoesNotExist:
+                desc = CompanyDescription(company=instance, language=language)
+            self.fields[f"desc_{language.iso_639_1}"] = CharField(
+                required=False,
+                widget=Textarea(attrs={"rows": 5}),
+                initial=desc.description,
+                label=_(f"Description {language.name}"),
+            )
+
     class Meta:
         model = Company
         fields = ["name", "company_types", "content_languages", "external_website_url"]
+
+    def save(self, commit: bool = ...) -> Any:
+        company = super().save(commit)
+        languages = company.content_languages.all()
+        for language in languages:
+            try:
+                cleaned_desc = self.cleaned_data[f"desc_{language.iso_639_1}"]
+            except KeyError:
+                pass
+            else:
+                if cleaned_desc:
+                    try:
+                        desc = company.descriptions.get(language=language)
+                    except CompanyDescription.DoesNotExist:
+                        desc = CompanyDescription(company=company, language=language)
+                    desc.description = cleaned_desc
+                    desc.save()
 
 
 class UploadCompanyProfilePictureForm(ModelForm):
