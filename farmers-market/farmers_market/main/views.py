@@ -6,7 +6,13 @@ from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Company, Contact, Address
-from .forms import UpdateCompanyForm, UploadCompanyProfilePictureForm, NewCompanyForm, ContactForm, AddressForm
+from .forms import (
+    UpdateCompanyForm,
+    UploadCompanyProfilePictureForm,
+    NewCompanyForm,
+    ContactForm,
+    AddressForm,
+)
 from .decorators import company_admin_required
 from .utils import get_language
 from .mixins import CompanyAdminRequiredMixin
