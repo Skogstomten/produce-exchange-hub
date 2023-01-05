@@ -54,7 +54,7 @@ def add_contact(request: HttpRequest, company_id: int):
 
 @company_admin_required()
 def delete_contact(request: HttpRequest, company_id: int, contact_id: int):
-    if request.method != "POST":
+    if request.method != "DELETE":
         return HttpResponseNotFound()
     try:
         contact = Contact.objects.get(pk=contact_id, company__id=company_id)
@@ -72,6 +72,18 @@ def add_address(request: HttpRequest, company_id: int):
     if not form.is_valid():
         return HttpResponseBadRequest()
     form.save()
+    return redirect(reverse("main:edit_company", args=(company_id,)))
+
+
+@company_admin_required()
+def delete_address(request: HttpRequest, company_id: int, address_id: int):
+    if request.method != "DELETE":
+        return HttpResponseNotFound()
+    try:
+        address = Address.objects.get(pk=address_id, company__id=company_id)
+        address.delete()
+    except Address.DoesNotExist:
+        return HttpResponseNotFound()
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
