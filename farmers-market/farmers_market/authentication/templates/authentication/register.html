@@ -12,29 +12,40 @@
 
 <form method="POST" action="{% url 'authentication:register' %}">
     {% csrf_token %}
+
     <div class="fields">
-        <fieldset>
-            <label for="email">{% translate "email_label" %}</label>
-            <input id="email" name="email" type="text" placeholder="{% translate "email_placeholder" %}" autofocus value="{{ email }}">
-        </fieldset>
-        <fieldset>
-            <label for="first_name">{% translate "first_name_label" %}</label>
-            <input id="first_name" name="first_name" type="text" value="{{ first_name }}">
-        </fieldset>
-        <fieldset>
-            <label for="last_name">{% translate "last_name_label" %}</label>
-            <input id="last_name" name="last_name" type="text" value="{{ last_name }}">
-        </fieldset>
-        <fieldset>
-            <label for="password">{% translate "password_label" %}</label>
-            <input id="password" name="password" type="password" value="{{ password }}">
-        </fieldset>
-        <fieldset>
-            <label for="confirm_password">{% translate "confirm_password_label" %}</label>
-            <input id="confirm_password" name="confirm_password" type="password">
-        </fieldset>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="email" name="email" placeholder="{% translate "email placeholder" %}" autofocus value="{{ email }}" />
+            <label for="email">{% translate "E-Mail" %}</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text"
+                    class="form-control"
+                    id="first_name"
+                    name="first_name"
+                    placeholder="{% translate "Firstname placeholder" %}"
+                    value="{{ first_name }}" />
+            <label for="first_name">{% translate "Firstname" %}</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text"
+                    class="form-control"
+                    id="last_name"
+                    name="last_name"
+                    placeholder="{% translate "Lastname placeholder" %}"
+                    value="{{ last_name }}" />
+            <label for="last_name">{% translate "Lastname" %}</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="password" class="form-control" id="password" name="password" />
+            <label for="password">{% translate "Password" %}</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password" />
+            <label for="confirm_password">{% translate "Confirm password" %}</label>
+        </div>
+        <input type="submit" class="btn btn-primary mb-3" value="{% translate "Register" %}">
     </div>
-    <input type="submit" value="{% translate "register_submit_button" %}">
 </div>
 
 {% endblock content %}
