@@ -1,9 +1,17 @@
 from django.shortcuts import redirect, render
 from django.http import HttpRequest
 from django.urls import reverse
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from django.contrib.auth import authenticate, login, logout as logout_user
 from django.contrib.auth.models import User
+
+from .decorators import self
+
+
+class UserProfileView(View):
+    @self()
+    def get(self, request: HttpRequest, user_id: int):
+        return render(request, "authentication/user_profile.html")
 
 
 class RegisterView(TemplateView):
