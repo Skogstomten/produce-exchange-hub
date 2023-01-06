@@ -1,6 +1,7 @@
 {% extends 'farmers_market/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load crispy_forms_tags %}
 
 {% block title %}{% translate "login_title" %}{% endblock title %}
 
@@ -9,15 +10,15 @@
 <div>
     <form method="POST" action="{% url 'authentication:login' %}">
         {% csrf_token %}
-        <fieldset>
-            <label for="username">{% translate "username_label" %}</label>
-            <input id="username" name="username" type="text" placeholder="{% translate "username_placeholder" %}" autofocus>
-        </fieldset>
-        <fieldset>
-            <label for="password">{% translate "password_label" %}</label>
-            <input id="password" name="password" type="password" placeholder="{% translate "password_placeholder" %}">
-        </fieldset>
-        <input type="submit" value="{% translate "login_submit_button" %}">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="username" name="username" placeholder="{% translate "Username placeholder" %}" autofocus />
+            <label for="username">{% translate "E-mail address" %}</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="password" class="form-control" id="password" name="password" placeholder="{% translate "Password placeholder" %}" />
+            <label for="password">{% translate "Password" %}</label>
+        </div>
+        <input class="btn btn-primary" type="submit" value="{% translate "login_submit_button" %}">
     </form>
 </div>
 
