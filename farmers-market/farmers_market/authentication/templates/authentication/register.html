@@ -3,50 +3,20 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% translate "register_title" %}{% endblock title %}
+{% block title %}{% translate "Register" %}{% endblock title %}
 
-{% block scripts %}
+{% block styles %}
 <link rel="stylesheet" href="{% static 'authentication/register.css' %}">
-{% endblock scripts %}
+{% endblock styles %}
 
 {% block content %}
 
 <form method="POST" action="{% url 'authentication:register' %}">
     {% csrf_token %}
 
-    <div class="fields">
-        <div class="form-floating mb-3">
-            <input type="email" class="form-control" id="email" name="email" placeholder="{% translate "email placeholder" %}" autofocus value="{{ email }}" />
-            <label for="email">{% translate "E-Mail" %}</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input type="text"
-                    class="form-control"
-                    id="first_name"
-                    name="first_name"
-                    placeholder="{% translate "Firstname placeholder" %}"
-                    value="{{ first_name }}" />
-            <label for="first_name">{% translate "Firstname" %}</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input type="text"
-                    class="form-control"
-                    id="last_name"
-                    name="last_name"
-                    placeholder="{% translate "Lastname placeholder" %}"
-                    value="{{ last_name }}" />
-            <label for="last_name">{% translate "Lastname" %}</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input type="password" class="form-control" id="password" name="password" />
-            <label for="password">{% translate "Password" %}</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input type="password" class="form-control" id="confirm_password" name="confirm_password" />
-            <label for="confirm_password">{% translate "Confirm password" %}</label>
-        </div>
-        <input type="submit" class="btn btn-primary mb-3" value="{% translate "Register" %}">
-    </div>
+    {{ register_form|crispy }}
+    <input type="submit" class="btn btn-primary mb-3" value="{% translate "Register" %}">
+
 </div>
 
 {% endblock content %}
