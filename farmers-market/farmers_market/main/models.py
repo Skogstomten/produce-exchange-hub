@@ -8,6 +8,7 @@ from django.db.models import (
     TextField,
     DecimalField,
     ImageField,
+    OneToOneField,
     ManyToManyField,
     ForeignKey,
     PROTECT,
@@ -197,6 +198,13 @@ class Country(Model):
 
     class Meta:
         verbose_name_plural = "Countries"
+
+
+class ExtendedUser(Model):
+    user = OneToOneField(User, on_delete=CASCADE, related_name="ext")
+    profile_picture = ImageField(upload_to="user_profile_picture", null=True, blank=True, default=None)
+    country = ForeignKey(Country, on_delete=PROTECT, null=True, blank=True, default=None)
+    county = CharField(max_length=100, null=True, blank=True, default=None)
 
 
 class Address(Model):
