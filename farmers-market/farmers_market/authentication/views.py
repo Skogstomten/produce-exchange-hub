@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout as logout_user
 from django.contrib.auth.models import User
 
 from .decorators import self
+from .models import create_new_user
 
 
 class UserProfileView(View):
@@ -18,12 +19,12 @@ class RegisterView(TemplateView):
     template_name = "authentication/register.html"
 
     def post(self, request):
-        User.objects.create_user(
+        create_new_user(
             request.POST.get("email"),
-            request.POST.get("email"),
+            request.POST.get("first_name"),
+            request.POST.get("last_name"),
             request.POST.get("password"),
-            first_name=request.POST.get("first_name"),
-            last_name=request.POST.get("last_name"),
+            request.POST.get("county"),
         )
         return redirect(reverse("authentication:login"))
 

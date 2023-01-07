@@ -8,7 +8,6 @@ from django.db.models import (
     TextField,
     DecimalField,
     ImageField,
-    OneToOneField,
     ManyToManyField,
     ForeignKey,
     PROTECT,
@@ -200,17 +199,6 @@ class Country(Model):
         verbose_name_plural = "Countries"
 
 
-class ExtendedUser(Model):
-    user = OneToOneField(User, on_delete=CASCADE, related_name="ext")
-    profile_picture = ImageField(upload_to="user_profile_picture", null=True, blank=True, default=None)
-    country = ForeignKey(Country, on_delete=PROTECT, null=True, blank=True, default=None)
-    county = CharField(max_length=100, null=True, blank=True, default=None)
-
-    @classmethod
-    def create_ext_user(cls, user: User, country: Country = None, county: str = None) -> "ExtendedUser":
-        return cls.objects.create(user=user, country=country, county=county)
-
-
 class Address(Model):
     company = ForeignKey(Company, on_delete=CASCADE, related_name="addresses")
     address_type = CharField(max_length=50, null=True, blank=True)
@@ -300,11 +288,3 @@ class Order(Model):
 
     def __str__(self):
         return f"{self.company.name} - {self.product.product_code}"
-
-
-def create_new_user(
-    email: str, first_name: str, last_name: str, password: str, country: Country | None, county: str | None
-) -> User:
-    user = User.objects.create_user(email, email, password, first_name=first_name, last_name=last_name)
-    ExtendedUser.create_ext_user(user, country, county)
-    return user
