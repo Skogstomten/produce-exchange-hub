@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from .models import ExtendedUser
 
 
-class UserForm(Form):
+class RegisterForm(Form):
     email = EmailField(required=True)
     first_name = CharField(required=True)
     last_name = CharField(required=True)
@@ -23,3 +23,9 @@ class UserForm(Form):
         user = User.objects.create(**self.cleaned_data)
         ext_user = ExtendedUser.objects.create(user=user, **self.cleaned_data)
         return user, ext_user
+
+    def get_email(self) -> str:
+        return self.cleaned_data["email"]
+    
+    def get_password(self) -> str:
+        return self.cleaned_data["password"]

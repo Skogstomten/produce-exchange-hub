@@ -3,10 +3,9 @@ from django.http import HttpRequest
 from django.urls import reverse
 from django.views.generic import TemplateView, View
 from django.contrib.auth import authenticate, login, logout as logout_user
-from django.contrib.auth.models import User
 
 from .decorators import self
-from .models import create_new_user
+from .forms import RegisterForm
 
 
 class UserProfileView(View):
@@ -15,18 +14,20 @@ class UserProfileView(View):
         return render(request, "authentication/user_profile.html")
 
 
-class RegisterView(TemplateView):
+class RegisterView(View):
     template_name = "authentication/register.html"
 
-    def post(self, request):
-        create_new_user(
-            request.POST.get("email"),
-            request.POST.get("first_name"),
-            request.POST.get("last_name"),
-            request.POST.get("password"),
-            request.POST.get("county"),
-        )
-        return redirect(reverse("authentication:login"))
+    def get(self, request: HttpRequest):
+        form = RegisterForm()
+        return render(request, self.template_name, {"register_form": form})
+
+    def post(self, request: HttpRequest):
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user, _ = form.save()
+            user = authenticate(username=form.get_email(), password=form.get_password())
+            return redirect(reverse("authentication:user_profile", args=(user.id,)))
+        return render(request, self.template_name, {"register_form": form})
 
 
 class LoginView(TemplateView):
