@@ -8,16 +8,10 @@
 {% block content %}
 
 <div>
+    {% if login_form.errors %}{{ login_form.errors }}{% endif %}
     <form method="POST" action="{% url 'authentication:login' %}">
         {% csrf_token %}
-        <div class="form-floating mb-3">
-            <input type="email" class="form-control" id="username" name="username" placeholder="{% translate "Username placeholder" %}" autofocus />
-            <label for="username">{% translate "E-mail address" %}</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input type="password" class="form-control" id="password" name="password" placeholder="{% translate "Password placeholder" %}" />
-            <label for="password">{% translate "Password" %}</label>
-        </div>
+        {{ login_form }}
         <input class="btn btn-primary" type="submit" value="{% translate "login_submit_button" %}">
     </form>
 </div>

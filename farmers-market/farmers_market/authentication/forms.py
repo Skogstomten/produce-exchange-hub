@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from django.forms import Form, CharField, EmailField, PasswordInput
+from django.forms import Form, CharField, EmailField, PasswordInput, HiddenInput
 from django.contrib.auth.models import User
 
 from .models import ExtendedUser
@@ -18,7 +18,7 @@ class RegisterForm(Form):
         if self.cleaned_data["password"] == self.cleaned_data["confirm_password"]:
             return super().is_valid()
         return False
-    
+
     def save(self) -> Tuple[User, ExtendedUser]:
         user = User.objects.create(**self.cleaned_data)
         ext_user = ExtendedUser.objects.create(user=user, **self.cleaned_data)
@@ -26,14 +26,18 @@ class RegisterForm(Form):
 
     def get_email(self) -> str:
         return self.cleaned_data["email"]
-    
+
     def get_password(self) -> str:
         return self.cleaned_data["password"]
 
 
 class LoginForm(Form):
-    email = EmailField(required=True)
-    password = CharField(required=True, widget=PasswordInput)
+    email: EmailField(required=True)
+    password: CharField(required=True, widget=PasswordInput)
+    return_url: CharField(required=False, widget=HiddenInput)
 
     def get_credentials(self) -> dict[str, str]:
         return {"username": self.cleaned_data["email"], "password": self.cleaned_data["password"]}
+
+    def get_return_url(self) -> str | None:
+        return self.cleaned_data.get("return_url", None)
