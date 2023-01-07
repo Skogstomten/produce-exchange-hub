@@ -29,3 +29,11 @@ class RegisterForm(Form):
     
     def get_password(self) -> str:
         return self.cleaned_data["password"]
+
+
+class LoginForm(Form):
+    email = EmailField(required=True)
+    password = CharField(required=True, widget=PasswordInput)
+
+    def get_credentials(self) -> dict[str, str]:
+        return {"username": self.cleaned_data["email"], "password": self.cleaned_data["password"]}
