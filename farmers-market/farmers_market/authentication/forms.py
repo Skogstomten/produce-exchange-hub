@@ -43,6 +43,7 @@ class LoginForm(Form):
         return_url = kwargs.pop("return_url", None)
         if return_url:
             self.fields["return_url"].initial = return_url
+        self.fields["email"].widget.attrs.update({"autofocus": "autofocus"})
     
     def is_valid(self, request: HttpRequest) -> bool:
         if not super().is_valid():
