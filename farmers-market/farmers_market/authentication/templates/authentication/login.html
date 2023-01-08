@@ -3,15 +3,15 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block title %}{% translate "login_title" %}{% endblock title %}
+{% block title %}{% translate "Login" %}{% endblock title %}
 
 {% block content %}
 
 <div>
-    {% if login_form.errors %}{{ login_form.errors }}{% endif %}
+    {% if errors %}{{ errors }}{% endif %}
     <form method="POST" action="{% url 'authentication:login' %}">
         {% csrf_token %}
-        {{ login_form }}
+        {{ login_form|crispy }}
         <input class="btn btn-primary" type="submit" value="{% translate "login_submit_button" %}">
     </form>
 </div>

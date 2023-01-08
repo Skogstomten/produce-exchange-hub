@@ -37,27 +37,18 @@ class LoginView(View):
 
     def get(self, request: HttpRequest):
         return render(
-            request, self.template_name, {"login_form": LoginForm({"return_url": request.GET.get("return_url", None)})}
+            request, self.template_name, {"login_form": LoginForm(request.GET.get("return_url", None))}
         )
 
     def post(self, request: HttpRequest):
         form = LoginForm(request.POST)
-        if form.is_valid():
-            user = authenticate(**form.get_credentials())
-            if user:
-                login(request, user)
-                return_url = form.get_return_url()
-                if return_url:
-                    return redirect(return_url)
-                return redirect(reverse("main:index"))
-            else:
-                form.add_error(error=_("Invalid username or password"))
-                return render(
-                    request,
-                    self.template_name,
-                    {"login_form": form},
-                )
-        return render(request, self.template_name, {"login_form": form})
+        if form.is_valid(request):
+            login(request, form.user)
+            return_url = form.get_return_url()
+            if return_url:
+                return redirect(return_url)
+            return redirect(reverse("main:index"))
+        return render(request, self.template_name, {"login_form": form, "errors": form.errors}, status=400)
 
 
 def logout(request: HttpRequest):
