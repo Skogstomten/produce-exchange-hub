@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "shared.apps.SharedConfig",
     "main.apps.MainConfig",
     "authentication.apps.AuthenticationConfig",
     "django_cleanup.apps.CleanupConfig",

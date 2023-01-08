@@ -8,15 +8,20 @@ from django.utils.translation import gettext_lazy as _
 
 from .decorators import self
 from .forms import RegisterForm, LoginForm, UploadProfilePictureForm
+from .models import ExtendedUser
 
 
 class UserProfileView(View):
     @self
     def get(self, request: HttpRequest, user_id: int):
+        try:
+            ext_user = ExtendedUser.objects.get(user__id=user_id)
+        except ExtendedUser.DoesNotExist:
+            ext_user = ExtendedUser(user=request.user)
         return render(
             request,
             "authentication/user_profile.html",
-            {"profile_picture_form": UploadProfilePictureForm(instance=request.user)},
+            {"profile_picture_form": UploadProfilePictureForm(instance=ext_user)},
         )
 
 
@@ -57,7 +62,11 @@ class LoginView(View):
 def upload_profile_picture(request: HttpRequest, user_id: int):
     if request.method != "POST":
         return HttpResponseNotFound()
-    form = UploadProfilePictureForm(request.POST, request.FILES, instance=request.user)
+    try:
+        ext_user = ExtendedUser.objects.get(user__id=user_id)
+    except ExtendedUser.DoesNotExist:
+        ext_user = ExtendedUser(user=request.user)
+    form = UploadProfilePictureForm(request.POST, request.FILES, instance=ext_user)
     if form.is_valid():
         form.save()
     return redirect(reverse("authentication:user_profile", args=(user_id,)))

@@ -2,12 +2,8 @@ from typing import Tuple
 
 from django.forms import (
     Form,
-    ModelForm,
-    FileField,
-    FloatField,
     CharField,
     EmailField,
-    FileInput,
     PasswordInput,
     HiddenInput,
     ValidationError,
@@ -17,9 +13,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 
-from PIL import Image
-
 from .models import ExtendedUser
+from shared.forms import UploadCroppedPictureModelForm
 
 
 class RegisterForm(Form):
@@ -75,27 +70,6 @@ class LoginForm(Form):
         return self.cleaned_data.get("return_url", None)
 
 
-class UploadProfilePictureForm(ModelForm):
-    x = FloatField(widget=HiddenInput)
-    y = FloatField(widget=HiddenInput)
-    width = FloatField(widget=HiddenInput)
-    height = FloatField(widget=HiddenInput)
-    profile_picture = FileField(required=True, label=_("Upload profile picture"), widget=FileInput)
-
-    class Meta:
+class UploadProfilePictureForm(UploadCroppedPictureModelForm):
+    class Meta(UploadCroppedPictureModelForm.Meta):
         model = ExtendedUser
-        fields = ["profile_picture", "x", "y", "width", "height"]
-
-    def save(self):
-        user: ExtendedUser = super().save()
-
-        x = self.cleaned_data.get("x")
-        y = self.cleaned_data.get("y")
-        width = self.cleaned_data.get("width")
-        height = self.cleaned_data.get("height")
-
-        Image.open(user.profile_picture).crop((x, y, x + width, y + height)).resize((300, 300), Image.ANTIALIAS).save(
-            user.profile_picture.path
-        )
-
-        return user

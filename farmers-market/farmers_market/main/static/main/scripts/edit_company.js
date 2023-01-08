@@ -1,14 +1,16 @@
 (function() {
     let cropper;
 
-    document.getElementById("id_profile_picture").onchange = () => {
-        if (this.files && this.files[0]) {
+    document.getElementById("id_profile_picture").onchange = (event) => {
+        console.log(event);
+        files = event.currentTarget.files;
+        if (files && files[0]) {
             let image = document.getElementById("image")
             let reader = new FileReader();
             reader.onload = function(e) {
                 image.src = e.target.result;
             };
-            reader.readAsDataURL(this.files[0]);
+            reader.readAsDataURL(files[0]);
 
             $("#model_crop_image").modal("show");
         }
