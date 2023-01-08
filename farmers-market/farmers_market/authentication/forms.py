@@ -1,6 +1,17 @@
 from typing import Tuple
 
-from django.forms import Form, ModelForm, FileField, FloatField, CharField, EmailField, FileInput, PasswordInput, HiddenInput, ValidationError
+from django.forms import (
+    Form,
+    ModelForm,
+    FileField,
+    FloatField,
+    CharField,
+    EmailField,
+    FileInput,
+    PasswordInput,
+    HiddenInput,
+    ValidationError,
+)
 from django.http import HttpRequest
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -47,7 +58,7 @@ class LoginForm(Form):
         if return_url:
             self.fields["return_url"].initial = return_url
         self.fields["email"].widget.attrs.update({"autofocus": "autofocus"})
-    
+
     def is_valid(self, request: HttpRequest) -> bool:
         if not super().is_valid():
             return False
@@ -56,7 +67,7 @@ class LoginForm(Form):
             self.add_error("password", ValidationError(_("Invalid username or password"), code="invalid_login"))
             return False
         return True
-    
+
     def get_credentials(self) -> dict[str, str]:
         return {"username": self.cleaned_data.get("email"), "password": self.cleaned_data.get("password")}
 
@@ -74,7 +85,7 @@ class UploadProfilePictureForm(ModelForm):
     class Meta:
         model = ExtendedUser
         fields = ["profile_picture", "x", "y", "width", "height"]
-    
+
     def save(self):
         user: ExtendedUser = super().save()
 

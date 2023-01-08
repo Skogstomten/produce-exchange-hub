@@ -1,6 +1,7 @@
 {% extends 'farmers_market/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 
@@ -16,9 +17,13 @@
         {% else %}
             <img src="{% static 'farmers_market/images/no_profile_picture_image.jpg' %}" />
         {% endif %}
+        <form method="POST" action="{% url 'authentication:upload_profile_picture' user.id %}">
+            {% csrf_token %}
+            {{ profile_picture_form|crispy }}
+        </form>
     </div>
     <div class="col-auto">
-
+        
     </div>
 </div>
 

@@ -13,9 +13,7 @@ class LoginViewTest(TestCase):
         self.post_data = {"email": username, "password": password}
 
     def test_post_returns_302(self):
-        response = self.client.post(
-            reverse("authentication:login"), self.post_data
-        )
+        response = self.client.post(reverse("authentication:login"), self.post_data)
         self.assertEqual(response.status_code, 302)
 
 
@@ -29,7 +27,7 @@ class LoginFormTest(TestCase):
     def test_is_valid_returns_true_if_user_authenticates(self):
         target = LoginForm(self.post_data)
         self.assertTrue(target.is_valid(self.req))
-    
+
     def test_authenticate_works(self):
         target = LoginForm(self.post_data)
         target.is_valid(self.req)

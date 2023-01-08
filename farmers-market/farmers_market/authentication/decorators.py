@@ -1,15 +1,21 @@
 from django.http import HttpRequest, HttpResponseForbidden
 
 
-def self(user_id_param_name: str = "user_id"):
-    def decorator(function):
+class SelfDecorator:
+    def __init__(self, user_id_param_name):
+        self.user_id_param_name = user_id_param_name
+    
+    def __call__(self, function):
         def wrapper(*args, **kwargs):
-            request: HttpRequest = next(arg for arg in args if isinstance(arg, HttpRequest))
-            user_id = kwargs.get(user_id_param_name)
-            if not request.user.id == user_id:
-                return HttpResponseForbidden()
-            return function(*args, **kwargs)
-
+            request = next(arg for arg in args if isinstance(arg, HttpRequest))
+            user_id = kwargs.get(self.user_id_param_name)
+            if request.user.id == user_id:
+                return function(*args, **kwargs)
+            return HttpResponseForbidden()
         return wrapper
 
-    return decorator
+
+def self(user_id_param_name = "user_id"):
+    if callable(user_id_param_name):
+        return SelfDecorator("user_id")(user_id_param_name)
+    return SelfDecorator(user_id_param_name)

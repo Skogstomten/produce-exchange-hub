@@ -37,9 +37,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "county",
-                    models.CharField(
-                        blank=True, default=None, max_length=100, null=True
-                    ),
+                    models.CharField(blank=True, default=None, max_length=100, null=True),
                 ),
                 (
                     "user",

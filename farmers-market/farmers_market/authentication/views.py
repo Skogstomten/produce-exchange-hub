@@ -1,19 +1,23 @@
 from django.shortcuts import redirect, render
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseNotFound
 from django.urls import reverse
 from django.views.generic import View
-from django.contrib.auth import authenticate, login, logout as logout_user
+from django.contrib.auth import login, logout as logout_user
 
 from django.utils.translation import gettext_lazy as _
 
 from .decorators import self
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, UploadProfilePictureForm
 
 
 class UserProfileView(View):
-    @self()
+    @self
     def get(self, request: HttpRequest, user_id: int):
-        return render(request, "authentication/user_profile.html")
+        return render(
+            request,
+            "authentication/user_profile.html",
+            {"profile_picture_form": UploadProfilePictureForm(instance=request.user)},
+        )
 
 
 class RegisterView(View):
@@ -36,9 +40,7 @@ class LoginView(View):
     template_name = "authentication/login.html"
 
     def get(self, request: HttpRequest):
-        return render(
-            request, self.template_name, {"login_form": LoginForm(request.GET.get("return_url", None))}
-        )
+        return render(request, self.template_name, {"login_form": LoginForm(request.GET.get("return_url", None))})
 
     def post(self, request: HttpRequest):
         form = LoginForm(request.POST)
@@ -49,6 +51,16 @@ class LoginView(View):
                 return redirect(return_url)
             return redirect(reverse("main:index"))
         return render(request, self.template_name, {"login_form": form, "errors": form.errors}, status=400)
+
+
+@self
+def upload_profile_picture(request: HttpRequest, user_id: int):
+    if request.method != "POST":
+        return HttpResponseNotFound()
+    form = UploadProfilePictureForm(request.POST, request.FILES, instance=request.user)
+    if form.is_valid():
+        form.save()
+    return redirect(reverse("authentication:user_profile", args=(user_id,)))
 
 
 def logout(request: HttpRequest):
