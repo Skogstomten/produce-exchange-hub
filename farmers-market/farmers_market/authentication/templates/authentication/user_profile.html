@@ -4,6 +4,22 @@
 
 {% block content %}
 
-User profile
+<div class="row">
+    <div class="col-12">
+        <h1>{{ user.full_name }}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-3">
+        {% if user.ext.profile_picture %}
+            <img src="{{ user.ext.profile_picture.url }}" />
+        {% else %}
+            <img src="{% static 'farmers_market/images/no_profile_picture_image.jpg' %}" />
+        {% endif %}
+    </div>
+    <div class="col-auto">
+
+    </div>
+</div>
 
 {% endblock content %}
