@@ -12,6 +12,7 @@ class SelfDecorator:
             if request.user.id == user_id:
                 return function(*args, **kwargs)
             return HttpResponseForbidden()
+
         return wrapper
 
 
