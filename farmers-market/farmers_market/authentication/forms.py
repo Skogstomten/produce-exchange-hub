@@ -5,8 +5,10 @@ from django.forms import (
     ModelForm,
     CharField,
     EmailField,
+    ModelChoiceField,
     PasswordInput,
     HiddenInput,
+    RadioSelect,
     ValidationError,
 )
 from django.http import HttpRequest
@@ -16,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .models import ExtendedUser
 from shared.forms import UploadCroppedPictureModelForm
+from shared.models import Country
 
 
 class RegisterForm(Form):
@@ -90,3 +93,12 @@ class UserForm(ModelForm):
         if commit:
             user.save()
         return user
+
+
+class ExtendedUserForm(ModelForm):
+    country = ModelChoiceField(Country.objects.all(), widget=RadioSelect)
+    
+    class Meta:
+        model = ExtendedUser
+        fields = ["county", "country"]
+    
