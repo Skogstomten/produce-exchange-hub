@@ -1,7 +1,8 @@
-from typing import Tuple
+from typing import Tuple, Any, Mapping
 
 from django.forms import (
     Form,
+    ModelForm,
     CharField,
     EmailField,
     PasswordInput,
@@ -73,3 +74,19 @@ class LoginForm(Form):
 class UploadProfilePictureForm(UploadCroppedPictureModelForm):
     class Meta(UploadCroppedPictureModelForm.Meta):
         model = ExtendedUser
+
+
+class UserForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+    
+    def __init__(self, instance: User, data: Mapping[str, Any] = None):
+        super().__init__(data, instance=instance)
+    
+    def save(self, commit: bool = ...) -> Any:
+        user = super().save(False)
+        user.username = self.cleaned_data["email"]
+        if commit:
+            user.save()
+        return user
