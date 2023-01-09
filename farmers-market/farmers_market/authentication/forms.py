@@ -83,10 +83,10 @@ class UserForm(ModelForm):
     class Meta:
         model = User
         fields = ["first_name", "last_name", "email"]
-    
+
     def __init__(self, instance: User, data: Mapping[str, Any] = None):
         super().__init__(data, instance=instance)
-    
+
     def save(self, commit: bool = ...) -> Any:
         user = super().save(False)
         user.username = self.cleaned_data["email"]
@@ -97,8 +97,7 @@ class UserForm(ModelForm):
 
 class ExtendedUserForm(ModelForm):
     country = ModelChoiceField(Country.objects.all(), widget=RadioSelect)
-    
+
     class Meta:
         model = ExtendedUser
         fields = ["county", "country"]
-    

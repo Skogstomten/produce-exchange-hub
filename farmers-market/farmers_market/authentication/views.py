@@ -7,7 +7,7 @@ from django.contrib.auth import login, logout as logout_user
 from django.utils.translation import gettext_lazy as _
 
 from .decorators import self
-from .forms import RegisterForm, LoginForm, UploadProfilePictureForm
+from .forms import RegisterForm, LoginForm, UploadProfilePictureForm, UserForm, ExtendedUserForm
 from .models import ExtendedUser
 
 
@@ -21,7 +21,11 @@ class UserProfileView(View):
         return render(
             request,
             "authentication/user_profile.html",
-            {"profile_picture_form": UploadProfilePictureForm(instance=ext_user)},
+            {
+                "profile_picture_form": UploadProfilePictureForm(instance=ext_user),
+                "user_form": UserForm(request.user),
+                "extended_user_form": ExtendedUserForm(instance=ext_user),
+            },
         )
 
 
