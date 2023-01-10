@@ -13,3 +13,11 @@ class ExtendedUser(Model):
     @classmethod
     def create_ext_user(cls, user: User, county: str = None) -> "ExtendedUser":
         return cls.objects.create(user=user, county=county)
+
+    @classmethod
+    def get_existing_or_new(cls, user: User) -> "ExtendedUser":
+        try:
+            ext_user = ExtendedUser.objects.get(user=user)
+        except ExtendedUser.DoesNotExist:
+            ext_user = ExtendedUser(user=user)
+        return ext_user
