@@ -2,7 +2,6 @@
 {% load static %}
 {% load i18n %}
 {% load crispy_forms_tags %}
-{% load shared_filters %}
 
 {% block content %}
 
@@ -23,19 +22,13 @@
             {{ profile_picture_form|crispy }}
         </form>
     </div>
-    <div class="col-auto">
-        <div>
-            <label>{% translate "E-Mail" %}</label>
-            <div>{{ user.email }}</div>
-        </div>
-        <div>
-            <label>{% translate "County" %}</label>
-            <div>{{ user.ext.county|hide_none }}</div>
-        </div>
-        <div>
-            <label>{% translate "Country" %}</label>
-            <div>{{ user.ext.country.name }}</div>
-        </div>
+    <div class="col-5">
+        <form method="POST" action="{% url 'authentication:user_profile' user.id %}">
+            {% csrf_token %}
+            {{ user_form|crispy }}
+            {{ ext_user_form|crispy }}
+            <input type="submit" value="{% translate "Save" %}" />
+        </form>
     </div>
 </div>
 

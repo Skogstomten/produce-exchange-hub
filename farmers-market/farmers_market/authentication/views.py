@@ -17,19 +17,22 @@ def user_profile_view(request: HttpRequest, user_id: int):
         ext_user = ExtendedUser.objects.get(user__id=user_id)
     except ExtendedUser.DoesNotExist:
         ext_user = ExtendedUser(user=request.user)
-    user_form = UserForm(request.POST, instance=request.user)
-    ext_user_form = ExtendedUserForm(request.POST, instance=ext_user)
     context = {
         "profile_picture_form": UploadProfilePictureForm(instance=ext_user),
-        "user_form": user_form,
-        "ext_user_form": ext_user_form,
     }
     if request.method == "POST":
+        user_form = UserForm(request.POST, instance=request.user)
+        ext_user_form = ExtendedUserForm(request.POST, instance=ext_user)
+        context.update({"user_form": user_form, "ext_user_form": ext_user_form})
         if user_form.is_valid() and ext_user_form.is_valid():
             user_form.save()
             ext_user_form.save()
         else:
             context.update({"errors": user_form.errors.update(ext_user_form.errors)})
+    else:
+        context.update(
+            {"user_form": UserForm(instance=request.user), "ext_user_form": ExtendedUserForm(instance=ext_user)}
+        )
     return render(request, "authentication/user_profile.html", context)
 
 
