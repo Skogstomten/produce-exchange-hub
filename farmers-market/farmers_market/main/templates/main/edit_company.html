@@ -17,7 +17,11 @@
             {% else %}
                 <img src="{% static 'farmers_market/images/no_profile_picture_image.jpg' %}" class="profile-picture" />
             {% endif %}
-            <form method="POST" action="{% url 'main:company_profile_picture' company.id %}" enctype="multipart/form-data" id="profile_picture_upload">
+            <form method="POST"
+                    action="{% url 'main:company_profile_picture' company.id %}"
+                    enctype="multipart/form-data"
+                    id="profile_picture_upload"
+                    class="upload-cropped-image-form">
                 {% csrf_token %}
                 {{ upload_profile_picture_form|crispy }}
                 <div class="modal fade" id="model_crop_image">

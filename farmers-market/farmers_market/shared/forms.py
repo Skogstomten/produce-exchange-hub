@@ -9,7 +9,7 @@ class UploadCroppedPictureModelForm(ModelForm):
     y = FloatField(widget=HiddenInput)
     width = FloatField(widget=HiddenInput)
     height = FloatField(widget=HiddenInput)
-    profile_picture = FileField(required=True, label=_("Upload profile picture"), widget=FileInput)
+    profile_picture = FileField(required=True, label=_("Upload profile picture"), widget=FileInput(attrs={"class": "crop-image"}))
 
     size: tuple[int, int] = (300, 300)
 
