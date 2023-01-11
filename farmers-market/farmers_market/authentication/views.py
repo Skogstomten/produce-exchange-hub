@@ -77,4 +77,3 @@ def upload_profile_picture(request: HttpRequest, user_id: int):
 def logout(request: HttpRequest):
     logout_user(request)
     return redirect(reverse("main:index"))
-
