@@ -18,17 +18,16 @@ from .utils import get_language
 from .mixins import CompanyAdminRequiredMixin
 
 
-class CompanyProfilePictureView(View):
-    @company_admin_required()
-    def post(self, request: HttpRequest, company_id: int):
-        """Upload a profile picture for company."""
-        company = Company.get(company_id, get_language(request))
-        form = UploadCompanyProfilePictureForm(request.POST, request.FILES, instance=company)
-        if form.is_valid():
-            form.save()
-        else:
-            return form.errors
-        return redirect(reverse("main:edit_company", args=(company_id,)))
+@company_admin_required()
+def upload_company_profile_picture(request: HttpRequest, company_id: int):
+    """Upload a profile picture for company."""
+    company = Company.get(company_id, get_language(request))
+    form = UploadCompanyProfilePictureForm(company, request.POST, request.FILES)
+    if form.is_valid():
+        form.save()
+    else:
+        return HttpResponseBadRequest()
+    return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
 def index(request: HttpRequest):

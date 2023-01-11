@@ -14,7 +14,7 @@ urlpatterns = [
     path("companies/<int:company_id>/addresses/<int:address_id>", views.delete_address, name="delete_address"),
     path(
         "companies/<int:company_id>/profile-picture",
-        views.CompanyProfilePictureView.as_view(),
+        views.upload_company_profile_picture,
         name="company_profile_picture",
     ),
 ]

@@ -13,6 +13,7 @@ from django.forms import (
     Textarea,
 )
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 from .models import Company, CompanyType, Language, Contact, ContactType, Address, Country, CompanyDescription
 from .fields import ForeignKeyRefField
@@ -100,5 +101,10 @@ class UpdateCompanyForm(ModelForm):
 
 
 class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
+    def __init__(self, instance: Company, data: Mapping = None, files: Mapping = None, *args, **kwargs):
+        super().__init__(
+            reverse("main:company_profile_picture", args=(instance.id,)), instance, data, files, *args, **kwargs
+        )
+
     class Meta(UploadCroppedPictureModelForm.Meta):
         model = Company

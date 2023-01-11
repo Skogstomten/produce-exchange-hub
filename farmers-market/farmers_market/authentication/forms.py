@@ -1,4 +1,4 @@
-from typing import Tuple, Any, Mapping
+from typing import Any, Mapping
 
 from django.forms import (
     Form,
@@ -12,6 +12,7 @@ from django.forms import (
     ValidationError,
 )
 from django.http import HttpRequest
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
@@ -34,7 +35,7 @@ class RegisterForm(Form):
             return super().is_valid()
         return False
 
-    def save(self) -> Tuple[User, ExtendedUser]:
+    def save(self) -> tuple[User, ExtendedUser]:
         user = User.objects.create(**self.cleaned_data)
         ext_user = ExtendedUser.objects.create(user=user, **self.cleaned_data)
         return user, ext_user
@@ -75,6 +76,11 @@ class LoginForm(Form):
 
 
 class UploadProfilePictureForm(UploadCroppedPictureModelForm):
+    def __init__(self, instance: ExtendedUser, data: Mapping = None, files: Mapping = None, *args, **kwargs):
+        super().__init__(
+            reverse("authentication:upload_profile_picture", args=(instance.user.id,)), instance, data, files, *args, **kwargs
+        )
+
     class Meta(UploadCroppedPictureModelForm.Meta):
         model = ExtendedUser
 
