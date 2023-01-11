@@ -12,39 +12,7 @@
 <div class="edit-company-view mb-3">
     <div class="row">
         <div class="col-md-3">
-            {% if company.profile_picture %}
-                <img src="{{ company.profile_picture.url }}" class="profile-picture" />
-            {% else %}
-                <img src="{% static 'main/images/no_profile_picture_image.jpg' %}" class="profile-picture" />
-            {% endif %}
-            <form method="POST" action="{% url 'main:company_profile_picture' company.id %}" enctype="multipart/form-data" id="profile_picture_upload">
-                {% csrf_token %}
-                {{ upload_profile_picture_form|crispy }}
-                <div class="modal fade" id="model_crop_image">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title">{% translate "crop_photo_modal_title" %}</h4>
-                            </div>
-                            <div class="modal-body">
-                                <img src="" id="image" style="max-width: 100%;">
-                            </div>
-                            <div class="modal-footer">
-                                <div class="btn-group pull-left" role="group">
-                                    <button type="button" class="btn btn-default js-zoom-in">
-                                    <span class="glyphicon glyphicon-zoom-in"></span>
-                                    </button>
-                                    <button type="button" class="btn btn-default js-zoom-out">
-                                    <span class="glyphicon glyphicon-zoom-out"></span>
-                                    </button>
-                                </div>
-                                <button type="button" class="btn btn-default" data-bs-dismiss="modal">{% translate "close_image_crop_modal_button" %}</button>
-                                <button type="submit" class="btn btn-primary js-crop-and-upload">{% translate "save_image_modal_button" %}</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
+            {% include "shared/partials/profile_picture_with_upload.html" with profile_picture=company.profile_picture upload_profile_picture_form=upload_profile_picture_form %}
         </div>
         <div class="col-md-8">
             <div class="row">

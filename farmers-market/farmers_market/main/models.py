@@ -17,6 +17,8 @@ from django.db.models import (
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
+from shared.models import Country
+
 
 class Language(Model):
     iso_639_1 = CharField(max_length=2, unique=True)
@@ -186,17 +188,6 @@ class CompanyDescription(Model):
 
     def __str__(self):
         return f"{self.company.name} - {_(self.language.name)}"
-
-
-class Country(Model):
-    country_iso_3166_1 = CharField(max_length=2, unique=True)
-    name = CharField(max_length=50)
-
-    def __str__(self):
-        return f"{self.country_iso_3166_1} - {_(self.name)}"
-
-    class Meta:
-        verbose_name_plural = "Countries"
 
 
 class Address(Model):

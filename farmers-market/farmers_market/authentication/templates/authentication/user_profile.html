@@ -1,0 +1,27 @@
+{% extends 'farmers_market/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1>{{ user.full_name }}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-3">
+        {% include "shared/partials/profile_picture_with_upload.html" with profile_picture=user.ext.profile_picture upload_profile_picture_form=profile_picture_form %}
+    </div>
+    <div class="col-5">
+        <form method="POST" action="{% url 'authentication:user_profile' user.id %}">
+            {% csrf_token %}
+            {{ user_form|crispy }}
+            {{ ext_user_form|crispy }}
+            <input type="submit" value="{% translate "Save" %}" />
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

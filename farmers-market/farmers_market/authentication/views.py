@@ -1,40 +1,77 @@
 from django.shortcuts import redirect, render
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseNotFound
 from django.urls import reverse
-from django.views.generic import TemplateView
-from django.contrib.auth import authenticate, login, logout as logout_user
-from django.contrib.auth.models import User
+from django.views.generic import View
+from django.contrib.auth import login, logout as logout_user
+
+from .decorators import self
+from .forms import RegisterForm, LoginForm, UploadProfilePictureForm, UserForm, ExtendedUserForm
+from .models import ExtendedUser
 
 
-class RegisterView(TemplateView):
-    template_name = "authentication/register.html"
-
-    def post(self, request):
-        User.objects.create_user(
-            request.POST.get("email"),
-            request.POST.get("email"),
-            request.POST.get("password"),
-            first_name=request.POST.get("first_name"),
-            last_name=request.POST.get("last_name"),
+@self
+def user_profile_view(request: HttpRequest, user_id: int):
+    try:
+        ext_user = ExtendedUser.objects.get(user__id=user_id)
+    except ExtendedUser.DoesNotExist:
+        ext_user = ExtendedUser(user=request.user)
+    context = {
+        "profile_picture_form": UploadProfilePictureForm(ext_user),
+    }
+    if request.method == "POST":
+        user_form = UserForm(request.POST, instance=request.user)
+        ext_user_form = ExtendedUserForm(request.POST, instance=ext_user)
+        context.update({"user_form": user_form, "ext_user_form": ext_user_form})
+        if user_form.is_valid() and ext_user_form.is_valid():
+            user_form.save()
+            ext_user_form.save()
+        else:
+            context.update({"errors": user_form.errors.update(ext_user_form.errors)})
+    else:
+        context.update(
+            {"user_form": UserForm(instance=request.user), "ext_user_form": ExtendedUserForm(instance=ext_user)}
         )
-        return redirect(reverse("authentication:login"))
+    return render(request, "authentication/user_profile.html", context)
 
 
-class LoginView(TemplateView):
+def register_view(request: HttpRequest):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user, _ = form.save()
+            login(request, user)
+            return redirect(reverse("authentication:user_profile", args=(user.id,)))
+
+    form = RegisterForm()
+    return render(request, "authentication/register.html", {"register_form": form})
+
+
+class LoginView(View):
     template_name = "authentication/login.html"
 
+    def get(self, request: HttpRequest):
+        return render(request, self.template_name, {"login_form": LoginForm(request.GET.get("return_url", None))})
+
     def post(self, request: HttpRequest):
-        user = authenticate(username=request.POST["username"], password=request.POST["password"])
-        if user:
-            login(request, user)
-            return_url = request.POST.get("return_url", None)
+        form = LoginForm(request.POST)
+        if form.is_valid(request):
+            login(request, form.user)
+            return_url = form.get_return_url()
             if return_url:
                 return redirect(return_url)
             return redirect(reverse("main:index"))
-        else:
-            return render(
-                request, self.template_name, {"message": "Unable to authenticate user. Please check your information."}
-            )
+        return render(request, self.template_name, {"login_form": form, "errors": form.errors}, status=400)
+
+
+@self
+def upload_profile_picture(request: HttpRequest, user_id: int):
+    if request.method != "POST":
+        return HttpResponseNotFound()
+    ext_user = ExtendedUser.get_existing_or_new(request.user)
+    form = UploadProfilePictureForm(ext_user, request.POST, request.FILES)
+    if form.is_valid():
+        form.save()
+    return redirect(reverse("authentication:user_profile", args=(user_id,)))
 
 
 def logout(request: HttpRequest):
