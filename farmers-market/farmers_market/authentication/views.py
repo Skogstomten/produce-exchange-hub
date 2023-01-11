@@ -36,20 +36,16 @@ def user_profile_view(request: HttpRequest, user_id: int):
     return render(request, "authentication/user_profile.html", context)
 
 
-class RegisterView(View):
-    template_name = "authentication/register.html"
-
-    def get(self, request: HttpRequest):
-        form = RegisterForm()
-        return render(request, self.template_name, {"register_form": form})
-
-    def post(self, request: HttpRequest):
+def register_view(request: HttpRequest):
+    if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
             user, _ = form.save()
             login(request, user)
             return redirect(reverse("authentication:user_profile", args=(user.id,)))
-        return render(request, self.template_name, {"register_form": form})
+
+    form = RegisterForm()
+    return render(request, "authentication/register.html", {"register_form": form})
 
 
 class LoginView(View):
