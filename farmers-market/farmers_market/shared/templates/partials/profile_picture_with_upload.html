@@ -1,3 +1,10 @@
+{% comment "Usage" %}
+Requires context parameters:
+    - profile_picture: django.db.models.ImageField
+    - post_url: str
+    - upload_profile_picture_form: UploadCroppedPictureModelForm
+{% endcomment %}
+
 {% load static %}
 {% load i18n %}
 {% load crispy_forms_tags %}
