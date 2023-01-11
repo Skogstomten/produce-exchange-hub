@@ -4,8 +4,6 @@ from django.urls import reverse
 from django.views.generic import View
 from django.contrib.auth import login, logout as logout_user
 
-from django.utils.translation import gettext_lazy as _
-
 from .decorators import self
 from .forms import RegisterForm, LoginForm, UploadProfilePictureForm, UserForm, ExtendedUserForm
 from .models import ExtendedUser
@@ -79,3 +77,4 @@ def upload_profile_picture(request: HttpRequest, user_id: int):
 def logout(request: HttpRequest):
     logout_user(request)
     return redirect(reverse("main:index"))
+

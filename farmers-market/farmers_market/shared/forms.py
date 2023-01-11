@@ -1,4 +1,4 @@
-from typing import Mapping, Any
+from typing import Mapping
 
 from django.forms import ModelForm, FileField, FloatField, FileInput, HiddenInput
 from django.db.models import Model

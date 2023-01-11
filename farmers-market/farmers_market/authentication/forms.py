@@ -78,7 +78,12 @@ class LoginForm(Form):
 class UploadProfilePictureForm(UploadCroppedPictureModelForm):
     def __init__(self, instance: ExtendedUser, data: Mapping = None, files: Mapping = None, *args, **kwargs):
         super().__init__(
-            reverse("authentication:upload_profile_picture", args=(instance.user.id,)), instance, data, files, *args, **kwargs
+            reverse("authentication:upload_profile_picture", args=(instance.user.id,)),
+            instance,
+            data,
+            files,
+            *args,
+            **kwargs
         )
 
     class Meta(UploadCroppedPictureModelForm.Meta):
