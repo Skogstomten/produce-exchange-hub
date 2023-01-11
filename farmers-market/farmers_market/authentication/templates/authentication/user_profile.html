@@ -12,15 +12,7 @@
 </div>
 <div class="row">
     <div class="col-3">
-        {% if user.ext.profile_picture %}
-            <img src="{{ user.ext.profile_picture.url }}" />
-        {% else %}
-            <img src="{% static 'farmers_market/images/no_profile_picture_image.jpg' %}" />
-        {% endif %}
-        <form method="POST" action="{% url 'authentication:upload_profile_picture' user.id %}">
-            {% csrf_token %}
-            {{ profile_picture_form|crispy }}
-        </form>
+        {% include "shared/partials/profile_picture_with_upload.html" with profile_picture=user.ext.profile_picture upload_profile_picture_form=profile_picture_form %}
     </div>
     <div class="col-5">
         <form method="POST" action="{% url 'authentication:user_profile' user.id %}">

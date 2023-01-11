@@ -18,7 +18,7 @@ def user_profile_view(request: HttpRequest, user_id: int):
     except ExtendedUser.DoesNotExist:
         ext_user = ExtendedUser(user=request.user)
     context = {
-        "profile_picture_form": UploadProfilePictureForm(instance=ext_user),
+        "profile_picture_form": UploadProfilePictureForm(ext_user),
     }
     if request.method == "POST":
         user_form = UserForm(request.POST, instance=request.user)
@@ -69,11 +69,8 @@ class LoginView(View):
 def upload_profile_picture(request: HttpRequest, user_id: int):
     if request.method != "POST":
         return HttpResponseNotFound()
-    try:
-        ext_user = ExtendedUser.objects.get(user__id=user_id)
-    except ExtendedUser.DoesNotExist:
-        ext_user = ExtendedUser(user=request.user)
-    form = UploadProfilePictureForm(request.POST, request.FILES, instance=ext_user)
+    ext_user = ExtendedUser.get_existing_or_new(request.user)
+    form = UploadProfilePictureForm(ext_user, request.POST, request.FILES)
     if form.is_valid():
         form.save()
     return redirect(reverse("authentication:user_profile", args=(user_id,)))
