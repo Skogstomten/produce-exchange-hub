@@ -35,7 +35,10 @@ class RegisterForm(Form):
             if self.cleaned_data["password"] == self.cleaned_data["confirm_password"]:
                 return True
             else:
-                self.add_error("confirm_password", ValidationError(_("Confirm password does not match password."), "password_no_match"))
+                self.add_error(
+                    "confirm_password",
+                    ValidationError(_("Confirm password does not match password."), "password_no_match"),
+                )
         return False
 
     def save(self) -> User:
