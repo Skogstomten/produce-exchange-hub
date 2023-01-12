@@ -11,8 +11,8 @@ class ExtendedUser(Model):
     country = ForeignKey(Country, on_delete=PROTECT, null=True, blank=True, default=None)
 
     @classmethod
-    def create_ext_user(cls, user: User, county: str = None) -> "ExtendedUser":
-        return cls.objects.create(user=user, county=county)
+    def create_ext_user(cls, user: User, county: str = None, country: Country = None) -> "ExtendedUser":
+        return cls.objects.create(user=user, county=county, country=country)
 
     @classmethod
     def get_existing_or_new(cls, user: User) -> "ExtendedUser":

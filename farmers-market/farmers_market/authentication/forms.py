@@ -31,13 +31,22 @@ class RegisterForm(Form):
     county = CharField(required=False)
 
     def is_valid(self) -> bool:
-        if self.cleaned_data["password"] == self.cleaned_data["confirm_password"]:
-            return super().is_valid()
+        if super().is_valid():
+            if self.cleaned_data["password"] == self.cleaned_data["confirm_password"]:
+                return True
+            else:
+                self.add_error("confirm_password", ValidationError(_("Confirm password does not match password."), "password_no_match"))
         return False
 
     def save(self) -> tuple[User, ExtendedUser]:
-        user = User.objects.create(**self.cleaned_data)
-        ext_user = ExtendedUser.objects.create(user=user, **self.cleaned_data)
+        user = User.objects.create_user(
+            self.cleaned_data.get("email"),
+            self.cleaned_data.get("email"),
+            self.cleaned_data.get("password"),
+            first_name=self.cleaned_data.get("first_name"),
+            last_name=self.cleaned_data.get("last_name"),
+        )
+        ext_user = ExtendedUser.create_ext_user(user, self.cleaned_data.get("county", None))
         return user, ext_user
 
     def get_email(self) -> str:

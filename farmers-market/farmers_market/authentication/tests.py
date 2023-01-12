@@ -7,6 +7,24 @@ from .forms import LoginForm
 from .models import ExtendedUser
 
 
+class RegisterViewTest(TestCase):
+    def setUp(self):
+        pass
+
+    def test_post_returns_302(self):
+        response = self.client.post(
+            reverse("authentication:register"),
+            {
+                "email": "nisse@persson.se",
+                "first_name": "Nisse",
+                "last_name": "Persson",
+                "password": "test123",
+                "confirm_password": "test123",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+
 class LoginViewTest(TestCase):
     def setUp(self):
         _, username, password = _create_user()
