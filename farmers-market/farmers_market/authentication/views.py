@@ -38,7 +38,7 @@ def register_view(request: HttpRequest):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user, _ = form.save()
+            user = form.save()
             login(request, user)
             return redirect(reverse("authentication:user_profile", args=(user.id,)))
 

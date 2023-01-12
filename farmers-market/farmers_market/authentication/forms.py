@@ -38,7 +38,7 @@ class RegisterForm(Form):
                 self.add_error("confirm_password", ValidationError(_("Confirm password does not match password."), "password_no_match"))
         return False
 
-    def save(self) -> tuple[User, ExtendedUser]:
+    def save(self) -> User:
         user = User.objects.create_user(
             self.cleaned_data.get("email"),
             self.cleaned_data.get("email"),
@@ -46,8 +46,8 @@ class RegisterForm(Form):
             first_name=self.cleaned_data.get("first_name"),
             last_name=self.cleaned_data.get("last_name"),
         )
-        ext_user = ExtendedUser.create_ext_user(user, self.cleaned_data.get("county", None))
-        return user, ext_user
+        ExtendedUser.create_ext_user(user, self.cleaned_data.get("county", None))
+        return user
 
     def get_email(self) -> str:
         return self.cleaned_data["email"]
