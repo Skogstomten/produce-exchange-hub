@@ -2,6 +2,7 @@
 {% load static %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load company_tags %}
 
 {% block content %}
 
@@ -21,6 +22,12 @@
             {{ ext_user_form|crispy }}
             <input type="submit" value="{% translate "Save" %}" />
         </form>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        {% user_companies user %}
     </div>
 </div>
 

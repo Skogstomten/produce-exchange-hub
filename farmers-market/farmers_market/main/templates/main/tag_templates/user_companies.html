@@ -1,0 +1,25 @@
+{% load i18n %}
+{% load l10n %}
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th scope="col">{% translate "Name" %}</th>
+            <th scope="col">{% translate "Status" %}</th>
+            <th scope="col">{% translate "Created" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for company in companies %}
+            <tr class="clickable data-link" data-href="{% url 'main:company' company.id %}">
+                <td>{{ company.name }}</td>
+                <td>{% translate company.status.status_name %}</td>
+                <td>
+                    {% localize on %}
+                        {{ company.created_date }}
+                    {% endlocalize %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
