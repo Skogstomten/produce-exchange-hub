@@ -1,6 +1,8 @@
 import sys
 import subprocess
 
+from django.core.management import execute_from_command_line
+
 subdirs = ["authentication", "farmers_market", "main"]
 
 

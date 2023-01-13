@@ -157,7 +157,7 @@ class CompanyRole(Model):
 
 class CompanyUser(Model):
     company = ForeignKey(Company, on_delete=CASCADE, related_name="users")
-    user = ForeignKey(User, on_delete=CASCADE)
+    user = ForeignKey(User, on_delete=CASCADE, related_name="companies")
     role = ForeignKey(CompanyRole, on_delete=PROTECT)
 
     def __str__(self) -> str:
