@@ -23,6 +23,9 @@
                         {{ update_company_form|crispy }}
                         <input type="submit" value="{% translate "update_company_submit_button" %}" />
                     </form>
+                    {% if not company.is_activated %}
+                        <p>Company is not active...</p>
+                    {% endif %}
                 </div>
                 <div class="col-4">
                     <div class="container">

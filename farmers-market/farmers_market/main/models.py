@@ -130,6 +130,9 @@ class Company(Model):
         except CompanyUser.DoesNotExist:
             return False
         return True
+    
+    def is_activated(self) -> bool:
+        return self.status.status_name != CompanyStatus.StatusName.created.value
 
     def _get_description(self, language: str, descriptions) -> str:
         description = next(iter(d for d in descriptions if d.language.iso_639_1.upper() == language), None)
