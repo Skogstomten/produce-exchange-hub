@@ -17,12 +17,12 @@
         <div class="company card mb-3" style="width: 35rem;">
             <a href="{% url 'main:company' company.id %}">
                 <div class="row g-0">
-                    <div class="col-md-4">
+                    <div class="col-sm-4">
                         {% if company.profile_picture %}
                             <img class="img-fluid rounded-start" src="{{ company.profile_picture.url }}">
                         {% endif %}
                     </div>
-                    <div class="col-md-8 h-100">
+                    <div class="col-sm-8 h-100">
                         <div class="card-body">
                             <h5 class="card-title">{{ company.name }}</h5>
                             <div class="card-text">{{ company.description }}</div>

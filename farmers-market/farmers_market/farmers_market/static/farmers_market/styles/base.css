@@ -33,3 +33,7 @@ form.inline {
 #model_crop_image div.modal-body {
     padding: 0.5px;
 }
+
+.clickable {
+    cursor: pointer;
+}

@@ -17,4 +17,5 @@ urlpatterns = [
         views.upload_company_profile_picture,
         name="company_profile_picture",
     ),
+    path("companies/<int:company_id>/activate", views.activate_company, name="activate_company"),
 ]

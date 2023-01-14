@@ -5,7 +5,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpRes
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Company, Contact, Address
+from .models import Company, CompanyStatus, Contact, Address
 from .forms import (
     UpdateCompanyForm,
     UploadCompanyProfilePictureForm,
@@ -16,6 +16,8 @@ from .forms import (
 from .decorators import company_admin_required
 from .utils import get_language
 from .mixins import CompanyAdminRequiredMixin
+
+from shared.decorators import post_only
 
 
 @company_admin_required()
@@ -143,3 +145,12 @@ class NewCompanyView(LoginRequiredMixin, View):
         form = NewCompanyForm()
         form.fields.get("user_id").initial = request.user.id
         return render(request, self.template_name, {"new_company_form": form})
+
+
+@post_only
+@company_admin_required
+def activate_company(request: HttpRequest, company_id: int):
+    company = Company.get(company_id, get_language(request))
+    company.status = CompanyStatus.get(CompanyStatus.StatusName.active)
+    company.save()
+    return redirect(reverse("main:edit_company", args=(company.id,)))
