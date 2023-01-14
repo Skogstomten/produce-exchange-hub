@@ -10,77 +10,77 @@
 
 <div class="company-view">
     <div class="row">
-        <div class="col-md-2">
-            {% if company.profile_picture %}
-                <img src="{{ company.profile_picture.url }}" class="profile-picture">
-            {% endif %}
-        </div>
-        <div class="col-md-9">
-            <h1 class="">
-                {{ company.name }}
-            </h1>
+        <div class="col-md-12 text-center">
+            <h1>{{ company.name }}</h1>
             <p class="metadata">
                 <span class="text-muted">{% translate "Created" %}: {{ company.created_date }}</span>
             </p>
-            <div><p>{{ company.description }}</p></div>
-            <div class="row">
-                <div class="col-md-6">
-                    {% if company.external_website_url %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            {% if company.profile_picture %}
+                <img src="{{ company.profile_picture.url }}" class="profile-picture">
+            {% else %}
+                <img src="{% static 'shared/images/no_profile_picture_image.jpg' %}" />
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <p>{{ company.description }}</p>
+            {% if company.external_website_url %}
+                <div>
+                    <h2>{% translate "Homepage" %}</h2>
+                    <p class="website-url">
+                        <a href="{{ company.external_website_url }}">{{ company.external_website_url }}</a>
+                    </p>
+                </div>
+            {% endif %}
+            <div class="contacts">
+                {% for contact in company.contacts.all %}
+                    <div class="contact">
                         <div>
-                            <h2>{% translate "Homepage" %}</h2>
-                            <p class="website-url">
-                                <a href="{{ company.external_website_url }}">{{ company.external_website_url }}</a>
-                            </p>
+                            <strong>{% translate contact.contact_type.contact_type %}</strong> {{ contact.description }}
                         </div>
-                    {% endif %}
-                    <div class="contacts">
-                        {% for contact in company.contacts.all %}
-                        <div class="contact">
-                            <div>
-                                <strong>{% translate contact.contact_type.contact_type %}</strong> {{ contact.description }}
-                            </div>
-                            <div>
-                                {% if contact.contact_type.contact_type == "email" %}
-                                <a href="mailto:{{ contact.value }}">{{ contact.value }}</a>
-                                {% elif contact.contact_type.contact_type == "phone" %}
-                                <a href="tel:{{ contact.value }}">{{ contact.value }}</a>
-                                {% else %}
-                                {{ contact.value }}
-                                {% endif %}
-                            </div>
+                        <div>
+                            {% if contact.contact_type.contact_type == "email" %}
+                            <a href="mailto:{{ contact.value }}">{{ contact.value }}</a>
+                            {% elif contact.contact_type.contact_type == "phone" %}
+                            <a href="tel:{{ contact.value }}">{{ contact.value }}</a>
+                            {% else %}
+                            {{ contact.value }}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            {% if company.addresses %}
+                <div class="right-column">
+                    <div class="addresses">
+                        <h2>{% translate "Addresses" %}</h2>
+                        {% for address in company.addresses.all %}
+                        <div>
+                            {% if address.address_type %}{{ address.address_type }}<br/>{% endif %}
+                            {% if address.Addressee %}{{ address.addressee }}<br/>{% endif %}
+                            {% if address.co_address %}{{ address.co_address }}<br/>{% endif %}
+                            {% if address.street_address %}{{ address.street_address }}<br/>{% endif %}
+                            {% if address.zip_code %}{{ address.zip_code }}<br/>{% endif %}
+                            {% if address.city %}{{ address.city }}{% endif %}
                         </div>
                         {% endfor %}
                     </div>
                 </div>
-                <div class="col-md-6">
-                    {% if company.addresses %}
-                        <div class="right-column">
-                            <div class="addresses">
-                                <h2>{% translate "Addresses" %}</h2>
-                                {% for address in company.addresses.all %}
-                                <div>
-                                    {% if address.address_type %}{{ address.address_type }}<br/>{% endif %}
-                                    {% if address.Addressee %}{{ address.addressee }}<br/>{% endif %}
-                                    {% if address.co_address %}{{ address.co_address }}<br/>{% endif %}
-                                    {% if address.street_address %}{{ address.street_address }}<br/>{% endif %}
-                                    {% if address.zip_code %}{{ address.zip_code }}<br/>{% endif %}
-                                    {% if address.city %}{{ address.city }}{% endif %}
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            {% if user_is_company_admin %}
+                <div class="company-controlls">
+                    <a href="{% url 'main:edit_company' company.id %}" class="btn btn-secondary">{% translate "Edit" %}</a>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    {% if user_is_company_admin %}
-                        <div class="company-controlls">
-                            <a href="{% url 'main:edit_company' company.id %}">{% translate "edit_link" %}</a>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 </div>

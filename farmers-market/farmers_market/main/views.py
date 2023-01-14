@@ -146,6 +146,7 @@ class NewCompanyView(LoginRequiredMixin, View):
         form.fields.get("user_id").initial = request.user.id
         return render(request, self.template_name, {"new_company_form": form})
 
+
 @post_only
 @company_admin_required
 def activate_company(request: HttpRequest, company_id: int):

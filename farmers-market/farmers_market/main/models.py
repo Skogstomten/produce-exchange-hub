@@ -130,7 +130,7 @@ class Company(Model):
         except CompanyUser.DoesNotExist:
             return False
         return True
-    
+
     def is_activated(self) -> bool:
         return self.status.status_name != CompanyStatus.StatusName.created.value
 
