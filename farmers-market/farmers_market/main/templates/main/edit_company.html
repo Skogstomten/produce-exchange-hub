@@ -17,19 +17,24 @@
         <div class="col-md-8">
             <div class="row">
                 <div class="col-8">
-                    <h1>{% translate "edit_company_header" %}</h1>
+                    <h1>{% translate "Edit company" %}</h1>
                     <form method="POST" action="{% url 'main:edit_company' company.id %}">
                         {% csrf_token %}
                         {{ update_company_form|crispy }}
-                        <input type="submit" value="{% translate "update_company_submit_button" %}" />
+                        <input type="submit" value="{% translate "Save" %}" />
                     </form>
-                    {% if not company.is_activated %}
-                        <p>Company is not active...</p>
-                    {% endif %}
+                    <div class="mt-3">
+                        {% if not company.is_activated %}
+                            <form method="POST" action="{% url 'main:activate_company' company.id %}">
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-primary" value="{% translate "Activate company" %}">
+                            </form>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="col-4">
                     <div class="container">
-                        <h2>{% translate "contacts_header" %}</h2>
+                        <h2>{% translate "Contacts" %}</h2>
                         <div>
                             {% for contact in contacts %}
                                 <div>
@@ -37,7 +42,7 @@
                                     <form method="POST"
                                             action="{% url 'main:delete_contact' company.id contact.id %}"
                                             class="inline confirm-action"
-                                            data-confirmmessage="{% translate "delete_contact_message" %}">
+                                            data-confirmmessage="{% translate "Delete contact?" %}">
                                         {% csrf_token %}
                                         <button class="btn-icon btn-delete" type="submit"><i class="fa fa-close"></i></button>
                                     </form>
@@ -49,11 +54,11 @@
                             {% endfor %}
                         </div>
                         <button class="btn btn-light mt-2" type="button" data-bs-toggle="modal" data-bs-target="#add_contact_modal">
-                            {% translate "add_contact_button" %}
+                            {% translate "Add contact" %}
                         </button>
                     </div>
                     <div class="container mt-3">
-                        <h2>{% translate "addresses_header" %}</h2>
+                        <h2>{% translate "Addresses" %}</h2>
                         <div>
                             {% for address in addresses %}
                                 <div>
@@ -74,7 +79,7 @@
                             {% endfor %}
                         </div>
                         <button class="btn btn-light mt-2" type="button" data-bs-toggle="modal" data-bs-target="#add_address_modal">
-                            {% translate "add_address_button" %}
+                            {% translate "Add address" %}
                         </button>
                     </div>
                 </div>
