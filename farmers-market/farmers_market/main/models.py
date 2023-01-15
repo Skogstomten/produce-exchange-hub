@@ -97,11 +97,20 @@ class Company(Model):
         return company
 
     @classmethod
-    def get(cls, pk: int, language: str) -> "Company":
-        """Get a company by primary key with company description localized."""
+    def get(cls, pk: int, language: str | None = None) -> "Company":
+        """
+        Get a company by primary key with company description localized.
+
+        pk: Company primary key.
+
+        language: Language to get company description in, if it's available.
+        A property on the Company instance named 'description' is set with the translation.
+
+        If language is not provided, this property will be empty.
+        """
         try:
             item = cls.objects.get(pk=pk)
-            item.description = item.get_description(language)
+            item.description = item.get_description(language) if language else ""
             return item
         except cls.DoesNotExist:
             raise Exception(f"Company with id {pk} does not exist")

@@ -154,3 +154,9 @@ def activate_company(request: HttpRequest, company_id: int):
     company.status = CompanyStatus.get(CompanyStatus.StatusName.active)
     company.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))
+
+
+@company_admin_required
+def company_users(request: HttpRequest, company_id: int):
+    company = Company.get(company_id)
+    return render(request, "main/company_users.html", {"company": company})

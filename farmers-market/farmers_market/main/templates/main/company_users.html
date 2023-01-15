@@ -1,0 +1,26 @@
+{% extends 'farmers_market/base.html' %}
+{% load i18n %}
+
+{% block content %}
+
+<h1>{{ company.name }} - {% translate "Users" %}</h1>
+<table class="table table-hover">
+    <thead>
+        <th>{% translate "E-mail" %}</th>
+        <th>{% translate "Firstname" %}</th>
+        <th>{% translate "Lastname" %}</th>
+        <th>{% translate "Role" %}</th>
+    </thead>
+    <tbody>
+        {% for user in company.users.all %}
+            <tr>
+                <td>{{ user.user.email }}</td>
+                <td>{{ user.user.first_name }}</td>
+                <td>{{ user.user.last_name }}</td>
+                <td>{% translate user.role.role_name %}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}
