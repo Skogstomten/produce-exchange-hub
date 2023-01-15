@@ -13,6 +13,9 @@
     <div class="row">
         <div class="col-md-3">
             {% include "shared/partials/profile_picture_with_upload.html" with profile_picture=company.profile_picture upload_profile_picture_form=upload_profile_picture_form %}
+            <div class="d-grid gap-2">
+                <a class="btn btn-secondary" href="{% url 'main:company_users' company.id %}">{% translate "Manage users" %}</a>
+            </div>
         </div>
         <div class="col-md-8">
             <div class="row">
