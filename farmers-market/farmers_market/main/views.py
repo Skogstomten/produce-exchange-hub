@@ -12,6 +12,7 @@ from .forms import (
     NewCompanyForm,
     ContactForm,
     AddressForm,
+    AddCompanyUserForm,
 )
 from .decorators import company_admin_required
 from .utils import get_language
@@ -159,4 +160,4 @@ def activate_company(request: HttpRequest, company_id: int):
 @company_admin_required
 def company_users(request: HttpRequest, company_id: int):
     company = Company.get(company_id)
-    return render(request, "main/company_users.html", {"company": company})
+    return render(request, "main/company_users.html", {"company": company, "add_user_form": AddCompanyUserForm()})

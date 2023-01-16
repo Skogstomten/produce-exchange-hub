@@ -15,7 +15,18 @@ from django.forms import (
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
-from .models import Company, CompanyType, Language, Contact, ContactType, Address, Country, CompanyDescription
+from .models import (
+    Company,
+    CompanyType,
+    Language,
+    Contact,
+    ContactType,
+    Address,
+    Country,
+    CompanyDescription,
+    CompanyUser,
+    CompanyRole,
+)
 from .fields import ForeignKeyRefField
 from shared.forms import UploadCroppedPictureModelForm
 
@@ -108,3 +119,15 @@ class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
 
     class Meta(UploadCroppedPictureModelForm.Meta):
         model = Company
+
+
+class AddCompanyUserForm(Form):
+    user_email = CharField(required=True)
+    company = ForeignKeyRefField(Company)
+    role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.get())
+
+    def is_valid():
+        pass
+
+    def save():
+        pass
