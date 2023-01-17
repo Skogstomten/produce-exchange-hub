@@ -1,5 +1,20 @@
-from django.forms import Field, HiddenInput
+from django.forms import Field, HiddenInput, EmailInput, ValidationError
+from django.core.validators import EmailValidator
 from django.db.models import Model
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
+
+
+class UserField(Field):
+    widget = EmailInput
+    label = _("User e-mail")
+    validators = (EmailValidator())
+
+    def clean(self, value):
+        user = User.objects.get(email=value)
+        if not user:
+            raise ValidationError(_("User not found"), "user_not_found")
+        return user
 
 
 class ForeignKeyRefField(Field):

@@ -28,7 +28,7 @@ from .models import (
     CompanyUser,
     CompanyRole,
 )
-from .fields import ForeignKeyRefField
+from .fields import ForeignKeyRefField, UserField
 from shared.forms import UploadCroppedPictureModelForm
 
 
@@ -123,12 +123,12 @@ class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
 
 
 class AddCompanyUserForm(Form):
-    user_email = EmailField(required=True, label=_("User email"))
+    user_email = UserField()
     company = ForeignKeyRefField(Company)
     role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.get())
 
     def is_valid():
-        pass
+        super().is_valid()
 
     def save():
         pass
