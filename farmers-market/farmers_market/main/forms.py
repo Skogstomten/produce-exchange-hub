@@ -3,14 +3,15 @@ from typing import Mapping, Any
 from django.forms import (
     ModelForm,
     Form,
+    CharField,
+    EmailField,
+    Textarea,
     ModelMultipleChoiceField,
     ModelChoiceField,
     CheckboxSelectMultiple,
     RadioSelect,
-    CharField,
     HiddenInput,
     TextInput,
-    Textarea,
 )
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
@@ -122,7 +123,7 @@ class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
 
 
 class AddCompanyUserForm(Form):
-    user_email = CharField(required=True)
+    user_email = EmailField(required=True, label=_("User email"))
     company = ForeignKeyRefField(Company)
     role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.get())
 
