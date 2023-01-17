@@ -122,13 +122,19 @@ class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
         model = Company
 
 
-class AddCompanyUserForm(Form):
-    user_email = UserField()
+class AddCompanyUserForm(ModelForm):
+    user = UserField()
     company = ForeignKeyRefField(Company)
     role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.get())
 
-    def is_valid():
-        super().is_valid()
+    class Meta:
+        model = CompanyUser
+        fields = ["user", "company", "role"]
 
-    def save():
-        pass
+    def __init__(self, company: Company, data: Mapping | None = None):
+        super().__init__(instance=CompanyUser(company=company), data=data)
+
+    def save(self) -> CompanyUser:
+        return CompanyUser.objects.create(
+            user=self.cleaned_data["user"], company=self.cleaned_data["company"], role=self.cleaned_data["role"]
+        )

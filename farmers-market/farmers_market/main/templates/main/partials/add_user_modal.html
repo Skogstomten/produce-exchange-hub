@@ -8,6 +8,7 @@
 <div class="modal" tabindex="-1" id="add_user_modal">
     <div class="modal-dialog">
         <form method="POST" action="{% url 'main:company_users' company.id %}">
+            {% csrf_token %}
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title">{% translate "Add user" %}</h1>
@@ -21,4 +22,8 @@
             </div>
         </form>
     </div>
+</div>
+
+<div>
+    {{ errors }}
 </div>

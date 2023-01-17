@@ -8,12 +8,13 @@ from django.contrib.auth.models import User
 class UserField(Field):
     widget = EmailInput
     label = _("User e-mail")
-    validators = (EmailValidator())
+    validators = EmailValidator()
 
     def clean(self, value):
-        user = User.objects.get(email=value)
-        if not user:
-            raise ValidationError(_("User not found"), "user_not_found")
+        try:
+            user = User.objects.get(email=value)
+        except User.DoesNotExist as err:
+            raise ValidationError(_("User not found"), "user_not_found") from err
         return user
 
 
@@ -45,5 +46,5 @@ class ForeignKeyRefField(Field):
         value = int(value)
         fk_obj = self.fk_type.objects.get(pk=value)
         if not fk_obj:
-            raise ValueError(f"Value is not a valid pk for {self.fk_type.__qualname__}")
+            raise ValidationError(_(f"Value is not a valid pk for {self.fk_type.__qualname__}"), code="obj_not_found")
         return fk_obj

@@ -1,11 +1,13 @@
-"""Views for main module"""
+"""Views for main module."""
+from typing import Mapping
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpResponseBadRequest
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Company, CompanyStatus, Contact, Address
+from .models import Company, CompanyStatus, Contact, Address, CompanyUser
 from .forms import (
     UpdateCompanyForm,
     UploadCompanyProfilePictureForm,
@@ -157,7 +159,23 @@ def activate_company(request: HttpRequest, company_id: int):
     return redirect(reverse("main:edit_company", args=(company.id,)))
 
 
-@company_admin_required
-def company_users(request: HttpRequest, company_id: int):
-    company = Company.get(company_id)
-    return render(request, "main/company_users.html", {"company": company, "add_user_form": AddCompanyUserForm()})
+class CompanyUsersView(CompanyAdminRequiredMixin, View):
+    template_name = "main/company_users.html"
+
+    def get(self, request: HttpRequest, company_id: int):
+        company = Company.get(company_id)
+        return self._render(request, company, AddCompanyUserForm(company))
+
+    def post(self, request: HttpRequest, company_id: int):
+        company = Company.get(company_id)
+        form = AddCompanyUserForm(company, request.POST)
+        errors = None
+        if form.is_valid():
+            form.save()
+            form = AddCompanyUserForm(company)
+        else:
+            errors = form.errors
+        return self._render(request, company, form, errors)
+
+    def _render(self, request: HttpRequest, company: Company, form: AddCompanyUserForm, errors=None):
+        return render(request, self.template_name, {"company": company, "add_user_form": form, "errors": errors})
