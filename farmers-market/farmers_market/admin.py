@@ -1,7 +1,13 @@
 import sys
 import subprocess
 
-subdirs = ["authentication", "farmers_market", "main"]
+SUB_DIRS = ["authentication", "farmers_market", "main"]
+LINE_LENGTH = 121
+
+
+def run_subprocess(args: list, working_dir: str | None = None):
+    process = subprocess.run(args, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=working_dir)
+    print(process.stdout)
 
 
 def _run_django_admin_command(commands, working_dir):
@@ -26,8 +32,12 @@ def compile_messages(subdir):
 
 
 def for_each_subdir(func):
-    for subdir in subdirs:
+    for subdir in SUB_DIRS:
         func(subdir)
+
+
+def format_and_commit():
+    pass
 
 
 commands = {
