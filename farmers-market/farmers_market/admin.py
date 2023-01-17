@@ -10,25 +10,23 @@ def run_subprocess(args: list, working_dir: str | None = None):
     print(process.stdout)
 
 
-def _run_django_admin_command(commands, working_dir):
-    process = subprocess.run(
-        ["django-admin.exe"] + commands,
-        universal_newlines=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        cwd=working_dir,
-    )
-    print(process.stdout)
+def run_django_admin_command(commands, working_dir):
+    run_subprocess(["django-admin.exe"] + commands, working_dir)
+
+def run_black():
+    run_subprocess(["black", "./", f"--line-length={LINE_LENGTH}"])
+
+def commit_all_changes()
 
 
 def make_messages(subdir):
     print(f"Making messages for {subdir}")
-    _run_django_admin_command(["makemessages", "--all"], subdir)
+    run_django_admin_command(["makemessages", "--all"], subdir)
 
 
 def compile_messages(subdir):
     print(f"Compiling messages for {subdir}")
-    _run_django_admin_command(["compilemessages"], subdir)
+    run_django_admin_command(["compilemessages"], subdir)
 
 
 def for_each_subdir(func):
