@@ -6,6 +6,7 @@ LINE_LENGTH = 121
 
 
 def run_subprocess(args: list, working_dir: str | None = None):
+    print(f"Running command: {' '.join(args)}")
     process = subprocess.run(
         args, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=working_dir
     )
@@ -42,8 +43,7 @@ def for_each_subdir(func):
 
 def format_and_commit(*messages):
     run_black()
-    print(messages)
-    # commit_all_changes(messages)
+    commit_all_changes(messages)
 
 
 commands = {
