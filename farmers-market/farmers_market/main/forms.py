@@ -4,7 +4,6 @@ from django.forms import (
     ModelForm,
     Form,
     CharField,
-    EmailField,
     Textarea,
     ModelMultipleChoiceField,
     ModelChoiceField,

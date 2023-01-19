@@ -1,13 +1,11 @@
 """Views for main module."""
-from typing import Mapping
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpResponseBadRequest
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Company, CompanyStatus, Contact, Address, CompanyUser
+from .models import Company, CompanyStatus, Contact, Address
 from .forms import (
     UpdateCompanyForm,
     UploadCompanyProfilePictureForm,
