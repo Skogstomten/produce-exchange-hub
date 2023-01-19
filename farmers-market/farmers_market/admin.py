@@ -43,7 +43,7 @@ def for_each_subdir(func):
 
 def format_and_commit(*messages):
     run_black()
-    commit_all_changes(messages)
+    commit_all_changes(*messages)
 
 
 commands = {
