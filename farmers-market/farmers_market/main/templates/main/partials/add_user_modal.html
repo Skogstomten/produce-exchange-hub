@@ -1,0 +1,31 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+<div>
+    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#add_user_modal">{% translate "Add user" %}</button>
+</div>
+
+<div class="modal" tabindex="-1" id="add_user_modal">
+    <div class="modal-dialog">
+        <form method="POST" action="{% url 'main:company_users' company.id %}">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title">{% translate "Add user" %}</h1>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">{{ add_user_form|crispy }}</div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit">{% translate "Add" %}</button>
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">{% translate "Close" %}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if errors %}
+    <div>
+        {{ errors }}
+    </div>
+{% endif %}

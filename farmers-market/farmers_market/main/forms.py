@@ -3,20 +3,31 @@ from typing import Mapping, Any
 from django.forms import (
     ModelForm,
     Form,
+    CharField,
+    Textarea,
     ModelMultipleChoiceField,
     ModelChoiceField,
     CheckboxSelectMultiple,
     RadioSelect,
-    CharField,
     HiddenInput,
     TextInput,
-    Textarea,
 )
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
-from .models import Company, CompanyType, Language, Contact, ContactType, Address, Country, CompanyDescription
-from .fields import ForeignKeyRefField
+from .models import (
+    Company,
+    CompanyType,
+    Language,
+    Contact,
+    ContactType,
+    Address,
+    Country,
+    CompanyDescription,
+    CompanyUser,
+    CompanyRole,
+)
+from .fields import ForeignKeyRefField, UserField
 from shared.forms import UploadCroppedPictureModelForm
 
 
@@ -108,3 +119,21 @@ class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
 
     class Meta(UploadCroppedPictureModelForm.Meta):
         model = Company
+
+
+class AddCompanyUserForm(ModelForm):
+    user = UserField()
+    company = ForeignKeyRefField(Company)
+    role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.get())
+
+    class Meta:
+        model = CompanyUser
+        fields = ["user", "company", "role"]
+
+    def __init__(self, company: Company, data: Mapping | None = None):
+        super().__init__(instance=CompanyUser(company=company), data=data)
+
+    def save(self) -> CompanyUser:
+        return CompanyUser.objects.create(
+            user=self.cleaned_data["user"], company=self.cleaned_data["company"], role=self.cleaned_data["role"]
+        )
