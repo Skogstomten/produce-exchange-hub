@@ -15,6 +15,11 @@ from .models import (
 )
 
 
+class CompanyUsersView(TestCase):
+    def setUp(self):
+        pass
+
+
 class ActivateCompanyViewTest(TestCase):
     def setUp(self):
         _setup_defaults()
