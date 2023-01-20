@@ -17,7 +17,13 @@ from .models import (
 
 class CompanyUsersView(TestCase):
     def setUp(self):
-        pass
+        _setup_defaults()
+
+    def test_can_create_user(self):
+        company, company_admin = _create_company_with_logged_in_admin(self.client)
+        other_user = User.objects.create_user("egon@persson.se", "egon@persson.se", "test123")
+        CompanyUser.objects.create(company=company, user=other_user, role=_get_company_admin_role())
+        response = None  # TODO: Finish
 
 
 class ActivateCompanyViewTest(TestCase):
