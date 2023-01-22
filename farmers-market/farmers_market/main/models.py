@@ -3,6 +3,7 @@ from typing import Iterable
 
 from django.db.models import (
     Model,
+    TextChoices,
     CharField,
     DateTimeField,
     TextField,
@@ -264,7 +265,7 @@ class Product(Model):
 
 
 class ProductName(Model):
-    product = ForeignKey(Product, on_delete=PROTECT)
+    product = ForeignKey(Product, on_delete=PROTECT, related_name="name_translations")
     language = ForeignKey(Language, on_delete=PROTECT)
     name = CharField(max_length=200)
 
@@ -282,12 +283,18 @@ class Currency(Model):
         verbose_name_plural = "Currencies"
 
 
+class OrderType(TextChoices):
+    SELL = "sell", _("Sell order")
+    BUY = "buy", _("Buy order")
+
+
 class Order(Model):
     company = ForeignKey(Company, on_delete=CASCADE)
     product = ForeignKey(Product, on_delete=PROTECT)
-    price_per_unit = DecimalField(max_digits=20, decimal_places=2, null=True)
-    unit_type = CharField(max_length=20, null=True)
+    price_per_unit = DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    unit_type = CharField(max_length=20, null=True, blank=True)
     currency = ForeignKey(Currency, on_delete=PROTECT)
+    order_type = CharField(max_length=10, choices=OrderType.choices)
 
     def __str__(self):
         return f"{self.company.name} - {self.product.product_code}"

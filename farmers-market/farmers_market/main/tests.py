@@ -15,7 +15,35 @@ from .models import (
 )
 
 
-class CompanyUsersView(TestCase):
+class AddSellOrderTest(TestCase):
+    def setUp(self):
+        _setup_defaults()
+        (
+            self.company,
+            self.company_admin,
+            self.company_admin_username,
+            self.company_admin_password,
+        ) = _create_company_with_admin()
+        self.url = reverse("main:add_sell_order", args=(self.company.id,))
+
+    def test_non_company_user_can_not_add_sell_order(self):
+        user = _create_authenticated_user(self.client)
+
+        response = self.client.post(
+            self.url,
+        )
+
+    def test_company_admin_can_create_sell_order(self):
+        pass
+
+    def test_order_admin_can_create_sell_order(self):
+        pass
+
+    def test_sell_order_is_added_correctly(self):
+        pass
+
+
+class CompanyUsersViewTest(TestCase):
     def setUp(self):
         _setup_defaults()
 
@@ -244,12 +272,10 @@ def _get_default_post_object():
     }
 
 
-def _create_user() -> tuple[User, str, str]:
-    username = "nisse"
-    password = "test123"
-    user = User.objects.create_user(username, "nisse@persson.se", password)
+def _create_user(email="nisse@persson.se", password="test123") -> tuple[User, str, str]:
+    user = User.objects.create_user(email, email, password)
     user.save()
-    return user, username, password
+    return user, email, password
 
 
 def _create_authenticated_user(client: Client) -> User:
@@ -289,7 +315,9 @@ def _get_status(status_name):
 
 
 def _create_company() -> Company:
-    return Company.objects.create(name="Nisses firma", status=_get_status("active"))
+    return Company.objects.create(
+        name="Nisses firma", status=_get_status("active"), company_types=list(_get_company_type("producer"))
+    )
 
 
 def _get_contact_type(contact_type) -> ContactType:
