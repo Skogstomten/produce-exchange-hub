@@ -4,12 +4,13 @@
 {% block content %}
 
 <h1>{{ company.name }} - {% translate "Users" %}</h1>
-<table class="table table-hover">
+<table class="table">
     <thead>
         <th>{% translate "E-mail" %}</th>
         <th>{% translate "Firstname" %}</th>
         <th>{% translate "Lastname" %}</th>
         <th>{% translate "Role" %}</th>
+        <th></th>
     </thead>
     <tbody>
         {% for user in company.users.all %}
@@ -18,11 +19,17 @@
                 <td>{{ user.user.first_name }}</td>
                 <td>{{ user.user.last_name }}</td>
                 <td>{% translate user.role.role_name %}</td>
+                <td>
+                    <form method="POST" action="{% url 'main:delete_company_user' company.id user.user.id %}">
+                    {% csrf_token %}
+                        <button class="btn-icon btn-delete" type="submit"><i class="fa fa-close"></i></button>
+                    </form>
+                </td>
             </tr>
         {% endfor %}
     </tbody>
 </table>
 
-{% include "main/partials/add_user_modal.html" %}
+{% include "main/partials/add_company_user_modal.html" %}
 
 {% endblock content %}

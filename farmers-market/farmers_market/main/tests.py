@@ -19,11 +19,18 @@ class CompanyUsersView(TestCase):
     def setUp(self):
         _setup_defaults()
 
-    def test_can_create_user(self):
-        company, company_admin = _create_company_with_logged_in_admin(self.client)
+    def test_can_delete_user(self):
+        company, _ = _create_company_with_logged_in_admin(self.client)
         other_user = User.objects.create_user("egon@persson.se", "egon@persson.se", "test123")
         CompanyUser.objects.create(company=company, user=other_user, role=_get_company_admin_role())
-        response = None  # TODO: Finish
+        
+        response = self.client.post(
+            reverse("main:delete_company_user", args=(company.id, other_user.id)), follow=True
+        )
+
+        with self.assertRaises(CompanyUser.DoesNotExist):
+            CompanyUser.objects.get(company=company, user=other_user)
+        self.assertRedirects(response, expected_url=reverse("main:company_users", args=(company.id,)), target_status_code=200, fetch_redirect_response=True)        
 
 
 class ActivateCompanyViewTest(TestCase):

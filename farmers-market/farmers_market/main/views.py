@@ -5,7 +5,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpRes
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Company, CompanyStatus, Contact, Address
+from .models import Company, CompanyStatus, Contact, Address, CompanyUser
 from .forms import (
     UpdateCompanyForm,
     UploadCompanyProfilePictureForm,
@@ -177,3 +177,11 @@ class CompanyUsersView(CompanyAdminRequiredMixin, View):
 
     def _render(self, request: HttpRequest, company: Company, form: AddCompanyUserForm, errors=None):
         return render(request, self.template_name, {"company": company, "add_user_form": form, "errors": errors})
+
+
+@post_only
+@company_admin_required
+def delete_company_user(request: HttpRequest, company_id: int, user_id: int):
+    company_user = get_object_or_404(CompanyUser, company__id=company_id, user__id=user_id)
+    company_user.delete()
+    return redirect(reverse("main:company_users", args=(company_id,)))
