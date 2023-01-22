@@ -26,6 +26,7 @@ from .models import (
     CompanyDescription,
     CompanyUser,
     CompanyRole,
+    Order,
 )
 from .fields import ForeignKeyRefField, UserField
 from shared.forms import UploadCroppedPictureModelForm
@@ -137,3 +138,14 @@ class AddCompanyUserForm(ModelForm):
         return CompanyUser.objects.create(
             user=self.cleaned_data["user"], company=self.cleaned_data["company"], role=self.cleaned_data["role"]
         )
+
+
+class AddSellOrderForm(ModelForm):
+    company = ForeignKeyRefField(Company)
+
+    def __init__(self, company: Company):
+        self.fields["company"].initial = company
+
+    class Meta:
+        model = Order
+        fields = ["company", "product", "price_per_unit", "unit_type", "currency", "order_type"]
