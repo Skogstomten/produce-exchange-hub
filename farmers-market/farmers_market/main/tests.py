@@ -12,6 +12,7 @@ from .models import (
     ContactType,
     Contact,
     Address,
+    Product,
 )
 
 
@@ -25,12 +26,17 @@ class AddSellOrderTest(TestCase):
             self.company_admin_password,
         ) = _create_company_with_admin()
         self.url = reverse("main:add_sell_order", args=(self.company.id,))
+        self.product = _create_product("cucumber")
 
     def test_non_company_user_can_not_add_sell_order(self):
         user = _create_authenticated_user(self.client)
 
         response = self.client.post(
             self.url,
+            {
+                "company": self.company.id,
+                "product": self.product.id,
+            },
         )
 
     def test_company_admin_can_create_sell_order(self):
@@ -296,6 +302,10 @@ def _create_company_with_logged_in_admin(client: Client) -> tuple[Company, User]
     company, user, username, password = _create_company_with_admin()
     client.login(username=username, password=password)
     return company, user
+
+
+def _create_product(code: str) -> Product:
+    return Product.objects.create(product_code=code)
 
 
 def _get_company_admin_role() -> CompanyRole:
