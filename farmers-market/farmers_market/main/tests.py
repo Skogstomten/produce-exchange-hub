@@ -13,6 +13,9 @@ from .models import (
     Contact,
     Address,
     Product,
+    Currency,
+    Order,
+    OrderType,
 )
 
 
@@ -29,24 +32,45 @@ class AddSellOrderTest(TestCase):
         self.product = _create_product("cucumber")
 
     def test_non_company_user_can_not_add_sell_order(self):
-        user = _create_authenticated_user(self.client)
-
+        _create_authenticated_user(self.client, email="fucker@shitcompany.com")
         response = self.client.post(
             self.url,
-            {
-                "company": self.company.id,
-                "product": self.product.id,
-            },
+            self._get_post_data(),
         )
+        self.assertEqual(403, response.status_code)
 
     def test_company_admin_can_create_sell_order(self):
-        pass
+        self.client.login(username=self.company_admin_username, password=self.company_admin_password)
+        response = self.client.post(self.url, self._get_post_data())
+        self.assertEqual(302, response.status_code)
 
     def test_order_admin_can_create_sell_order(self):
-        pass
+        user = _create_authenticated_user(self.client, email="egon@persson.se")
+        CompanyUser.objects.create(company=self.company, user=user, role=_get_company_role("order_admin"))
+        response = self.client.post(self.url, self._get_post_data())
+        self.assertEqual(302, response.status_code)
 
     def test_sell_order_is_added_correctly(self):
-        pass
+        self.client.login(username=self.company_admin_username, password=self.company_admin_password)
+        self.client.post(self.url, self._get_post_data())
+        self._verify_sell_order()
+
+    def _verify_sell_order(self):
+        order = Order.objects.get(company=self.company, product=self.product)
+        self.assertEqual(100.50, order.price_per_unit)
+        self.assertEqual("kg", order.unit_type)
+        self.assertEqual(_get_currency("SEK"), order.currency)
+        self.assertEqual(OrderType.SELL, order.order_type)
+
+    def _get_post_data(self):
+        return {
+            "company": self.company.id,
+            "product": self.product.id,
+            "price_per_unit": 100.50,
+            "unit_type": "kg",
+            "currency": _get_currency("SEK").id,
+            "order_type": "sell",
+        }
 
 
 class CompanyUsersViewTest(TestCase):
@@ -284,8 +308,8 @@ def _create_user(email="nisse@persson.se", password="test123") -> tuple[User, st
     return user, email, password
 
 
-def _create_authenticated_user(client: Client) -> User:
-    user, username, password = _create_user()
+def _create_authenticated_user(client: Client, email="nisse@persson.se", password="test123") -> User:
+    user, username, password = _create_user(email=email, password=password)
     client.login(username=username, password=password)
     return user
 
@@ -309,7 +333,11 @@ def _create_product(code: str) -> Product:
 
 
 def _get_company_admin_role() -> CompanyRole:
-    return CompanyRole.objects.get(role_name="company_admin")
+    return _get_company_role("company_admin")
+
+
+def _get_company_role(role_name: str) -> CompanyRole:
+    return CompanyRole.objects.get(role_name=role_name)
 
 
 def _get_company_type(type_name: str) -> CompanyType:
@@ -325,17 +353,22 @@ def _get_status(status_name):
 
 
 def _create_company() -> Company:
-    return Company.objects.create(
-        name="Nisses firma", status=_get_status("active"), company_types=list(_get_company_type("producer"))
-    )
+    company = Company.objects.create(name="Nisses firma", status=_get_status("active"))
+    company.company_types.add(_get_company_type("producer"))
+    return company
 
 
 def _get_contact_type(contact_type) -> ContactType:
     return ContactType.objects.get(contact_type=contact_type)
 
 
+def _get_currency(currency_code: str) -> Currency:
+    return Currency.objects.get(currency_code=currency_code)
+
+
 def _setup_defaults():
     CompanyRole.objects.create(role_name="company_admin")
+    CompanyRole.objects.create(role_name="order_admin")
     CompanyStatus.objects.create(status_name="created")
     CompanyStatus.objects.create(status_name="active")
     Language.objects.create(iso_639_1="SV")
@@ -344,3 +377,4 @@ def _setup_defaults():
     CompanyType.objects.create(type_name="buyer")
     ContactType.objects.create(contact_type="email")
     ContactType.objects.create(contact_type="phone")
+    Currency.objects.create(currency_code="SEK")

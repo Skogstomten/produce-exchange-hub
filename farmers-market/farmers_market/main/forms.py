@@ -143,7 +143,8 @@ class AddCompanyUserForm(ModelForm):
 class AddSellOrderForm(ModelForm):
     company = ForeignKeyRefField(Company)
 
-    def __init__(self, company: Company):
+    def __init__(self, company: Company, data: Mapping[str, Any]):
+        super().__init__(data=data)
         self.fields["company"].initial = company
 
     class Meta:

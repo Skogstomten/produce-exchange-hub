@@ -133,13 +133,16 @@ class Company(Model):
         return description or next(iter(d.description for d in descriptions), "")
 
     def is_company_admin(self, user: User | None) -> bool:
+        return self.has_company_role(user, ["company_admin"])
+
+    def has_company_role(self, user: User | None, roles: list[str]) -> bool:
         if not user:
             return False
         try:
-            self.users.get(user=user)
+            company_user = self.users.get(user=user)
         except CompanyUser.DoesNotExist:
             return False
-        return True
+        return company_user.role.role_name in roles
 
     def is_activated(self) -> bool:
         return self.status.status_name != CompanyStatus.StatusName.created.value
