@@ -15,6 +15,11 @@
             {% include "shared/partials/profile_picture_with_upload.html" with profile_picture=company.profile_picture upload_profile_picture_form=upload_profile_picture_form %}
             <div class="d-grid gap-2">
                 <a class="btn btn-secondary" href="{% url 'main:company_users' company.id %}">{% translate "Manage users" %}</a>
+                {% if company.is_producer %}
+                    <a class="btn btn-secondary" href="#" data-bs-toggle="modal" data-bs-target="#add_sell_order_modal">
+                        {% translate "Add sell order" %}
+                    </a>
+                {% endif %}
             </div>
         </div>
         <div class="col-md-8">
@@ -39,7 +44,7 @@
                     <div class="container">
                         <h2>{% translate "Contacts" %}</h2>
                         <div>
-                            {% for contact in contacts %}
+                            {% for contact in company.contacts.all %}
                                 <div>
                                     <label><strong>{{ contact.description }}</strong></label>
                                     <form method="POST"
@@ -63,7 +68,7 @@
                     <div class="container mt-3">
                         <h2>{% translate "Addresses" %}</h2>
                         <div>
-                            {% for address in addresses %}
+                            {% for address in company.addresses.all %}
                                 <div>
                                     <label><strong>{{ address.address_type }}</strong></label>
                                     <form method="POST"
@@ -128,6 +133,8 @@
         </div>
     </form>
 </div>
+
+{% include "main/partials/add_sell_order_modal.html" %}
 
 {% endblock content %}
 

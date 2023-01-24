@@ -263,6 +263,18 @@ class EditCompanyViewTest(TestCase):
 
         self.assertEquals(response.status_code, 202)
 
+    def test_producer_has_add_sell_order_form(self):
+        company, _ = _create_company_with_logged_in_admin(self.client, ["producer"])
+        response = self.client.get(reverse("main:edit_company", args=(company.id,)))
+        self.assertIsNotNone(response.context.get("add_sell_order_form"))
+        self.assertTrue(response.context.get("is_producer"))
+
+    def test_company_with_producer_and_buyer_has_add_sell_order_form(self):
+        company, _ = _create_company_with_logged_in_admin(self.client, ["buyer", "producer"])
+        response = self.client.get(reverse("main:edit_company", args=(company.id,)))
+        self.assertIsNotNone(response.context.get("add_sell_order_form"))
+        self.assertTrue(response.context.get("is_producer"))
+
     def _method_requires_company_admin(self, func):
         company = _create_company()
         _create_authenticated_user(self.client)
@@ -292,6 +304,19 @@ class CompanyModelTest(TestCase):
         company = Company.create("Norrlands Bastuklubb", user.id)
         self.assertTrue(company.is_company_admin(user))
 
+    def test_is_producer_on_producer(self):
+        company = _create_company(["producer"])
+        self.assertTrue(company.is_producer())
+
+    def test_is_producer_on_non_producer(self):
+        company = _create_company(["buyer"])
+        self.assertFalse(company.is_producer())
+
+    def test_is_producer_is_case_insensitive(self):
+        CompanyType.objects.create(type_name="Producer")
+        company = _create_company(["Producer"])
+        self.assertTrue(company.is_producer())
+
 
 def _get_default_post_object():
     return {
@@ -314,16 +339,16 @@ def _create_authenticated_user(client: Client, email="nisse@persson.se", passwor
     return user
 
 
-def _create_company_with_admin() -> tuple[Company, User, str, str]:
-    company = _create_company()
+def _create_company_with_admin(company_types: list[str] = []) -> tuple[Company, User, str, str]:
+    company = _create_company(company_types=company_types)
     role = _get_company_admin_role()
     user, username, password = _create_user()
     CompanyUser.objects.create(company=company, role=role, user=user)
     return company, user, username, password
 
 
-def _create_company_with_logged_in_admin(client: Client) -> tuple[Company, User]:
-    company, user, username, password = _create_company_with_admin()
+def _create_company_with_logged_in_admin(client: Client, company_types: list[str] = []) -> tuple[Company, User]:
+    company, user, username, password = _create_company_with_admin(company_types=company_types)
     client.login(username=username, password=password)
     return company, user
 
@@ -352,9 +377,10 @@ def _get_status(status_name):
     return CompanyStatus.objects.get(status_name=status_name)
 
 
-def _create_company() -> Company:
+def _create_company(company_types: list[str] = []) -> Company:
     company = Company.objects.create(name="Nisses firma", status=_get_status("active"))
-    company.company_types.add(_get_company_type("producer"))
+    for company_type in company_types:
+        company.company_types.add(_get_company_type(company_type))
     return company
 
 

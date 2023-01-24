@@ -22,6 +22,7 @@ class ForeignKeyRefField(Field):
     def __init__(
         self,
         fk_type,
+        initial=None,
     ):
         if not issubclass(fk_type, Model):
             raise ValueError("fk_type has to be a subclass of django.db.models.Model")
@@ -30,7 +31,7 @@ class ForeignKeyRefField(Field):
             required=True,
             widget=HiddenInput,
             label=None,
-            initial=None,
+            initial=initial,
             help_text=None,
             error_messages=None,
             show_hidden_initial=False,

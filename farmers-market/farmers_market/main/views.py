@@ -113,18 +113,21 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
         return self._render(request, company, 202)
 
     def _render(self, request: HttpRequest, company: Company, status: int = 200) -> HttpResponse:
+        context = {
+            "company": company,
+            "update_company_form": UpdateCompanyForm(instance=company),
+            "upload_profile_picture_form": UploadCompanyProfilePictureForm(instance=company),
+            "add_contact_form": ContactForm(instance=Contact(company=company)),
+            "add_address_form": AddressForm(instance=Address(company=company)),
+        }
+
+        if company.is_producer():
+            context.update({"is_producer": True, "add_sell_order_form": AddSellOrderForm(company)})
+
         return render(
             request,
             self.template_name,
-            {
-                "company": company,
-                "contacts": Contact.all_for(company),
-                "addresses": Address.all_for(company),
-                "update_company_form": UpdateCompanyForm(instance=company),
-                "upload_profile_picture_form": UploadCompanyProfilePictureForm(instance=company),
-                "add_contact_form": ContactForm(instance=Contact(company=company)),
-                "add_address_form": AddressForm(instance=Address(company=company)),
-            },
+            context,
             status=status,
         )
 

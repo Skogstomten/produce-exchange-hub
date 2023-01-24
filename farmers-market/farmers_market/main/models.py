@@ -144,6 +144,13 @@ class Company(Model):
             return False
         return company_user.role.role_name in roles
 
+    def is_producer(self) -> bool:
+        try:
+            self.company_types.get(type_name__iexact="producer")
+        except CompanyType.DoesNotExist:
+            return False
+        return True
+
     def is_activated(self) -> bool:
         return self.status.status_name != CompanyStatus.StatusName.created.value
 
