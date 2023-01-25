@@ -29,6 +29,7 @@ from .models import (
     Order,
     Currency,
     OrderType,
+    Product,
 )
 from .fields import ForeignKeyRefField, UserField
 from shared.forms import UploadCroppedPictureModelForm
@@ -144,6 +145,7 @@ class AddCompanyUserForm(ModelForm):
 
 class AddSellOrderForm(ModelForm):
     company = ForeignKeyRefField(Company)
+    product = ModelChoiceField(Product.objects.all())
     currency = ModelChoiceField(Currency.objects.all(), initial=Currency.objects.get())
     order_type = CharField(initial=OrderType.SELL, widget=HiddenInput)
 
