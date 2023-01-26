@@ -18,6 +18,7 @@ from django.db.models import (
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
+from .utils import get_localized_value_from_dataset, get_localized_value_from_object
 from shared.models import Country
 
 
@@ -121,16 +122,13 @@ class Company(Model):
         pass
 
     def get_description(self, language: str) -> str:
-        if len(language) > 2:
-            language = language[:2].upper()
-        descriptions = self.descriptions.all()
-        description = self._get_description(language, descriptions)
-        if not description:
-            for content_language in self.content_languages.all():
-                description = self._get_description(content_language.iso_639_1.upper(), descriptions)
-                if description:
-                    break
-        return description or next(iter(d.description for d in descriptions), "")
+        return get_localized_value_from_object(
+            self,
+            language,
+            "descriptions",
+            "description",
+            lambda: self.content_languages.all(),
+        )
 
     def is_company_admin(self, user: User | None) -> bool:
         return self.has_company_role(user, ["company_admin"])
@@ -153,12 +151,6 @@ class Company(Model):
 
     def is_activated(self) -> bool:
         return self.status.status_name != CompanyStatus.StatusName.created.value
-
-    def _get_description(self, language: str, descriptions) -> str:
-        description = next(iter(d for d in descriptions if d.language.iso_639_1.upper() == language), None)
-        if description:
-            return description.description
-        return None
 
 
 class CompanyRole(Model):
@@ -281,6 +273,16 @@ class ProductName(Model):
 
     def __str__(self):
         return f"{self.product.product_code} - {self.language.name} - {self.name}"
+
+
+def get_product_name(product: Product, language: str) -> str:
+    return get_localized_value_from_object(
+        product,
+        language,
+        "name_translations",
+        "name",
+        lambda: [language],
+    )
 
 
 class Currency(Model):

@@ -30,9 +30,11 @@ from .models import (
     Currency,
     OrderType,
     Product,
+    get_product_name,
 )
 from .fields import ForeignKeyRefField, UserField
 from shared.forms import UploadCroppedPictureModelForm
+from shared.widgets import SearchableSelectWidget
 
 
 class AddressForm(ModelForm):
@@ -145,13 +147,15 @@ class AddCompanyUserForm(ModelForm):
 
 class AddSellOrderForm(ModelForm):
     company = ForeignKeyRefField(Company)
-    product = ModelChoiceField(Product.objects.all())
     currency = ModelChoiceField(Currency.objects.all(), initial=Currency.objects.get())
     order_type = CharField(initial=OrderType.SELL, widget=HiddenInput)
 
-    def __init__(self, company: Company, data: Mapping[str, Any] = None):
+    def __init__(self, company: Company, language: str, data: Mapping[str, Any] = None):
         super().__init__(data=data)
         self.fields["company"].initial = company
+        self.fields["product"] = SearchableSelectWidget(
+            dataset=Product.objects.all(), get_display_value=lambda entity: get_product_name(entity, language)
+        )
 
     class Meta:
         model = Order

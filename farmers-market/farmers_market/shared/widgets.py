@@ -1,11 +1,11 @@
 from typing import Mapping, Callable
 
-from django.forms.widgets import ChoiceWidget
+from django.forms.widgets import Select
 from django.db.models import QuerySet, Model
 from django.db.models.fields.related import RelatedField
 
 
-class SearchableSelectWidget(ChoiceWidget):
+class SearchableSelectWidget(Select):
     template_name = "/shared/widget_templates/searchable_select_input.html"
 
     def __init__(
