@@ -6,7 +6,7 @@ from django.db.models.fields.related import RelatedField
 
 
 class SearchableSelectWidget(Select):
-    template_name = "/shared/widget_templates/searchable_select_input.html"
+    template_name = "shared/widget_templates/searchable_select_input.html"
 
     def __init__(
         self,

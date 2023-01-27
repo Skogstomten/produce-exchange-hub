@@ -153,8 +153,11 @@ class AddSellOrderForm(ModelForm):
     def __init__(self, company: Company, language: str, data: Mapping[str, Any] = None):
         super().__init__(data=data)
         self.fields["company"].initial = company
-        self.fields["product"] = SearchableSelectWidget(
-            dataset=Product.objects.all(), get_display_value=lambda entity: get_product_name(entity, language)
+        self.fields["product"] = ModelChoiceField(
+            Product.objects.all(),
+            widget=SearchableSelectWidget(
+                dataset=Product.objects.all(), get_display_value=lambda entity: get_product_name(entity, language)
+            ),
         )
 
     class Meta:
