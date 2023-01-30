@@ -156,7 +156,9 @@ class AddSellOrderForm(ModelForm):
         self.fields["product"] = ModelChoiceField(
             Product.objects.all(),
             widget=SearchableSelectWidget(
-                dataset=Product.objects.all(), get_display_value=lambda entity: get_product_name(entity, language)
+                dataset=Product.objects,
+                get_display_value=lambda entity: get_product_name(entity, language),
+                attrs={"placeholder": _("Search products")},
             ),
         )
 

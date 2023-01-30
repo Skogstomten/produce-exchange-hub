@@ -1,3 +1,13 @@
 <div class="searchable-dropdown">
-    <input type="text" class="" id="{{ input_name }}" name="{{ input_name }}" placeholder="{% translate 'Select product' %}" />
+    <input type="text" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} data-id="{{ widget.attrs.id }}" />
+
+    <div class="dropdown-content">
+        {% for group_name, group_choices, group_index in widget.optgroups %}
+            {% for option in group_choices %}
+                {% if option.value %}
+                    <div>{{ option.label }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
 </div>
