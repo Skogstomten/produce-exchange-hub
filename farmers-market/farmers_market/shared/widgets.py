@@ -33,8 +33,3 @@ class SearchableSelectWidget(ChoiceWidget):
         """
         dataset = dataset if isinstance(dataset, QuerySet) else dataset.all()
         super().__init__(attrs, [(entity.id, get_display_value(entity)) for entity in dataset])
-
-    def get_context(self, name: str, value: Any, attrs: Mapping[str, str]) -> dict[str, Any]:
-        c = super().get_context(name, value, attrs)
-        print(c)
-        return c
