@@ -11,6 +11,7 @@ class SearchableSelectWidget(ChoiceWidget):
     """A select box-ish that provides search functionallity to filter multiple values."""
 
     template_name = "shared/widget_templates/searchable_select_input.html"
+    option_inherits_attrs = False
 
     def __init__(
         self,
