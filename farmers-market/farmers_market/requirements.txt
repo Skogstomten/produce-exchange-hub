@@ -4,3 +4,4 @@ django-cleanup==6.0.0
 Pillow==9.3.0
 crispy-bootstrap5==0.7
 black==22.10.0
+psycopg2==2.9.5

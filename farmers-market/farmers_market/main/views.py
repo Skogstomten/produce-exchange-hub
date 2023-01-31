@@ -201,3 +201,7 @@ def add_sell_order(request: HttpRequest, company_id: int):
     if form.is_valid():
         form.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))
+
+
+def search_product(request: HttpRequest, query: str):
+    pass

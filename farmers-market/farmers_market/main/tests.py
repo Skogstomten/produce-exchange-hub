@@ -13,10 +13,28 @@ from .models import (
     Contact,
     Address,
     Product,
+    ProductName,
     Currency,
     Order,
     OrderType,
 )
+
+
+class ProductModelTest(TestCase):
+    def setUp(self):
+        _setup_defaults()
+        self.pickled_eggs = _create_product("pickled_eggs", "Inlagda ägg", "Pickled eggs")
+        self.beer = _create_product("beer", "Öl", "Beer")
+
+    def test_search_on_translated_value(self):
+        result = Product.search("öl")
+        self.assertEqual(len(result), 1)
+        self.assertEqual(next(result).id, self.beer.id)
+
+    def test_search_on_product_code(self):
+        result = Product.search("led")
+        self.assertEqual(len(result), 1)
+        self.assertEqual(next(result).id, self.pickled_eggs.id)
 
 
 class AddSellOrderTest(TestCase):
@@ -353,8 +371,11 @@ def _create_company_with_logged_in_admin(client: Client, company_types: list[str
     return company, user
 
 
-def _create_product(code: str) -> Product:
-    return Product.objects.create(product_code=code)
+def _create_product(code: str, sv_name: str, en_name: str) -> Product:
+    p = Product.objects.create(product_code=code)
+    ProductName.objects.create(product=p, language=_get_language("SV"), name=sv_name)
+    ProductName.objects.create(product=p, language=_get_language("EN"), name=en_name)
+    return p
 
 
 def _get_company_admin_role() -> CompanyRole:
