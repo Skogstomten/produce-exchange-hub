@@ -18,7 +18,7 @@ from django.db.models import (
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
-from .utils import get_localized_value_from_dataset, get_localized_value_from_object
+from .utils import get_localized_value_from_object
 from shared.models import Country
 
 

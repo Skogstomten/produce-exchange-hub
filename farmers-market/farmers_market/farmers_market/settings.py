@@ -98,11 +98,12 @@ WSGI_APPLICATION = "farmers_market.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "OPTIONS": {
-            "service": "my_service",
-            "passfile": ".my_pgpass",
-        },
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "produce_exchange_hub",
+        "USER": "postgres",
+        "PASSWORD": "test123",
+        "HOST": "127.0.0.1",
+        "PORT": "5432",
     }
 }
 
