@@ -5,6 +5,7 @@ from django.forms import (
     Form,
     CharField,
     Textarea,
+    ChoiceField,
     ModelMultipleChoiceField,
     ModelChoiceField,
     CheckboxSelectMultiple,
@@ -14,6 +15,7 @@ from django.forms import (
 )
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from django.db.utils import ProgrammingError
 
 from .models import (
     Company,
@@ -130,7 +132,10 @@ class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
 class AddCompanyUserForm(ModelForm):
     user = UserField()
     company = ForeignKeyRefField(Company)
-    role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.get())
+    try:
+        role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.get())
+    except ProgrammingError:
+        role = ChoiceField()
 
     class Meta:
         model = CompanyUser
@@ -147,7 +152,10 @@ class AddCompanyUserForm(ModelForm):
 
 class AddSellOrderForm(ModelForm):
     company = ForeignKeyRefField(Company)
-    currency = ModelChoiceField(Currency.objects.all(), initial=Currency.objects.get())
+    try:
+        currency = ModelChoiceField(Currency.objects.all(), initial=Currency.objects.get())
+    except ProgrammingError:
+        currency = ChoiceField()
     order_type = CharField(initial=OrderType.SELL, widget=HiddenInput)
 
     def __init__(self, company: Company, language: str, data: Mapping[str, Any] = None):
