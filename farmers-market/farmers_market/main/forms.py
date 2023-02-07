@@ -134,6 +134,8 @@ class AddCompanyUserForm(ModelForm):
     company = ForeignKeyRefField(Company)
     try:
         role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.get())
+    except CompanyRole.DoesNotExist:
+        role = ModelChoiceField(CompanyRole.objects.all())
     except ProgrammingError:
         role = ChoiceField()
 
@@ -152,10 +154,6 @@ class AddCompanyUserForm(ModelForm):
 
 class AddSellOrderForm(ModelForm):
     company = ForeignKeyRefField(Company)
-    try:
-        currency = ModelChoiceField(Currency.objects.all(), initial=Currency.objects.get())
-    except ProgrammingError:
-        currency = ChoiceField()
     order_type = CharField(initial=OrderType.SELL, widget=HiddenInput)
 
     def __init__(self, company: Company, language: str, data: Mapping[str, Any] = None):

@@ -285,14 +285,8 @@ def get_product_name(product: Product, language: str) -> str:
     )
 
 
-class Currency(Model):
-    currency_code = CharField(max_length=3, unique=True)
-
-    def __str__(self):
-        return self.currency_code
-
-    class Meta:
-        verbose_name_plural = "Currencies"
+class Currency(TextChoices):
+    SEK = "SEK", _("SEK")
 
 
 class OrderType(TextChoices):
@@ -305,7 +299,7 @@ class Order(Model):
     product = ForeignKey(Product, on_delete=PROTECT)
     price_per_unit = DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     unit_type = CharField(max_length=20, null=True, blank=True)
-    currency = ForeignKey(Currency, on_delete=PROTECT)
+    currency = CharField(max_length=3, choices=Currency.choices)
     order_type = CharField(max_length=10, choices=OrderType.choices)
 
     def __str__(self):
