@@ -5,49 +5,29 @@ from django.db import migrations
 
 def default_values(apps, _):
     Language = apps.get_model("main", "Language")
-    Language.objects.bulk_create(
-        [
-            Language(iso_639_1="SV", name="Swedish"),
-            Language(iso_639_1="EN", name="English"),
-        ]
-    )
+    Language.objects.create(iso_639_1="SV", name="Swedish")
+    Language.objects.create(iso_639_1="EN", name="English")
 
     CompanyType = apps.get_model("main", "CompanyType")
-    CompanyType.objects.bulk_create(
-        [
-            CompanyType(type_name="producer", description="Produces things to sell"),
-            CompanyType(type_name="buyer", description="Buys things"),
-        ]
-    )
+    CompanyType.objects.create(type_name="producer", description="Produces things to sell")
+    CompanyType.objects.create(type_name="buyer", description="Buys things")
 
     CompanyStatus = apps.get_model("main", "CompanyStatus")
-    CompanyStatus.objects.bulk_create(
-        [
-            CompanyStatus(status_name="created", description="Company is created but not yet activated"),
-            CompanyStatus(status_name="active", description="Company is active"),
-            CompanyStatus(status_name="deactivated", description="Company has been deactivated"),
-        ]
-    )
+    CompanyStatus.objects.create(status_name="created", description="Company is created but not yet activated")
+    CompanyStatus.objects.create(status_name="active", description="Company is active")
+    CompanyStatus.objects.create(status_name="deactivated", description="Company has been deactivated")
 
     ChangeType = apps.get_model("main", "ChangeType")
-    ChangeType.objects.bulk_create(
-        [
-            ChangeType(change_type="add"),
-            ChangeType(change_type="update"),
-            ChangeType(change_type="delete"),
-        ]
-    )
+    ChangeType.objects.create(change_type="add")
+    ChangeType.objects.create(change_type="update")
+    ChangeType.objects.create(change_type="delete")
 
     CompanyRole = apps.get_model("main", "CompanyRole")
     CompanyRole.objects.create(role_name="company_admin")
 
     ContactType = apps.get_model("main", "ContactType")
-    ContactType.objects.bulk_create(
-        [
-            ContactType(contact_type="email"),
-            ContactType(contact_type="phone"),
-        ]
-    )
+    ContactType.objects.create(contact_type="email")
+    ContactType.objects.create(contact_type="phone")
 
     Currency = apps.get_model("main", "Currency")
     Currency.objects.create(currency_code="SEK")

@@ -27,7 +27,7 @@ class Language(Model):
     name = CharField(max_length=50)
 
     def __str__(self):
-        return f"{self.iso_639_1}: {self.name}"
+        return self.name
 
 
 class CompanyType(Model):
@@ -35,7 +35,7 @@ class CompanyType(Model):
     description = CharField(max_length=200)
 
     def __str__(self):
-        return f"Name: {self.type_name}"
+        return self.type_name
 
 
 class CompanyStatus(Model):
