@@ -155,6 +155,7 @@ class AddCompanyUserForm(ModelForm):
 class AddSellOrderForm(ModelForm):
     company = ForeignKeyRefField(Company)
     order_type = CharField(initial=OrderType.SELL, widget=HiddenInput)
+    currency = ChoiceField(choices=Currency.choices, initial=Currency.SEK, widget=RadioSelect)
 
     def __init__(self, company: Company, language: str, data: Mapping[str, Any] = None):
         super().__init__(data=data)
