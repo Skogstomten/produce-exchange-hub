@@ -1,10 +1,9 @@
 """Custom widgets."""
-from typing import Mapping, Callable, Any
+from typing import Mapping, Callable
 
-from django.utils.translation import gettext_lazy as _
-from django.forms.widgets import ChoiceWidget
 from django.db.models import QuerySet, Model
 from django.db.models.fields.related import RelatedField
+from django.forms.widgets import ChoiceWidget
 
 
 class SearchableSelectWidget(ChoiceWidget):

@@ -118,7 +118,7 @@ class Company(Model):
             raise Exception(f"Company with id {pk} does not exist")
 
     @classmethod
-    def get_newest(language: str) -> list["Company"]:
+    def get_newest(cls, language: str) -> list["Company"]:
         pass
 
     def get_description(self, language: str) -> str:

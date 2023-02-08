@@ -29,7 +29,7 @@ class CompanyRoleRequiredDecorator:
 
 def company_role_required(pk_name: str = "company_id", company_roles: list[str] = ["company_admin"]):
     """Checks if user has one of specified roles. Company admin is always included."""
-    if not "company_admin" in company_roles:
+    if "company_admin" not in company_roles:
         company_roles.append("company_admin")
     if callable(pk_name):
         return CompanyRoleRequiredDecorator("company_id", company_roles)(pk_name)
