@@ -1,5 +1,6 @@
 from typing import Mapping, Any
 
+from django.db.utils import ProgrammingError
 from django.forms import (
     ModelForm,
     Form,
@@ -13,10 +14,11 @@ from django.forms import (
     HiddenInput,
     TextInput,
 )
-from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
-from django.db.utils import ProgrammingError
+from django.utils.translation import gettext_lazy as _
 
+from shared.forms import UploadCroppedPictureModelForm
+from .fields import ForeignKeyRefField, UserField
 from .models import (
     Company,
     CompanyType,
@@ -31,12 +33,7 @@ from .models import (
     Order,
     Currency,
     OrderType,
-    Product,
-    get_product_name,
 )
-from .fields import ForeignKeyRefField, UserField
-from shared.forms import UploadCroppedPictureModelForm
-from shared.widgets import SearchableSelectWidget
 
 
 class AddressForm(ModelForm):
@@ -146,7 +143,7 @@ class AddCompanyUserForm(ModelForm):
     def __init__(self, company: Company, data: Mapping | None = None):
         super().__init__(instance=CompanyUser(company=company), data=data)
 
-    def save(self) -> CompanyUser:
+    def save(self, **kwargs) -> CompanyUser:
         return CompanyUser.objects.create(
             user=self.cleaned_data["user"], company=self.cleaned_data["company"], role=self.cleaned_data["role"]
         )
@@ -157,17 +154,9 @@ class AddSellOrderForm(ModelForm):
     order_type = CharField(initial=OrderType.SELL, widget=HiddenInput)
     currency = ChoiceField(choices=Currency.choices, initial=Currency.SEK, widget=RadioSelect)
 
-    def __init__(self, company: Company, language: str, data: Mapping[str, Any] = None):
+    def __init__(self, company: Company, data: Mapping[str, Any] = None):
         super().__init__(data=data)
-        self.fields["company"].initial = company
-        self.fields["product"] = ModelChoiceField(
-            Product.objects.all(),
-            widget=SearchableSelectWidget(
-                dataset=Product.objects,
-                get_display_value=lambda entity: get_product_name(entity, language),
-                attrs={"placeholder": _("Search products")},
-            ),
-        )
+        self.fields["company"].initial = company.id
 
     class Meta:
         model = Order

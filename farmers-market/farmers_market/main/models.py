@@ -259,32 +259,6 @@ class Contact(Model):
         return cls.objects.filter(company=company)
 
 
-class Product(Model):
-    product_code = CharField(max_length=50, unique=True)
-
-    def __str__(self):
-        return self.product_code
-
-
-class ProductName(Model):
-    product = ForeignKey(Product, on_delete=PROTECT, related_name="name_translations")
-    language = ForeignKey(Language, on_delete=PROTECT)
-    name = CharField(max_length=200)
-
-    def __str__(self):
-        return f"{self.product.product_code} - {self.language.name} - {self.name}"
-
-
-def get_product_name(product: Product, language: str) -> str:
-    return get_localized_value_from_object(
-        product,
-        language,
-        "name_translations",
-        "name",
-        lambda: [language],
-    )
-
-
 class Currency(TextChoices):
     SEK = "SEK", _("SEK")
 
@@ -296,11 +270,11 @@ class OrderType(TextChoices):
 
 class Order(Model):
     company = ForeignKey(Company, on_delete=CASCADE)
-    product = ForeignKey(Product, on_delete=PROTECT)
+    product = CharField(max_length=200)
     price_per_unit = DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     unit_type = CharField(max_length=20, null=True, blank=True)
     currency = CharField(max_length=3, choices=Currency.choices)
     order_type = CharField(max_length=10, choices=OrderType.choices)
 
     def __str__(self):
-        return f"{self.company.name} - {self.product.product_code}"
+        return f"{self.company.name}: {self.product}"

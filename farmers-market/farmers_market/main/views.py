@@ -122,9 +122,7 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
         }
 
         if company.is_producer():
-            context.update(
-                {"is_producer": True, "add_sell_order_form": AddSellOrderForm(company, get_language(request))}
-            )
+            context.update({"is_producer": True, "add_sell_order_form": AddSellOrderForm(company)})
 
         return render(
             request,
@@ -197,7 +195,7 @@ def delete_company_user(request: HttpRequest, company_id: int, user_id: int):
 @company_role_required(company_roles=["order_admin"])
 def add_sell_order(request: HttpRequest, company_id: int):
     company = get_object_or_404(Company, pk=company_id)
-    form = AddSellOrderForm(company, get_language(request), request.POST)
+    form = AddSellOrderForm(company, request.POST)
     if form.is_valid():
         form.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))
