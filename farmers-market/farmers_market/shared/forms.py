@@ -25,16 +25,16 @@ class UploadCroppedPictureModelForm(ModelForm):
     class Meta:
         fields = ["profile_picture", "x", "y", "width", "height"]
 
-    def save(self):
-        instance = super().save()
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
 
         x = self.cleaned_data.get("x")
         y = self.cleaned_data.get("y")
         width = self.cleaned_data.get("width")
         height = self.cleaned_data.get("height")
 
-        Image.open(instance.profile_picture).crop((x, y, x + width, y + height)).resize(self.size, Image.ANTIALIAS).save(
-            instance.profile_picture.path
-        )
+        Image.open(instance.profile_picture).crop((x, y, x + width, y + height)).resize(
+            self.size, Image.ANTIALIAS
+        ).save(instance.profile_picture.path)
 
         return instance

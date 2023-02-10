@@ -8,7 +8,7 @@ def get_language(request: HttpRequest) -> str:
 
 def get_localized_value_from_dataset(language: str, dataset, field_name: str) -> str | None:
     """Write good description."""
-    localization = next(iter(l for l in dataset if l.language.iso_639_1.upper() == language), None)
+    localization = next(iter(ds_lang for ds_lang in dataset if ds_lang.language.iso_639_1.upper() == language), None)
     if localization:
         return getattr(localization, field_name)
     return None

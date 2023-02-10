@@ -4,8 +4,8 @@ from django.db import migrations
 
 
 def default_values(apps, _):
-    Country = apps.get_model("shared", "Country")
-    Country.objects.create(country_iso_3166_1="SE", name="Sweden")
+    country = apps.get_model("shared", "Country")
+    country.objects.create(country_iso_3166_1="SE", name="Sweden")
 
 
 class Migration(migrations.Migration):

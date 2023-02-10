@@ -6,7 +6,7 @@ from .utils import get_language
 
 
 class CompanyAdminRequiredMixin(AccessMixin):
-    """Mixin that requires logged in user being admin for specific company."""
+    """Mixin that requires logged-in user being admin for specific company."""
 
     pk_name = "company_id"
 

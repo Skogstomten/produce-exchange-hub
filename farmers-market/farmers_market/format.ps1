@@ -1,1 +1,1 @@
-black ./ --line-length=121
+black ./ --line-length=120
