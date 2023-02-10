@@ -41,7 +41,7 @@ def index(request: HttpRequest):
     return render(request, "main/index.html", {"companies": companies})
 
 
-def company(request: HttpRequest, company_id: int):
+def company_view(request: HttpRequest, company_id: int):
     company = Company.get(company_id, get_language(request))
     return render(
         request,
@@ -199,7 +199,3 @@ def add_sell_order(request: HttpRequest, company_id: int):
     if form.is_valid():
         form.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))
-
-
-def search_product(request: HttpRequest, query: str):
-    pass

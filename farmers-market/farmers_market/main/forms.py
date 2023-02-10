@@ -130,7 +130,7 @@ class AddCompanyUserForm(ModelForm):
     user = UserField()
     company = ForeignKeyRefField(Company)
     try:
-        role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.get())
+        role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.first())
     except CompanyRole.DoesNotExist:
         role = ModelChoiceField(CompanyRole.objects.all())
     except ProgrammingError:

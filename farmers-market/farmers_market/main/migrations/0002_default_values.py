@@ -4,33 +4,33 @@ from django.db import migrations
 
 
 def default_values(apps, _):
-    Language = apps.get_model("main", "Language")
-    Language.objects.create(iso_639_1="SV", name="Swedish")
-    Language.objects.create(iso_639_1="EN", name="English")
+    language = apps.get_model("main", "Language")
+    language.objects.create(iso_639_1="SV", name="Swedish")
+    language.objects.create(iso_639_1="EN", name="English")
 
-    CompanyType = apps.get_model("main", "CompanyType")
-    CompanyType.objects.create(type_name="producer", description="Produces things to sell")
-    CompanyType.objects.create(type_name="buyer", description="Buys things")
+    company_type = apps.get_model("main", "CompanyType")
+    company_type.objects.create(type_name="producer", description="Produces things to sell")
+    company_type.objects.create(type_name="buyer", description="Buys things")
 
-    CompanyStatus = apps.get_model("main", "CompanyStatus")
-    CompanyStatus.objects.create(status_name="created", description="Company is created but not yet activated")
-    CompanyStatus.objects.create(status_name="active", description="Company is active")
-    CompanyStatus.objects.create(status_name="deactivated", description="Company has been deactivated")
+    company_status = apps.get_model("main", "CompanyStatus")
+    company_status.objects.create(status_name="created", description="Company is created but not yet activated")
+    company_status.objects.create(status_name="active", description="Company is active")
+    company_status.objects.create(status_name="deactivated", description="Company has been deactivated")
 
-    ChangeType = apps.get_model("main", "ChangeType")
-    ChangeType.objects.create(change_type="add")
-    ChangeType.objects.create(change_type="update")
-    ChangeType.objects.create(change_type="delete")
+    change_type = apps.get_model("main", "ChangeType")
+    change_type.objects.create(change_type="add")
+    change_type.objects.create(change_type="update")
+    change_type.objects.create(change_type="delete")
 
-    CompanyRole = apps.get_model("main", "CompanyRole")
-    CompanyRole.objects.create(role_name="company_admin")
+    company_role = apps.get_model("main", "CompanyRole")
+    company_role.objects.create(role_name="company_admin")
 
-    ContactType = apps.get_model("main", "ContactType")
-    ContactType.objects.create(contact_type="email")
-    ContactType.objects.create(contact_type="phone")
+    contact_type = apps.get_model("main", "ContactType")
+    contact_type.objects.create(contact_type="email")
+    contact_type.objects.create(contact_type="phone")
 
-    Currency = apps.get_model("main", "Currency")
-    Currency.objects.create(currency_code="SEK")
+    currency = apps.get_model("main", "Currency")
+    currency.objects.create(currency_code="SEK")
 
 
 class Migration(migrations.Migration):

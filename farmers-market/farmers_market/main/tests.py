@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from django.test import TestCase, Client
 from django.urls import reverse
 
@@ -12,34 +14,14 @@ from .models import (
     ContactType,
     Contact,
     Address,
-    Product,
-    ProductName,
     Currency,
     Order,
     OrderType,
 )
 
 
-class ProductModelTest(TestCase):
-    def setUp(self):
-        _setup_defaults()
-        self.pickled_eggs = _create_product("pickled_eggs", "Inlagda ägg", "Pickled eggs")
-        self.beer = _create_product("beer", "Öl", "Beer")
-
-    def test_search_on_translated_value(self):
-        result = Product.search("öl")
-        self.assertEqual(len(result), 1)
-        self.assertEqual(next(result).id, self.beer.id)
-
-    def test_search_on_product_code(self):
-        result = Product.search("led")
-        self.assertEqual(len(result), 1)
-        self.assertEqual(next(result).id, self.pickled_eggs.id)
-
-
 class AddSellOrderTest(TestCase):
     def setUp(self):
-        _setup_defaults()
         (
             self.company,
             self.company_admin,
@@ -47,7 +29,6 @@ class AddSellOrderTest(TestCase):
             self.company_admin_password,
         ) = _create_company_with_admin()
         self.url = reverse("main:add_sell_order", args=(self.company.id,))
-        self.product = _create_product("cucumber")
 
     def test_non_company_user_can_not_add_sell_order(self):
         _create_authenticated_user(self.client, email="fucker@shitcompany.com")
@@ -74,27 +55,24 @@ class AddSellOrderTest(TestCase):
         self._verify_sell_order()
 
     def _verify_sell_order(self):
-        order = Order.objects.get(company=self.company, product=self.product)
+        order = Order.objects.get(company=self.company, product="cucumber")
         self.assertEqual(100.50, order.price_per_unit)
         self.assertEqual("kg", order.unit_type)
-        self.assertEqual(_get_currency("SEK"), order.currency)
+        self.assertEqual(Currency.SEK, order.currency)
         self.assertEqual(OrderType.SELL, order.order_type)
 
     def _get_post_data(self):
         return {
             "company": self.company.id,
-            "product": self.product.id,
+            "product": "cucumber",
             "price_per_unit": 100.50,
             "unit_type": "kg",
-            "currency": _get_currency("SEK").id,
+            "currency": Currency.SEK,
             "order_type": "sell",
         }
 
 
 class CompanyUsersViewTest(TestCase):
-    def setUp(self):
-        _setup_defaults()
-
     def test_can_delete_user(self):
         company, _ = _create_company_with_logged_in_admin(self.client)
         other_user = User.objects.create_user("egon@persson.se", "egon@persson.se", "test123")
@@ -102,8 +80,13 @@ class CompanyUsersViewTest(TestCase):
 
         response = self.client.post(reverse("main:delete_company_user", args=(company.id, other_user.id)), follow=True)
 
-        with self.assertRaises(CompanyUser.DoesNotExist):
+        try:
             CompanyUser.objects.get(company=company, user=other_user)
+        except CompanyUser.DoesNotExist:
+            pass
+        else:
+            self.fail("CompanyUser not removed")
+
         self.assertRedirects(
             response,
             expected_url=reverse("main:company_users", args=(company.id,)),
@@ -114,7 +97,6 @@ class CompanyUsersViewTest(TestCase):
 
 class ActivateCompanyViewTest(TestCase):
     def setUp(self):
-        _setup_defaults()
         (
             self.company_with_admin,
             self.company_admin_user,
@@ -155,9 +137,6 @@ class ActivateCompanyViewTest(TestCase):
 
 
 class DeleteAddressViewTest(TestCase):
-    def setUp(self):
-        _setup_defaults()
-
     def test_can_delete_address(self):
         company, _ = _create_company_with_logged_in_admin(self.client)
         address = Address.objects.create(company=company, address_type="Shit")
@@ -166,9 +145,6 @@ class DeleteAddressViewTest(TestCase):
 
 
 class DeleteContactViewTest(TestCase):
-    def setUp(self):
-        _setup_defaults()
-
     def test_can_delete_contact(self):
         company, _ = _create_company_with_logged_in_admin(self.client)
         contact = Contact.create_contact(company, _get_contact_type("email"), "nisse@perssons.se")
@@ -177,9 +153,6 @@ class DeleteContactViewTest(TestCase):
 
 
 class AddContactViewTest(TestCase):
-    def setUp(self):
-        _setup_defaults()
-
     def test_can_add_contact(self):
         company, _ = _create_company_with_logged_in_admin(self.client)
         response = self.client.post(
@@ -200,9 +173,6 @@ class AddContactViewTest(TestCase):
 
 class NewCompanyViewTest(TestCase):
     url = reverse("main:new_company")
-
-    def setUp(self):
-        _setup_defaults()
 
     def test_get_returns_200(self):
         _create_authenticated_user(self.client)
@@ -227,9 +197,6 @@ class NewCompanyViewTest(TestCase):
 
 
 class CompanyProfilePictureViewTest(TestCase):
-    def setUp(self):
-        _setup_defaults()
-
     def test_non_company_admin_can_not_post_to_view(self):
         company = _create_company()
         _create_authenticated_user(self.client)
@@ -241,9 +208,6 @@ class CompanyProfilePictureViewTest(TestCase):
 
 
 class EditCompanyViewTest(TestCase):
-    def setUp(self):
-        _setup_defaults()
-
     def test_get_returns_200(self):
         company, _ = _create_company_with_logged_in_admin(self.client)
         url = reverse("main:edit_company", args=(company.id,))
@@ -303,7 +267,6 @@ class EditCompanyViewTest(TestCase):
 
 class CompanyModelTest(TestCase):
     def setUp(self):
-        _setup_defaults()
         self.company1 = Company.objects.create(name="test1", status=_get_status("active"))
         self.company2 = Company.objects.create(name="test2", status=_get_status("active"))
         self.user1 = User.objects.create_user("nissepisse", "nisse@persson.se", "test123")
@@ -357,7 +320,7 @@ def _create_authenticated_user(client: Client, email="nisse@persson.se", passwor
     return user
 
 
-def _create_company_with_admin(company_types: list[str] = []) -> tuple[Company, User, str, str]:
+def _create_company_with_admin(company_types: Iterable[str] = ()) -> tuple[Company, User, str, str]:
     company = _create_company(company_types=company_types)
     role = _get_company_admin_role()
     user, username, password = _create_user()
@@ -365,17 +328,10 @@ def _create_company_with_admin(company_types: list[str] = []) -> tuple[Company, 
     return company, user, username, password
 
 
-def _create_company_with_logged_in_admin(client: Client, company_types: list[str] = []) -> tuple[Company, User]:
+def _create_company_with_logged_in_admin(client: Client, company_types: Iterable[str] = ()) -> tuple[Company, User]:
     company, user, username, password = _create_company_with_admin(company_types=company_types)
     client.login(username=username, password=password)
     return company, user
-
-
-def _create_product(code: str, sv_name: str, en_name: str) -> Product:
-    p = Product.objects.create(product_code=code)
-    ProductName.objects.create(product=p, language=_get_language("SV"), name=sv_name)
-    ProductName.objects.create(product=p, language=_get_language("EN"), name=en_name)
-    return p
 
 
 def _get_company_admin_role() -> CompanyRole:
@@ -398,7 +354,7 @@ def _get_status(status_name):
     return CompanyStatus.objects.get(status_name=status_name)
 
 
-def _create_company(company_types: list[str] = []) -> Company:
+def _create_company(company_types: Iterable[str] = ()) -> Company:
     company = Company.objects.create(name="Nisses firma", status=_get_status("active"))
     for company_type in company_types:
         company.company_types.add(_get_company_type(company_type))
@@ -407,21 +363,3 @@ def _create_company(company_types: list[str] = []) -> Company:
 
 def _get_contact_type(contact_type) -> ContactType:
     return ContactType.objects.get(contact_type=contact_type)
-
-
-def _get_currency(currency_code: str) -> Currency:
-    return Currency.objects.get(currency_code=currency_code)
-
-
-def _setup_defaults():
-    CompanyRole.objects.create(role_name="company_admin")
-    CompanyRole.objects.create(role_name="order_admin")
-    CompanyStatus.objects.create(status_name="created")
-    CompanyStatus.objects.create(status_name="active")
-    Language.objects.create(iso_639_1="SV")
-    Language.objects.create(iso_639_1="EN")
-    CompanyType.objects.create(type_name="producer")
-    CompanyType.objects.create(type_name="buyer")
-    ContactType.objects.create(contact_type="email")
-    ContactType.objects.create(contact_type="phone")
-    Currency.objects.create(currency_code="SEK")
