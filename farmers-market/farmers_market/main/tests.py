@@ -20,46 +20,38 @@ from .models import (
 )
 
 
-class AddSellOrderTest(TestCase):
-    def setUp(self):
+class AddOrderContainer:
+    def __init__(self, endpoint_name: str, order_type: OrderType):
         (
             self.company,
             self.company_admin,
             self.company_admin_username,
             self.company_admin_password,
-        ) = _create_company_with_admin()
-        self.url = reverse("main:add_sell_order", args=(self.company.id,))
+        ) = _create_company_with_admin(("buyer", "producer"))
+        self.url = reverse(endpoint_name, args=(self.company.id,))
+        self.order_type = order_type
 
-    def test_non_company_user_can_not_add_sell_order(self):
-        _create_authenticated_user(self.client, email="fucker@shitcompany.com")
-        response = self.client.post(
-            self.url,
-            self._get_post_data(),
-        )
-        self.assertEqual(403, response.status_code)
+    def test_non_company_user_can_not_add_order(self, test_case: TestCase):
+        _create_authenticated_user(test_case.client, "fucker@shitcompany.com")
+        test_case.assertEqual(403, test_case.client.post(self.url, self._get_post_data()).status_code)
 
-    def test_company_admin_can_create_sell_order(self):
-        self.client.login(username=self.company_admin_username, password=self.company_admin_password)
-        response = self.client.post(self.url, self._get_post_data())
-        self.assertEqual(302, response.status_code)
-
-    def test_order_admin_can_create_sell_order(self):
-        user = _create_authenticated_user(self.client, email="egon@persson.se")
+    def test_order_admin_can_create_order(self, test_case: TestCase):
+        user = _create_authenticated_user(test_case.client, email="egon@persson.se")
         CompanyUser.objects.create(company=self.company, user=user, role=_get_company_role("order_admin"))
-        response = self.client.post(self.url, self._get_post_data())
-        self.assertEqual(302, response.status_code)
+        response = test_case.client.post(self.url, self._get_post_data())
+        test_case.assertEqual(302, response.status_code)
 
-    def test_sell_order_is_added_correctly(self):
-        self.client.login(username=self.company_admin_username, password=self.company_admin_password)
-        self.client.post(self.url, self._get_post_data())
-        self._verify_sell_order()
+    def test_order_is_added_correctly(self, test_case: TestCase):
+        test_case.client.login(username=self.company_admin_username, password=self.company_admin_password)
+        test_case.client.post(self.url, self._get_post_data())
+        self._verify_sell_order(test_case)
 
-    def _verify_sell_order(self):
+    def _verify_sell_order(self, test_case: TestCase):
         order = Order.objects.get(company=self.company, product="cucumber")
-        self.assertEqual(100.50, order.price_per_unit)
-        self.assertEqual("kg", order.unit_type)
-        self.assertEqual(Currency.SEK, order.currency)
-        self.assertEqual(OrderType.SELL, order.order_type)
+        test_case.assertEqual(100.50, order.price_per_unit)
+        test_case.assertEqual("kg", order.unit_type)
+        test_case.assertEqual(Currency.SEK, order.currency)
+        test_case.assertEqual(self.order_type, order.order_type)
 
     def _get_post_data(self):
         return {
@@ -68,8 +60,36 @@ class AddSellOrderTest(TestCase):
             "price_per_unit": 100.50,
             "unit_type": "kg",
             "currency": Currency.SEK,
-            "order_type": "sell",
+            "order_type": self.order_type,
         }
+
+
+class AddBuyOrderTest(TestCase):
+    def setUp(self):
+        self.container = AddOrderContainer("main:add_buy_order", OrderType.BUY)
+
+    def test_non_company_user_can_not_add_buy_order(self):
+        self.container.test_non_company_user_can_not_add_order(self)
+
+    def test_order_admin_can_create_buy_order(self):
+        self.container.test_order_admin_can_create_order(self)
+
+    def test_buy_order_is_added_correctly(self):
+        self.container.test_order_is_added_correctly(self)
+
+
+class AddSellOrderTest(TestCase):
+    def setUp(self):
+        self.container = AddOrderContainer("main:add_sell_order", OrderType.SELL)
+
+    def test_company_admin_can_create_sell_order(self):
+        self.container.test_non_company_user_can_not_add_order(self)
+
+    def test_order_admin_can_create_sell_order(self):
+        self.container.test_order_admin_can_create_order(self)
+
+    def test_sell_order_is_added_correctly(self):
+        self.container.test_order_is_added_correctly(self)
 
 
 class CompanyUsersViewTest(TestCase):
@@ -252,6 +272,11 @@ class EditCompanyViewTest(TestCase):
         response = self.client.get(self.url)
         self.assertIsNotNone(response.context.get("add_sell_order_form"))
         self.assertTrue(response.context.get("is_producer"))
+
+    def test_buyer_has_add_buy_order_form(self):
+        response = self.client.get(self.url)
+        self.assertIsNotNone(response.context.get("add_buy_order_form"))
+        self.assertTrue(response.context.get("is_buyer"))
 
     def test_company_with_producer_and_buyer_has_add_sell_order_form(self):
         response = self.client.get(self.url)

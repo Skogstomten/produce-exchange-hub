@@ -14,6 +14,8 @@ from .forms import (
     AddressForm,
     AddCompanyUserForm,
     AddSellOrderForm,
+    AddBuyOrderForm,
+    AddOrderForm,
 )
 from .decorators import company_role_required
 from .utils import get_language
@@ -125,6 +127,9 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
         if company.is_producer():
             context.update({"is_producer": True, "add_sell_order_form": AddSellOrderForm(company)})
 
+        if company.is_buyer():
+            context.update({"is_buyer": True, "add_buy_order_form": AddBuyOrderForm(company)})
+
         return render(
             request,
             self.template_name,
@@ -194,9 +199,9 @@ def delete_company_user(request: HttpRequest, company_id: int, user_id: int):
 
 @post_only
 @company_role_required(company_roles=["order_admin"])
-def add_sell_order(request: HttpRequest, company_id: int):
+def add_order(request: HttpRequest, company_id: int):
     company = get_object_or_404(Company, pk=company_id)
-    form = AddSellOrderForm(company, request.POST)
+    form = AddOrderForm(company, data=request.POST)
     if form.is_valid():
         form.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))

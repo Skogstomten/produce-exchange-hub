@@ -143,15 +143,28 @@ class AddCompanyUserForm(ModelForm):
         )
 
 
-class AddSellOrderForm(ModelForm):
+class AddOrderForm(ModelForm):
     company = ForeignKeyRefField(Company)
-    order_type = CharField(initial=OrderType.SELL, widget=HiddenInput)
     currency = ChoiceField(choices=Currency.choices, initial=Currency.SEK, widget=RadioSelect)
 
-    def __init__(self, company: Company, data: Mapping[str, Any] = None):
+    def __init__(self, company: Company, order_type: OrderType | None = None, data=None):
         super().__init__(data=data)
         self.fields["company"].initial = company.id
+        if not order_type:
+            if data:
+                order_type = data.get("order_type", None)
+        self.fields["order_type"] = CharField(initial=order_type, widget=HiddenInput)
 
     class Meta:
         model = Order
         fields = ["company", "product", "price_per_unit", "unit_type", "currency", "order_type"]
+
+
+class AddSellOrderForm(AddOrderForm):
+    def __init__(self, company: Company, data=None):
+        super().__init__(company, OrderType.SELL, data)
+
+
+class AddBuyOrderForm(AddOrderForm):
+    def __init__(self, company: Company, data=None):
+        super().__init__(company, OrderType.BUY, data)
