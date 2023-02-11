@@ -3,6 +3,7 @@ from typing import Iterable
 
 from django.db.models import (
     Model,
+    TextChoices,
     CharField,
     DateTimeField,
     TextField,
@@ -17,6 +18,7 @@ from django.db.models import (
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
+from .utils import get_localized_value_from_object
 from shared.models import Country
 
 
@@ -25,7 +27,7 @@ class Language(Model):
     name = CharField(max_length=50)
 
     def __str__(self):
-        return f"{self.iso_639_1}: {self.name}"
+        return self.name
 
 
 class CompanyType(Model):
@@ -33,7 +35,7 @@ class CompanyType(Model):
     description = CharField(max_length=200)
 
     def __str__(self):
-        return f"Name: {self.type_name}"
+        return f"{self.id}: {self.type_name}"
 
 
 class CompanyStatus(Model):
@@ -116,38 +118,39 @@ class Company(Model):
             raise Exception(f"Company with id {pk} does not exist")
 
     @classmethod
-    def get_newest(language: str) -> list["Company"]:
+    def get_newest(cls, language: str) -> list["Company"]:
         pass
 
     def get_description(self, language: str) -> str:
-        if len(language) > 2:
-            language = language[:2].upper()
-        descriptions = self.descriptions.all()
-        description = self._get_description(language, descriptions)
-        if not description:
-            for content_language in self.content_languages.all():
-                description = self._get_description(content_language.iso_639_1.upper(), descriptions)
-                if description:
-                    break
-        return description or next(iter(d.description for d in descriptions), "")
+        return get_localized_value_from_object(
+            self,
+            language,
+            "descriptions",
+            "description",
+            lambda: self.content_languages.all(),
+        )
 
     def is_company_admin(self, user: User | None) -> bool:
+        return self.has_company_role(user, ["company_admin"])
+
+    def has_company_role(self, user: User | None, roles: list[str]) -> bool:
         if not user:
             return False
         try:
-            self.users.get(user=user)
+            company_user = self.users.get(user=user)
         except CompanyUser.DoesNotExist:
+            return False
+        return company_user.role.role_name in roles
+
+    def is_producer(self) -> bool:
+        try:
+            self.company_types.get(type_name__iexact="producer")
+        except CompanyType.DoesNotExist:
             return False
         return True
 
     def is_activated(self) -> bool:
         return self.status.status_name != CompanyStatus.StatusName.created.value
-
-    def _get_description(self, language: str, descriptions) -> str:
-        description = next(iter(d for d in descriptions if d.language.iso_639_1.upper() == language), None)
-        if description:
-            return description.description
-        return None
 
 
 class CompanyRole(Model):
@@ -256,38 +259,22 @@ class Contact(Model):
         return cls.objects.filter(company=company)
 
 
-class Product(Model):
-    product_code = CharField(max_length=50, unique=True)
-
-    def __str__(self):
-        return self.product_code
+class Currency(TextChoices):
+    SEK = "SEK", _("SEK")
 
 
-class ProductName(Model):
-    product = ForeignKey(Product, on_delete=PROTECT)
-    language = ForeignKey(Language, on_delete=PROTECT)
-    name = CharField(max_length=200)
-
-    def __str__(self):
-        return f"{self.product.product_code} - {self.language.name} - {self.name}"
-
-
-class Currency(Model):
-    currency_code = CharField(max_length=3, unique=True)
-
-    def __str__(self):
-        return self.currency_code
-
-    class Meta:
-        verbose_name_plural = "Currencies"
+class OrderType(TextChoices):
+    SELL = "sell", _("Sell order")
+    BUY = "buy", _("Buy order")
 
 
 class Order(Model):
     company = ForeignKey(Company, on_delete=CASCADE)
-    product = ForeignKey(Product, on_delete=PROTECT)
-    price_per_unit = DecimalField(max_digits=20, decimal_places=2, null=True)
-    unit_type = CharField(max_length=20, null=True)
-    currency = ForeignKey(Currency, on_delete=PROTECT)
+    product = CharField(max_length=200)
+    price_per_unit = DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    unit_type = CharField(max_length=20, null=True, blank=True)
+    currency = CharField(max_length=3, choices=Currency.choices)
+    order_type = CharField(max_length=10, choices=OrderType.choices)
 
     def __str__(self):
-        return f"{self.company.name} - {self.product.product_code}"
+        return f"{self.company.name}: {self.product}"

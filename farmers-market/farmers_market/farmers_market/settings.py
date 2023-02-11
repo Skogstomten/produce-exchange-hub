@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import sys
 from os.path import join
 from pathlib import Path
 
@@ -38,7 +39,6 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap5",
-    "modeltranslation",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -89,12 +89,30 @@ WSGI_APPLICATION = "farmers_market.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+if "test" in sys.argv:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "NAME": "produce_exchange_hub",
+            "USER": "postgres",
+            "PASSWORD": "test123",
+            "HOST": "127.0.0.1",
+            "PORT": "5432",
+        }
+    }
 
 
 # Password validation
@@ -141,7 +159,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [join(CURRENT_DIR, "static")]
 
-MEDIA_ROOT = join(BASE_DIR, "media")
+MEDIA_ROOT = join(BASE_DIR.parent.parent.parent, "media")
 MEDIA_URL = "/media/"
 
 # Default primary key field type

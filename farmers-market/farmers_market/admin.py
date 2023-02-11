@@ -2,7 +2,7 @@ import sys
 import subprocess
 
 SUB_DIRS = ["authentication", "farmers_market", "main"]
-LINE_LENGTH = 121
+LINE_LENGTH = 120
 
 
 def run_subprocess(args: list, working_dir: str | None = None):

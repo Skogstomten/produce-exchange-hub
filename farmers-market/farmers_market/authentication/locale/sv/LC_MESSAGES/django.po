@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-04 19:16+0100\n"
+"POT-Creation-Date: 2023-01-22 18:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,55 +17,63 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: .\templates\authentication\login.html:5
-msgid "login_title"
-msgstr "Logga in"
 
-#: .\templates\authentication\login.html:13
-msgid "username_label"
-msgstr "Användarnamn"
+#: .\forms.py:40
+msgid "Confirm password does not match password."
+msgstr ""
 
-#: .\templates\authentication\login.html:14
-msgid "username_placeholder"
-msgstr "xxxxxx@exempel.se"
+#: .\forms.py:79
+msgid "Invalid username or password"
+msgstr ""
 
-#: .\templates\authentication\login.html:17
-#: .\templates\authentication\register.html:29
-msgid "password_label"
-msgstr "Lösenord"
+#: .\templates\authentication\login.html:6
+msgid "Login"
+msgstr ""
 
-#: .\templates\authentication\login.html:18
-msgid "password_placeholder"
-msgstr "*********"
-
-#: .\templates\authentication\login.html:20
+#: .\templates\authentication\login.html:15
 msgid "login_submit_button"
 msgstr "Logga in"
 
-#: .\templates\authentication\register.html:5
-msgid "register_title"
+#: .\templates\authentication\register.html:6
+#: .\templates\authentication\register.html:19
+#, fuzzy
+#| msgid "register_title"
+msgid "Register"
 msgstr "Registrera användare"
 
-#: .\templates\authentication\register.html:17
-msgid "email_label"
-msgstr "E-postadress"
+#: .\templates\authentication\user_profile.html:23
+msgid "Save"
+msgstr ""
 
-#: .\templates\authentication\register.html:18
-msgid "email_placeholder"
-msgstr "xxxxxx@exempel.se"
+#~ msgid "login_title"
+#~ msgstr "Logga in"
 
-#: .\templates\authentication\register.html:21
-msgid "first_name_label"
-msgstr "Förnamn"
+#~ msgid "username_label"
+#~ msgstr "Användarnamn"
 
-#: .\templates\authentication\register.html:25
-msgid "last_name_label"
-msgstr "Efternamn"
+#~ msgid "username_placeholder"
+#~ msgstr "xxxxxx@exempel.se"
 
-#: .\templates\authentication\register.html:33
-msgid "confirm_password_label"
-msgstr "Bekräfta lösenord"
+#~ msgid "password_label"
+#~ msgstr "Lösenord"
 
-#: .\templates\authentication\register.html:37
-msgid "register_submit_button"
-msgstr "Registrera"
+#~ msgid "password_placeholder"
+#~ msgstr "*********"
+
+#~ msgid "email_label"
+#~ msgstr "E-postadress"
+
+#~ msgid "email_placeholder"
+#~ msgstr "xxxxxx@exempel.se"
+
+#~ msgid "first_name_label"
+#~ msgstr "Förnamn"
+
+#~ msgid "last_name_label"
+#~ msgstr "Efternamn"
+
+#~ msgid "confirm_password_label"
+#~ msgstr "Bekräfta lösenord"
+
+#~ msgid "register_submit_button"
+#~ msgstr "Registrera"

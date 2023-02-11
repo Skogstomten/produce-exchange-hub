@@ -70,9 +70,12 @@ class LoginForm(Form):
         if return_url:
             self.fields["return_url"].initial = return_url
         self.fields["email"].widget.attrs.update({"autofocus": "autofocus"})
+        self.user = None
 
-    def is_valid(self, request: HttpRequest) -> bool:
+    def is_valid(self, request: HttpRequest = None) -> bool:
         if not super().is_valid():
+            return False
+        if not request:
             return False
         self.user = authenticate(request, **self.get_credentials())
         if not self.user:
@@ -117,6 +120,10 @@ class UserForm(ModelForm):
 
 class ExtendedUserForm(ModelForm):
     country = ModelChoiceField(Country.objects.all(), widget=RadioSelect)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["country"].initial = Country.objects.first()
 
     class Meta:
         model = ExtendedUser

@@ -6,15 +6,15 @@ from .utils import get_language
 
 
 class CompanyAdminRequiredMixin(AccessMixin):
-    """Mixin that requires logged in user being admin for specific company."""
+    """Mixin that requires logged-in user being admin for specific company."""
 
     pk_name = "company_id"
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args: tuple, **kwargs):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
         if args:
-            pk = next(args)
+            pk = args[0]
         elif kwargs:
             pk = kwargs.get(self.pk_name)
         else:

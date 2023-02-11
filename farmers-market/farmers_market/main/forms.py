@@ -5,6 +5,7 @@ from django.forms import (
     Form,
     CharField,
     Textarea,
+    ChoiceField,
     ModelMultipleChoiceField,
     ModelChoiceField,
     CheckboxSelectMultiple,
@@ -12,9 +13,11 @@ from django.forms import (
     HiddenInput,
     TextInput,
 )
-from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
+from shared.forms import UploadCroppedPictureModelForm
+from .fields import ForeignKeyRefField, UserField
 from .models import (
     Company,
     CompanyType,
@@ -26,9 +29,10 @@ from .models import (
     CompanyDescription,
     CompanyUser,
     CompanyRole,
+    Order,
+    Currency,
+    OrderType,
 )
-from .fields import ForeignKeyRefField, UserField
-from shared.forms import UploadCroppedPictureModelForm
 
 
 class AddressForm(ModelForm):
@@ -124,7 +128,6 @@ class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
 class AddCompanyUserForm(ModelForm):
     user = UserField()
     company = ForeignKeyRefField(Company)
-    role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.get())
 
     class Meta:
         model = CompanyUser
@@ -132,8 +135,23 @@ class AddCompanyUserForm(ModelForm):
 
     def __init__(self, company: Company, data: Mapping | None = None):
         super().__init__(instance=CompanyUser(company=company), data=data)
+        self.fields["role"] = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.first())
 
-    def save(self) -> CompanyUser:
+    def save(self, **kwargs) -> CompanyUser:
         return CompanyUser.objects.create(
             user=self.cleaned_data["user"], company=self.cleaned_data["company"], role=self.cleaned_data["role"]
         )
+
+
+class AddSellOrderForm(ModelForm):
+    company = ForeignKeyRefField(Company)
+    order_type = CharField(initial=OrderType.SELL, widget=HiddenInput)
+    currency = ChoiceField(choices=Currency.choices, initial=Currency.SEK, widget=RadioSelect)
+
+    def __init__(self, company: Company, data: Mapping[str, Any] = None):
+        super().__init__(data=data)
+        self.fields["company"].initial = company.id
+
+    class Meta:
+        model = Order
+        fields = ["company", "product", "price_per_unit", "unit_type", "currency", "order_type"]

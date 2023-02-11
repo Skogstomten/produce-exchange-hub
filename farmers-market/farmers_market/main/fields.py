@@ -22,6 +22,7 @@ class ForeignKeyRefField(Field):
     def __init__(
         self,
         fk_type,
+        initial=None,
     ):
         if not issubclass(fk_type, Model):
             raise ValueError("fk_type has to be a subclass of django.db.models.Model")
@@ -30,7 +31,7 @@ class ForeignKeyRefField(Field):
             required=True,
             widget=HiddenInput,
             label=None,
-            initial=None,
+            initial=initial,
             help_text=None,
             error_messages=None,
             show_hidden_initial=False,
@@ -46,5 +47,5 @@ class ForeignKeyRefField(Field):
         value = int(value)
         fk_obj = self.fk_type.objects.get(pk=value)
         if not fk_obj:
-            raise ValidationError(_(f"Value is not a valid pk for {self.fk_type.__qualname__}"), code="obj_not_found")
+            raise ValidationError(f"Value is not a valid pk for {self.fk_type.__qualname__}", code="obj_not_found")
         return fk_obj

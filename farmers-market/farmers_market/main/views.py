@@ -13,15 +13,16 @@ from .forms import (
     ContactForm,
     AddressForm,
     AddCompanyUserForm,
+    AddSellOrderForm,
 )
-from .decorators import company_admin_required
+from .decorators import company_role_required
 from .utils import get_language
 from .mixins import CompanyAdminRequiredMixin
 
 from shared.decorators import post_only
 
 
-@company_admin_required()
+@company_role_required()
 def upload_company_profile_picture(request: HttpRequest, company_id: int):
     """Upload a profile picture for company."""
     company = Company.get(company_id, get_language(request))
@@ -40,7 +41,7 @@ def index(request: HttpRequest):
     return render(request, "main/index.html", {"companies": companies})
 
 
-def company(request: HttpRequest, company_id: int):
+def company_view(request: HttpRequest, company_id: int):
     company = Company.get(company_id, get_language(request))
     return render(
         request,
@@ -49,7 +50,7 @@ def company(request: HttpRequest, company_id: int):
     )
 
 
-@company_admin_required()
+@company_role_required()
 def add_contact(request: HttpRequest, company_id: int):
     if request.method != "POST":
         return HttpResponseNotFound()
@@ -60,7 +61,7 @@ def add_contact(request: HttpRequest, company_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
-@company_admin_required()
+@company_role_required()
 def delete_contact(request: HttpRequest, company_id: int, contact_id: int):
     if request.method != "POST":
         return HttpResponseNotFound()
@@ -72,7 +73,7 @@ def delete_contact(request: HttpRequest, company_id: int, contact_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
-@company_admin_required()
+@company_role_required()
 def add_address(request: HttpRequest, company_id: int):
     if request.method != "POST":
         return HttpResponseNotFound()
@@ -83,7 +84,7 @@ def add_address(request: HttpRequest, company_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
-@company_admin_required()
+@company_role_required()
 def delete_address(request: HttpRequest, company_id: int, address_id: int):
     if request.method != "POST":
         return HttpResponseNotFound()
@@ -112,18 +113,21 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
         return self._render(request, company, 202)
 
     def _render(self, request: HttpRequest, company: Company, status: int = 200) -> HttpResponse:
+        context = {
+            "company": company,
+            "update_company_form": UpdateCompanyForm(instance=company),
+            "upload_profile_picture_form": UploadCompanyProfilePictureForm(instance=company),
+            "add_contact_form": ContactForm(instance=Contact(company=company)),
+            "add_address_form": AddressForm(instance=Address(company=company)),
+        }
+
+        if company.is_producer():
+            context.update({"is_producer": True, "add_sell_order_form": AddSellOrderForm(company)})
+
         return render(
             request,
             self.template_name,
-            {
-                "company": company,
-                "contacts": Contact.all_for(company),
-                "addresses": Address.all_for(company),
-                "update_company_form": UpdateCompanyForm(instance=company),
-                "upload_profile_picture_form": UploadCompanyProfilePictureForm(instance=company),
-                "add_contact_form": ContactForm(instance=Contact(company=company)),
-                "add_address_form": AddressForm(instance=Address(company=company)),
-            },
+            context,
             status=status,
         )
 
@@ -149,7 +153,7 @@ class NewCompanyView(LoginRequiredMixin, View):
 
 
 @post_only
-@company_admin_required
+@company_role_required
 def activate_company(request: HttpRequest, company_id: int):
     company = Company.get(company_id, get_language(request))
     company.status = CompanyStatus.get(CompanyStatus.StatusName.active)
@@ -180,8 +184,18 @@ class CompanyUsersView(CompanyAdminRequiredMixin, View):
 
 
 @post_only
-@company_admin_required
+@company_role_required
 def delete_company_user(request: HttpRequest, company_id: int, user_id: int):
     company_user = get_object_or_404(CompanyUser, company__id=company_id, user__id=user_id)
     company_user.delete()
     return redirect(reverse("main:company_users", args=(company_id,)))
+
+
+@post_only
+@company_role_required(company_roles=["order_admin"])
+def add_sell_order(request: HttpRequest, company_id: int):
+    company = get_object_or_404(Company, pk=company_id)
+    form = AddSellOrderForm(company, request.POST)
+    if form.is_valid():
+        form.save()
+    return redirect(reverse("main:edit_company", args=(company.id,)))
