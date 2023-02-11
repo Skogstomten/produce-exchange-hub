@@ -20,6 +20,11 @@
                         {% translate "Add sell order" %}
                     </a>
                 {% endif %}
+                {% if company.is_buyer %}
+                    <a class="btn btn-secondary" href="#" data-bs-toggle="modal" data-bs-target="#add_buy_order_modal">
+                        {% translate "Add buy order" %}
+                    </a>
+                {% endif %}
             </div>
         </div>
         <div class="col-md-8">
@@ -158,7 +163,12 @@
     </form>
 </div>
 
-{% include "main/partials/add_sell_order_modal.html" %}
+{% if add_sell_order_form %}
+    {% include "main/partials/add_order_modal.html" with modal_id="add_sell_order_modal" url=sell_order_post_url title=add_sell_order_title form=add_sell_order_form only %}
+{% endif %}
+{% if add_buy_order_form %}
+    {% include "main/partials/add_order_modal.html" with modal_id="add_buy_order_modal" url=buy_order_post_url title=add_buy_order_title form=add_buy_order_form only %}
+{% endif %}
 
 {% endblock content %}
 

@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpResponseBadRequest
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.translation import gettext_lazy as _
 
 from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType
 from .forms import (
@@ -125,10 +126,24 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
         }
 
         if company.is_producer():
-            context.update({"is_producer": True, "add_sell_order_form": AddSellOrderForm(company)})
+            context.update(
+                {
+                    "is_producer": True,
+                    "add_sell_order_form": AddSellOrderForm(company),
+                    "sell_order_post_url": reverse("main:add_sell_order", args=(company.id,)),
+                    "add_sell_order_title": _("Add sell order"),
+                }
+            )
 
         if company.is_buyer():
-            context.update({"is_buyer": True, "add_buy_order_form": AddBuyOrderForm(company)})
+            context.update(
+                {
+                    "is_buyer": True,
+                    "add_buy_order_form": AddBuyOrderForm(company),
+                    "buy_order_post_url": reverse("main:add_buy_order", args=(company.id,)),
+                    "add_buy_order_title": _("Add buy order"),
+                }
+            )
 
         return render(
             request,
