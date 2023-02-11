@@ -208,20 +208,22 @@ class CompanyProfilePictureViewTest(TestCase):
 
 
 class EditCompanyViewTest(TestCase):
+    def setUp(self):
+        self.company, self.admin = _create_company_with_logged_in_admin(self.client, ("producer", "buyer"))
+        self.url = reverse("main:edit_company", args=(self.company.id,))
+
+    def test_sell_orders_are_returned_in_response(self):
+        pass
+
     def test_get_returns_200(self):
-        company, _ = _create_company_with_logged_in_admin(self.client)
-        url = reverse("main:edit_company", args=(company.id,))
-        response = self.client.get(url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(self.client.get(self.url).status_code, 200)
 
     def test_get_requires_company_admin(self):
         self._method_requires_company_admin(lambda url: self.client.get(url))
 
     def test_post_returns_202(self):
-        company, _ = _create_company_with_logged_in_admin(self.client)
-        url = reverse("main:edit_company", args=(company.id,))
         response = self.client.post(
-            url,
+            self.url,
             _get_default_post_object(),
         )
 
@@ -231,38 +233,33 @@ class EditCompanyViewTest(TestCase):
         self._method_requires_company_admin(lambda url: self.client.post(url, _get_default_post_object()))
 
     def test_post_can_remove_language(self):
-        company, _ = _create_company_with_logged_in_admin(self.client)
         swe = _get_language("SV")
         eng = _get_language("EN")
-        company.content_languages.add(swe, eng)
-        company.save()
+        self.company.content_languages.add(swe, eng)
+        self.company.save()
 
-        url = reverse("main:edit_company", args=(company.id,))
         response = self.client.post(
-            url,
+            self.url,
             _get_default_post_object(),
         )
 
         self.assertEquals(response.status_code, 202)
 
     def test_producer_has_add_sell_order_form(self):
-        company, _ = _create_company_with_logged_in_admin(self.client, ["producer"])
-        response = self.client.get(reverse("main:edit_company", args=(company.id,)))
+        self.company.company_types.get(type_name="buyer").delete()
+        response = self.client.get(self.url)
         self.assertIsNotNone(response.context.get("add_sell_order_form"))
         self.assertTrue(response.context.get("is_producer"))
 
     def test_company_with_producer_and_buyer_has_add_sell_order_form(self):
-        company, _ = _create_company_with_logged_in_admin(self.client, ["buyer", "producer"])
-        response = self.client.get(reverse("main:edit_company", args=(company.id,)))
+        response = self.client.get(self.url)
         self.assertIsNotNone(response.context.get("add_sell_order_form"))
         self.assertTrue(response.context.get("is_producer"))
 
     def _method_requires_company_admin(self, func):
-        company = _create_company()
-        _create_authenticated_user(self.client)
-        url = reverse("main:edit_company", args=(company.id,))
-        response = func(url)
-        self.assertEquals(response.status_code, 403)
+        user = User.objects.create_user("nisse", "nisse@pisse.se", "test123")
+        self.client.login(username=user.username, password="test123")
+        self.assertEquals(func(self.url).status_code, 403)
 
 
 class CompanyModelTest(TestCase):
