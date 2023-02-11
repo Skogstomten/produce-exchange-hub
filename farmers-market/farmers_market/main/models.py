@@ -269,7 +269,7 @@ class OrderType(TextChoices):
 
 
 class Order(Model):
-    company = ForeignKey(Company, on_delete=CASCADE)
+    company = ForeignKey(Company, on_delete=CASCADE, related_name="orders")
     product = CharField(max_length=200)
     price_per_unit = DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     unit_type = CharField(max_length=20, null=True, blank=True)
@@ -278,3 +278,22 @@ class Order(Model):
 
     def __str__(self):
         return f"{self.company.name}: {self.product}"
+
+    @classmethod
+    def add(
+        cls,
+        company: Company,
+        product: str,
+        price_per_unit: float | None,
+        unit_type: str | None,
+        currency: Currency,
+        order_type: OrderType,
+    ) -> "Order":
+        return cls.objects.create(
+            company=company,
+            product=product,
+            price_per_unit=price_per_unit,
+            unit_type=unit_type,
+            currency=currency,
+            order_type=order_type,
+        )

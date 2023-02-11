@@ -5,7 +5,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpRes
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Company, CompanyStatus, Contact, Address, CompanyUser
+from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType
 from .forms import (
     UpdateCompanyForm,
     UploadCompanyProfilePictureForm,
@@ -119,6 +119,7 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
             "upload_profile_picture_form": UploadCompanyProfilePictureForm(instance=company),
             "add_contact_form": ContactForm(instance=Contact(company=company)),
             "add_address_form": AddressForm(instance=Address(company=company)),
+            "sell_orders": company.orders.filter(order_type=OrderType.SELL).all(),
         }
 
         if company.is_producer():

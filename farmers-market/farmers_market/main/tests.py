@@ -213,7 +213,9 @@ class EditCompanyViewTest(TestCase):
         self.url = reverse("main:edit_company", args=(self.company.id,))
 
     def test_sell_orders_are_returned_in_response(self):
-        pass
+        order = Order.add(self.company, "Cucumber", 5, "kg", Currency.SEK, OrderType.SELL)
+        response = self.client.get(self.url)
+        self.assertEqual(list(response.context.get("sell_orders")), [order])
 
     def test_get_returns_200(self):
         self.assertEquals(self.client.get(self.url).status_code, 200)

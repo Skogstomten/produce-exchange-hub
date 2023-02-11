@@ -39,6 +39,30 @@
                             </form>
                         {% endif %}
                     </div>
+                    <div class="mt-3">
+                        <h2>Sell orders</h2>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{% translate "Product" %}</th>
+                                    <th>{% translate "Price" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in sell_orders %}
+                                    <tr>
+                                        <td>{{ order.product }}</td>
+                                        <td>
+                                            {% if order.price_per_unit %}
+                                                {{ order.price_per_unit }}
+                                                {{ order.currency }}{% if order.unit_type %}/{{ order.unit_type }}{% endif %}
+                                            {% endif %} 
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="col-4">
                     <div class="container">
