@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpResponseBadRequest
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.translation import gettext_lazy as _
 
 from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType
 from .forms import (
@@ -14,6 +15,8 @@ from .forms import (
     AddressForm,
     AddCompanyUserForm,
     AddSellOrderForm,
+    AddBuyOrderForm,
+    AddOrderForm,
 )
 from .decorators import company_role_required
 from .utils import get_language
@@ -123,7 +126,24 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
         }
 
         if company.is_producer():
-            context.update({"is_producer": True, "add_sell_order_form": AddSellOrderForm(company)})
+            context.update(
+                {
+                    "is_producer": True,
+                    "add_sell_order_form": AddSellOrderForm(company),
+                    "sell_order_post_url": reverse("main:add_sell_order", args=(company.id,)),
+                    "add_sell_order_title": _("Add sell order"),
+                }
+            )
+
+        if company.is_buyer():
+            context.update(
+                {
+                    "is_buyer": True,
+                    "add_buy_order_form": AddBuyOrderForm(company),
+                    "buy_order_post_url": reverse("main:add_buy_order", args=(company.id,)),
+                    "add_buy_order_title": _("Add buy order"),
+                }
+            )
 
         return render(
             request,
@@ -194,9 +214,9 @@ def delete_company_user(request: HttpRequest, company_id: int, user_id: int):
 
 @post_only
 @company_role_required(company_roles=["order_admin"])
-def add_sell_order(request: HttpRequest, company_id: int):
+def add_order(request: HttpRequest, company_id: int):
     company = get_object_or_404(Company, pk=company_id)
-    form = AddSellOrderForm(company, request.POST)
+    form = AddOrderForm(company, data=request.POST)
     if form.is_valid():
         form.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))

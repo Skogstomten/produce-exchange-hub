@@ -1,16 +1,16 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-<div class="modal" tabindex="-1" id="add_sell_order_modal">
+<div class="modal" tabindex="-1" id="{{ modal_id }}">
     <div class="modal-dialog">
-        <form method="post" action="{% url 'main:add_sell_order' company.id %}">
+        <form method="post" action="{{ url }}">
             {% csrf_token %}
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title">{% translate "Add sell order" %}</h1>
+                    <h1 class="modal-title">{{ title }}</h1>
                     <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">{{ add_sell_order_form|crispy }}</div>
+                <div class="modal-body">{{ form|crispy }}</div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" type="submit">{% translate "Add" %}</button>
                     <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">{% translate "Close" %}</button>
