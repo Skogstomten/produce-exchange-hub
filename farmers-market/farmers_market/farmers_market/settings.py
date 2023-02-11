@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import sys
 from os.path import join
 from pathlib import Path
 
@@ -95,16 +96,23 @@ WSGI_APPLICATION = "farmers_market.wsgi.application"
 #     }
 # }
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "produce_exchange_hub",
-        "USER": "postgres",
-        "PASSWORD": "test123",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+if "test" in sys.argv:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "NAME": "produce_exchange_hub",
+            "USER": "postgres",
+            "PASSWORD": "test123",
+            "HOST": "127.0.0.1",
+            "PORT": "5432",
+        }
+    }
 
 
 # Password validation

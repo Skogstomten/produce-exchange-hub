@@ -1,6 +1,5 @@
 from typing import Mapping, Any
 
-from django.db.utils import ProgrammingError
 from django.forms import (
     ModelForm,
     Form,
@@ -129,12 +128,6 @@ class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
 class AddCompanyUserForm(ModelForm):
     user = UserField()
     company = ForeignKeyRefField(Company)
-    try:
-        role = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.first())
-    except CompanyRole.DoesNotExist:
-        role = ModelChoiceField(CompanyRole.objects.all())
-    except ProgrammingError:
-        role = ChoiceField()
 
     class Meta:
         model = CompanyUser
@@ -142,6 +135,7 @@ class AddCompanyUserForm(ModelForm):
 
     def __init__(self, company: Company, data: Mapping | None = None):
         super().__init__(instance=CompanyUser(company=company), data=data)
+        self.fields["role"] = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.first())
 
     def save(self, **kwargs) -> CompanyUser:
         return CompanyUser.objects.create(
