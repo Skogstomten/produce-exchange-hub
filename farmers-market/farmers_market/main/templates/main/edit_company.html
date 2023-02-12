@@ -1,10 +1,10 @@
 {% extends 'farmers_market/base.html' %}
 {% load static %}
 {% load i18n %}
-{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
 
 {% block styles %}
-<link rel="stylesheet" href="{% static 'main/styles/edit_company.css' %}">
+    <link rel="stylesheet" href="{% static 'main/styles/edit_company.css' %}">
 {% endblock styles %}
 
 {% block content %}
@@ -51,6 +51,7 @@
                                 <tr>
                                     <th>{% translate "Product" %}</th>
                                     <th>{% translate "Price" %}</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -62,6 +63,10 @@
                                                 {{ order.price_per_unit }}
                                                 {{ order.currency }}{% if order.unit_type %}/{{ order.unit_type }}{% endif %}
                                             {% endif %} 
+                                        </td>
+                                        <td>
+                                            <a href="#" class="mr-10"><i class="fa-regular fa-pen-to-square pr-2"></i></a>
+                                            <a href="#"><i class="fa-solid fa-trash-can"></i></a>
                                         </td>
                                     </tr>
                                 {% endfor %}

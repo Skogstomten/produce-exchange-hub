@@ -1,4 +1,4 @@
-from typing import Mapping, Any
+from typing import Any
 
 from django.forms import (
     ModelForm,
@@ -76,7 +76,7 @@ class UpdateCompanyForm(ModelForm):
         queryset=Language.objects.all(), widget=CheckboxSelectMultiple, required=True
     )
 
-    def __init__(self, *args, instance: Company, data: Mapping[str, Any] = None, **kwargs):
+    def __init__(self, *args, instance: Company, data=None, **kwargs):
         super().__init__(data, *args, instance=instance, **kwargs)
         languages = instance.content_languages.all()
         for language in languages:
@@ -116,7 +116,7 @@ class UpdateCompanyForm(ModelForm):
 
 
 class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
-    def __init__(self, instance: Company, data: Mapping = None, files: Mapping = None, *args, **kwargs):
+    def __init__(self, instance: Company, data=None, files=None, *args, **kwargs):
         super().__init__(
             reverse("main:company_profile_picture", args=(instance.id,)), instance, data, files, *args, **kwargs
         )
@@ -133,7 +133,7 @@ class AddCompanyUserForm(ModelForm):
         model = CompanyUser
         fields = ["user", "company", "role"]
 
-    def __init__(self, company: Company, data: Mapping | None = None):
+    def __init__(self, company: Company, data=None):
         super().__init__(instance=CompanyUser(company=company), data=data)
         self.fields["role"] = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.first())
 
