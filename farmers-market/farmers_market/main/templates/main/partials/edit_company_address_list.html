@@ -1,0 +1,45 @@
+{% load crispy_forms_filters %}
+{% load i18n %}
+
+<h2>{% translate "Addresses" %}</h2>
+<div>
+    {% for address in company.addresses.all %}
+        <div>
+            <label><strong>{{ address.address_type }}</strong></label>
+            <form method="POST"
+                    action="{% url 'main:delete_address' company.id address.id %}"
+                    class="inline confirm-action"
+                    data-confirmmessage="{% translate "Delete address?" %}">
+                {% csrf_token %}
+                <button class="btn-icon btn-delete" type="submit"><i class="fa fa-close"></i></button>
+            </form>
+            {% if address.addressee %}<div>{{ address.addressee }}</div>{% endif %}
+            {% if address.co_address %}<div>{{ address.co_address }}</div>{% endif %}
+            {% if address.street_address %}<div>{{ address.street_address }}</div>{% endif %}
+            {% if address.zip_code or address.city %}<div>{{ address.zip_code }} {{ address.city }}</div>{% endif %}
+            {% if address.country %}<div>{{ address.country.name }}</div>{% endif %}
+        </div>
+    {% endfor %}
+</div>
+<button class="btn btn-light mt-2" type="button" data-bs-toggle="modal" data-bs-target="#add_address_modal">
+    {% translate "Add address" %}
+</button>
+
+<div class="modal" tabindex="-1" id="add_address_modal" aria-hidden="true">
+    <form method="POST" action="{% url 'main:add_address' company.id %}">
+        {% csrf_token %}
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1>{% translate "Add address" %}</h1>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">{{ add_address_form|crispy }}</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                    <input class="btn btn-primary" type="submit" value="{% translate "Save" %}" />
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

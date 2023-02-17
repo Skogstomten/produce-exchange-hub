@@ -1,0 +1,29 @@
+{% load i18n %}
+
+<h2>{% translate "Sell orders" %}</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% translate "Product" %}</th>
+            <th>{% translate "Price" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in sell_orders %}
+            <tr>
+                <td>{{ order.product }}</td>
+                <td>
+                    {% if order.price_per_unit %}
+                        {{ order.price_per_unit }}
+                        {{ order.currency }}{% if order.unit_type %}/{{ order.unit_type }}{% endif %}
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="#" class="mr-10"><i class="fa-regular fa-pen-to-square pr-2"></i></a>
+                    <a href="#"><i class="fa-solid fa-trash-can"></i></a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
