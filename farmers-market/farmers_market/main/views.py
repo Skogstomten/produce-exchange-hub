@@ -14,9 +14,10 @@ from .forms import (
     ContactForm,
     AddressForm,
     AddCompanyUserForm,
-    AddSellOrderForm,
-    AddBuyOrderForm,
-    AddOrderForm,
+    SellOrderForm,
+    BuyOrderForm,
+    OrderForm,
+    OrderFormSet,
 )
 from .decorators import company_role_required
 from .utils import get_language
@@ -119,13 +120,14 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
             "add_contact_form": ContactForm(instance=Contact(company=company)),
             "add_address_form": AddressForm(instance=Address(company=company)),
             "sell_orders": company.orders.filter(order_type=OrderType.SELL).all(),
+            "edit_sell_orders_formset": OrderFormSet(queryset=company.orders.filter(order_type=OrderType.SELL)),
         }
 
         if company.is_producer():
             context.update(
                 {
                     "is_producer": True,
-                    "add_sell_order_form": AddSellOrderForm(company),
+                    "add_sell_order_form": SellOrderForm(company),
                     "sell_order_post_url": reverse("main:add_sell_order", args=(company.id,)),
                     "add_sell_order_title": _("Add sell order"),
                 }
@@ -135,7 +137,7 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
             context.update(
                 {
                     "is_buyer": True,
-                    "add_buy_order_form": AddBuyOrderForm(company),
+                    "add_buy_order_form": BuyOrderForm(company),
                     "buy_order_post_url": reverse("main:add_buy_order", args=(company.id,)),
                     "add_buy_order_title": _("Add buy order"),
                 }
@@ -212,7 +214,7 @@ def delete_company_user(request: HttpRequest, company_id: int, user_id: int):
 @company_role_required(company_roles=["order_admin"])
 def add_order(request: HttpRequest, company_id: int):
     company = get_object_or_404(Company, pk=company_id)
-    form = AddOrderForm(company, data=request.POST)
+    form = OrderForm(company, data=request.POST)
     if form.is_valid():
         form.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))

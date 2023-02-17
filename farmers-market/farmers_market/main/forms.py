@@ -12,6 +12,7 @@ from django.forms import (
     RadioSelect,
     HiddenInput,
     TextInput,
+    modelformset_factory,
 )
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -143,13 +144,22 @@ class AddCompanyUserForm(ModelForm):
         )
 
 
-class AddOrderForm(ModelForm):
+class OrderForm(ModelForm):
     company = ForeignKeyRefField(Company)
     currency = ChoiceField(choices=Currency.choices, initial=Currency.SEK, widget=RadioSelect)
 
-    def __init__(self, company: Company, order_type: OrderType | None = None, data=None):
-        super().__init__(data=data)
-        self.fields["company"].initial = company.id
+    def __init__(
+        self,
+        company: Company | None = None,
+        order_type: OrderType | None = None,
+        data=None,
+        instance=None,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(data=data, instance=instance, *args, **kwargs)
+        if company:
+            self.fields["company"].initial = company.id
         if not order_type:
             if data:
                 order_type = data.get("order_type", None)
@@ -160,11 +170,14 @@ class AddOrderForm(ModelForm):
         fields = ["company", "product", "price_per_unit", "unit_type", "currency", "order_type"]
 
 
-class AddSellOrderForm(AddOrderForm):
-    def __init__(self, company: Company, data=None):
-        super().__init__(company, OrderType.SELL, data)
+class SellOrderForm(OrderForm):
+    def __init__(self, company: Company, data=None, instance=None):
+        super().__init__(company, OrderType.SELL, data, instance)
 
 
-class AddBuyOrderForm(AddOrderForm):
-    def __init__(self, company: Company, data=None):
-        super().__init__(company, OrderType.BUY, data)
+class BuyOrderForm(OrderForm):
+    def __init__(self, company: Company, data=None, instance=None):
+        super().__init__(company, OrderType.BUY, data, instance)
+
+
+OrderFormSet = modelformset_factory(Order, OrderForm)

@@ -9,54 +9,54 @@
 
 {% block content %}
 
-<div class="edit-company-view mb-3">
-    <div class="row">
-        <div class="col-md-3">
-            {% include "shared/partials/profile_picture_with_upload.html" with profile_picture=company.profile_picture upload_profile_picture_form=upload_profile_picture_form %}
-            <div class="d-grid gap-2">
-                {% include "main/partials/edit_company_actions.html" %}
-            </div>
-        </div>
-        <div class="col-md-8">
-            <div class="row">
-                <div class="col-8">
-                    <h1>{% translate "Edit company" %}</h1>
-                    <form method="POST" action="{% url 'main:edit_company' company.id %}">
-                        {% csrf_token %}
-                        {{ update_company_form|crispy }}
-                        <input type="submit" class="btn btn-primary" value="{% translate "Save" %}" />
-                    </form>
-                    <div class="mt-3">
-                        {% if not company.is_activated %}
-                            <form method="POST" action="{% url 'main:activate_company' company.id %}">
-                                {% csrf_token %}
-                                <input type="submit" class="btn btn-primary" value="{% translate "Activate company" %}">
-                            </form>
-                        {% endif %}
-                    </div>
-                    <div class="mt-3">
-                        {% include "main/partials/edit_company_sell_orders.html" %}
-                    </div>
+    <div class="edit-company-view mb-3">
+        <div class="row">
+            <div class="col-md-3">
+                {% include "shared/partials/profile_picture_with_upload.html" with profile_picture=company.profile_picture upload_profile_picture_form=upload_profile_picture_form %}
+                <div class="d-grid gap-2">
+                    {% include "main/partials/edit_company_actions.html" %}
                 </div>
-                <div class="col-4">
-                    <div class="container">
-                        {% include "main/partials/edit_company_contacts_list.html" %}
+            </div>
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-8">
+                        <h1>{% translate "Edit company" %}</h1>
+                        <form method="POST" action="{% url 'main:edit_company' company.id %}">
+                            {% csrf_token %}
+                            {{ update_company_form|crispy }}
+                            <input type="submit" class="btn btn-primary" value="{% translate "Save" %}" />
+                        </form>
+                        <div class="mt-3">
+                            {% if not company.is_activated %}
+                                <form method="POST" action="{% url 'main:activate_company' company.id %}">
+                                    {% csrf_token %}
+                                    <input type="submit" class="btn btn-primary" value="{% translate "Activate company" %}">
+                                </form>
+                            {% endif %}
+                        </div>
+                        <div class="mt-3">
+                            {% include "main/partials/edit_company_sell_orders.html" %}
+                        </div>
                     </div>
-                    <div class="container mt-3">
-                        {% include "main/partials/edit_company_address_list.html" %}
+                    <div class="col-4">
+                        <div class="container">
+                            {% include "main/partials/edit_company_contacts_list.html" %}
+                        </div>
+                        <div class="container mt-3">
+                            {% include "main/partials/edit_company_address_list.html" %}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-{% if add_sell_order_form %}
-    {% include "main/partials/add_order_modal.html" with modal_id="add_sell_order_modal" url=sell_order_post_url title=add_sell_order_title form=add_sell_order_form only %}
-{% endif %}
-{% if add_buy_order_form %}
-    {% include "main/partials/add_order_modal.html" with modal_id="add_buy_order_modal" url=buy_order_post_url title=add_buy_order_title form=add_buy_order_form only %}
-{% endif %}
+    {% if add_sell_order_form %}
+        {% include "main/partials/add_order_modal.html" with modal_id="add_sell_order_modal" url=sell_order_post_url title=add_sell_order_title form=add_sell_order_form only %}
+    {% endif %}
+    {% if add_buy_order_form %}
+        {% include "main/partials/add_order_modal.html" with modal_id="add_buy_order_modal" url=buy_order_post_url title=add_buy_order_title form=add_buy_order_form only %}
+    {% endif %}
 
 {% endblock content %}
 
