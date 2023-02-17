@@ -20,9 +20,9 @@
     <div class="row">
         <div class="col-md-2">
             {% if company.profile_picture %}
-                <img src="{{ company.profile_picture.url }}" class="profile-picture">
+                <img src="{{ company.profile_picture.url }}" class="profile-picture" alt="">
             {% else %}
-                <img src="{% static 'shared/images/no_profile_picture_image.jpg' %}" />
+                <img src="{% static 'shared/images/no_profile_picture_image.jpg' %}"  alt=""/>
             {% endif %}
         </div>
         <div class="col-md-6">

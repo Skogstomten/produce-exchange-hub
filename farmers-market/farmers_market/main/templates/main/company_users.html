@@ -6,11 +6,13 @@
 <h1>{{ company.name }} - {% translate "Users" %}</h1>
 <table class="table">
     <thead>
-        <th>{% translate "E-mail" %}</th>
-        <th>{% translate "Firstname" %}</th>
-        <th>{% translate "Lastname" %}</th>
-        <th>{% translate "Role" %}</th>
-        <th></th>
+        <tr>
+            <th>{% translate "E-mail" %}</th>
+            <th>{% translate "Firstname" %}</th>
+            <th>{% translate "Lastname" %}</th>
+            <th>{% translate "Role" %}</th>
+            <th></th>
+        </tr>
     </thead>
     <tbody>
         {% for user in company.users.all %}

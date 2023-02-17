@@ -53,10 +53,9 @@ def company_view(request: HttpRequest, company_id: int):
     )
 
 
-@company_role_required()
+@post_only
+@company_role_required
 def add_contact(request: HttpRequest, company_id: int):
-    if request.method != "POST":
-        return HttpResponseNotFound()
     form = ContactForm(request.POST)
     if not form.is_valid():
         return HttpResponseBadRequest()
@@ -64,10 +63,9 @@ def add_contact(request: HttpRequest, company_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
-@company_role_required()
+@post_only
+@company_role_required
 def delete_contact(request: HttpRequest, company_id: int, contact_id: int):
-    if request.method != "POST":
-        return HttpResponseNotFound()
     try:
         contact = Contact.objects.get(pk=contact_id, company__id=company_id)
         contact.delete()
@@ -76,10 +74,9 @@ def delete_contact(request: HttpRequest, company_id: int, contact_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
-@company_role_required()
+@post_only
+@company_role_required
 def add_address(request: HttpRequest, company_id: int):
-    if request.method != "POST":
-        return HttpResponseNotFound()
     form = AddressForm(request.POST)
     if not form.is_valid():
         return HttpResponseBadRequest()
@@ -87,10 +84,9 @@ def add_address(request: HttpRequest, company_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
+@post_only
 @company_role_required()
 def delete_address(request: HttpRequest, company_id: int, address_id: int):
-    if request.method != "POST":
-        return HttpResponseNotFound()
     try:
         address = Address.objects.get(pk=address_id, company__id=company_id)
         address.delete()

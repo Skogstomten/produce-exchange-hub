@@ -5,16 +5,20 @@ SUB_DIRS = ["authentication", "farmers_market", "main"]
 LINE_LENGTH = 120
 
 
-def run_subprocess(args: list, working_dir: str | None = None):
-    print(f"Running command: {' '.join(args)}")
+def run_subprocess(arguments: list, working_dir: str | None = None):
+    print(f"Running command: {' '.join(arguments)}")
     process = subprocess.run(
-        args, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=working_dir
+        arguments,
+        universal_newlines=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        cwd=working_dir,
     )
     print(process.stdout)
 
 
-def run_django_admin_command(commands, working_dir):
-    run_subprocess(["django-admin.exe"] + commands, working_dir)
+def run_django_admin_command(arguments, working_dir):
+    run_subprocess(["django-admin.exe"] + arguments, working_dir)
 
 
 def run_black():
@@ -36,9 +40,9 @@ def compile_messages(subdir):
     run_django_admin_command(["compilemessages"], subdir)
 
 
-def for_each_subdir(func):
+def for_each_subdir(function):
     for subdir in SUB_DIRS:
-        func(subdir)
+        function(subdir)
 
 
 def format_and_commit(*messages):
@@ -51,7 +55,6 @@ commands = {
     "compilemessages": (for_each_subdir, (compile_messages,)),
     "commit": (format_and_commit, ()),
 }
-
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

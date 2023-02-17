@@ -1,7 +1,7 @@
 {% load static %}
 {% load i18n %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="utf-8"/>
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -45,10 +45,10 @@
                         </ul>
                         <div class="nav navbar-nav d-flex">
                             <a class="nav-link p-2" href="{% url 'set_lang' %}?lang=sv&amp;next={{ request.path }}">
-                                <img src="{% static 'farmers_market/images/flags/swe.png' %}" />
+                                <img src="{% static 'farmers_market/images/flags/swe.png' %}"  alt=""/>
                             </a>
                             <a class="nav-link p-2" href="{% url 'set_lang' %}?lang=en&amp;next={{ request.path }}">
-                                <img src="{% static 'farmers_market/images/flags/eng.png' %}" />
+                                <img src="{% static 'farmers_market/images/flags/eng.png' %}"  alt=""/>
                             </a>
                             {% if user.is_authenticated %}
                                 <a class="nav-link p-2" href="{% url 'authentication:user_profile' user.id %}">{{ user.first_name }} {{ user.last_name }}</a>
