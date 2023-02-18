@@ -26,7 +26,13 @@ class EditOrderTest(TestCase):
     def setUp(self):
         self.company, self.user, self.username, self.password = _create_company_with_admin(("buyer", "producer"))
         self.order = Order.add(self.company, "Cucumber", 10, "st", Currency.SEK, OrderType.SELL)
-        self.url = reverse("main:update_order", args=(self.order.id,))
+        self.url = reverse(
+            "main:update_order",
+            args=(
+                self.company.id,
+                self.order.id,
+            ),
+        )
 
     def test_can_not_call_with_get(self):
         self.assertEqual(404, self.client.get(self.url).status_code)
@@ -50,13 +56,13 @@ class EditOrderTest(TestCase):
     def test_non_company_user_can_not_update_order(self):
         user = User.objects.create_user("otheruser", "otheruser@mail.com", PASSWORD)
         self.client.login(username=user.username, password=PASSWORD)
-        self.assertEqual(403, self.client.post(self.url, self._get_post_object()))
+        self.assertEqual(403, self.client.post(self.url, self._get_post_object()).status_code)
 
     def test_admin_of_other_company_can_not_update_order(self):
         other_admin = User.objects.create_user("otheradmin", "otheradmin@mail.com", PASSWORD)
         Company.create("ShittyCompany", other_admin)
         self.client.login(username=other_admin.username, password=PASSWORD)
-        self.assertEqual(403, self.client.post(self.url, self._get_post_object()))
+        self.assertEqual(403, self.client.post(self.url, self._get_post_object()).status_code)
 
     def test_order_data_is_updated_correctly(self):
         self.client.login(username=self.username, password=PASSWORD)

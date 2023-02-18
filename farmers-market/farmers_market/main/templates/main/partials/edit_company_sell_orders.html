@@ -34,19 +34,21 @@
 {% for form in edit_sell_orders_formset.forms %}
     <div class="modal" id="edit_order_{{ form.instance.id }}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title">{% translate "Edit order" %}</h1>
-                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form method="POST" action="{% url "main:update_order" company.id form.instance.id %}">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title">{% translate "Edit order" %}</h1>
+                        <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ form|crispy }}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit">{% translate "Update" %}</button>
+                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    {{ form|crispy }}
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" type="submit">{% translate "Update" %}</button>
-                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 {% endfor %}

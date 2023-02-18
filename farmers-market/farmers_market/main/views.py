@@ -6,7 +6,7 @@ from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext_lazy as _
 
-from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType
+from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType, Order
 from .forms import (
     UpdateCompanyForm,
     UploadCompanyProfilePictureForm,
@@ -218,3 +218,13 @@ def add_order(request: HttpRequest, company_id: int):
     if form.is_valid():
         form.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))
+
+
+@post_only
+@company_role_required(company_roles=["order_admin"])
+def edit_order(request, company_id, order_id):
+    order = get_object_or_404(Order, pk=order_id, company__id=company_id)
+    form = OrderForm(company=order.company, data=request.POST, instance=order)
+    if form.is_valid():
+        form.save()
+    return redirect(reverse("main:edit_company", args=(order.company.id,)))
