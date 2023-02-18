@@ -180,4 +180,4 @@ class BuyOrderForm(OrderForm):
         super().__init__(company, OrderType.BUY, data, instance)
 
 
-OrderFormSet = modelformset_factory(Order, OrderForm)
+OrderFormSet = modelformset_factory(Order, OrderForm, extra=0)

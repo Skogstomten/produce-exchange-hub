@@ -91,11 +91,11 @@ class Company(Model):
         return f"{self.id}: {self.name}"
 
     @classmethod
-    def create(cls, name: str, user_id: int) -> "Company":
+    def create(cls, name: str, user: User | int) -> "Company":
         """Creates a new company and assigns user as admin."""
         company = cls(name=name, status=CompanyStatus.get(CompanyStatus.StatusName.created))
         company.save()
-        CompanyUser.create_company_admin(company, user_id)
+        CompanyUser.create_company_admin(company, user)
         return company
 
     @classmethod
@@ -167,6 +167,7 @@ class CompanyRole(Model):
 
     class RoleName(Enum):
         company_admin = "company_admin"
+        order_admin = "order_admin"
 
     @classmethod
     def get(cls, role_name: RoleName) -> "CompanyRole":
@@ -182,12 +183,20 @@ class CompanyUser(Model):
         return f"{self.company.name} - {self.user.email} - {self.role.role_name}"
 
     @classmethod
-    def create_company_admin(cls, company: Company, user_id: int) -> "CompanyUser":
-        user = cls(
-            company=company, user=User.objects.get(pk=user_id), role=CompanyRole.get(CompanyRole.RoleName.company_admin)
-        )
+    def create_company_user(cls, company, user: User | int | str, role_name) -> "CompanyUser":
+        if isinstance(user, (int, str)):
+            user = User.objects.get(pk=user)
+        user = cls(company=company, user=user, role=CompanyRole.get(role_name))
         user.save()
         return user
+
+    @classmethod
+    def create_company_admin(cls, company: Company, user: User | int) -> "CompanyUser":
+        return cls.create_company_user(company, user, CompanyRole.RoleName.company_admin)
+
+    @classmethod
+    def create_order_admin(cls, company, user_id) -> "CompanyUser":
+        return cls.create_company_user(company, user_id, CompanyRole.RoleName.order_admin)
 
 
 class CompanyChange(Model):
