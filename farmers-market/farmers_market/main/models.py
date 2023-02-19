@@ -70,6 +70,21 @@ class ChangeType(Model):
         return self.change_type
 
 
+class CompanyRole(Model):
+    role_name = CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.role_name
+
+    class RoleName(Enum):
+        company_admin = "company_admin"
+        order_admin = "order_admin"
+
+    @classmethod
+    def get(cls, role_name: RoleName) -> "CompanyRole":
+        return cls.objects.get(role_name=role_name.value)
+
+
 class Company(Model):
     name = CharField(max_length=100)
     status = ForeignKey(
@@ -133,9 +148,16 @@ class Company(Model):
     def is_company_admin(self, user: User | None) -> bool:
         return self.has_company_role(user, ["company_admin"])
 
-    def has_company_role(self, user: User | None, roles: list[str]) -> bool:
+    def has_company_role(
+        self, user: User | None, roles: list[str | CompanyRole.RoleName] | str | CompanyRole.RoleName
+    ) -> bool:
         if not user:
             return False
+        if isinstance(roles, str):
+            roles = [roles]
+        if isinstance(roles, CompanyRole.RoleName):
+            roles = [roles.value]
+
         try:
             company_user = self.users.get(user=user)
         except CompanyUser.DoesNotExist:
@@ -159,21 +181,6 @@ class Company(Model):
         return self.status.status_name != CompanyStatus.StatusName.created.value
 
 
-class CompanyRole(Model):
-    role_name = CharField(max_length=50, unique=True)
-
-    def __str__(self):
-        return self.role_name
-
-    class RoleName(Enum):
-        company_admin = "company_admin"
-        order_admin = "order_admin"
-
-    @classmethod
-    def get(cls, role_name: RoleName) -> "CompanyRole":
-        return cls.objects.get(role_name=role_name.value)
-
-
 class CompanyUser(Model):
     company = ForeignKey(Company, on_delete=CASCADE, related_name="users")
     user = ForeignKey(User, on_delete=CASCADE, related_name="companies")
@@ -195,8 +202,8 @@ class CompanyUser(Model):
         return cls.create_company_user(company, user, CompanyRole.RoleName.company_admin)
 
     @classmethod
-    def create_order_admin(cls, company, user_id) -> "CompanyUser":
-        return cls.create_company_user(company, user_id, CompanyRole.RoleName.order_admin)
+    def create_order_admin(cls, company, user) -> "CompanyUser":
+        return cls.create_company_user(company, user, CompanyRole.RoleName.order_admin)
 
 
 class CompanyChange(Model):

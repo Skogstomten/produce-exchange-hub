@@ -356,8 +356,13 @@ class CompanyModelTest(TestCase):
         self.company2 = Company.objects.create(name="test2", status=_get_status("active"))
         self.user1 = User.objects.create_user("nissepisse", "nisse@persson.se", PASSWORD)
         self.user2 = User.objects.create_user("egon", "egon@ljung.se", PASSWORD)
+        self.user_order_admin = User.objects.create_user("order_admin", "order_admin@mail.com", PASSWORD)
         CompanyUser.objects.create(company=self.company1, user=self.user2, role=_get_company_admin_role())
         CompanyUser.objects.create(company=self.company2, user=self.user1, role=_get_company_admin_role())
+        CompanyUser.create_order_admin(self.company1, self.user_order_admin)
+
+    def test_has_company_role_order_admin(self):
+        self.assertTrue(self.company1.has_company_role(self.user_order_admin, CompanyRole.RoleName.order_admin))
 
     def test_is_company_admin_user_is_admin(self):
         self.assertTrue(self.company1.is_company_admin(self.user2))
