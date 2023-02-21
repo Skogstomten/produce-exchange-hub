@@ -114,7 +114,7 @@ class Company(Model):
         return company
 
     @classmethod
-    def get(cls, pk: int, language: str | None = None) -> "Company":
+    def get(cls, company_id: int, language: str | None = None) -> "Company":
         """
         Get a company by primary key with company description localized.
 
@@ -125,12 +125,14 @@ class Company(Model):
 
         If language is not provided, this property will be empty.
         """
+        if company_id is None:
+            raise ValueError("company_id can't be null.")
         try:
-            item = cls.objects.get(pk=pk)
+            item = cls.objects.get(pk=company_id)
             item.description = item.get_description(language) if language else ""
             return item
         except cls.DoesNotExist:
-            raise Exception(f"Company with id {pk} does not exist")
+            raise Exception(f"Company with id {company_id} does not exist")
 
     @classmethod
     def get_newest(cls, language: str) -> list["Company"]:
@@ -149,7 +151,7 @@ class Company(Model):
         return self.has_company_role(user, ["company_admin"])
 
     def has_company_role(
-        self, user: User | None, roles: list[str | CompanyRole.RoleName] | str | CompanyRole.RoleName
+        self, user: User | None, roles: list[str | CompanyRole.RoleName] | str | CompanyRole.RoleName | None
     ) -> bool:
         if not user:
             return False
@@ -162,6 +164,9 @@ class Company(Model):
             company_user = self.users.get(user=user)
         except CompanyUser.DoesNotExist:
             return False
+
+        if roles is None:
+            return True
         return company_user.role.role_name in roles
 
     def has_company_type(self, company_type: str) -> bool:
@@ -190,7 +195,7 @@ class CompanyUser(Model):
         return f"{self.company.name} - {self.user.email} - {self.role.role_name}"
 
     @classmethod
-    def create_company_user(cls, company, user: User | int | str, role_name) -> "CompanyUser":
+    def create_company_user(cls, company, user: User | int | str, role_name: CompanyRole.RoleName) -> "CompanyUser":
         if isinstance(user, (int, str)):
             user = User.objects.get(pk=user)
         user = cls(company=company, user=user, role=CompanyRole.get(role_name))
@@ -198,11 +203,11 @@ class CompanyUser(Model):
         return user
 
     @classmethod
-    def create_company_admin(cls, company: Company, user: User | int) -> "CompanyUser":
+    def create_company_admin(cls, company: Company, user: User | int | str) -> "CompanyUser":
         return cls.create_company_user(company, user, CompanyRole.RoleName.company_admin)
 
     @classmethod
-    def create_order_admin(cls, company, user) -> "CompanyUser":
+    def create_order_admin(cls, company: Company, user: User | int | str) -> "CompanyUser":
         return cls.create_company_user(company, user, CompanyRole.RoleName.order_admin)
 
 

@@ -21,7 +21,7 @@ from .forms import (
 )
 from .decorators import company_role_required
 from .utils import get_language
-from .mixins import CompanyAdminRequiredMixin
+from .mixins import CompanyRoleRequiredMixin
 
 from shared.decorators import post_only
 
@@ -96,7 +96,7 @@ def delete_address(request: HttpRequest, company_id: int, address_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
-class EditCompanyView(CompanyAdminRequiredMixin, View):
+class EditCompanyView(CompanyRoleRequiredMixin, View):
     template_name = "main/edit_company.html"
 
     def get(self, request: HttpRequest, company_id: int):
@@ -180,7 +180,7 @@ def activate_company(request: HttpRequest, company_id: int):
     return redirect(reverse("main:edit_company", args=(company.id,)))
 
 
-class CompanyUsersView(CompanyAdminRequiredMixin, View):
+class CompanyUsersView(CompanyRoleRequiredMixin, View):
     template_name = "main/company_users.html"
 
     def get(self, request: HttpRequest, company_id: int):
