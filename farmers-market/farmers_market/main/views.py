@@ -1,12 +1,13 @@
 """Views for main module."""
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpResponseBadRequest
-from django.views.generic import View
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import View
 
-from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType, Order
+from shared.decorators import post_only
+from .decorators import company_role_required
 from .forms import (
     UpdateCompanyForm,
     UploadCompanyProfilePictureForm,
@@ -19,11 +20,9 @@ from .forms import (
     OrderForm,
     OrderFormSet,
 )
-from .decorators import company_role_required
-from .utils import get_language
 from .mixins import CompanyRoleRequiredMixin
-
-from shared.decorators import post_only
+from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType
+from .utils import get_language
 
 
 @company_role_required()
@@ -120,7 +119,9 @@ class EditCompanyView(CompanyRoleRequiredMixin, View):
             "add_contact_form": ContactForm(instance=Contact(company=company)),
             "add_address_form": AddressForm(instance=Address(company=company)),
             "sell_orders": company.orders.filter(order_type=OrderType.SELL).all(),
-            "edit_sell_orders_formset": OrderFormSet(queryset=company.orders.filter(order_type=OrderType.SELL)),
+            "edit_sell_orders_formset": OrderFormSet(
+                queryset=company.orders.filter(order_type=OrderType.SELL), initial=[{"company": company.id}]
+            ),
         }
 
         if company.is_producer():
@@ -222,9 +223,9 @@ def add_order(request: HttpRequest, company_id: int):
 
 @post_only
 @company_role_required(company_roles=["order_admin"])
-def update_order(request, company_id, order_id):
-    order = get_object_or_404(Order, pk=order_id, company__id=company_id)
-    form = OrderForm(company=order.company, data=request.POST, instance=order)
-    if form.is_valid():
-        form.save()
-    return redirect(reverse("main:edit_company", args=(order.company.id,)))
+def update_orders(request: HttpRequest, company_id: int):
+    company = get_object_or_404(Company, pk=company_id)
+    formset = OrderFormSet(request.POST)
+    if formset.is_valid():
+        formset.save()
+    return redirect(reverse("main:edit_company", args=(company.id,)))

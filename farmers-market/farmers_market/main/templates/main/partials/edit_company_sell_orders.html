@@ -30,11 +30,12 @@
         {% endfor %}
     </tbody>
 </table>
-
-{% for form in edit_sell_orders_formset.forms %}
-    <div class="modal" id="edit_order_{{ form.instance.id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="POST" action="{% url "main:update_order" company.id form.instance.id %}">
+<form method="POST" action="{% url "main:update_orders" company.id %}">
+    {% csrf_token %}
+    {{ edit_sell_orders_formset.management_form }}
+    {% for form in edit_sell_orders_formset.forms %}
+        <div class="modal" id="edit_order_{{ form.instance.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title">{% translate "Edit order" %}</h1>
@@ -48,7 +49,7 @@
                         <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
-{% endfor %}
+    {% endfor %}
+</form>

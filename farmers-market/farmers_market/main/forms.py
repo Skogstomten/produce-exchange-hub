@@ -145,8 +145,8 @@ class AddCompanyUserForm(ModelForm):
 
 
 class OrderForm(ModelForm):
-    company = ForeignKeyRefField(Company)
     currency = ChoiceField(choices=Currency.choices, initial=Currency.SEK, widget=RadioSelect)
+    company = ForeignKeyRefField(Company)
 
     def __init__(
         self,
@@ -167,7 +167,7 @@ class OrderForm(ModelForm):
 
     class Meta:
         model = Order
-        fields = ["company", "product", "price_per_unit", "unit_type", "currency", "order_type"]
+        fields = ["id", "company", "product", "price_per_unit", "unit_type", "currency", "order_type"]
 
 
 class SellOrderForm(OrderForm):

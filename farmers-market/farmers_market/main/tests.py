@@ -77,10 +77,9 @@ class EditOrderTest(TestCase):
         self.company, self.user, self.username, self.password = _create_company_with_admin(("buyer", "producer"))
         self.order = Order.add(self.company, "Cucumber", 10, "st", Currency.SEK, OrderType.SELL)
         self.url = reverse(
-            "main:update_order",
+            "main:update_orders",
             args=(
                 self.company.id,
-                self.order.id,
             ),
         )
 
@@ -124,12 +123,15 @@ class EditOrderTest(TestCase):
 
     def _get_post_object(self, product="Cucumber", price_per_unit=10, unit_type="st", currency=Currency.SEK) -> dict:
         return {
-            "company": self.company.id,
-            "product": product,
-            "price_per_unit": price_per_unit,
-            "unit_type": unit_type,
-            "currency": currency,
-            "order_type": OrderType.SELL,
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 1,
+            "form-0-id": self.order.id,
+            "form-0-company": self.company.id,
+            "form-0-product": product,
+            "form-0-price_per_unit": price_per_unit,
+            "form-0-unit_type": unit_type,
+            "form-0-currency": currency,
+            "form-0-order_type": OrderType.SELL,
         }
 
 
