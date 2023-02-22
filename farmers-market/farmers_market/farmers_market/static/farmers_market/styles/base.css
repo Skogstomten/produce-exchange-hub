@@ -31,9 +31,13 @@ form.inline {
 }
 
 #model_crop_image div.modal-body {
-    padding: 0.5px;
+    padding: 1px;
 }
 
 .clickable {
     cursor: pointer;
+}
+
+.mr-10 {
+    margin-right: 10px;
 }

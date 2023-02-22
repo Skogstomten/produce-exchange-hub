@@ -1,8 +1,10 @@
 from typing import Iterable
 
-from django.test import TestCase, Client
+from django.http import HttpResponseForbidden
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 
+from .decorators import company_role_required
 from .models import (
     User,
     Company,
@@ -18,6 +20,119 @@ from .models import (
     Order,
     OrderType,
 )
+
+PASSWORD = "test123"
+
+
+@company_role_required
+def i_require_company_admin_role(req, company_id) -> bool:
+    if req and company_id:
+        pass
+    return True
+
+
+@company_role_required(company_roles=("order_admin",))
+def i_require_company_admin_or_order_admin(request, *, company_id) -> bool:
+    if request and company_id:
+        pass
+    return True
+
+
+class CompanyRoleRequiredDecoratorTest(TestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_user(username="admin", email="admin@mail.com", password=PASSWORD)
+        self.order_admin = User.objects.create_user(
+            username="order_admin", email="order_admin@mail.com", password=PASSWORD
+        )
+        self.company = Company.create("IIsCompany", self.admin_user)
+        CompanyUser.create_order_admin(self.company, self.order_admin)
+        self.r_factory = RequestFactory()
+        self.request = self.r_factory.get(reverse("main:edit_company", args=(self.company.id,)))
+
+    def test_company_admin_can_get_passed_company_role_required(self):
+        self._login_user(self.admin_user)
+        self.assertTrue(i_require_company_admin_role(self.request, company_id=self.company.id))
+
+    def test_company_admin_can_get_passed_company_admin_or_order_admin_required(self):
+        self._login_user(self.admin_user)
+        self.assertTrue(i_require_company_admin_or_order_admin(self.request, company_id=self.company.id))
+
+    def test_order_admin_can_get_passed_company_admin_or_order_admin_required(self):
+        self._login_user(self.order_admin)
+        self.assertTrue(i_require_company_admin_or_order_admin(self.request, company_id=self.company.id))
+
+    def test_order_admin_can_not_get_passed_company_admin_required(self):
+        self._login_user(self.order_admin)
+        self.assertIsInstance(
+            i_require_company_admin_role(self.request, company_id=self.company.id), HttpResponseForbidden
+        )
+
+    def _login_user(self, user: User):
+        self.client.login(username=user.username, password=PASSWORD)
+        self.request.user = user
+
+
+class EditOrderTest(TestCase):
+    def setUp(self):
+        self.company, self.user, self.username, self.password = _create_company_with_admin(("buyer", "producer"))
+        self.order = Order.add(self.company, "Cucumber", 10, "st", Currency.SEK, OrderType.SELL)
+        self.url = reverse(
+            "main:update_orders",
+            args=(
+                self.company.id,
+            ),
+        )
+
+    def test_can_not_call_with_get(self):
+        self.assertEqual(404, self.client.get(self.url).status_code)
+
+    def test_admin_can_update_order(self):
+        self.client.login(username=self.username, password=self.password)
+        self.assertRedirects(
+            self.client.post(self.url, self._get_post_object(), follow=True),
+            reverse("main:edit_company", args=(self.company.id,)),
+        )
+
+    def test_order_admin_can_update_order(self):
+        order_admin = User.objects.create_user("IAdminOrders@gmail.com", "IAdminOrders@gmail.com", PASSWORD)
+        CompanyUser.create_order_admin(self.company, order_admin)
+        self.client.login(username=order_admin.username, password=PASSWORD)
+        self.assertRedirects(
+            self.client.post(self.url, self._get_post_object(), follow=True),
+            reverse("main:edit_company", args=(self.company.id,)),
+        )
+
+    def test_non_company_user_can_not_update_order(self):
+        user = User.objects.create_user("otheruser", "otheruser@mail.com", PASSWORD)
+        self.client.login(username=user.username, password=PASSWORD)
+        self.assertEqual(403, self.client.post(self.url, self._get_post_object()).status_code)
+
+    def test_admin_of_other_company_can_not_update_order(self):
+        other_admin = User.objects.create_user("otheradmin", "otheradmin@mail.com", PASSWORD)
+        Company.create("ShittyCompany", other_admin)
+        self.client.login(username=other_admin.username, password=PASSWORD)
+        self.assertEqual(403, self.client.post(self.url, self._get_post_object()).status_code)
+
+    def test_order_data_is_updated_correctly(self):
+        self.client.login(username=self.username, password=PASSWORD)
+        self.client.post(self.url, self._get_post_object("Potato", 5, "kg"))
+        order = Order.objects.get(pk=self.order.id)
+        self.assertEqual(order.product, "Potato")
+        self.assertEqual(order.price_per_unit, 5)
+        self.assertEqual(order.unit_type, "kg")
+
+    def _get_post_object(self, product="Cucumber", price_per_unit=10, unit_type="st", currency=Currency.SEK) -> dict:
+        return {
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 1,
+            "form-0-id": self.order.id,
+            "form-0-company": self.company.id,
+            "form-0-product": product,
+            "form-0-price_per_unit": price_per_unit,
+            "form-0-unit_type": unit_type,
+            "form-0-currency": currency,
+            "form-0-order_type": OrderType.SELL,
+        }
 
 
 class AddOrderContainer:
@@ -95,7 +210,7 @@ class AddSellOrderTest(TestCase):
 class CompanyUsersViewTest(TestCase):
     def test_can_delete_user(self):
         company, _ = _create_company_with_logged_in_admin(self.client)
-        other_user = User.objects.create_user("egon@persson.se", "egon@persson.se", "test123")
+        other_user = User.objects.create_user("egon@persson.se", "egon@persson.se", PASSWORD)
         CompanyUser.objects.create(company=company, user=other_user, role=_get_company_admin_role())
 
         response = self.client.post(reverse("main:delete_company_user", args=(company.id, other_user.id)), follow=True)
@@ -134,16 +249,14 @@ class ActivateCompanyViewTest(TestCase):
 
     def test_non_admin_user_returns_403(self):
         username = "nonadmin@test.se"
-        password = "test123"
-        User.objects.create_user(username, username, password)
-        self.client.login(username=username, password=password)
+        User.objects.create_user(username, username, PASSWORD)
+        self.client.login(username=username, password=PASSWORD)
         self.assertEqual(self.client.post(self.url).status_code, 403)
 
     def test_superuser_can_activate(self):
         username = "superuser@test.se"
-        password = "test123"
-        User.objects.create_superuser(username, username, password)
-        self.client.login(username=username, password=password)
+        User.objects.create_superuser(username, username, PASSWORD)
+        self.client.login(username=username, password=PASSWORD)
         self.assertEqual(self.client.post(self.url).status_code, 302)
 
     def test_success_redirects_back_to_edit_company_view(self):
@@ -284,8 +397,8 @@ class EditCompanyViewTest(TestCase):
         self.assertTrue(response.context.get("is_producer"))
 
     def _method_requires_company_admin(self, func):
-        user = User.objects.create_user("nisse", "nisse@pisse.se", "test123")
-        self.client.login(username=user.username, password="test123")
+        user = User.objects.create_user("nisse", "nisse@pisse.se", PASSWORD)
+        self.client.login(username=user.username, password=PASSWORD)
         self.assertEquals(func(self.url).status_code, 403)
 
 
@@ -293,10 +406,15 @@ class CompanyModelTest(TestCase):
     def setUp(self):
         self.company1 = Company.objects.create(name="test1", status=_get_status("active"))
         self.company2 = Company.objects.create(name="test2", status=_get_status("active"))
-        self.user1 = User.objects.create_user("nissepisse", "nisse@persson.se", "test123")
-        self.user2 = User.objects.create_user("egon", "egon@ljung.se", "test123")
+        self.user1 = User.objects.create_user("nissepisse", "nisse@persson.se", PASSWORD)
+        self.user2 = User.objects.create_user("egon", "egon@ljung.se", PASSWORD)
+        self.user_order_admin = User.objects.create_user("order_admin", "order_admin@mail.com", PASSWORD)
         CompanyUser.objects.create(company=self.company1, user=self.user2, role=_get_company_admin_role())
         CompanyUser.objects.create(company=self.company2, user=self.user1, role=_get_company_admin_role())
+        CompanyUser.create_order_admin(self.company1, self.user_order_admin)
+
+    def test_has_company_role_order_admin(self):
+        self.assertTrue(self.company1.has_company_role(self.user_order_admin, CompanyRole.RoleName.order_admin))
 
     def test_is_company_admin_user_is_admin(self):
         self.assertTrue(self.company1.is_company_admin(self.user2))
@@ -332,19 +450,25 @@ def _get_default_post_object():
     }
 
 
-def _create_user(email="nisse@persson.se", password="test123") -> tuple[User, str, str]:
+def _create_user(email="nisse@persson.se", password=PASSWORD) -> tuple[User, str, str]:
     user = User.objects.create_user(email, email, password)
     user.save()
     return user, email, password
 
 
-def _create_authenticated_user(client: Client, email="nisse@persson.se", password="test123") -> User:
+def _create_authenticated_user(client: Client, email="nisse@persson.se", password=PASSWORD) -> User:
     user, username, password = _create_user(email=email, password=password)
     client.login(username=username, password=password)
     return user
 
 
 def _create_company_with_admin(company_types: Iterable[str] = ()) -> tuple[Company, User, str, str]:
+    """
+    Creates a company with an admin user.
+
+    Returns:
+        Tuple[Company, User, username, password]
+    """
     company = _create_company(company_types=company_types)
     role = _get_company_admin_role()
     user, username, password = _create_user()

@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from django.http import HttpRequest, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -27,8 +29,9 @@ class CompanyRoleRequiredDecorator:
         return wrapper
 
 
-def company_role_required(pk_name: str = "company_id", company_roles: list[str] = ["company_admin"]):
+def company_role_required(pk_name: str = "company_id", company_roles: Iterable[str] = ("company_admin",)):
     """Checks if user has one of specified roles. Company admin is always included."""
+    company_roles = list(company_roles)
     if "company_admin" not in company_roles:
         company_roles.append("company_admin")
     if callable(pk_name):

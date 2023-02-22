@@ -1,5 +1,7 @@
-from typing import Any, Mapping
+from typing import Any
 
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.forms import (
     Form,
     ModelForm,
@@ -13,13 +15,11 @@ from django.forms import (
 )
 from django.http import HttpRequest
 from django.urls import reverse
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 
-from .models import ExtendedUser
 from shared.forms import UploadCroppedPictureModelForm
 from shared.models import Country
+from .models import ExtendedUser
 
 
 class RegisterForm(Form):
@@ -91,7 +91,7 @@ class LoginForm(Form):
 
 
 class UploadProfilePictureForm(UploadCroppedPictureModelForm):
-    def __init__(self, instance: ExtendedUser, data: Mapping = None, files: Mapping = None, *args, **kwargs):
+    def __init__(self, instance: ExtendedUser, data=None, files=None, *args, **kwargs):
         super().__init__(
             reverse("authentication:upload_profile_picture", args=(instance.user.id,)),
             instance,

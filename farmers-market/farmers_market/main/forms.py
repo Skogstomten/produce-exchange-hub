@@ -1,4 +1,4 @@
-from typing import Mapping, Any
+from typing import Any
 
 from django.forms import (
     ModelForm,
@@ -12,6 +12,7 @@ from django.forms import (
     RadioSelect,
     HiddenInput,
     TextInput,
+    modelformset_factory,
 )
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -76,7 +77,7 @@ class UpdateCompanyForm(ModelForm):
         queryset=Language.objects.all(), widget=CheckboxSelectMultiple, required=True
     )
 
-    def __init__(self, *args, instance: Company, data: Mapping[str, Any] = None, **kwargs):
+    def __init__(self, *args, instance: Company, data=None, **kwargs):
         super().__init__(data, *args, instance=instance, **kwargs)
         languages = instance.content_languages.all()
         for language in languages:
@@ -116,7 +117,7 @@ class UpdateCompanyForm(ModelForm):
 
 
 class UploadCompanyProfilePictureForm(UploadCroppedPictureModelForm):
-    def __init__(self, instance: Company, data: Mapping = None, files: Mapping = None, *args, **kwargs):
+    def __init__(self, instance: Company, data=None, files=None, *args, **kwargs):
         super().__init__(
             reverse("main:company_profile_picture", args=(instance.id,)), instance, data, files, *args, **kwargs
         )
@@ -133,7 +134,7 @@ class AddCompanyUserForm(ModelForm):
         model = CompanyUser
         fields = ["user", "company", "role"]
 
-    def __init__(self, company: Company, data: Mapping | None = None):
+    def __init__(self, company: Company, data=None):
         super().__init__(instance=CompanyUser(company=company), data=data)
         self.fields["role"] = ModelChoiceField(CompanyRole.objects.all(), initial=CompanyRole.objects.first())
 
@@ -143,13 +144,22 @@ class AddCompanyUserForm(ModelForm):
         )
 
 
-class AddOrderForm(ModelForm):
-    company = ForeignKeyRefField(Company)
+class OrderForm(ModelForm):
     currency = ChoiceField(choices=Currency.choices, initial=Currency.SEK, widget=RadioSelect)
+    company = ForeignKeyRefField(Company)
 
-    def __init__(self, company: Company, order_type: OrderType | None = None, data=None):
-        super().__init__(data=data)
-        self.fields["company"].initial = company.id
+    def __init__(
+        self,
+        company: Company | None = None,
+        order_type: OrderType | None = None,
+        data=None,
+        instance=None,
+        *args,
+        **kwargs,
+    ):
+        super().__init__(data=data, instance=instance, *args, **kwargs)
+        if company:
+            self.fields["company"].initial = company.id
         if not order_type:
             if data:
                 order_type = data.get("order_type", None)
@@ -157,14 +167,17 @@ class AddOrderForm(ModelForm):
 
     class Meta:
         model = Order
-        fields = ["company", "product", "price_per_unit", "unit_type", "currency", "order_type"]
+        fields = ["id", "company", "product", "price_per_unit", "unit_type", "currency", "order_type"]
 
 
-class AddSellOrderForm(AddOrderForm):
-    def __init__(self, company: Company, data=None):
-        super().__init__(company, OrderType.SELL, data)
+class SellOrderForm(OrderForm):
+    def __init__(self, company: Company, data=None, instance=None):
+        super().__init__(company, OrderType.SELL, data, instance)
 
 
-class AddBuyOrderForm(AddOrderForm):
-    def __init__(self, company: Company, data=None):
-        super().__init__(company, OrderType.BUY, data)
+class BuyOrderForm(OrderForm):
+    def __init__(self, company: Company, data=None, instance=None):
+        super().__init__(company, OrderType.BUY, data, instance)
+
+
+OrderFormSet = modelformset_factory(Order, OrderForm, extra=0)

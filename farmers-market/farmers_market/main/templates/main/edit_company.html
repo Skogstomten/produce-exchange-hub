@@ -1,174 +1,62 @@
 {% extends 'farmers_market/base.html' %}
 {% load static %}
 {% load i18n %}
-{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
 
 {% block styles %}
-<link rel="stylesheet" href="{% static 'main/styles/edit_company.css' %}">
+    <link rel="stylesheet" href="{% static 'main/styles/edit_company.css' %}">
 {% endblock styles %}
 
 {% block content %}
 
-<div class="edit-company-view mb-3">
-    <div class="row">
-        <div class="col-md-3">
-            {% include "shared/partials/profile_picture_with_upload.html" with profile_picture=company.profile_picture upload_profile_picture_form=upload_profile_picture_form %}
-            <div class="d-grid gap-2">
-                <a class="btn btn-secondary" href="{% url 'main:company_users' company.id %}">{% translate "Manage users" %}</a>
-                {% if company.is_producer %}
-                    <a class="btn btn-secondary" href="#" data-bs-toggle="modal" data-bs-target="#add_sell_order_modal">
-                        {% translate "Add sell order" %}
-                    </a>
-                {% endif %}
-                {% if company.is_buyer %}
-                    <a class="btn btn-secondary" href="#" data-bs-toggle="modal" data-bs-target="#add_buy_order_modal">
-                        {% translate "Add buy order" %}
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-        <div class="col-md-8">
-            <div class="row">
-                <div class="col-8">
-                    <h1>{% translate "Edit company" %}</h1>
-                    <form method="POST" action="{% url 'main:edit_company' company.id %}">
-                        {% csrf_token %}
-                        {{ update_company_form|crispy }}
-                        <input type="submit" class="btn btn-primary" value="{% translate "Save" %}" />
-                    </form>
-                    <div class="mt-3">
-                        {% if not company.is_activated %}
-                            <form method="POST" action="{% url 'main:activate_company' company.id %}">
-                                {% csrf_token %}
-                                <input type="submit" class="btn btn-primary" value="{% translate "Activate company" %}">
-                            </form>
-                        {% endif %}
-                    </div>
-                    <div class="mt-3">
-                        <h2>Sell orders</h2>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>{% translate "Product" %}</th>
-                                    <th>{% translate "Price" %}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for order in sell_orders %}
-                                    <tr>
-                                        <td>{{ order.product }}</td>
-                                        <td>
-                                            {% if order.price_per_unit %}
-                                                {{ order.price_per_unit }}
-                                                {{ order.currency }}{% if order.unit_type %}/{{ order.unit_type }}{% endif %}
-                                            {% endif %} 
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+    <div class="edit-company-view mb-3">
+        <div class="row">
+            <div class="col-md-3">
+                {% include "shared/partials/profile_picture_with_upload.html" with profile_picture=company.profile_picture upload_profile_picture_form=upload_profile_picture_form %}
+                <div class="d-grid gap-2">
+                    {% include "main/partials/edit_company_actions.html" %}
                 </div>
-                <div class="col-4">
-                    <div class="container">
-                        <h2>{% translate "Contacts" %}</h2>
-                        <div>
-                            {% for contact in company.contacts.all %}
-                                <div>
-                                    <label><strong>{{ contact.description }}</strong></label>
-                                    <form method="POST"
-                                            action="{% url 'main:delete_contact' company.id contact.id %}"
-                                            class="inline confirm-action"
-                                            data-confirmmessage="{% translate "Delete contact?" %}">
-                                        {% csrf_token %}
-                                        <button class="btn-icon btn-delete" type="submit"><i class="fa fa-close"></i></button>
-                                    </form>
-                                    <div>
-                                        <label>{% translate contact.contact_type.contact_type %}</label>
-                                        {{ contact.value }}
-                                    </div>
-                                </div>
-                            {% endfor %}
+            </div>
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-8">
+                        <h1>{% translate "Edit company" %}</h1>
+                        <form method="POST" action="{% url 'main:edit_company' company.id %}">
+                            {% csrf_token %}
+                            {{ update_company_form|crispy }}
+                            <input type="submit" class="btn btn-primary" value="{% translate "Save" %}" />
+                        </form>
+                        <div class="mt-3">
+                            {% if not company.is_activated %}
+                                <form method="POST" action="{% url 'main:activate_company' company.id %}">
+                                    {% csrf_token %}
+                                    <input type="submit" class="btn btn-primary" value="{% translate "Activate company" %}">
+                                </form>
+                            {% endif %}
                         </div>
-                        <button class="btn btn-light mt-2" type="button" data-bs-toggle="modal" data-bs-target="#add_contact_modal">
-                            {% translate "Add contact" %}
-                        </button>
+                        <div class="mt-3">
+                            {% include "main/partials/edit_company_sell_orders.html" %}
+                        </div>
                     </div>
-                    <div class="container mt-3">
-                        <h2>{% translate "Addresses" %}</h2>
-                        <div>
-                            {% for address in company.addresses.all %}
-                                <div>
-                                    <label><strong>{{ address.address_type }}</strong></label>
-                                    <form method="POST"
-                                            action="{% url 'main:delete_address' company.id address.id %}"
-                                            class="inline confirm-action"
-                                            data-confirmmessage="{% translate "Delete address?" %}">
-                                        {% csrf_token %}
-                                        <button class="btn-icon btn-delete" type="submit"><i class="fa fa-close"></i></button>
-                                    </form>
-                                    {% if address.addressee %}<div>{{ address.addressee }}</div>{% endif %}
-                                    {% if address.co_address %}<div>{{ address.co_address }}</div>{% endif %}
-                                    {% if address.street_address %}<div>{{ address.street_address }}</div>{% endif %}
-                                    {% if address.zip_code or address.city %}<div>{{ address.zip_code }} {{ address.city }}</div>{% endif %}
-                                    {% if address.country %}<div>{{ address.country.name }}</div>{% endif %}
-                                </div>
-                            {% endfor %}
+                    <div class="col-4">
+                        <div class="container">
+                            {% include "main/partials/edit_company_contacts_list.html" %}
                         </div>
-                        <button class="btn btn-light mt-2" type="button" data-bs-toggle="modal" data-bs-target="#add_address_modal">
-                            {% translate "Add address" %}
-                        </button>
+                        <div class="container mt-3">
+                            {% include "main/partials/edit_company_address_list.html" %}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="modal" tabindex="-1" id="add_address_modal" aria-hidden="true">
-    <form method="POST" action="{% url 'main:add_address' company.id %}">
-        {% csrf_token %}
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1>{% translate "Add address" %}</h1>
-                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">{{ add_address_form|crispy }}</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
-                    <input class="btn btn-primary" type="submit" value="{% translate "Save" %}" />
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
-
-<div class="modal" tabindex="-1" id="add_contact_modal" aria-hidden="true">
-    <form method="POST" action="{% url 'main:add_contact' company.id %}">
-        {% csrf_token %}
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1>{% translate "Add contact" %}</h1>
-                    <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">{{ add_contact_form|crispy }}</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
-                    <input class="btn btn-primary" type="submit" value="{% translate "Save" %}" />
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
-
-{% if add_sell_order_form %}
-    {% include "main/partials/add_order_modal.html" with modal_id="add_sell_order_modal" url=sell_order_post_url title=add_sell_order_title form=add_sell_order_form only %}
-{% endif %}
-{% if add_buy_order_form %}
-    {% include "main/partials/add_order_modal.html" with modal_id="add_buy_order_modal" url=buy_order_post_url title=add_buy_order_title form=add_buy_order_form only %}
-{% endif %}
+    {% if add_sell_order_form %}
+        {% include "main/partials/add_order_modal.html" with modal_id="add_sell_order_modal" url=sell_order_post_url title=add_sell_order_title form=add_sell_order_form only %}
+    {% endif %}
+    {% if add_buy_order_form %}
+        {% include "main/partials/add_order_modal.html" with modal_id="add_buy_order_modal" url=buy_order_post_url title=add_buy_order_title form=add_buy_order_form only %}
+    {% endif %}
 
 {% endblock content %}
 

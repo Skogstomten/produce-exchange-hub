@@ -4,12 +4,12 @@ from django.conf import settings
 
 
 def set_lang(request: HttpRequest):
-    next = request.GET.get("next", None)
-    if not next:
-        next = request.META.get("HTTP_REFERER", None)
-    if not next:
-        next = "/"
-    response = HttpResponseRedirect(next)
+    redirect_to = request.GET.get("next", None)
+    if not redirect_to:
+        redirect_to = request.META.get("HTTP_REFERER", None)
+    if not redirect_to:
+        redirect_to = "/"
+    response = HttpResponseRedirect(redirect_to)
     lang = request.GET.get("lang", None)
     if lang:
         translation.activate(lang)

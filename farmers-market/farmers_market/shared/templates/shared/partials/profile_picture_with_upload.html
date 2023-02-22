@@ -6,12 +6,12 @@ Requires context parameters:
 
 {% load static %}
 {% load i18n %}
-{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
 
 {% if profile_picture %}
-    <img src="{{ profile_picture.url }}" class="profile-picture" />
+    <img src="{{ profile_picture.url }}" class="profile-picture"  alt=""/>
 {% else %}
-    <img src="{% static 'shared/images/no_profile_picture_image.jpg' %}" class="profile-picture" />
+    <img src="{% static 'shared/images/no_profile_picture_image.jpg' %}" class="profile-picture"  alt=""/>
 {% endif %}
 <form method="POST"
         action="{{ upload_profile_picture_form.post_url }}"
@@ -27,7 +27,7 @@ Requires context parameters:
                     <h4 class="modal-title">{% translate "Crop profile picture" %}</h4>
                 </div>
                 <div class="modal-body">
-                    <img src="" id="image" style="max-width: 100%;">
+                    <img src="" id="image" style="max-width: 100%;" alt="">
                 </div>
                 <div class="modal-footer">
                     <div class="btn-group pull-left" role="group">

@@ -1,12 +1,13 @@
 """Views for main module."""
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, HttpResponseBadRequest
-from django.views.generic import View
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import View
 
-from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType
+from shared.decorators import post_only
+from .decorators import company_role_required
 from .forms import (
     UpdateCompanyForm,
     UploadCompanyProfilePictureForm,
@@ -14,15 +15,14 @@ from .forms import (
     ContactForm,
     AddressForm,
     AddCompanyUserForm,
-    AddSellOrderForm,
-    AddBuyOrderForm,
-    AddOrderForm,
+    SellOrderForm,
+    BuyOrderForm,
+    OrderForm,
+    OrderFormSet,
 )
-from .decorators import company_role_required
+from .mixins import CompanyRoleRequiredMixin
+from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType
 from .utils import get_language
-from .mixins import CompanyAdminRequiredMixin
-
-from shared.decorators import post_only
 
 
 @company_role_required()
@@ -53,10 +53,9 @@ def company_view(request: HttpRequest, company_id: int):
     )
 
 
-@company_role_required()
+@post_only
+@company_role_required
 def add_contact(request: HttpRequest, company_id: int):
-    if request.method != "POST":
-        return HttpResponseNotFound()
     form = ContactForm(request.POST)
     if not form.is_valid():
         return HttpResponseBadRequest()
@@ -64,10 +63,9 @@ def add_contact(request: HttpRequest, company_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
-@company_role_required()
+@post_only
+@company_role_required
 def delete_contact(request: HttpRequest, company_id: int, contact_id: int):
-    if request.method != "POST":
-        return HttpResponseNotFound()
     try:
         contact = Contact.objects.get(pk=contact_id, company__id=company_id)
         contact.delete()
@@ -76,10 +74,9 @@ def delete_contact(request: HttpRequest, company_id: int, contact_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
-@company_role_required()
+@post_only
+@company_role_required
 def add_address(request: HttpRequest, company_id: int):
-    if request.method != "POST":
-        return HttpResponseNotFound()
     form = AddressForm(request.POST)
     if not form.is_valid():
         return HttpResponseBadRequest()
@@ -87,10 +84,9 @@ def add_address(request: HttpRequest, company_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
+@post_only
 @company_role_required()
 def delete_address(request: HttpRequest, company_id: int, address_id: int):
-    if request.method != "POST":
-        return HttpResponseNotFound()
     try:
         address = Address.objects.get(pk=address_id, company__id=company_id)
         address.delete()
@@ -99,7 +95,7 @@ def delete_address(request: HttpRequest, company_id: int, address_id: int):
     return redirect(reverse("main:edit_company", args=(company_id,)))
 
 
-class EditCompanyView(CompanyAdminRequiredMixin, View):
+class EditCompanyView(CompanyRoleRequiredMixin, View):
     template_name = "main/edit_company.html"
 
     def get(self, request: HttpRequest, company_id: int):
@@ -123,13 +119,16 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
             "add_contact_form": ContactForm(instance=Contact(company=company)),
             "add_address_form": AddressForm(instance=Address(company=company)),
             "sell_orders": company.orders.filter(order_type=OrderType.SELL).all(),
+            "edit_sell_orders_formset": OrderFormSet(
+                queryset=company.orders.filter(order_type=OrderType.SELL), initial=[{"company": company.id}]
+            ),
         }
 
         if company.is_producer():
             context.update(
                 {
                     "is_producer": True,
-                    "add_sell_order_form": AddSellOrderForm(company),
+                    "add_sell_order_form": SellOrderForm(company),
                     "sell_order_post_url": reverse("main:add_sell_order", args=(company.id,)),
                     "add_sell_order_title": _("Add sell order"),
                 }
@@ -139,7 +138,7 @@ class EditCompanyView(CompanyAdminRequiredMixin, View):
             context.update(
                 {
                     "is_buyer": True,
-                    "add_buy_order_form": AddBuyOrderForm(company),
+                    "add_buy_order_form": BuyOrderForm(company),
                     "buy_order_post_url": reverse("main:add_buy_order", args=(company.id,)),
                     "add_buy_order_title": _("Add buy order"),
                 }
@@ -182,7 +181,7 @@ def activate_company(request: HttpRequest, company_id: int):
     return redirect(reverse("main:edit_company", args=(company.id,)))
 
 
-class CompanyUsersView(CompanyAdminRequiredMixin, View):
+class CompanyUsersView(CompanyRoleRequiredMixin, View):
     template_name = "main/company_users.html"
 
     def get(self, request: HttpRequest, company_id: int):
@@ -216,7 +215,17 @@ def delete_company_user(request: HttpRequest, company_id: int, user_id: int):
 @company_role_required(company_roles=["order_admin"])
 def add_order(request: HttpRequest, company_id: int):
     company = get_object_or_404(Company, pk=company_id)
-    form = AddOrderForm(company, data=request.POST)
+    form = OrderForm(company, data=request.POST)
     if form.is_valid():
         form.save()
+    return redirect(reverse("main:edit_company", args=(company.id,)))
+
+
+@post_only
+@company_role_required(company_roles=["order_admin"])
+def update_orders(request: HttpRequest, company_id: int):
+    company = get_object_or_404(Company, pk=company_id)
+    formset = OrderFormSet(request.POST)
+    if formset.is_valid():
+        formset.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))
