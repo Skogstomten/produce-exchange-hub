@@ -31,6 +31,35 @@ from main.models import (
 )
 
 
+class DeactivateCompanyTest(TestCase):
+    def setUp(self):
+        self.company, self.user, _, _ = create_company_with_admin()
+        self.order_admin = User.objects.create_user("order_admin", "order_admin@mail.com", PASSWORD)
+        CompanyUser.create_order_admin(self.company, self.order_admin)
+        self.other_user = User.objects.create_user("other_user", "other_user@mail.com", PASSWORD)
+
+    def test_company_admin_can_deactivate_company(self):
+        pass
+
+    def test_order_admin_can_not_deactivate_company(self):
+        pass
+
+    def test_non_company_user_can_not_deactivate_company(self):
+        pass
+
+    def test_company_admin_of_other_company_can_not_deactivate_company(self):
+        pass
+
+    def test_deactivate_button_is_rendered_on_page_for_company_admin(self):
+        pass
+
+    def test_deactivate_button_is_not_rendered_on_page_for_order_admin(self):
+        pass
+
+    def test_company_status_is_updated_correctly_on_deactivation(self):
+        pass
+
+
 @company_role_required
 def i_require_company_admin_role(req, company_id) -> bool:
     if req and company_id:
