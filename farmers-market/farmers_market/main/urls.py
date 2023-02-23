@@ -22,6 +22,7 @@ urlpatterns = [
         name="company_profile_picture",
     ),
     path("companies/<int:company_id>/activate", views.activate_company, name="activate_company"),
+    path("companies/<int:company_id>/deactivate", views.deactivate_company, name="deactivate_company"),
     path("companies/<int:company_id>/orders/add-sell-order", views.add_order, name="add_sell_order"),
     path("companies/<int:company_id>/orders/add_buy_order", views.add_order, name="add_buy_order"),
     path("companies/<int:company_id>/orders/update", views.update_orders, name="update_orders"),

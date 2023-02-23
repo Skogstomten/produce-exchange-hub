@@ -38,10 +38,7 @@ def upload_company_profile_picture(request: HttpRequest, company_id: int):
 
 
 def index(request: HttpRequest):
-    companies = Company.objects.filter(status__status_name="active").order_by("-activation_date")[:10]
-    for company in companies:
-        company.description = company.get_description(get_language(request))
-    return render(request, "main/index.html", {"companies": companies})
+    return render(request, "main/index.html", {"companies": Company.get_newest(get_language(request))})
 
 
 def company_view(request: HttpRequest, company_id: int):
@@ -122,6 +119,7 @@ class EditCompanyView(CompanyRoleRequiredMixin, View):
             "edit_sell_orders_formset": OrderFormSet(
                 queryset=company.orders.filter(order_type=OrderType.SELL), initial=[{"company": company.id}]
             ),
+            "is_company_admin": company.is_company_admin(request.user),
         }
 
         if company.is_producer():
@@ -228,4 +226,13 @@ def update_orders(request: HttpRequest, company_id: int):
     formset = OrderFormSet(request.POST)
     if formset.is_valid():
         formset.save()
+    return redirect(reverse("main:edit_company", args=(company.id,)))
+
+
+@post_only
+@company_role_required
+def deactivate_company(request: HttpRequest, company_id: int):
+    company = get_object_or_404(Company, pk=company_id)
+    company.status = CompanyStatus.get(CompanyStatus.StatusName.deactivated)
+    company.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))

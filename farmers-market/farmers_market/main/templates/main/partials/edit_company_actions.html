@@ -11,3 +11,8 @@
         {% translate "Add buy order" %}
     </a>
 {% endif %}
+{% if is_company_admin and company.status.status_name == "active" %}
+    <form id="deactivateCompanyForm" method="POST" action="{% url "main:deactivate_company" company.id %}">
+        <input type="submit" class="btn btn-danger">
+    </form>
+{% endif %}

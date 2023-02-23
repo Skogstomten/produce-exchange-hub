@@ -1,26 +1,29 @@
 from typing import Iterable
 
 from django.contrib.auth.models import User
-from django.test import Client
+from django.test import Client, TestCase as DjangoTestCase
 
 from main.models import Company, CompanyUser, CompanyRole, CompanyType, Language, CompanyStatus, ContactType
 
 PASSWORD = "test123"
 
 
-def create_user(email="nisse@persson.se", password=PASSWORD) -> tuple[User, str, str]:
-    user = User.objects.create_user(email, email, password)
-    user.save()
-    return user, email, password
+class TestCase(DjangoTestCase):
+    def login_user(self, user: User):
+        self.client.login(username=user.username, password=PASSWORD)
 
 
-def create_authenticated_user(client: Client, email="nisse@persson.se", password=PASSWORD) -> User:
-    user, username, password = create_user(email=email, password=password)
-    client.login(username=username, password=password)
+def create_user(email="nisse@persson.se") -> User:
+    return User.objects.create_user(email, email, PASSWORD)
+
+
+def create_authenticated_user(client: Client, email="nisse@persson.se") -> User:
+    user = create_user(email=email)
+    client.login(username=user.username, password=PASSWORD)
     return user
 
 
-def create_company_with_admin(company_types: Iterable[str] = ()) -> tuple[Company, User, str, str]:
+def create_company_with_admin(company_types: Iterable[str] = ()) -> tuple[Company, User]:
     """
     Creates a company with an admin user.
 
@@ -29,14 +32,14 @@ def create_company_with_admin(company_types: Iterable[str] = ()) -> tuple[Compan
     """
     company = create_company(company_types=company_types)
     role = get_company_admin_role()
-    user, username, password = create_user()
+    user = create_user()
     CompanyUser.objects.create(company=company, role=role, user=user)
-    return company, user, username, password
+    return company, user
 
 
 def create_company_with_logged_in_admin(client: Client, company_types: Iterable[str] = ()) -> tuple[Company, User]:
-    company, user, username, password = create_company_with_admin(company_types=company_types)
-    client.login(username=username, password=password)
+    company, user = create_company_with_admin(company_types=company_types)
+    client.login(username=user.username, password=PASSWORD)
     return company, user
 
 
