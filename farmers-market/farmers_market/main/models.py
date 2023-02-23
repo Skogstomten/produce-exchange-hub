@@ -136,7 +136,14 @@ class Company(Model):
 
     @classmethod
     def get_newest(cls, language: str) -> list["Company"]:
-        pass
+        companies = (
+            cls.objects.filter(status=CompanyStatus.get(CompanyStatus.StatusName.deactivated))
+            .order_by("-activation_date")
+            .all()
+        )
+        for company in companies:
+            company.description = company.get_description(language)
+        return companies
 
     def get_description(self, language: str) -> str:
         return get_localized_value_from_object(

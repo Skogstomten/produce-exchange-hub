@@ -34,4 +34,4 @@ jobs:
     - name: Run tests
       working-directory: ./farmers-market/farmers_market
       run: |
-        python manage.py test
+        python manage.py test --parallel 16

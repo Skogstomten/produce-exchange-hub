@@ -5,3 +5,11 @@
 #image {
     margin: 0;
 }
+
+#deactivateCompanyForm {
+    width: 100%;
+}
+
+#deactivateCompanyForm button {
+    width: 100%;
+}
