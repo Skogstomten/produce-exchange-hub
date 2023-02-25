@@ -1,7 +1,7 @@
 from django.urls import reverse
 
-from ..models import OrderType, Order, Currency, CompanyUser
-from .test_helpers import create_company_with_admin, TestCase, create_authenticated_user, get_company_role
+from main.models import OrderType, Order, Currency, CompanyUser
+from main.tests.test_helpers import create_company_with_admin, TestCase, create_authenticated_user, get_company_role
 
 
 class AddOrderContainer:

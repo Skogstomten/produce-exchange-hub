@@ -1,8 +1,8 @@
 from django.urls import reverse
 from django.contrib.auth.models import User
 
-from .test_helpers import TestCase, create_company_with_admin, PASSWORD
-from ..models import Currency, OrderType, Order, CompanyUser, Company
+from main.tests.test_helpers import TestCase, create_company_with_admin, PASSWORD
+from main.models import Currency, OrderType, Order, CompanyUser, Company
 
 
 class EditOrderTest(TestCase):
