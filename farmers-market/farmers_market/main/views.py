@@ -21,7 +21,7 @@ from .forms import (
     OrderFormSet,
 )
 from .mixins import CompanyRoleRequiredMixin
-from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType
+from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType, Order
 from .utils import get_language
 
 
@@ -236,3 +236,12 @@ def deactivate_company(request: HttpRequest, company_id: int):
     company.status = CompanyStatus.get(CompanyStatus.StatusName.deactivated)
     company.save()
     return redirect(reverse("main:edit_company", args=(company.id,)))
+
+
+@post_only
+@company_role_required(company_roles=("order_admin",))
+def delete_order(request: HttpRequest, company_id: int, order_id: int):
+    company = get_object_or_404(Company, id=company_id)
+    order = get_object_or_404(Order, id=order_id, company=company)
+    order.delete()
+    return redirect(reverse("main:edit_company", args=(company_id,)))
