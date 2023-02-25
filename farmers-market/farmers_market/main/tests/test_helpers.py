@@ -2,6 +2,7 @@ from typing import Iterable
 
 from django.contrib.auth.models import User
 from django.test import Client, TestCase as DjangoTestCase
+from django.utils import timezone
 
 from main.models import Company, CompanyUser, CompanyRole, CompanyType, Language, CompanyStatus, ContactType
 
@@ -23,14 +24,16 @@ def create_authenticated_user(client: Client, email="nisse@persson.se") -> User:
     return user
 
 
-def create_company_with_admin(company_types: Iterable[str] = ()) -> tuple[Company, User]:
+def create_company_with_admin(
+    name: str = "Nisses Firma", status: str | CompanyStatus | None = None, company_types: Iterable[str] = ()
+) -> tuple[Company, User]:
     """
     Creates a company with an admin user.
 
     Returns:
-        Tuple[Company, User, username, password]
+        Tuple[Company, User]
     """
-    company = create_company(company_types=company_types)
+    company = create_company(name=name, status=status, company_types=company_types)
     role = get_company_admin_role()
     user = create_user()
     CompanyUser.objects.create(company=company, role=role, user=user)
@@ -63,10 +66,21 @@ def get_status(status_name: str) -> CompanyStatus:
     return CompanyStatus.objects.get(status_name=status_name)
 
 
-def create_company(company_types: Iterable[str] = ()) -> Company:
-    company = Company.objects.create(name="Nisses firma", status=get_status("active"))
+def create_company(
+    name="Nisses firma", status: str | CompanyStatus = None, company_types: Iterable[str] = ()
+) -> Company:
+    if status is None:
+        status = get_status("active")
+    elif isinstance(status, str):
+        status = get_status(status)
+
+    company = Company.objects.create(name=name, status=status)
+    if status.status_name == CompanyStatus.StatusName.active.value:
+        company.activation_date = timezone.now()
+
     for company_type in company_types:
         company.company_types.add(get_company_type(company_type))
+
     return company
 
 

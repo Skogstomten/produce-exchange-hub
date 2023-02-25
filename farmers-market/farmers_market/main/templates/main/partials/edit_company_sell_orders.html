@@ -24,7 +24,12 @@
                     <a href="#" class="mr-10" data-bs-toggle="modal" data-bs-target="#edit_order_{{ order.id }}">
                         <i class="fa-regular fa-pen-to-square pr-2"></i>
                     </a>
-                    <a href="#"><i class="fa-solid fa-trash-can"></i></a>
+                    <form class="inline confirm-action" method="POST" action="{% url "main:delete_order" company.id order.id %}">
+                        {% csrf_token %}
+                        <a href="#" class="delete-order-link" data-confirmmessage="{% translate "Delete order?" %}">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                    </form>
                 </td>
             </tr>
         {% endfor %}
