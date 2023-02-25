@@ -7,7 +7,7 @@ from main.models import Currency, OrderType, Order, CompanyUser, Company
 
 class EditOrderTest(TestCase):
     def setUp(self):
-        self.company, self.user = create_company_with_admin(("buyer", "producer"))
+        self.company, self.user = create_company_with_admin(company_types=("buyer", "producer"))
         self.order = Order.add(self.company, "Cucumber", 10, "st", Currency.SEK, OrderType.SELL)
         self.url = reverse(
             "main:update_orders",

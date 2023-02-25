@@ -137,7 +137,7 @@ class Company(Model):
     @classmethod
     def get_newest(cls, language: str) -> list["Company"]:
         companies = (
-            cls.objects.filter(status=CompanyStatus.get(CompanyStatus.StatusName.deactivated))
+            cls.objects.filter(status__status_name__iexact=CompanyStatus.StatusName.active.value)
             .order_by("-activation_date")
             .all()
         )

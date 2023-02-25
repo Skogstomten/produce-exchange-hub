@@ -9,7 +9,7 @@ class AddOrderContainer:
         (
             self.company,
             self.company_admin,
-        ) = create_company_with_admin(("buyer", "producer"))
+        ) = create_company_with_admin(company_types=("buyer", "producer"))
         self.url = reverse(endpoint_name, args=(self.company.id,))
         self.order_type = order_type
 
