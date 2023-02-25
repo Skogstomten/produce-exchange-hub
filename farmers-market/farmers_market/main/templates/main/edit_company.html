@@ -52,10 +52,10 @@
     </div>
 
     {% if add_sell_order_form %}
-        {% include "main/partials/add_order_modal.html" with modal_id="add_sell_order_modal" url=sell_order_post_url title=add_sell_order_title form=add_sell_order_form only %}
+        {% include "main/partials/add_order_modal.html" with modal_id="add_sell_order_modal" url=sell_order_post_url title=add_sell_order_title form=add_sell_order_form %}
     {% endif %}
     {% if add_buy_order_form %}
-        {% include "main/partials/add_order_modal.html" with modal_id="add_buy_order_modal" url=buy_order_post_url title=add_buy_order_title form=add_buy_order_form only %}
+        {% include "main/partials/add_order_modal.html" with modal_id="add_buy_order_modal" url=buy_order_post_url title=add_buy_order_title form=add_buy_order_form %}
     {% endif %}
 
 {% endblock content %}
