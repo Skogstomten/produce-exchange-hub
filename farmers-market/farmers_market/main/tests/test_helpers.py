@@ -2,7 +2,7 @@ from typing import Iterable
 
 from django.contrib.auth.models import User
 from django.test import Client, TestCase as DjangoTestCase
-from datetime import datetime, UTC
+from django.utils import timezone
 
 from main.models import Company, CompanyUser, CompanyRole, CompanyType, Language, CompanyStatus, ContactType
 
@@ -76,7 +76,7 @@ def create_company(
 
     company = Company.objects.create(name=name, status=status)
     if status.status_name == CompanyStatus.StatusName.active.value:
-        company.activation_date = datetime.now(UTC)
+        company.activation_date = timezone.now()
 
     for company_type in company_types:
         company.company_types.add(get_company_type(company_type))
