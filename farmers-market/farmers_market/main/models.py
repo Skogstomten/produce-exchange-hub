@@ -34,6 +34,10 @@ class CompanyType(Model):
     type_name = CharField(max_length=50, unique=True)
     description = CharField(max_length=200)
 
+    class TypeName(Enum):
+        PRODUCER = "producer"
+        BUYER = "buyer"
+
     def __str__(self):
         return f"{self.id}: {self.type_name}"
 
@@ -191,6 +195,14 @@ class Company(Model):
 
     def is_activated(self) -> bool:
         return self.status.status_name != CompanyStatus.StatusName.created.value
+
+    @property
+    def sell_orders(self) -> Iterable["Order"]:
+        return self.orders.filter(order_type=OrderType.SELL).all()
+
+    @property
+    def buy_orders(self) -> Iterable["Order"]:
+        return self.orders.filter(order_type=OrderType.BUY).all()
 
 
 class CompanyUser(Model):
