@@ -46,7 +46,10 @@ def company_view(request: HttpRequest, company_id: int):
     return render(
         request,
         "main/company.html",
-        {"company": company, "user_is_company_admin": company.is_company_admin(request.user)},
+        {
+            "company": company,
+            "user_is_company_admin": company.is_company_admin(request.user) if request.user.is_authenticated else False,
+        },
     )
 
 
@@ -115,7 +118,6 @@ class EditCompanyView(CompanyRoleRequiredMixin, View):
             "upload_profile_picture_form": UploadCompanyProfilePictureForm(instance=company),
             "add_contact_form": ContactForm(instance=Contact(company=company)),
             "add_address_form": AddressForm(instance=Address(company=company)),
-            "sell_orders": company.orders.filter(order_type=OrderType.SELL).all(),
             "edit_sell_orders_formset": OrderFormSet(
                 queryset=company.orders.filter(order_type=OrderType.SELL), initial=[{"company": company.id}]
             ),

@@ -11,3 +11,4 @@ from .edit_company_view_tests import *
 from .new_company_tests import *
 from .orders import *
 from .index_tests import *
+from .company_view_tests import *

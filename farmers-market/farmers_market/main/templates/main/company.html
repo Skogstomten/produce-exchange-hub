@@ -83,6 +83,15 @@
             {% endif %}
         </div>
     </div>
+    {% if company.sell_orders %}
+        <div class="row">
+            <div class="col-md">
+                <div class="container">
+                    {% include "main/partials/edit_company_sell_orders.html" with editable=False %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
 </div>
 
 {% endblock content %}
