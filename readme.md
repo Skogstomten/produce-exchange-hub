@@ -12,8 +12,8 @@ The latest iteration of the system is built in Python and Django.
 
 # Setup local dev environment
 ## Requirements
-- Python 3.10
-- Python editor of your choice
+- Python 3.10 or later.
+- Python editor of your choice.
 
 ## Setup
 - Clone repository
@@ -28,7 +28,7 @@ python -m venv venv
 ```
 - Install dependencies
 ```
-pip install -r requirements.dev.txt
+pip install -r requirements.txt
 ```
 
 ## Start
@@ -46,7 +46,7 @@ Black is being used for formatting with a line lenght of 121. While in active vi
 ```
 black ./ --line-length=121
 ```
-API folder contains a Powershell script file `format.ps1` with this script and hence, it's also possible to run:
+Project folder contains a Powershell script file `format.ps1` with this script and hence, it's also possible to run:
 ```
 .\format.ps1
 ```
