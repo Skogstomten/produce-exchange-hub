@@ -21,7 +21,7 @@ from .forms import (
     OrderFormSet,
 )
 from .mixins import CompanyRoleRequiredMixin
-from .models import Company, CompanyStatus, Contact, Address, CompanyUser, OrderType, Order
+from .models import Company, CompanyStatus, Contact, Address, CompanyUser, Order
 from .utils import get_language
 
 
@@ -118,8 +118,8 @@ class EditCompanyView(CompanyRoleRequiredMixin, View):
             "upload_profile_picture_form": UploadCompanyProfilePictureForm(instance=company),
             "add_contact_form": ContactForm(instance=Contact(company=company)),
             "add_address_form": AddressForm(instance=Address(company=company)),
-            "edit_sell_orders_formset": OrderFormSet(
-                queryset=company.orders.filter(order_type=OrderType.SELL), initial=[{"company": company.id}]
+            "edit_orders_formset": OrderFormSet(
+                queryset=company.orders.all(), initial=[{"company": company.id}]
             ),
             "is_company_admin": company.is_company_admin(request.user),
         }
