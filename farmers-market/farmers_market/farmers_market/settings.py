@@ -105,13 +105,21 @@ if "test" in sys.argv:
 else:
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "ENGINE": "django.db.backends.mysql",
             "NAME": "produce_exchange_hub",
-            "USER": "postgres",
-            "PASSWORD": "test123",
-            "HOST": "127.0.0.1",
-            "PORT": "5432",
+            "USER": "root",
+            "PASSWORD": "Accountec1",
+            "HOST": "localhost",
+            "PORT": "3306"
         }
+        # "default": {
+        #     "ENGINE": "django.db.backends.postgresql_psycopg2",
+        #     "NAME": "produce_exchange_hub",
+        #     "USER": "postgres",
+        #     "PASSWORD": "test123",
+        #     "HOST": "127.0.0.1",
+        #     "PORT": "5432",
+        # }
     }
 
 

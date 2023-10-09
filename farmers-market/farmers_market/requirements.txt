@@ -1,7 +1,7 @@
-Django==4.1.6
-django-cleanup==6.0.0
-Pillow==9.3.0
+Django==4.2.6
+django-cleanup==8.0.0
+Pillow==10.0.1
 crispy-bootstrap5==0.7
-black==22.10.0
-psycopg2==2.9.5
-tblib==1.7.0
+black==23.9.1
+tblib==2.0.0
+mysqlclient==2.2.0
