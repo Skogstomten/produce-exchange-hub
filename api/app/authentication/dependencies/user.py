@@ -4,16 +4,18 @@ Module for user related dependencies
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import SecurityScopes
 from jose import jwt, JWTError
+from sqlalchemy import Engine, select
+from sqlalchemy.orm import Session
 
-from app.authentication.datastores.authentication_datastore import AuthenticationDatastore, get_authentication_datastore
-from app.authentication.models.db.user import User
 from app.authentication.models.v1.token import TokenData, TokenRoleMap
 from app.shared.utils.request_utils import get_current_request_url_with_additions, get_url
 from .auth import OAUTH2_SCHEME_OPTIONAL, SECRET_KEY, ALGORITHM
 from app.logging.log import AppLogger, AppLoggerInjector
+from app.authentication.models.db.users import User
 from app.shared.errors.errors import InvalidOperationError
 from app.authentication.utils.str_utils import remove_brackets
 from ..errors.claim_type_not_supported_error import ClaimTypeNotSupportedError
+from app.database.dependencies.mysql import get_sqlalchemy_engine
 
 CLAIM_TYPE_VERIFIED = "verified"
 CLAIM_TYPE_ROLES = "roles"
@@ -238,7 +240,7 @@ def get_current_user_if_any(
     request: Request,
     security_scopes: SecurityScopes,
     token: str | None = Depends(OAUTH2_SCHEME_OPTIONAL),
-    authentication_datastore: AuthenticationDatastore = Depends(get_authentication_datastore),
+    db: Engine = Depends(get_sqlalchemy_engine),
     logger: AppLogger = Depends(logger_injector),
 ) -> User | None:
     """
@@ -248,14 +250,11 @@ def get_current_user_if_any(
     :param request: HTTP request object.
     :param security_scopes: security scope restrictions for current endpoint.
     :param token: encoded jwt token.
-    :param authentication_datastore: datastore for user database access.
+    :param db: SQL db engine.
     :param logger: AppLogger
     :return: User model from database.
     """
-    logger.debug(
-        f"get_current_user_if_any(request={request}, security_scopes={security_scopes}, token={token}, "
-        f"users={authentication_datastore})"
-    )
+    logger.debug(f"get_current_user_if_any(request={request}, security_scopes={security_scopes}, token={token}")
     if token is None:
         return None
     if security_scopes.scopes:
@@ -279,21 +278,23 @@ def get_current_user_if_any(
             detail="Unable to decode jwt token: " + str(err),
             headers={"WWW-Authenticate": authenticate_value},
         ) from err
-    user = authentication_datastore.get_user(email)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="No user was found for the provided username",
-            headers={"WWW-Authenticate": authenticate_value},
-        )
-    if not user_has_access(security_scopes, request, token_data, user):
-        request_url: str = get_current_request_url_with_additions(request, include_query=False)
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User is not authorized to access endpoint " f"'{request_url}'",
-            headers={"WWW-Authenticate": authenticate_value},
-        )
-    return user
+
+    with Session(db) as session:
+        user = session.scalar(select(User).where(User.email == email))
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="No user was found for the provided username",
+                headers={"WWW-Authenticate": authenticate_value},
+            )
+        if not user_has_access(security_scopes, request, token_data, user):
+            request_url: str = get_current_request_url_with_additions(request, include_query=False)
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User is not authorized to access endpoint " f"'{request_url}'",
+                headers={"WWW-Authenticate": authenticate_value},
+            )
+        return user
 
 
 def get_current_user(

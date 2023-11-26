@@ -1,9 +1,21 @@
-from sqlalchemy import create_engine
+"""
+Module for SQLAlchemy database engine injector.
+"""
+import functools
+
+from sqlalchemy import create_engine, Engine
+from sqlalchemy.orm import DeclarativeBase
 
 CONNECTION_STRING = "mysql+mysqldb://root:Accountec1@localhost:3306/farmers_market"
 
-engine = create_engine(CONNECTION_STRING)
+
+class BaseModel(DeclarativeBase):
+    pass
 
 
-def get_sqlalchemy_engine():
-    return engine
+@functools.lru_cache(None)
+def get_sqlalchemy_engine() -> Engine:
+    """
+    Return SQLAlchemy DB engine.
+    """
+    return create_engine(CONNECTION_STRING)

@@ -70,7 +70,7 @@ class UserOutModel(User, BaseOutModel):
         """
         instance = cls(
             url=get_current_request_url_with_additions(request, (str(model.id),), include_query=False),
-            **model.dict(),
+            **model.model_dump(),
         )
 
         if instance.profile_picture_url:
