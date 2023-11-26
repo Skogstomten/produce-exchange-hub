@@ -3,7 +3,7 @@ from fastapi import UploadFile, Depends
 from app.database.abstract.document_database import DocumentDatabase
 from app.database.dependencies.document_database import get_document_database
 from app.company.datastores.company_datastore import CompanyDatastore
-from app.company.models.db.company import Company
+from app.company.models.db.companies import Company
 from app.logging.log import AppLogger, AppLoggerInjector
 from app.shared.io.file_manager import FileManager, get_file_manager
 from app.shared.models.db.change import Change, ChangeType

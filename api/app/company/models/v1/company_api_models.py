@@ -1,11 +1,14 @@
 """API model classes for companies."""
 from datetime import datetime, tzinfo
+from typing import List
+from uuid import UUID
 
 from fastapi import Request, APIRouter
 from pydantic import BaseModel, Field
 
 from app.authentication.models.db.user import User
-from app.company.models.db.company import Company
+from app.company.models.db.companies import Company
+from app.company.models.db.contacts import Contact
 from app.company.models.shared.enums import CompanyStatus, CompanyTypes
 from app.company.models.v1.contacts import ContactListModel
 from app.company.utils.datetime_utils import to_timezone
@@ -25,6 +28,9 @@ def _initialize_company_model(
     request: Request,
     router: APIRouter,
     authenticated_user: User,
+    profile_picture_url: str | None,
+    contacts: List[Contact] | None,
+    changes: List[Change] | None,
 ):
     instance = cls(
         url=get_current_request_url_with_additions(request),
@@ -38,14 +44,14 @@ def _initialize_company_model(
         activation_date=to_timezone(model.activation_date, tz),
         description=select_localized_text(model.description, lang, model.content_languages_iso),
         external_website_url=model.external_website_url,
-        profile_picture_url=assemble_profile_picture_url(request, router, model.profile_picture_url, lang),
+        profile_picture_url=assemble_profile_picture_url(request, router, profile_picture_url, lang),
     )
 
-    if isinstance(instance, CompanyOutModel):
-        instance.contacts = model.contacts
+    if isinstance(instance, CompanyOutModel) and contacts is not None:
+        instance.contacts = [ContactListModel.from_database_model(contact, request, tz) for contact in contacts]
         try:
             if authenticated_user.is_superuser() or authenticated_user.has_role("company_admin", model.id):
-                instance.changes = model.changes
+                instance.changes = changes
         except AttributeError:
             pass
 
@@ -55,12 +61,12 @@ def _initialize_company_model(
 class CompanyOutListModel(BaseOutModel):
     """Company model used when listing companies."""
 
-    id: str
+    id: UUID
     name: str
     status: CompanyStatus
     created_date: datetime
-    company_types: list[CompanyTypes]
-    content_languages_iso: list[Language]
+    company_types: List[CompanyTypes]
+    content_languages_iso: List[Language]
     activation_date: datetime | None
     description: str | None = Field(None)
     external_website_url: str | None
@@ -75,11 +81,16 @@ class CompanyOutListModel(BaseOutModel):
         request: Request,
         router: APIRouter,
         authenticated_user: User,
+        profile_picture_url: str | None,
+        contacts: List[Contact] | None,
+        changes: List[Change] | None,
     ):
         """
         Creates model from database model with localization.
         """
-        return _initialize_company_model(cls, model, lang, tz, request, router, authenticated_user)
+        return _initialize_company_model(
+            cls, model, lang, tz, request, router, authenticated_user, profile_picture_url, contacts, changes
+        )
 
 
 class CompanyOutModel(CompanyOutListModel):
@@ -97,11 +108,16 @@ class CompanyOutModel(CompanyOutListModel):
         request: Request,
         router: APIRouter,
         authenticated_user: User,
+        profile_picture_url: str | None,
+        contacts: List[Contact] | None,
+        changes: List[Change] | None,
     ):
         """
         Creates model from database model with localization.
         """
-        return _initialize_company_model(cls, model, lang, tz, request, router, authenticated_user)
+        return _initialize_company_model(
+            cls, model, lang, tz, request, router, authenticated_user, profile_picture_url, contacts, changes
+        )
 
 
 class CompanyCreateModel(BaseModel):

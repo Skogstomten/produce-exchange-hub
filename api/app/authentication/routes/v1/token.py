@@ -16,12 +16,11 @@ from app.authentication.dependencies.auth import (
     ALGORITHM,
 )
 from app.authentication.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
+from app.authentication.models.db.users import User
 from app.authentication.models.v1.token import Token
 from app.authentication.oauth2.claim import Claim
 from app.authentication.oauth2.scopes import Scopes
-from app.shared.utils.string_values import StringValues
 from app.database.dependencies.mysql import get_sqlalchemy_engine
-from app.authentication.models.db.users import User
 from app.shared.cryptography import password_hasher as hasher
 
 router = APIRouter(prefix="/v1/token", tags=["Token"])
@@ -30,7 +29,7 @@ router = APIRouter(prefix="/v1/token", tags=["Token"])
 @router.post("/", response_model=Token)
 async def token(
     form_data: OAuth2PasswordRequestFormStrict = Depends(),
-        db: Engine = Depends(get_sqlalchemy_engine)
+    db: Engine = Depends(get_sqlalchemy_engine)
 ) -> Token:
     """Gets oauth2 access token."""
     with Session(db) as session:
@@ -70,8 +69,8 @@ def get_user_claims(user: User, scopes: Scopes) -> list[Claim]:
                 Claim("family_name", user.lastname),
             ]
         )
-    if scopes.has_scope("roles"):
-        claims.append(Claim("roles", StringValues(*user.roles)))
+    # if scopes.has_scope("roles"):
+    #     claims.append(Claim("roles", StringValues(*user.roles)))
     return claims
 
 

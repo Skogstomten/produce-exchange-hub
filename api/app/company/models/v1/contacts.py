@@ -4,7 +4,7 @@ from datetime import datetime, tzinfo
 from fastapi import Request
 from pydantic import BaseModel, Field
 
-from app.company.models.db.contact import Contact
+from app.company.models.db.contacts import Contact
 from app.company.models.shared.enums import ContactType
 from app.company.utils.datetime_utils import to_timezone
 from app.shared.models.v1.base_out_model import BaseOutModel

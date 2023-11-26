@@ -11,7 +11,7 @@ from app.company.models.v1.contacts import AddContactModel
 from app.user.datastores.user_datastore import UserDatastore
 from app.logging.log import AppLogger
 from app.shared.io.file_manager import FileManager
-from app.company.models.db.contact import Contact
+from app.company.models.db.contacts import Contact
 from app.company.models.shared.enums import ContactType, CompanyStatus
 
 
