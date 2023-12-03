@@ -1,35 +1,32 @@
 """
 Routing module for companies endpoint.
 """
-from fastapi import APIRouter, Depends, Query, Body, Path, Security, File, UploadFile, status, Request
-from fastapi.responses import PlainTextResponse, FileResponse
-from sqlalchemy import Engine, select
-from sqlalchemy.orm import Session
+from datetime import datetime
+from uuid import UUID
 
-from app.company.datastores.company_profile_picture_datastore import (
-    get_company_profile_picture_datastore,
-    CompanyProfilePictureDatastore,
-)
-from app.company.models.db.companies import Company
+from fastapi import APIRouter, Depends, Query, Body, Path, Security, File, UploadFile, Request
+from fastapi.responses import PlainTextResponse, FileResponse
+from pytz import utc
+
+from app.authentication.dependencies.user import get_current_user, get_current_user_if_any
 from app.company.models.shared.enums import SortOrder
-from app.database.dependencies.mysql import get_sqlalchemy_engine
-from app.shared.config.routing_config import BASE_PATH
-from app.shared.dependencies.essentials import Essentials, get_essentials
-from app.logging.log import AppLoggerInjector, AppLogger
+from app.company.models.v1.company_api_models import (
+    CompanyOutModel,
+    CompanyCreateModel,
+    CompanyUpdateForm,
+    CompanyOutListModel,
+)
 from app.company.models.v1.paging_information import (
     PagingInformation,
     get_paging_information,
 )
-from app.authentication.dependencies.user import get_current_user, get_current_user_if_any
-from app.shared.errors.errors import ErrorModel
-from app.company.models.v1.company_api_models import (
-    CompanyOutModel,
-    CompanyCreateModel,
-    CompanyUpdateModel,
-    CompanyOutListModel,
-)
+from app.database.enums import CompanyStatus
+from app.database.models import User, Company
+from app.logging.log import AppLoggerInjector, AppLogger
+from app.shared.config.routing_config import BASE_PATH
+from app.shared.dependencies.requestcontext import RequestContext, get_request_context
+from app.shared.io.file_manager import FileManager, get_file_manager
 from app.shared.models.v1.paging_response_model import PagingResponseModel
-from app.authentication.models.db.user import User
 from app.shared.utils.request_utils import get_url
 from app.shared.utils.url_utils import assemble_profile_picture_url
 
@@ -42,8 +39,7 @@ router = APIRouter(prefix=BASE_PATH + "/companies", tags=["Companies"])
 async def get_companies(
     sort_by: str | None = Query(None),
     sort_order: SortOrder = Query(SortOrder.asc),
-    db: Engine = Depends(get_sqlalchemy_engine),
-    essentials: Essentials = Depends(get_essentials),
+    essentials: RequestContext = Depends(get_request_context),
     paging_information: PagingInformation = Depends(get_paging_information),
     authenticated_user: User | None = Depends(get_current_user_if_any),
     logger: AppLogger = Depends(logger_injector),
@@ -53,62 +49,65 @@ async def get_companies(
         f"Incoming={get_url(essentials.request)}: sort_by={sort_by}, sort_order={sort_order}, "
         f"essentials={essentials}, paging_information={paging_information}, user={authenticated_user}"
     )
-    with Session(db) as session:
-        query = select(Company).offset(paging_information.skip).limit(paging_information.take)
-        if sort_by is not None:
-            match sort_by:
-                case "name":
-                    query = query.order_by(Company.name.asc() if sort_order == SortOrder.asc else Company.name.desc())
-                case "status":
-                    query = query.order_by(
-                        Company.status.asc() if sort_order == SortOrder.asc else Company.status.desc()
-                    )
-                case "created_date":
-                    query = query.order_by(
-                        Company.created_date.asc() if sort_order == SortOrder.asc else Company.created_date.desc()
-                    )
-                case "company_types":
-                    query = query.order_by(
-                        Company.company_types.asc() if sort_order == SortOrder.asc else Company.company_types.desc()
-                    )
-                case "content_language":
-                    query = query.order_by(
-                        Company.content_languages_iso.asc()
-                        if sort_order == SortOrder.asc
-                        else Company.content_languages_iso.desc()
-                    )
-                case "activation_date":
-                    query = query.order_by(
-                        Company.activation_date.asc() if sort_order == SortOrder.asc else Company.activation_date.desc()
-                    )
 
-        companies = session.scalars(query)
-        items: list[CompanyOutListModel] = []
-        for company in companies:
-            item = CompanyOutListModel.from_database_model(
-                company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
-            )
-            items.append(item)
-        response = PagingResponseModel[CompanyOutListModel].create(
-            items,
-            paging_information.skip,
-            paging_information.take,
-            essentials.request,
+    query = Company.select()
+    if sort_by is not None:
+        match sort_by:
+            case "name":
+                query = query.order_by(Company.name.asc() if sort_order == SortOrder.desc else Company.name.desc())
+            case "status":
+                query = query.order_by(Company.status.asc() if sort_order == SortOrder.asc else Company.status.desc())
+            case "created_date":
+                query = query.order_by(
+                    Company.created_date.asc() if sort_order == SortOrder.asc else Company.created_date.desc()
+                )
+            case "company_types":
+                query = query.order_by(
+                    Company.company_types.asc() if sort_order == SortOrder.asc else Company.company_types.desc()
+                )
+            case "content_language":
+                query = query.order_by(
+                    Company.content_languages_iso.asc()
+                    if sort_order == SortOrder.asc
+                    else Company.content_languages_iso.desc()
+                )
+            case "activation_date":
+                query = query.order_by(
+                    Company.activation_date.asc() if sort_order == SortOrder.asc else Company.activation_date.desc()
+                )
+
+    query = query.paginate(paging_information.page, paging_information.page_size)
+
+    items: list[CompanyOutListModel] = []
+    for company in query:
+        item = CompanyOutListModel.from_database_model(
+            company, essentials.language, essentials.timezone, essentials.request, router, None, None
         )
-        return response
+        items.append(item)
+    response = PagingResponseModel[CompanyOutListModel].create(
+        items,
+        paging_information.page,
+        paging_information.page_size,
+        essentials.request,
+    )
+    return response
 
 
 @router.get("/{company_id}", response_model=CompanyOutModel)
 async def get_company(
-    company_id: str,
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    essentials: Essentials = Depends(get_essentials),
+    company_id: UUID,
+    essentials: RequestContext = Depends(get_request_context),
     authenticated_user: User = Depends(get_current_user_if_any),
 ) -> CompanyOutModel:
     """Get a company by id."""
-    company = company_datastore.get_company(company_id, authenticated_user)
+    company = Company.get_by_id(company_id)
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
+        company,
+        essentials.language,
+        essentials.timezone,
+        essentials.request,
+        router,
+        company.changes if authenticated_user.is_superuser or authenticated_user.is_company_admin(company_id) else None,
     )
 
 
@@ -116,33 +115,36 @@ async def get_company(
 async def add_company(
     company: CompanyCreateModel = Body(...),
     authenticated_user: User = Security(get_current_user, scopes=("verified:True",)),
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    company_user_datastore: CompanyUserDatastore = Depends(get_company_user_datastore),
-    essentials: Essentials = Depends(get_essentials),
+    context: RequestContext = Depends(get_request_context),
 ) -> CompanyOutModel:
     """Add a new company."""
-    created_company = company_datastore.add_company(company, authenticated_user)
-    company_user_datastore.add_user_to_company(
-        created_company.id, "company_admin", authenticated_user.id, authenticated_user
-    )
+    company = Company(**company.model_dump())
+    company.save()
+    company.users.add(authenticated_user)
+    company.save()
     return CompanyOutModel.from_database_model(
-        created_company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
+        company, context.language, context.timezone, context.request, router, None
     )
 
 
 @router.put("/{company_id}", response_model=CompanyOutModel)
 async def update_company(
     company_id: str = Path(...),
-    company: CompanyUpdateModel = Body(...),
+    form_data: CompanyUpdateForm = Body(...),
     authenticated_user: User = Security(
         get_current_user,
         scopes=("roles:company_admin:{company_id}",),
     ),
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    essentials: Essentials = Depends(get_essentials),
+    essentials: RequestContext = Depends(get_request_context),
 ):
     """Update a company."""
-    company = company_datastore.update_company(company_id, company, authenticated_user)
+    company = Company.get_by_id(company_id)
+    company.name = form_data.name
+    company.company_types = form_data.company_types
+    company.content_languages_iso = form_data.content_languages_iso
+    company.external_website_url = form_data.external_website_url
+    company.save()
+
     return CompanyOutModel.from_database_model(
         company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
     )
@@ -158,11 +160,13 @@ async def activate_company(
             "roles:company_admin:{company_id}",
         ),
     ),
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    essenties: Essentials = Depends(get_essentials),
+    essenties: RequestContext = Depends(get_request_context),
 ) -> CompanyOutModel:
     """Activates new company."""
-    company = company_datastore.activate_company(company_id, authenticated_user)
+    company = Company.get_by_id(company_id)
+    company.status = CompanyStatus.active
+    company.activation_date = datetime.now(utc)
+    company.save()
     return CompanyOutModel.from_database_model(
         company, essenties.language, essenties.timezone, essenties.request, router, authenticated_user
     )
@@ -178,80 +182,12 @@ async def deactivate_company(
             "roles:company_admin:{company_id}",
         ),
     ),
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    essentials: Essentials = Depends(get_essentials),
+    essentials: RequestContext = Depends(get_request_context),
 ):
     """Deactivates a company."""
-    company = company_datastore.deactivate_company(company_id, authenticated_user)
-    return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
-    )
-
-
-@router.get(
-    "/{company_id}/names",
-    response_model=dict[str, str],
-    responses={
-        status.HTTP_200_OK: {
-            "description": "Successful response.",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "sv": "Firmanamn",
-                        "en": "Company name",
-                    }
-                }
-            },
-        },
-        status.HTTP_404_NOT_FOUND: {
-            "description": "Company not found.",
-            "model": ErrorModel,
-            "content": {
-                "application/json": {
-                    "example": ErrorModel.create(status.HTTP_404_NOT_FOUND, "Company not found", "this:is/url").dict()
-                }
-            },
-        },
-        status.HTTP_500_INTERNAL_SERVER_ERROR: {
-            "description": "Internal Server Error",
-            "model": ErrorModel,
-            "content": {
-                "application/json": {
-                    "example": ErrorModel.create(
-                        status.HTTP_500_INTERNAL_SERVER_ERROR, "Someone shat in the blue locker", "this:is/url"
-                    ).dict()
-                }
-            },
-        },
-    },
-)
-async def get_company_names(
-    request: Request,
-    company_id: str,
-    user: User = Security(
-        get_current_user,
-        scopes=("roles:superuser", "roles:company_admin:{company_id}"),
-    ),
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    logger: AppLogger = Depends(logger_injector),
-):
-    """Get the map of names for company for easy edit and update."""
-    logger.debug(f"Incoming={get_url(request)}: company_id={company_id}, user={user}")
-    company = company_datastore.get_company(company_id, user)
-    return company.name
-
-
-@router.put("/{company_id}/names", response_model=CompanyOutModel)
-async def update_company_names(
-    company_id: str,
-    names: dict[str, str] = Body(...),
-    authenticated_user: User = Security(
-        get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
-    ),
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    essentials: Essentials = Depends(get_essentials),
-):
-    company = company_datastore.update_company_names(company_id, names, authenticated_user)
+    company = Company.get_by_id(company_id)
+    company.status = CompanyStatus.deactivated
+    company.save()
     return CompanyOutModel.from_database_model(
         company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
     )
@@ -261,9 +197,8 @@ async def update_company_names(
 async def get_company_descriptions(
     company_id: str,
     user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
 ):
-    company = company_datastore.get_company(company_id, user)
+    company = Company.get_by_id(company_id)
     return company.description
 
 
@@ -274,12 +209,23 @@ async def update_company_descriptions(
     authenticated_user: User = Security(
         get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
     ),
-    company_datastore: CompanyDatastore = Depends(get_company_datastore),
-    essentials: Essentials = Depends(get_essentials),
+    essentials: RequestContext = Depends(get_request_context),
+    file_manager: FileManager = Depends(get_file_manager),
 ):
-    company = company_datastore.update_company_descriptions(company_id, descriptions, authenticated_user)
+    """
+    TODO: Write this
+    """
+    company = Company.get_by_id(company_id)
+    company.description = descriptions
+    company.save()
+
     return CompanyOutModel.from_database_model(
-        company, essentials.language, essentials.timezone, essentials.request, router, authenticated_user
+        company,
+        essentials.language,
+        essentials.timezone,
+        essentials.request,
+        router,
+        authenticated_user,
     )
 
 
@@ -287,23 +233,27 @@ async def update_company_descriptions(
 async def upload_profile_picture(
     company_id: str,
     file: UploadFile = File(...),
-    company_profile_picture_datastore: CompanyProfilePictureDatastore = Depends(get_company_profile_picture_datastore),
     user: User = Security(
         get_current_user,
         scopes=("roles:superuser", "roles:company_admin:{company_id}"),
     ),
-    essentials: Essentials = Depends(get_essentials),
+    essentials: RequestContext = Depends(get_request_context),
+    file_manager: FileManager = Depends(get_file_manager),
 ):
-    file_path = await company_profile_picture_datastore.save_profile_picture(company_id, file, user)
-    return assemble_profile_picture_url(essentials.request, router, file_path, essentials.language)
+    company = Company.get_by_id(company_id)
+    company.profile_picture_file_name = file_manager.save_company_profile_picture(company_id, file)
+    company.save()
+    return assemble_profile_picture_url(
+        essentials.request, router, company.profile_picture_file_name, essentials.language
+    )
 
 
 @router.get("/profile-pictures/{image_file_name}", response_class=FileResponse)
 async def get_profile_picture(
     request: Request,
     image_file_name: str,
-    company_profile_picture_datastore: CompanyProfilePictureDatastore = Depends(get_company_profile_picture_datastore),
     logger: AppLogger = Depends(logger_injector),
+    file_manager: FileManager = Depends(get_file_manager),
 ):
     logger.debug(f"Incoming={get_url(request)}")
-    return company_profile_picture_datastore.get_company_profile_picture_physical_path(image_file_name)
+    return file_manager.get_company_profile_picture_physical_path(image_file_name)

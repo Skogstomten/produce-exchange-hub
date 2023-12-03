@@ -8,17 +8,6 @@ T = TypeVar("T", bound=BaseModel)
 
 
 @unique
-class Language(Enum):
-    """Available languages."""
-
-    SV = "SV"
-    EN = "EN"
-
-    def __str__(self):
-        return self.value
-
-
-@unique
 class RoleType(Enum):
     """Available role types."""
 

@@ -1,7 +1,7 @@
 """
 Utility functions related to language handling.
 """
-from app.shared.models.v1.shared import Language
+from app.database.enums import Language
 
 
 def select_localized_text(data: dict[str | Language, str], lang: Language, company_languages: list[Language]) -> str:

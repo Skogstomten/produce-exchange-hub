@@ -10,7 +10,7 @@ from app.shared.dependencies.timezone_header import get_timezone_header
 from app.shared.models.v1.shared import Language
 
 
-class Essentials:
+class RequestContext:
     """
     Data holder for dependencies.
     """
@@ -35,11 +35,11 @@ class Essentials:
         return self.__str__()
 
 
-def get_essentials(
+def get_request_context(
     request: Request,
     lang: Language = Path(...),
     tz: str = Depends(get_timezone_header),
-) -> Essentials:
+) -> RequestContext:
     """
     DI function for essential dependencies
     :param request: HTTP Request.
@@ -47,7 +47,7 @@ def get_essentials(
     :param tz: Timezone from timezone header.
     :return: Essentials dependency.
     """
-    return Essentials(
+    return RequestContext(
         request,
         lang,
         tz,

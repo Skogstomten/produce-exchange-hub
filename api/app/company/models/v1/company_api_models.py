@@ -1,20 +1,16 @@
 """API model classes for companies."""
 from datetime import datetime, tzinfo
 from typing import List
-from uuid import UUID
 
 from fastapi import Request, APIRouter
 from pydantic import BaseModel, Field
 
-from app.authentication.models.db.user import User
-from app.company.models.db.companies import Company
-from app.company.models.db.contacts import Contact
-from app.company.models.shared.enums import CompanyStatus, CompanyTypes
 from app.company.models.v1.contacts import ContactListModel
 from app.company.utils.datetime_utils import to_timezone
+from app.database.enums import Language, CompanyStatus, CompanyTypes
+from app.database.models import Company
 from app.shared.models.db.change import Change
 from app.shared.models.v1.base_out_model import BaseOutModel
-from app.shared.models.v1.shared import Language
 from app.shared.utils.lang_utils import select_localized_text
 from app.shared.utils.request_utils import get_current_request_url_with_additions
 from app.shared.utils.url_utils import assemble_profile_picture_url
@@ -27,16 +23,13 @@ def _initialize_company_model(
     tz: str | tzinfo,
     request: Request,
     router: APIRouter,
-    authenticated_user: User,
-    profile_picture_url: str | None,
-    contacts: List[Contact] | None,
     changes: List[Change] | None,
 ):
     instance = cls(
         url=get_current_request_url_with_additions(request),
         operations=[],
         id=model.id,
-        name=select_localized_text(model.name, lang, model.content_languages_iso),
+        name=model.name,
         status=model.status,
         created_date=to_timezone(model.created_date, tz),
         company_types=model.company_types,
@@ -44,16 +37,12 @@ def _initialize_company_model(
         activation_date=to_timezone(model.activation_date, tz),
         description=select_localized_text(model.description, lang, model.content_languages_iso),
         external_website_url=model.external_website_url,
-        profile_picture_url=assemble_profile_picture_url(request, router, profile_picture_url, lang),
+        profile_picture_url=assemble_profile_picture_url(request, router, model.profile_picture_file_name, lang),
     )
 
-    if isinstance(instance, CompanyOutModel) and contacts is not None:
-        instance.contacts = [ContactListModel.from_database_model(contact, request, tz) for contact in contacts]
-        try:
-            if authenticated_user.is_superuser() or authenticated_user.has_role("company_admin", model.id):
-                instance.changes = changes
-        except AttributeError:
-            pass
+    if isinstance(instance, CompanyOutModel):
+        instance.contacts = [ContactListModel.from_database_model(contact, request, tz) for contact in model.contacts]
+        instance.changes = changes
 
     return instance
 
@@ -61,7 +50,7 @@ def _initialize_company_model(
 class CompanyOutListModel(BaseOutModel):
     """Company model used when listing companies."""
 
-    id: UUID
+    id: int
     name: str
     status: CompanyStatus
     created_date: datetime
@@ -80,17 +69,12 @@ class CompanyOutListModel(BaseOutModel):
         tz: str | tzinfo,
         request: Request,
         router: APIRouter,
-        authenticated_user: User,
-        profile_picture_url: str | None,
-        contacts: List[Contact] | None,
         changes: List[Change] | None,
     ):
         """
         Creates model from database model with localization.
         """
-        return _initialize_company_model(
-            cls, model, lang, tz, request, router, authenticated_user, profile_picture_url, contacts, changes
-        )
+        return _initialize_company_model(cls, model, lang, tz, request, router, changes)
 
 
 class CompanyOutModel(CompanyOutListModel):
@@ -107,31 +91,27 @@ class CompanyOutModel(CompanyOutListModel):
         tz: str | tzinfo,
         request: Request,
         router: APIRouter,
-        authenticated_user: User,
-        profile_picture_url: str | None,
-        contacts: List[Contact] | None,
         changes: List[Change] | None,
     ):
         """
         Creates model from database model with localization.
         """
-        return _initialize_company_model(
-            cls, model, lang, tz, request, router, authenticated_user, profile_picture_url, contacts, changes
-        )
+        return _initialize_company_model(cls, model, lang, tz, request, router, changes)
 
 
 class CompanyCreateModel(BaseModel):
     """Model used when creating a new company."""
 
-    name: dict[Language, str]
+    name: str
     company_types: list[CompanyTypes] = Field(..., min_items=1)
     content_languages_iso: list[Language] = Field(..., min_items=1)
     external_website_url: str | None
 
 
-class CompanyUpdateModel(BaseModel):
+class CompanyUpdateForm(BaseModel):
     """Model used when updating company."""
 
+    name: str = Field(...)
     company_types: list[CompanyTypes] = Field(..., min_items=1)
     content_languages_iso: list[Language] = Field(..., min_items=1)
     external_website_url: str | None
