@@ -7,8 +7,6 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestFormStrict
 from jose import jwt
 from pytz import utc
-from sqlalchemy import Engine, select
-from sqlalchemy.orm import Session
 
 from app.authentication.dependencies.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -16,11 +14,10 @@ from app.authentication.dependencies.auth import (
     ALGORITHM,
 )
 from app.authentication.errors.invalid_username_or_password_error import InvalidUsernameOrPasswordError
-from app.authentication.models.db.users import User
 from app.authentication.models.v1.token import Token
 from app.authentication.oauth2.claim import Claim
 from app.authentication.oauth2.scopes import Scopes
-from app.database.dependencies.mysql import get_sqlalchemy_engine
+from app.database.models import User
 from app.shared.cryptography import password_hasher as hasher
 
 router = APIRouter(prefix="/v1/token", tags=["Token"])
@@ -29,28 +26,26 @@ router = APIRouter(prefix="/v1/token", tags=["Token"])
 @router.post("/", response_model=Token)
 async def token(
     form_data: OAuth2PasswordRequestFormStrict = Depends(),
-    db: Engine = Depends(get_sqlalchemy_engine)
 ) -> Token:
     """Gets oauth2 access token."""
-    with Session(db) as session:
-        user = session.scalar(select(User).where(User.username == form_data.username))
-        if user is None:
-            raise InvalidUsernameOrPasswordError()
-        if user.password_hash == hasher.is_correct_password(form_data.password, user.password_hash):
-            raise InvalidUsernameOrPasswordError()
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        scopes = Scopes(form_data.scopes)
-        claims = get_user_claims(user, scopes)
-        access_token = create_access_token(
-            data={
-                "sub": user.email,
-                "scopes": form_data.scopes,
-                "id": user.id,
-                **{claim.type: claim.get_value() for claim in claims},
-            },
-            expires_delta=access_token_expires,
-        )
-        return Token(access_token=access_token, token_type="bearer")
+    user = User.get_or_none(User.select().where(User.username == form_data.username))
+    if user is None:
+        raise InvalidUsernameOrPasswordError()
+    if hasher.is_correct_password(form_data.password, user.password_hash):
+        raise InvalidUsernameOrPasswordError()
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    scopes = Scopes(form_data.scopes)
+    claims = get_user_claims(user, scopes)
+    access_token = create_access_token(
+        data={
+            "sub": user.email,
+            "scopes": form_data.scopes,
+            "id": user.id,
+            **{claim.type: claim.get_value() for claim in claims},
+        },
+        expires_delta=access_token_expires,
+    )
+    return Token(access_token=access_token, token_type="bearer")
 
 
 def get_user_claims(user: User, scopes: Scopes) -> list[Claim]:

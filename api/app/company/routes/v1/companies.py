@@ -24,7 +24,7 @@ from app.database.enums import CompanyStatus
 from app.database.models import User, Company
 from app.logging.log import AppLoggerInjector, AppLogger
 from app.shared.config.routing_config import BASE_PATH
-from app.shared.dependencies.requestcontext import RequestContext, get_request_context
+from app.shared.dependencies.request_context import RequestContext, get_request_context
 from app.shared.io.file_manager import FileManager, get_file_manager
 from app.shared.models.v1.paging_response_model import PagingResponseModel
 from app.shared.utils.request_utils import get_url
@@ -39,15 +39,15 @@ router = APIRouter(prefix=BASE_PATH + "/companies", tags=["Companies"])
 async def get_companies(
     sort_by: str | None = Query(None),
     sort_order: SortOrder = Query(SortOrder.asc),
-    essentials: RequestContext = Depends(get_request_context),
+    context: RequestContext = Depends(get_request_context),
     paging_information: PagingInformation = Depends(get_paging_information),
     authenticated_user: User | None = Depends(get_current_user_if_any),
     logger: AppLogger = Depends(logger_injector),
 ) -> PagingResponseModel[CompanyOutListModel]:
     """Get list of companies wrapped in a paging response."""
     logger.debug(
-        f"Incoming={get_url(essentials.request)}: sort_by={sort_by}, sort_order={sort_order}, "
-        f"essentials={essentials}, paging_information={paging_information}, user={authenticated_user}"
+        f"Incoming={get_url(context.request)}: sort_by={sort_by}, sort_order={sort_order}, "
+        f"essentials={context}, paging_information={paging_information}, user={authenticated_user}"
     )
 
     query = Company.select()
@@ -81,14 +81,14 @@ async def get_companies(
     items: list[CompanyOutListModel] = []
     for company in query:
         item = CompanyOutListModel.from_database_model(
-            company, essentials.language, essentials.timezone, essentials.request, router, None, None
+            company, context.language, context.timezone, context.request, router, None
         )
         items.append(item)
     response = PagingResponseModel[CompanyOutListModel].create(
         items,
         paging_information.page,
         paging_information.page_size,
-        essentials.request,
+        context.request,
     )
     return response
 
@@ -197,7 +197,9 @@ async def deactivate_company(
 async def get_company_descriptions(
     company_id: str,
     user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    logger: AppLogger = Depends(logger_injector),
 ):
+    logger.debug(f"Call from user {user}")
     company = Company.get_by_id(company_id)
     return company.description
 
@@ -210,10 +212,9 @@ async def update_company_descriptions(
         get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")
     ),
     essentials: RequestContext = Depends(get_request_context),
-    file_manager: FileManager = Depends(get_file_manager),
 ):
     """
-    TODO: Write this
+    Updated description for company. Can receive multiple translations.
     """
     company = Company.get_by_id(company_id)
     company.description = descriptions
@@ -233,19 +234,16 @@ async def update_company_descriptions(
 async def upload_profile_picture(
     company_id: str,
     file: UploadFile = File(...),
-    user: User = Security(
-        get_current_user,
-        scopes=("roles:superuser", "roles:company_admin:{company_id}"),
-    ),
-    essentials: RequestContext = Depends(get_request_context),
+    user: User = Security(get_current_user, scopes=("roles:superuser", "roles:company_admin:{company_id}")),
+    context: RequestContext = Depends(get_request_context),
     file_manager: FileManager = Depends(get_file_manager),
+    logger: AppLogger = Depends(logger_injector),
 ):
+    logger.debug(f"Upload_profile_picture called by {user}")
     company = Company.get_by_id(company_id)
-    company.profile_picture_file_name = file_manager.save_company_profile_picture(company_id, file)
+    company.profile_picture_file_name = await file_manager.save_company_profile_picture(company_id, file)
     company.save()
-    return assemble_profile_picture_url(
-        essentials.request, router, company.profile_picture_file_name, essentials.language
-    )
+    return assemble_profile_picture_url(context.request, router, company.profile_picture_file_name, context.language)
 
 
 @router.get("/profile-pictures/{image_file_name}", response_class=FileResponse)

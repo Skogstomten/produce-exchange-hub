@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 
-from app.shared.models.v1.shared import Language
+from app.database.enums import Language
 
 
 def assemble_url(*args, **kwargs) -> str:
@@ -23,9 +23,7 @@ def assemble_url(*args, **kwargs) -> str:
     return url
 
 
-def assemble_profile_picture_url(
-    request: Request, router: APIRouter, file_path: str | None, lang: Language
-) -> str | None:
+def assemble_profile_picture_url(request: Request, router: APIRouter, file_path: str, lang: Language) -> str | None:
     """
     Will assemble absolute url for profile picture.
 

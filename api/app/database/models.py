@@ -13,12 +13,15 @@ from app.database.fields.set_field import SetField
 
 class User(BaseModel):
     id = AutoField(primary_key=True)
-    username = CharField(unique=True)
     email = CharField(unique=True)
     firstname = CharField(null=False)
     lastname = CharField(null=False)
+    city = CharField(null=False)
+    country_iso = CharField(null=False)
+    timezone = CharField(null=False, default="Europe/Stockholm")
     password_hash = CharField(max_length=1000, null=False)
     verified = BooleanField(null=False, default=False)
+    profile_picture_url = CharField(null=True)
     is_superuser = BooleanField(null=False, default=False)
 
 

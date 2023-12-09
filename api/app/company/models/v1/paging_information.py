@@ -12,6 +12,7 @@ class PagingInformation:
     def __init__(self, page: int, page_size: int):
         self.page = page
         self.page_size = page_size
+        self.is_first_page = page == 1
 
 
 def get_paging_information(

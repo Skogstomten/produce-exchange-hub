@@ -23,7 +23,6 @@ app = FastAPI(
 app.include_router(token.router)
 
 app.include_router(users.router)
-# app.include_router(roles.router)
 app.include_router(user_roles.router)
 
 # app.include_router(companies.router)

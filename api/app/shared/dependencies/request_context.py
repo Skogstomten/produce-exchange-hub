@@ -6,8 +6,8 @@ from datetime import tzinfo
 from fastapi import Request, Path, Depends
 from pytz import timezone
 
+from app.database.enums import Language
 from app.shared.dependencies.timezone_header import get_timezone_header
-from app.shared.models.v1.shared import Language
 
 
 class RequestContext:

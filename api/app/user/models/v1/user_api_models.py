@@ -6,11 +6,12 @@ from datetime import datetime
 from fastapi import Request, APIRouter
 from pydantic import BaseModel, Field
 
+from app.database.enums import Language
 from app.shared.utils.request_utils import get_current_request_url_with_additions
 from app.shared.models.v1.base_out_model import BaseOutModel
 from app.shared.utils.url_utils import assemble_profile_picture_url
 from app.user.models.db.user import User as UserDatabaseModel
-from app.shared.models.v1.shared import RoleType, CountryCode, Language
+from app.shared.models.v1.shared import RoleType, CountryCode
 
 
 class UserRoleOutModel(BaseModel):
@@ -33,7 +34,7 @@ class User(BaseModel):
     country_iso: CountryCode
     timezone: str = Field("Europe/Stockholm")
     language_iso: Language = Field(Language.SV)
-    verified: bool = Field(True)
+    verified: bool = Field(False)
 
 
 class UserAdd(User):
